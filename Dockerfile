@@ -1,0 +1,16 @@
+FROM node:18
+
+WORKDIR /app
+COPY . .
+
+# Set Supabase build-time values
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+
+RUN npm install
+RUN npm run build
+
+EXPOSE 8080
+CMD ["node", "build"]

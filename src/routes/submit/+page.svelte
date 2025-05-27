@@ -1,6 +1,7 @@
 <script>
   import { supabase } from '$lib/supabaseClient';
   import { onMount } from 'svelte';
+  import toast from 'svelte-french-toast';
 
   let categories = [];
   let selectedCategory = '';
@@ -12,9 +13,9 @@
   let selectedFloridaEvent = '';
   let points = null;
   let eventDate = '';
-  let message = '';
+  let selectedPayload = null;
+  let showSubmitModal = false;
 
-  // Load categories on page load
   onMount(async () => {
     const { data, error } = await supabase
       .from('categories')
@@ -25,32 +26,32 @@
     if (!error) categories = data;
   });
 
-$: if (selectedCategory === 'Monthly Challenge') {
-  loadPlacementOptions('Monthly Challenge');
-  loadMonthlyEvents();
-} else if (selectedCategory === 'Florida Circuit') {
-  loadPlacementOptions('Florida Circuit');
-  loadFloridaCircuitEvents();
-} else {
-  placementOptions = [];
-  monthlyEvents = [];
-  floridaCircuitEvents = [];
-  selectedPlacement = '';
-  selectedEvent = '';
-  selectedFloridaEvent = '';
-  points = null;
-}
+  $: if (selectedCategory === 'Monthly Challenge') {
+    loadPlacementOptions('Monthly Challenge');
+    loadMonthlyEvents();
+  } else if (selectedCategory === 'Florida Circuit') {
+    loadPlacementOptions('Florida Circuit');
+    loadFloridaCircuitEvents();
+  } else {
+    placementOptions = [];
+    monthlyEvents = [];
+    floridaCircuitEvents = [];
+    selectedPlacement = '';
+    selectedEvent = '';
+    selectedFloridaEvent = '';
+    points = null;
+  }
 
-async function loadPlacementOptions(category) {
-  const { data, error } = await supabase
-    .from('point_categories')
-    .select('*')
-    .eq('category', category)
-    .eq('active', true)
-    .order('order', { ascending: true });
+  async function loadPlacementOptions(category) {
+    const { data, error } = await supabase
+      .from('point_categories')
+      .select('*')
+      .eq('category', category)
+      .eq('active', true)
+      .order('order', { ascending: true });
 
-  if (!error) placementOptions = data;
-}
+    if (!error) placementOptions = data;
+  }
 
   async function loadMonthlyEvents() {
     const { data, error } = await supabase
@@ -62,7 +63,7 @@ async function loadPlacementOptions(category) {
     if (!error) monthlyEvents = data;
   }
 
-    async function loadFloridaCircuitEvents() {
+  async function loadFloridaCircuitEvents() {
     const { data, error } = await supabase
       .from('florida_circuit_events')
       .select('*')
@@ -74,30 +75,66 @@ async function loadPlacementOptions(category) {
 
   $: points = placementOptions.find(o => o.value === selectedPlacement)?.points ?? null;
 
-  async function handleSubmit() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return message = 'Please log in.';
-
+  function openSubmissionModal() {
     const description = selectedCategory === 'Monthly Challenge'
       ? selectedEvent
-      : 'Other';
+      : selectedFloridaEvent;
 
-    const { error } = await supabase.from('point_submissions').insert([{
-      member_id: user.id,
+    selectedPayload = {
       category: selectedCategory,
       description,
       points,
-      event_date: eventDate,
+      event_date: eventDate
+    };
+
+    showSubmitModal = true;
+  }
+
+  async function confirmSubmission() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error('❌ Please log in before submitting.');
+      return;
+    }
+
+    const { error } = await supabase.from('point_submissions').insert([{
+      member_id: user.id,
+      category: selectedPayload.category,
+      description: selectedPayload.description,
+      points: selectedPayload.points,
+      event_date: selectedPayload.event_date,
       approved: false
     }]);
 
-    message = error ? 'Submission failed.' : 'Submitted for approval!';
+    if (error) {
+      toast.error('❌ Submission failed.');
+    } else {
+      toast.success('✅ Submitted for approval!');
+      resetForm();
+    }
+
+    showSubmitModal = false;
+    selectedPayload = null;
+  }
+
+  function cancelSubmission() {
+    showSubmitModal = false;
+    selectedPayload = null;
+  }
+
+  function resetForm() {
+    selectedCategory = '';
+    selectedPlacement = '';
+    selectedEvent = '';
+    selectedFloridaEvent = '';
+    eventDate = '';
+    points = null;
   }
 </script>
 
 <h2>Submit Points</h2>
 
-<form on:submit|preventDefault={handleSubmit}>
+<form on:submit|preventDefault={openSubmissionModal}>
   <label>
     Category
     <select bind:value={selectedCategory} required>
@@ -108,29 +145,29 @@ async function loadPlacementOptions(category) {
     </select>
   </label>
 
-{#if selectedCategory === 'Monthly Challenge'}
-  <label>
-    Event Name
-    <select bind:value={selectedEvent} required>
-      <option value="" disabled selected>Select an event</option>
-      {#each monthlyEvents as event}
-        <option value={event.name}>{event.name}</option>
-      {/each}
-    </select>
-  </label>
+  {#if selectedCategory === 'Monthly Challenge'}
+    <label>
+      Event Name
+      <select bind:value={selectedEvent} required>
+        <option value="" disabled selected>Select an event</option>
+        {#each monthlyEvents as event}
+          <option value={event.name}>{event.name}</option>
+        {/each}
+      </select>
+    </label>
 
-  <label>
-    Placement
-    <select bind:value={selectedPlacement} required>
-      <option value="" disabled selected>Select a placement</option>
-      {#each placementOptions as opt}
-        <option value={opt.value}>{opt.label}</option>
-      {/each}
-    </select>
-  </label>
-{/if}
+    <label>
+      Placement
+      <select bind:value={selectedPlacement} required>
+        <option value="" disabled selected>Select a placement</option>
+        {#each placementOptions as opt}
+          <option value={opt.value}>{opt.label}</option>
+        {/each}
+      </select>
+    </label>
+  {/if}
 
- {#if selectedCategory === 'Florida Circuit'}
+  {#if selectedCategory === 'Florida Circuit'}
     <label>
       Event Name
       <select bind:value={selectedFloridaEvent} required>
@@ -167,8 +204,21 @@ async function loadPlacementOptions(category) {
   <button type="submit">Submit</button>
 </form>
 
-{#if message}
-  <p style="text-align:center;">{message}</p>
+{#if showSubmitModal}
+  <div class="modal-overlay">
+    <div class="modal">
+      <h3>Confirm Submission</h3>
+      <p>
+        Submit <strong>{selectedPayload?.points}</strong> point(s) for
+        <strong>{selectedPayload?.category}</strong> –
+        <em>{selectedPayload?.description}</em>?
+      </p>
+      <div class="modal-actions">
+        <button on:click={confirmSubmission}>Yes, Submit</button>
+        <button class="cancel" on:click={cancelSubmission}>Cancel</button>
+      </div>
+    </div>
+  </div>
 {/if}
 
 <style>
@@ -215,5 +265,36 @@ async function loadPlacementOptions(category) {
 
   h2 {
     text-align: center;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .modal {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+
+  .modal-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .modal-actions .cancel {
+    background: #ccc;
+    border: none;
   }
 </style>

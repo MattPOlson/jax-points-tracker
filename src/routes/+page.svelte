@@ -3,12 +3,16 @@
   import { onMount } from "svelte";
 
   let isOfficer = false;
+  let isLoggedIn = false;
 
   onMount(async () => {
     const {
       data: { user },
     } = await supabase.auth.getUser();
+
     if (user) {
+      isLoggedIn = true;
+
       const { data } = await supabase
         .from("members")
         .select("is_officer")
@@ -29,8 +33,12 @@
     <p><a href="/submit">Submit Points</a></p>
     <a href="/my-submissions">My Submissions</a>
     <p><a href="/leaderboard">Leaderboard (coming soon)</a></p>
-    {#if isOfficer}
-      <a href="/officers">Officer Tools</a>
+
+    {#if isLoggedIn}
+      <p><a href="/profile">My Profile</a></p>
+      {#if isOfficer}
+        <p><a href="/officers">Officer Tools</a></p>
+      {/if}
     {/if}
   </nav>
 </main>
