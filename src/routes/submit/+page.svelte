@@ -1,8 +1,12 @@
 <script>
   import { supabase } from '$lib/supabaseClient';
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
+  import { afterNavigate } from '$app/navigation';
   import toast from 'svelte-french-toast';
 
+  // -------------------------------
+  // Local component state
+  // -------------------------------
   let categories = [];
   let selectedCategory = '';
   let placementOptions = [];
@@ -16,16 +20,85 @@
   let selectedPayload = null;
   let showSubmitModal = false;
 
-  onMount(async () => {
-    const { data, error } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('active', true)
-      .order('name', { ascending: true });
+  // -------------------------------
+  // 1. Fetch helpers
+  // -------------------------------
+  async function loadCategories() {
+    console.log('[submit] loadCategories()');
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('active', true)
+        .order('name', { ascending: true });
 
-    if (!error) categories = data;
-  });
+      if (error) throw error;
+      categories = data;
+    } catch (err) {
+      console.error('[submit]  → Failed to load categories:', err);
+      toast.error('Failed to load categories.');
+      categories = [];
+    }
+  }
 
+  async function loadPlacementOptions(category) {
+    console.log(`[submit] loadPlacementOptions("${category}")`);
+    try {
+      const { data, error } = await supabase
+        .from('point_categories')
+        .select('*')
+        .eq('category', category)
+        .eq('active', true)
+        .order('order', { ascending: true });
+
+      if (error) throw error;
+      placementOptions = data;
+    } catch (err) {
+      console.error('[submit]  → Failed to load placement options:', err);
+      toast.error('Failed to load placement options.');
+      placementOptions = [];
+    }
+  }
+
+  async function loadMonthlyEvents() {
+    console.log('[submit] loadMonthlyEvents()');
+    try {
+      const { data, error } = await supabase
+        .from('monthly_challenge')
+        .select('*')
+        .eq('active', true)
+        .order('order_index', { ascending: true });
+
+      if (error) throw error;
+      monthlyEvents = data;
+    } catch (err) {
+      console.error('[submit]  → Failed to load monthly events:', err);
+      toast.error('Failed to load monthly events.');
+      monthlyEvents = [];
+    }
+  }
+
+  async function loadFloridaCircuitEvents() {
+    console.log('[submit] loadFloridaCircuitEvents()');
+    try {
+      const { data, error } = await supabase
+        .from('florida_circuit_events')
+        .select('*')
+        .eq('active', true)
+        .order('year', { ascending: false });
+
+      if (error) throw error;
+      floridaCircuitEvents = data;
+    } catch (err) {
+      console.error('[submit]  → Failed to load Florida Circuit events:', err);
+      toast.error('Failed to load Florida Circuit events.');
+      floridaCircuitEvents = [];
+    }
+  }
+
+  // -------------------------------
+  // 2. Reactive: sub‐lists when selectedCategory changes
+  // -------------------------------
   $: if (selectedCategory === 'Monthly Challenge') {
     loadPlacementOptions('Monthly Challenge');
     loadMonthlyEvents();
@@ -42,43 +115,92 @@
     points = null;
   }
 
-  async function loadPlacementOptions(category) {
-    const { data, error } = await supabase
-      .from('point_categories')
-      .select('*')
-      .eq('category', category)
-      .eq('active', true)
-      .order('order', { ascending: true });
+  // Recompute points whenever selectedPlacement changes
+  $: points =
+    placementOptions.find((o) => o.value === selectedPlacement)?.points ?? null;
 
-    if (!error) placementOptions = data;
+  // -------------------------------
+  // 3. Rehydration on tab‐focus/visibility
+  // -------------------------------
+  function setupRehydration() {
+    console.log('[submit] setupRehydration() called—installing listeners');
+    const handler = async () => {
+      console.log('[submit] handler: tab visible or window focused → rehydrating lists');
+      // 3.1) Always reload categories:
+      await loadCategories();
+
+      // 3.2) Manually re‐load sub‐lists based on whatever category is still selected
+      if (selectedCategory === 'Monthly Challenge') {
+        await loadPlacementOptions('Monthly Challenge');
+        await loadMonthlyEvents();
+      } else if (selectedCategory === 'Florida Circuit') {
+        await loadPlacementOptions('Florida Circuit');
+        await loadFloridaCircuitEvents();
+      }
+    };
+
+    // visibilitychange
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        handler();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    // window.focus
+    window.addEventListener('focus', handler);
+
+    return () => {
+      console.log('[submit] cleanupRehydration() called—removing listeners');
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('focus', handler);
+    };
   }
 
-  async function loadMonthlyEvents() {
-    const { data, error } = await supabase
-      .from('monthly_challenge')
-      .select('*')
-      .eq('active', true)
-      .order('order_index');
+  // -------------------------------
+  // 4. afterNavigate at top level
+  // -------------------------------
+  const cleanupNavigation = afterNavigate(async () => {
+    console.log('[submit] afterNavigate → reloading all lists');
+    await loadCategories();
 
-    if (!error) monthlyEvents = data;
-  }
+    if (selectedCategory === 'Monthly Challenge') {
+      await loadPlacementOptions('Monthly Challenge');
+      await loadMonthlyEvents();
+    } else if (selectedCategory === 'Florida Circuit') {
+      await loadPlacementOptions('Florida Circuit');
+      await loadFloridaCircuitEvents();
+    }
+  });
 
-  async function loadFloridaCircuitEvents() {
-    const { data, error } = await supabase
-      .from('florida_circuit_events')
-      .select('*')
-      .eq('active', true)
-      .order('year', { ascending: false });
+  // -------------------------------
+  // 5. onMount: initial fetch + set up rehydration
+  // -------------------------------
+  let cleanupRehydration;
+  onMount(() => {
+    console.log('[submit] onMount → initial load & setupRehydration()');
+    // 5.1) Initial load
+    loadCategories();
+    loadMonthlyEvents();
+    loadFloridaCircuitEvents();
+    loadPlacementOptions
 
-    if (!error) floridaCircuitEvents = data;
-  }
 
-  $: points = placementOptions.find(o => o.value === selectedPlacement)?.points ?? null;
+    // 5.2) Install tab‐focus/visibility listener
+    cleanupRehydration = setupRehydration();
 
+    return () => {
+      if (cleanupRehydration) cleanupRehydration();
+      if (cleanupNavigation) cleanupNavigation();
+    };
+  });
+
+  // -------------------------------
+  // 6. Form & modal logic
+  // -------------------------------
   function openSubmissionModal() {
-    const description = selectedCategory === 'Monthly Challenge'
-      ? selectedEvent
-      : selectedFloridaEvent;
+    const description =
+      selectedCategory === 'Monthly Challenge' ? selectedEvent : selectedFloridaEvent;
 
     selectedPayload = {
       category: selectedCategory,
@@ -86,27 +208,31 @@
       points,
       event_date: eventDate
     };
-
     showSubmitModal = true;
   }
 
   async function confirmSubmission() {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
     if (!user) {
       toast.error('❌ Please log in before submitting.');
       return;
     }
 
-    const { error } = await supabase.from('point_submissions').insert([{
-      member_id: user.id,
-      category: selectedPayload.category,
-      description: selectedPayload.description,
-      points: selectedPayload.points,
-      event_date: selectedPayload.event_date,
-      approved: false
-    }]);
+    const { error } = await supabase.from('point_submissions').insert([
+      {
+        member_id: user.id,
+        category: selectedPayload.category,
+        description: selectedPayload.description,
+        points: selectedPayload.points,
+        event_date: selectedPayload.event_date,
+        approved: false
+      }
+    ]);
 
     if (error) {
+      console.error('Submission error:', error);
       toast.error('❌ Submission failed.');
     } else {
       toast.success('✅ Submitted for approval!');
@@ -131,6 +257,7 @@
     points = null;
   }
 </script>
+
 
 <h2>Submit Points</h2>
 
@@ -173,7 +300,9 @@
       <select bind:value={selectedFloridaEvent} required>
         <option value="" disabled selected>Select an event</option>
         {#each floridaCircuitEvents as event}
-          <option value={`${event.name} ${event.year}`}>{event.name} {event.year}</option>
+          <option value={`${event.name} ${event.year}`}>
+            {event.name} {event.year}
+          </option>
         {/each}
       </select>
     </label>
@@ -209,12 +338,12 @@
     <div class="modal">
       <h3>Confirm Submission</h3>
       <p>
-        Submit <strong>{selectedPayload?.points}</strong> point(s) for
-        <strong>{selectedPayload?.category}</strong> –
+        Submit <strong>{selectedPayload?.points}</strong> point(s) for
+        <strong>{selectedPayload?.category}</strong> — 
         <em>{selectedPayload?.description}</em>?
       </p>
       <div class="modal-actions">
-        <button on:click={confirmSubmission}>Yes, Submit</button>
+        <button on:click={confirmSubmission}>Yes, Submit</button>
         <button class="cancel" on:click={cancelSubmission}>Cancel</button>
       </div>
     </div>

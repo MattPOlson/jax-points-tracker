@@ -1,43 +1,26 @@
 <script>
-  import { supabase } from "$lib/supabaseClient";
-  import { onMount } from "svelte";
+  import { user } from '$lib/stores/user';
+  import { userProfile } from '$lib/stores/userProfile';
 
-  let isOfficer = false;
-  let isLoggedIn = false;
-
-  onMount(async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (user) {
-      isLoggedIn = true;
-
-      const { data } = await supabase
-        .from("members")
-        .select("is_officer")
-        .eq("id", user.id)
-        .single();
-
-      if (data?.is_officer) {
-        isOfficer = true;
-      }
-    }
-  });
+  // Reactive booleans derived from our stores:
+  // - isLoggedIn is true whenever $user is not null.
+  // - isOfficer is true whenever $userProfile exists and its is_officer flag is truthy.
+  $: isLoggedIn = $user !== null;
+  $: isOfficer = $userProfile?.is_officer === true;
 </script>
 
 <main>
-  <h1>🍻 JAX Points Tracker</h1>
+  <h1>🍻 JAX Points Tracker</h1>
   <p>Welcome to the homebrew points tracking app!</p>
   <nav>
     <p><a href="/submit">Submit Points</a></p>
-    <a href="/my-submissions">My Submissions</a>
-    <p><a href="/leaderboard">Leaderboard (coming soon)</a></p>
+    <p><a href="/my-submissions">My Submissions</a></p>
+    <p><a href="/leaderboard">Leaderboard (coming soon)</a></p>
 
     {#if isLoggedIn}
-      <p><a href="/profile">My Profile</a></p>
+      <p><a href="/profile">My Profile</a></p>
       {#if isOfficer}
-        <p><a href="/officers">Officer Tools</a></p>
+        <p><a href="/officers">Officer Tools</a></p>
       {/if}
     {/if}
   </nav>

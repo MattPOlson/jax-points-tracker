@@ -1,60 +1,71 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onDestroy } from 'svelte';
   import { supabase } from '$lib/supabaseClient';
+  import { userProfile } from '$lib/stores/userProfile';
   import toast from 'svelte-french-toast';
+  import { get } from 'svelte/store';
 
-  let profile = {};
+  // Local copies of profile fields for editing:
+  let profile = null;
   let editedName = '';
   let editedPhone = '';
   let loading = true;
 
-  onMount(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from('members')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    if (error) {
-      toast.error('Failed to load profile');
+  // Subscribe to userProfile store so we re-render whenever it changes:
+  const unsubscribe = userProfile.subscribe((val) => {
+    if (val) {
+      profile = val;
+      editedName = val.name ?? '';
+      editedPhone = val.phone ?? '';
+      loading = false;
     } else {
-      profile = data;
-      editedName = data.name ?? '';
-      editedPhone = data.phone ?? '';
+      // If userProfile goes back to null (e.g. on logout), show loading or redirect
+      profile = null;
+      editedName = '';
+      editedPhone = '';
+      loading = true;
     }
-
-    loading = false;
   });
+  onDestroy(unsubscribe);
+
+  // Computed: check if anything has changed locally versus the base profile
+  $: isDirty =
+    profile &&
+    (editedName !== (profile.name ?? '') ||
+     editedPhone !== (profile.phone ?? ''));
 
   async function updateProfile() {
+    if (!profile) return;
+
     const updates = {
       name: editedName,
       phone: editedPhone
     };
 
-    const { error } = await supabase
+    // Update the database row
+    const { data, error } = await supabase
       .from('members')
       .update(updates)
-      .eq('id', profile.id);
+      .eq('id', profile.id)
+      .single();
 
     if (error) {
+      console.error('Failed to update profile:', error);
       toast.error('Failed to update profile.');
     } else {
       toast.success('✅ Profile updated.');
+      // Also update the store so the rest of the UI stays in sync:
+      userProfile.set(data);
+      // Now isDirty will become false automatically
     }
   }
-
-  $: isDirty = editedName !== profile.name || editedPhone !== profile.phone;
 </script>
 
 <h2>My Profile</h2>
 
 {#if loading}
-  <p>Loading profile...</p>
-{:else}
+  <p>Loading profile…</p>
+{:else if profile}
   <div class="profile-form">
     <label>
       Name
@@ -73,23 +84,39 @@
 
     <label>
       Join Date
-      <input type="text" value={new Date(profile.join_date).toLocaleDateString()} disabled />
+      <input
+        type="text"
+        value={new Date(profile.join_date).toLocaleDateString()}
+        disabled
+      />
     </label>
 
     <label>
       Officer
-      <input type="text" value={profile.is_officer ? 'Yes' : 'No'} disabled />
+      <input
+        type="text"
+        value={profile.is_officer ? 'Yes' : 'No'}
+        disabled
+      />
     </label>
 
     <label>
       Last Login
-      <input type="text" value={new Date(profile.last_login_at).toLocaleString()} disabled />
+      <input
+        type="text"
+        value={new Date(profile.last_login_at).toLocaleString()}
+        disabled
+      />
     </label>
 
     {#if isDirty}
       <button on:click={updateProfile}>Save Changes</button>
     {/if}
   </div>
+{:else}
+  <!-- If userProfile is explicitly null (e.g. logged out), you might want
+       to redirect or show a “Not authorized” message. For now: -->
+  <p>Not logged in.</p>
 {/if}
 
 <style>

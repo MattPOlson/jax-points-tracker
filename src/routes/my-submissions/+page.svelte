@@ -1,52 +1,102 @@
 <script>
   import { supabase } from '$lib/supabaseClient';
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
+  import { afterNavigate } from '$app/navigation';
 
-  let submissions = [];
+  // -------------------------------
+  // 0. Component state
+  // -------------------------------
+  let allSubmissions = [];  // always holds the full array from Supabase
+  let submissions = [];     // derived: either allSubmissions or only pending
   let message = '';
   let showAll = false;
   let sortColumn = 'event_date';
   let sortDirection = 'desc';
 
-  onMount(loadSubmissions);
-
-async function loadSubmissions() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    message = 'Please log in to view your submissions.';
-    return;
+  // -------------------------------
+  // 1. Reactive derivation of "submissions" from "allSubmissions" + "showAll"
+  // -------------------------------
+  // Whenever allSubmissions or showAll changes, this recalculates.
+  $: {
+    if (!allSubmissions) {
+      submissions = [];
+      message = 'No submissions found.';
+    } else if (showAll) {
+      submissions = allSubmissions;
+      message = allSubmissions.length > 0 ? '' : 'No submissions found.';
+    } else {
+      const pending = allSubmissions.filter(
+        (sub) => sub.approved === false && sub.rejection_reason === null
+      );
+      submissions = pending;
+      message = pending.length > 0 ? '' : 'No pending submissions found.';
+    }
   }
 
-  let query = supabase
-    .from('point_submissions')
-    .select(`
-      id,
-      category,
-      description,
-      points,
-      event_date,
-      approved,
-      rejection_reason
-    `)
-    .eq('member_id', user.id)
-    .order(sortColumn, { ascending: sortDirection === 'asc' });
+  // -------------------------------
+  // 2. loadAllSubmissions(): fetches full array from Supabase
+  // -------------------------------
+  async function loadAllSubmissions() {
+    console.log('[submissions] loadAllSubmissions(): showAll =', showAll);
 
-  if (!showAll) {
-    query = query.eq('approved', false).is('rejection_reason', null);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      message = 'Please log in to view your submissions.';
+      allSubmissions = [];
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('point_submissions')
+      .select(`
+        id,
+        category,
+        description,
+        points,
+        event_date,
+        approved,
+        rejection_reason
+      `)
+      .eq('member_id', user.id)
+      .order(sortColumn, { ascending: sortDirection === 'asc' });
+
+    if (error) {
+      console.error('[submissions]  → Error loading submissions:', error);
+      message = 'Error loading your submissions.';
+      allSubmissions = [];
+      return;
+    }
+
+    allSubmissions = data;
+    console.log('[submissions]  → fetched allSubmissions count =', data.length);
   }
 
-  const { data, error } = await query;
-
-  if (!error) {
-    submissions = data;
-  } else {
-    message = 'Error loading your submissions.';
-  }
-}
-
+  // -------------------------------
+  // 3. Toggle “Show All” / “Show Pending Only”
+  // -------------------------------
   function toggleView() {
     showAll = !showAll;
-    loadSubmissions();
+    console.log('[submissions] toggleView clicked → showAll =', showAll);
+    // No need to fetch again—submissions will auto‐update from the reactive $: above
+  }
+
+  // -------------------------------
+  // 4. Table‐sorting logic
+  // -------------------------------
+  function sortTable(column) {
+    if (sortColumn === column) {
+      sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortColumn = column;
+      sortDirection = 'asc';
+    }
+    console.log(
+      `[submissions] sortTable: sortColumn = ${sortColumn}, sortDirection = ${sortDirection}`
+    );
+    loadAllSubmissions();
   }
 
   function formatStatus(sub) {
@@ -55,16 +105,55 @@ async function loadSubmissions() {
     return '⏳ Pending';
   }
 
-  
-function sortTable(column) {
-  if (sortColumn === column) {
-    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortColumn = column;
-    sortDirection = 'asc';
+  // -------------------------------
+  // 5. Rehydration on tab‑focus/visibility
+  // -------------------------------
+  function setupRehydration() {
+    console.log('[submissions] setupRehydration() installing listeners');
+    const handler = () => {
+      console.log('[submissions] handler: tab visible or window focused → reload');
+      loadAllSubmissions();
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        handler();
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('focus', handler);
+
+    return () => {
+      console.log('[submissions] cleanupRehydration() removing listeners');
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('focus', handler);
+    };
   }
-  loadSubmissions();
-}
+
+  // -------------------------------
+  // 6. afterNavigate at top level
+  // -------------------------------
+  // Runs on client‑side navigation back to this route
+  const cleanupNavigation = afterNavigate(() => {
+    console.log('[submissions] afterNavigate → reload allSubmissions');
+    loadAllSubmissions();
+  });
+
+  // -------------------------------
+  // 7. onMount: initial fetch + set up rehydration
+  // -------------------------------
+  let cleanupRehydration;
+  onMount(() => {
+    console.log('[submissions] onMount → initial loadAllSubmissions + setupRehydration');
+    loadAllSubmissions();
+    cleanupRehydration = setupRehydration();
+
+    return () => {
+      if (cleanupRehydration) cleanupRehydration();
+      if (cleanupNavigation) cleanupNavigation();
+    };
+  });
 </script>
 
 <h2>My Submissions</h2>
@@ -77,40 +166,40 @@ function sortTable(column) {
 
 {#if submissions.length > 0}
   <table>
-<thead>
-  <tr>
-    <th
-      on:click={() => sortTable('category')}
-      class:sort-asc={sortColumn === 'category' && sortDirection === 'asc'}
-      class:sort-desc={sortColumn === 'category' && sortDirection === 'desc'}
-    >
-      Category
-    </th>
-    <th
-      on:click={() => sortTable('description')}
-      class:sort-asc={sortColumn === 'description' && sortDirection === 'asc'}
-      class:sort-desc={sortColumn === 'description' && sortDirection === 'desc'}
-    >
-      Description
-    </th>
-    <th
-      on:click={() => sortTable('points')}
-      class:sort-asc={sortColumn === 'points' && sortDirection === 'asc'}
-      class:sort-desc={sortColumn === 'points' && sortDirection === 'desc'}
-    >
-      Points
-    </th>
-    <th
-      on:click={() => sortTable('event_date')}
-      class:sort-asc={sortColumn === 'event_date' && sortDirection === 'asc'}
-      class:sort-desc={sortColumn === 'event_date' && sortDirection === 'desc'}
-    >
-      Event Date
-    </th>
-    <th>Status</th>
-    <th>Reason</th>
-  </tr>
-</thead>
+    <thead>
+      <tr>
+        <th
+          on:click={() => sortTable('category')}
+          class:sort-asc={sortColumn === 'category' && sortDirection === 'asc'}
+          class:sort-desc={sortColumn === 'category' && sortDirection === 'desc'}
+        >
+          Category
+        </th>
+        <th
+          on:click={() => sortTable('description')}
+          class:sort-asc={sortColumn === 'description' && sortDirection === 'asc'}
+          class:sort-desc={sortColumn === 'description' && sortDirection === 'desc'}
+        >
+          Description
+        </th>
+        <th
+          on:click={() => sortTable('points')}
+          class:sort-asc={sortColumn === 'points' && sortDirection === 'asc'}
+          class:sort-desc={sortColumn === 'points' && sortDirection === 'desc'}
+        >
+          Points
+        </th>
+        <th
+          on:click={() => sortTable('event_date')}
+          class:sort-asc={sortColumn === 'event_date' && sortDirection === 'asc'}
+          class:sort-desc={sortColumn === 'event_date' && sortDirection === 'desc'}
+        >
+          Event Date
+        </th>
+        <th>Status</th>
+        <th>Reason</th>
+      </tr>
+    </thead>
     <tbody>
       {#each submissions as s}
         <tr>
@@ -125,11 +214,7 @@ function sortTable(column) {
     </tbody>
   </table>
 {:else}
-  <p style="text-align:center;">No Pending submissions found.</p>
-{/if}
-
-{#if message}
-  <p style="color:red; text-align:center;">{message}</p>
+  <p style="text-align:center; color: #555;">{message}</p>
 {/if}
 
 <style>
@@ -149,7 +234,8 @@ function sortTable(column) {
     box-shadow: 0 0 10px #0001;
   }
 
-  th, td {
+  th,
+  td {
     padding: 0.75rem 1rem;
     border-bottom: 1px solid #eee;
     text-align: left;

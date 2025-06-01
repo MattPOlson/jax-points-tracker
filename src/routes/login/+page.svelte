@@ -1,50 +1,22 @@
 <script>
+  import { onMount } from 'svelte';
   import { supabase } from '$lib/supabaseClient';
   import { Auth } from '@supabase/auth-ui-svelte';
   import { ThemeSupa } from '@supabase/auth-ui-shared';
-  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { user } from '$lib/stores/user';
-  import { browser } from '$app/environment';
 
   let subscription;
-  let redirectTo = '';
 
   onMount(() => {
-    if (browser) {
-      redirectTo = window.location.origin;
-    }
-
-    const init = async () => {
-      try {
-        // Check if user is already logged in
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) throw error;
-
-        if (session?.user) {
-          console.log('User already logged in:', session.user.id);
-          user.set(session.user);
-          goto('/');
-          return;
-        }
-
-        // Listen for login/signup events
-        const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-          console.log('Auth state changed:', _event, session?.user?.id);
-          if (session?.user) {
-            user.set(session.user);
-            goto('/');
-          }
-        });
-
-        subscription = data.subscription;
-      } catch (error) {
-        console.error('Error initializing auth:', error);
-        user.set(null);
+    // Listen for exactly “SIGNED_IN” so we can redirect as soon as login completes
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        user.set(session.user);
+        goto('/'); // immediately redirect to home
       }
-    };
-
-    init();
+    });
+    subscription = data.subscription;
 
     return () => {
       if (subscription) subscription.unsubscribe();
@@ -57,7 +29,6 @@
     supabaseClient={supabase}
     appearance={{ theme: ThemeSupa }}
     providers={[]}
-    redirectTo={redirectTo}
   />
 </div>
 
