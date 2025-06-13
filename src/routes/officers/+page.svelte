@@ -24,6 +24,9 @@
       <a href="/officers/approvals" class="nav-button">
         Review Point Submissions
       </a>
+      <a href="/officers/view-all" class="nav-button">
+        View All Points
+      </a>
       <!-- Add more “Officer Tools” links here as needed: -->
       <!-- <a href="/officers/another-tool" class="nav-button">Another Tool</a> -->
     </nav>

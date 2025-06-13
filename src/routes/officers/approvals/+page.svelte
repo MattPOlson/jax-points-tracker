@@ -9,36 +9,34 @@
   let selectedSubmission = null;
   let showRejectModal = false;
   let rejectionReason = "";
+  let isMobile = false;
 
-  onMount(loadSubmissions);
+  onMount(() => {
+    loadSubmissions();
+    isMobile = window.innerWidth < 768;
+  });
 
   async function loadSubmissions() {
-const { data, error } = await supabase
-  .from("point_submissions")
-  .select(`
-    id,
-    category,
-    description,
-    points,
-    event_date,
-    member_id,
-    member:member_id (
-      name
-    )
-  `)
-  .eq("approved", false)
-  .order("event_date", { ascending: false });
+    const { data, error } = await supabase
+      .from("point_submissions")
+      .select(`
+        id,
+        category,
+        description,
+        points,
+        event_date,
+        member_id,
+        member:member_id ( name )
+      `)
+      .eq("approved", false)
+      .order("event_date", { ascending: false });
 
     if (error) {
       console.error("Supabase query error:", error);
       message = `Failed to load submissions: ${error.message}`;
     } else {
       submissions = data;
-      if (!data || data.length === 0) {
-        message = "No pending submissions found to review.";
-      } else {
-        message = "";
-      }
+      message = data.length === 0 ? "No pending submissions found to review." : "";
     }
   }
 
@@ -104,35 +102,53 @@ const { data, error } = await supabase
   <h2>Brewer Points Approval</h2>
 
   {#if submissions.length > 0}
-    <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Member</th>
-          <th>Category</th>
-          <th>Description</th>
-          <th>Points</th>
-          <th>Event Date</th>
-            <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each submissions as s}
-          <tr>
-          <td>{s.member.name}</td>
-            <td>{s.category}</td>
-            <td>{s.description}</td>
-            <td>{s.points}</td>
-            <td>{new Date(s.event_date).toLocaleDateString()}</td>
-              <td class="action-buttons">
+    {#if isMobile}
+      <div class="mobile-list">
+        {#each submissions as s (s.id)}
+          <div class="mobile-card">
+            <div><strong>Member:</strong> {s.member.name}</div>
+            <div><strong>Category:</strong> {s.category}</div>
+            <div><strong>Description:</strong> {s.description}</div>
+            <div><strong>Points:</strong> {s.points}</div>
+            <div><strong>Event Date:</strong> {new Date(s.event_date).toLocaleDateString()}</div>
+            <div class="action-buttons">
               <button on:click={() => openApproval(s)}>Approve</button>
               <button on:click={() => openReject(s)}>Reject</button>
-              </td>
-          </tr>
+            </div>
+          </div>
         {/each}
-      </tbody>
-    </table>
-    </div>
+      </div>
+    {:else}
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Category</th>
+              <th>Description</th>
+              <th>Points</th>
+              <th>Event Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {#each submissions as s (s.id)}
+              <tr>
+                <td>{s.member.name}</td>
+                <td>{s.category}</td>
+                <td>{s.description}</td>
+                <td>{s.points}</td>
+                <td>{new Date(s.event_date).toLocaleDateString()}</td>
+                <td class="action-buttons">
+                  <button on:click={() => openApproval(s)}>Approve</button>
+                  <button on:click={() => openReject(s)}>Reject</button>
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+    {/if}
   {:else}
     <p class="no-data">No pending submissions to review.</p>
   {/if}
@@ -180,16 +196,11 @@ const { data, error } = await supabase
     </div>
   {/if}
 </main>
+
 <style>
-  main {
-    padding: 2rem 1rem;
-    max-width: 900px;
-    margin: auto;
-  }
   h2 {
     text-align: center;
-    font-size: 1.75rem;
-    margin-bottom: 1.5rem;
+    margin-top: 2rem;
     color: #ff3e00;
   }
   .table-wrapper {
@@ -229,49 +240,49 @@ const { data, error } = await supabase
     background: #f0f0f0;
   }
   .modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-.modal {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  .modal {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
     max-width: 420px;
-  width: 100%;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-  text-align: center;
-}
-.modal h3 {
-  margin-bottom: 1rem;
-}
-.modal-actions {
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: space-around;
+    width: 100%;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+  .modal h3 {
+    margin-bottom: 1rem;
+  }
+  .modal-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: space-around;
     flex-wrap: wrap;
     gap: 0.5rem;
-}
-.modal-actions .cancel {
-  background: #ccc;
-  border: none;
-}
-.modal-actions .cancel:hover {
-  background: #bbb;
-}
-textarea {
-  width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  resize: vertical;
-}
+  }
+  .modal-actions .cancel {
+    background: #ccc;
+    border: none;
+  }
+  .modal-actions .cancel:hover {
+    background: #bbb;
+  }
+  textarea {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+  }
   .error {
     color: red;
     text-align: center;
@@ -282,15 +293,20 @@ textarea {
     color: #666;
     margin-top: 1rem;
   }
-  @media (max-width: 600px) {
-    th, td {
-      padding: 0.5rem;
+  .mobile-list .mobile-card {
+    background: white;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  @media (min-width: 768px) {
+    .mobile-list {
+      display: none;
     }
-    .modal {
-      padding: 1.25rem;
-    }
-    h2 {
-      font-size: 1.4rem;
+    .desktop-table {
+      display: block;
     }
   }
 </style>
