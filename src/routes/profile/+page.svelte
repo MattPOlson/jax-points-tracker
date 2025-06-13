@@ -18,11 +18,11 @@
       editedPhone = val.phone ?? '';
       loading = false;
     } else {
-      // If userProfile goes back to null (e.g. on logout), show loading or “Not logged in”
+      // If the user is not logged in, display the "Not logged in" message
       profile = null;
       editedName = '';
       editedPhone = '';
-      loading = true;
+      loading = false;
     }
   });
   onDestroy(unsubscribe);
