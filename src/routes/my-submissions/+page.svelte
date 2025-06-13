@@ -13,6 +13,9 @@
   let sortColumn = "event_date";
   let sortDirection = "desc";
 
+  let lastLoaded = 0;
+  const CACHE_MS = 10000;
+
   // -------------------------------
   // 1. Reactive derivation of "submissions" from "allSubmissions" + "showAll"
   // -------------------------------
@@ -36,7 +39,12 @@
   // -------------------------------
   // 2. loadAllSubmissions(): fetches full array from Supabase
   // -------------------------------
-  async function loadAllSubmissions() {
+  async function loadAllSubmissions(force = false) {
+    if (!force && Date.now() - lastLoaded < CACHE_MS) {
+      console.log("[submissions] loadAllSubmissions() skipped (cached)");
+      return;
+    }
+    lastLoaded = Date.now();
     console.log("[submissions] loadAllSubmissions(): showAll =", showAll);
 
     const {
@@ -96,7 +104,7 @@
     console.log(
       `[submissions] sortTable: sortColumn = ${sortColumn}, sortDirection = ${sortDirection}`,
     );
-    loadAllSubmissions();
+    loadAllSubmissions(true);
   }
 
   function formatStatus(sub) {
@@ -134,7 +142,7 @@
 
   const cleanupNavigation = afterNavigate(() => {
     console.log("[submissions] afterNavigate → reload allSubmissions");
-    loadAllSubmissions();
+    loadAllSubmissions(true);
   });
 
 
@@ -144,7 +152,7 @@
     console.log(
       "[submissions] onMount → initial loadAllSubmissions + setupRehydration",
     );
-    loadAllSubmissions();
+    loadAllSubmissions(true);
     cleanupRehydration = setupRehydration();
 
     // Mobile check setup

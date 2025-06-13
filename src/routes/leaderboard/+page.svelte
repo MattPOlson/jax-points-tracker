@@ -1,11 +1,18 @@
 <script>
   import { onMount } from 'svelte';
+  import { afterNavigate } from '$app/navigation';
   import { supabase } from '$lib/supabaseClient';
 
   let leaderboard = [];
   let message = '';
+  let cleanupRehydration;
+  let cleanupNavigation;
+  let lastLoaded = 0;
+  const CACHE_MS = 10000;
 
-  onMount(async () => {
+  async function loadLeaderboard(force = false) {
+    if (!force && Date.now() - lastLoaded < CACHE_MS) return;
+    lastLoaded = Date.now();
     const { data, error } = await supabase
       .from('point_submissions')
       .select(`
@@ -19,6 +26,7 @@
     if (error) {
       console.error('Error loading leaderboard:', error);
       message = 'Failed to load leaderboard.';
+      leaderboard = [];
       return;
     }
 
@@ -39,6 +47,30 @@
     leaderboard = Array.from(totals.values())
       .sort((a, b) => b.points - a.points)
       .slice(0, 10);
+  }
+
+  function setupRehydration() {
+    const handler = () => loadLeaderboard(true);
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') handler();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('focus', handler);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('focus', handler);
+    };
+  }
+
+  cleanupNavigation = afterNavigate(() => loadLeaderboard(true));
+
+  onMount(() => {
+    loadLeaderboard(true);
+    cleanupRehydration = setupRehydration();
+    return () => {
+      if (cleanupRehydration) cleanupRehydration();
+      if (cleanupNavigation) cleanupNavigation();
+    };
   });
 </script>
 
