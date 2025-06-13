@@ -1,6 +1,7 @@
 <script>
   import { supabase } from "$lib/supabaseClient";
   import { onMount } from "svelte";
+  import { afterNavigate } from "$app/navigation";
   import toast from "svelte-french-toast";
 
   let submissions = [];
@@ -10,10 +11,36 @@
   let showRejectModal = false;
   let rejectionReason = "";
   let isMobile = false;
+  let cleanupRehydration;
+  let cleanupNavigation;
+
+  function setupRehydration() {
+    const handler = () => loadSubmissions();
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') handler();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('focus', handler);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('focus', handler);
+    };
+  }
+
+  cleanupNavigation = afterNavigate(loadSubmissions);
 
   onMount(() => {
     loadSubmissions();
+    cleanupRehydration = setupRehydration();
     isMobile = window.innerWidth < 768;
+    const resize = () => (isMobile = window.innerWidth < 768);
+    window.addEventListener('resize', resize);
+
+    return () => {
+      if (cleanupRehydration) cleanupRehydration();
+      if (cleanupNavigation) cleanupNavigation();
+      window.removeEventListener('resize', resize);
+    };
   });
 
   async function loadSubmissions() {
