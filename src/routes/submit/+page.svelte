@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { afterNavigate } from '$app/navigation';
   import { supabase } from '$lib/supabaseClient';
   import toast from 'svelte-french-toast';
   import {
@@ -13,6 +14,9 @@
   } from '$lib/stores/categoryStore.js';
   import { userProfile } from '$lib/stores/userProfile';
   import { get } from 'svelte/store';
+
+  let cleanupRehydration;
+  let cleanupNavigation;
 
   const user = get(userProfile);
 
@@ -34,9 +38,29 @@
     filteredFloridaEvents = get(floridaCircuitEvents);
   }
 
-onMount(() => {
-  loadCategoryData(); // runs only if cache expired
-});
+  function setupRehydration() {
+    const handler = () => loadCategoryData();
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') handler();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('focus', handler);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('focus', handler);
+    };
+  }
+
+  cleanupNavigation = afterNavigate(() => loadCategoryData());
+
+  onMount(() => {
+    loadCategoryData(); // runs only if cache expired
+    cleanupRehydration = setupRehydration();
+    return () => {
+      if (cleanupRehydration) cleanupRehydration();
+      if (cleanupNavigation) cleanupNavigation();
+    };
+  });
 
   async function handleSubmit() {
     if (!selectedCategory || !eventDate || !selectedPlacement) {
