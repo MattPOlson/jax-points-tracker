@@ -1,7 +1,10 @@
 <script>
   import { supabase } from "$lib/supabaseClient";
   import { onMount } from "svelte";
+  import { afterNavigate } from "$app/navigation";
   import toast from "svelte-french-toast";
+  import { user } from "$lib/stores/user";
+  import { approvals as storeApprovals, message as storeMessage, loadApprovals } from "$lib/stores/approvalsStore.js";
 
   let submissions = [];
   let message = "";
@@ -10,34 +13,51 @@
   let showRejectModal = false;
   let rejectionReason = "";
   let isMobile = false;
+  let cleanupRehydration;
+  let cleanupNavigation;
+  let lastUserId = null;
+
+  $: submissions = $storeApprovals;
+  $: message = $storeMessage;
+
+  $: if ($user?.id && $user.id !== lastUserId) {
+    lastUserId = $user.id;
+    loadSubmissions(true);
+  }
+
+  function setupRehydration() {
+    const handler = () => loadSubmissions();
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') handler();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('focus', handler);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('focus', handler);
+    };
+  }
+
+  cleanupNavigation = afterNavigate(() => loadSubmissions(true));
 
   onMount(() => {
-    loadSubmissions();
+    loadSubmissions(true);
+    cleanupRehydration = setupRehydration();
     isMobile = window.innerWidth < 768;
+    const resize = () => (isMobile = window.innerWidth < 768);
+    window.addEventListener('resize', resize);
+
+    return () => {
+      if (cleanupRehydration) cleanupRehydration();
+      if (cleanupNavigation) cleanupNavigation();
+      window.removeEventListener('resize', resize);
+    };
   });
 
-  async function loadSubmissions() {
-    const { data, error } = await supabase
-      .from("point_submissions")
-      .select(`
-        id,
-        category,
-        description,
-        points,
-        event_date,
-        member_id,
-        member:member_id ( name )
-      `)
-      .eq("approved", false)
-      .order("event_date", { ascending: false });
-
-    if (error) {
-      console.error("Supabase query error:", error);
-      message = `Failed to load submissions: ${error.message}`;
-    } else {
-      submissions = data;
-      message = data.length === 0 ? "No pending submissions found to review." : "";
-    }
+  async function loadSubmissions(force = false) {
+    await loadApprovals(force);
+    submissions = $storeApprovals;
+    message = $storeMessage;
   }
 
   function openApproval(submission) {

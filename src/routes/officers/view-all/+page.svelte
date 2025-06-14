@@ -1,6 +1,8 @@
 <script>
-  import { supabase } from '$lib/supabaseClient';
   import { onMount } from 'svelte';
+  import { afterNavigate } from '$app/navigation';
+  import { user } from '$lib/stores/user';
+  import { allSubmissions as storeAll, loadAllSubmissions } from '$lib/stores/viewAllStore.js';
 
   let submissions = [];
   let filtered = [];
@@ -12,23 +14,49 @@
     endDate: ''
   };
   let isMobile = false;
+  let cleanupRehydration;
+  let cleanupNavigation;
+  let lastUserId = null;
+
+  $: submissions = $storeAll;
+
+  $: if ($user?.id && $user.id !== lastUserId) {
+    lastUserId = $user.id;
+    loadSubmissions(true);
+  }
+
+  function setupRehydration() {
+    const handler = () => loadSubmissions();
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') handler();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('focus', handler);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('focus', handler);
+    };
+  }
+
+  cleanupNavigation = afterNavigate(() => loadSubmissions(true));
 
   onMount(() => {
     isMobile = window.innerWidth < 768;
-    window.addEventListener('resize', () => isMobile = window.innerWidth < 768);
-    loadSubmissions();
+    const resize = () => (isMobile = window.innerWidth < 768);
+    window.addEventListener('resize', resize);
+    loadSubmissions(true);
+    cleanupRehydration = setupRehydration();
+
+    return () => {
+      if (cleanupRehydration) cleanupRehydration();
+      if (cleanupNavigation) cleanupNavigation();
+      window.removeEventListener('resize', resize);
+    };
   });
 
-  async function loadSubmissions() {
-    const { data, error } = await supabase
-      .from('point_submissions')
-      .select(`id, category, description, points, event_date, approved, rejection_reason, members(name)`)  // assuming FK is setup
-      .order('event_date', { ascending: false });
-
-    if (!error) {
-      submissions = data;
-      applyFilters();
-    }
+  async function loadSubmissions(force = false) {
+    await loadAllSubmissions(force);
+    applyFilters();
   }
 
   function applyFilters() {
