@@ -11,9 +11,9 @@ export const isLoading = writable(false);
 
 let lastFetched = 0;
 
-export async function loadCategoryData() {
+export async function loadCategoryData(force = false) {
   const now = Date.now();
-  if (now - lastFetched < 10_000) return;
+  if (!force && now - lastFetched < 10_000) return;
 
   isLoading.set(true);
 
