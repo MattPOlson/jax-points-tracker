@@ -1,31 +1,44 @@
 <script>
-  import { supabase } from "$lib/supabaseClient";
   import { onMount, onDestroy } from "svelte";
   import { afterNavigate } from "$app/navigation";
+  import { supabase } from "$lib/supabaseClient";
+  import { user } from "$lib/stores/user";
+  import { allSubmissions as storeAll, message as storeMessage, loadMySubmissions } from "$lib/stores/mySubmissionsStore.js";
+  import { setupFocusReload } from '$lib/utils/focusReload.js';
 
   // -------------------------------
   // 0. Component state
   // -------------------------------
-  let allSubmissions = []; // always holds the full array from Supabase
   let submissions = []; // derived: either allSubmissions or only pending
   let message = "";
   let showAll = false;
   let sortColumn = "event_date";
   let sortDirection = "desc";
 
+  let lastUserId = null;
+
+  $: if ($user?.id && $user.id !== lastUserId) {
+    lastUserId = $user.id;
+    loadAllSubmissions(true);
+  }
+
   // -------------------------------
   // 1. Reactive derivation of "submissions" from "allSubmissions" + "showAll"
   // -------------------------------
   // Whenever allSubmissions or showAll changes, this recalculates.
   $: {
-    if (!allSubmissions) {
+    const list = $storeAll;
+    if ($storeMessage) {
+      submissions = list ?? [];
+      message = $storeMessage;
+    } else if (!list) {
       submissions = [];
       message = "No submissions found.";
     } else if (showAll) {
-      submissions = allSubmissions;
-      message = allSubmissions.length > 0 ? "" : "No submissions found.";
+      submissions = list;
+      message = list.length > 0 ? "" : "No submissions found.";
     } else {
-      const pending = allSubmissions.filter(
+      const pending = list.filter(
         (sub) => sub.approved === false && sub.rejection_reason === null,
       );
       submissions = pending;
@@ -36,44 +49,19 @@
   // -------------------------------
   // 2. loadAllSubmissions(): fetches full array from Supabase
   // -------------------------------
-  async function loadAllSubmissions() {
-    console.log("[submissions] loadAllSubmissions(): showAll =", showAll);
-
+  async function loadAllSubmissions(force = false) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) {
       message = "Please log in to view your submissions.";
-      allSubmissions = [];
+      storeAll.set([]);
       return;
     }
 
-    const { data, error } = await supabase
-      .from("point_submissions")
-      .select(
-        `
-        id,
-        category,
-        description,
-        points,
-        event_date,
-        approved,
-        rejection_reason
-      `,
-      )
-      .eq("member_id", user.id)
-      .order(sortColumn, { ascending: sortDirection === "asc" });
-
-    if (error) {
-      console.error("[submissions]  → Error loading submissions:", error);
-      message = "Error loading your submissions.";
-      allSubmissions = [];
-      return;
-    }
-
-    allSubmissions = data;
-    console.log("[submissions]  → fetched allSubmissions count =", data.length);
+    await loadMySubmissions(user.id, sortColumn, sortDirection, force);
+    message = $storeMessage;
   }
 
   // -------------------------------
@@ -81,8 +69,6 @@
   // -------------------------------
   function toggleView() {
     showAll = !showAll;
-    console.log("[submissions] toggleView clicked → showAll =", showAll);
-  
   }
 
 
@@ -93,10 +79,7 @@
       sortColumn = column;
       sortDirection = "asc";
     }
-    console.log(
-      `[submissions] sortTable: sortColumn = ${sortColumn}, sortDirection = ${sortDirection}`,
-    );
-    loadAllSubmissions();
+    loadAllSubmissions(true);
   }
 
   function formatStatus(sub) {
@@ -106,46 +89,16 @@
   }
 
 
-  function setupRehydration() {
-    console.log("[submissions] setupRehydration() installing listeners");
-    const handler = () => {
-      console.log(
-        "[submissions] handler: tab visible or window focused → reload",
-      );
-      loadAllSubmissions();
-    };
-
-    const onVisibility = () => {
-      if (document.visibilityState === "visible") {
-        handler();
-      }
-    };
-
-    document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("focus", handler);
-
-    return () => {
-      console.log("[submissions] cleanupRehydration() removing listeners");
-      document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("focus", handler);
-    };
-  }
-
-
   const cleanupNavigation = afterNavigate(() => {
-    console.log("[submissions] afterNavigate → reload allSubmissions");
-    loadAllSubmissions();
+    loadAllSubmissions(true);
   });
 
 
-  let cleanupRehydration;
+  let cleanupFocus;
   let isMobile = false;
   onMount(() => {
-    console.log(
-      "[submissions] onMount → initial loadAllSubmissions + setupRehydration",
-    );
-    loadAllSubmissions();
-    cleanupRehydration = setupRehydration();
+    loadAllSubmissions(true);
+    cleanupFocus = setupFocusReload(() => loadAllSubmissions(true));
 
     // Mobile check setup
     const checkScreenSize = () => {
@@ -155,7 +108,7 @@
     window.addEventListener("resize", checkScreenSize);
 
     return () => {
-      if (cleanupRehydration) cleanupRehydration();
+      if (cleanupFocus) cleanupFocus();
       if (cleanupNavigation) cleanupNavigation();
       window.removeEventListener("resize", checkScreenSize);
     };
