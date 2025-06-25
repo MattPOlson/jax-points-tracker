@@ -39,10 +39,10 @@
     filteredFloridaEvents = get(floridaCircuitEvents);
   }
 
-  cleanupNavigation = afterNavigate(() => loadCategoryData(true));
 
   onMount(() => {
     loadCategoryData(); // runs only if cache expired
+    cleanupNavigation = afterNavigate(() => loadCategoryData(true));
     cleanupFocus = setupFocusReload(() => loadCategoryData(true));
     return () => {
       if (cleanupFocus) cleanupFocus();

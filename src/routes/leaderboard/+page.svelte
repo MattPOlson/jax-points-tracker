@@ -7,10 +7,9 @@
   let cleanupFocus;
   let cleanupNavigation;
 
-  cleanupNavigation = afterNavigate(() => loadLeaderboard(true));
-
   onMount(() => {
     loadLeaderboard(true);
+    cleanupNavigation = afterNavigate(() => loadLeaderboard(true));
     cleanupFocus = setupFocusReload(() => loadLeaderboard(true));
     return () => {
       if (cleanupFocus) cleanupFocus();

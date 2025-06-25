@@ -89,15 +89,14 @@
   }
 
 
-  const cleanupNavigation = afterNavigate(() => {
-    loadAllSubmissions(true);
-  });
+  let cleanupNavigation;
 
 
   let cleanupFocus;
   let isMobile = false;
   onMount(() => {
     loadAllSubmissions(true);
+    cleanupNavigation = afterNavigate(() => loadAllSubmissions(true));
     cleanupFocus = setupFocusReload(() => loadAllSubmissions(true));
 
     // Mobile check setup

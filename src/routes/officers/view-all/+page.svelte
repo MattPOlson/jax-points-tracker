@@ -26,13 +26,13 @@
     loadSubmissions(true);
   }
 
-  cleanupNavigation = afterNavigate(() => loadSubmissions(true));
 
   onMount(() => {
     isMobile = window.innerWidth < 768;
     const resize = () => (isMobile = window.innerWidth < 768);
     window.addEventListener('resize', resize);
     loadSubmissions(true);
+    cleanupNavigation = afterNavigate(() => loadSubmissions(true));
     cleanupFocus = setupFocusReload(() => loadSubmissions(true));
 
     return () => {
