@@ -1,7 +1,10 @@
 <script>
   import { supabase } from "$lib/supabaseClient";
   import { onMount } from "svelte";
+  import { afterNavigate } from "$app/navigation";
   import toast from "svelte-french-toast";
+  import { user } from "$lib/stores/user";
+  import { approvals as storeApprovals, message as storeMessage, loadApprovals } from "$lib/stores/approvalsStore.js";
 
   let submissions = [];
   let message = "";
@@ -10,34 +13,39 @@
   let showRejectModal = false;
   let rejectionReason = "";
   let isMobile = false;
+  import { setupFocusReload } from '$lib/utils/focusReload.js';
+  let cleanupFocus;
+  let cleanupNavigation;
+  let lastUserId = null;
+
+  $: submissions = $storeApprovals;
+  $: message = $storeMessage;
+
+  $: if ($user?.id && $user.id !== lastUserId) {
+    lastUserId = $user.id;
+    loadSubmissions(true);
+  }
+
 
   onMount(() => {
-    loadSubmissions();
+    loadSubmissions(true);
+    cleanupNavigation = afterNavigate(() => loadSubmissions(true));
+    cleanupFocus = setupFocusReload(() => loadSubmissions(true));
     isMobile = window.innerWidth < 768;
+    const resize = () => (isMobile = window.innerWidth < 768);
+    window.addEventListener('resize', resize);
+
+    return () => {
+      if (cleanupFocus) cleanupFocus();
+      if (cleanupNavigation) cleanupNavigation();
+      window.removeEventListener('resize', resize);
+    };
   });
 
-  async function loadSubmissions() {
-    const { data, error } = await supabase
-      .from("point_submissions")
-      .select(`
-        id,
-        category,
-        description,
-        points,
-        event_date,
-        member_id,
-        member:member_id ( name )
-      `)
-      .eq("approved", false)
-      .order("event_date", { ascending: false });
-
-    if (error) {
-      console.error("Supabase query error:", error);
-      message = `Failed to load submissions: ${error.message}`;
-    } else {
-      submissions = data;
-      message = data.length === 0 ? "No pending submissions found to review." : "";
-    }
+  async function loadSubmissions(force = false) {
+    await loadApprovals(force);
+    submissions = $storeApprovals;
+    message = $storeMessage;
   }
 
   function openApproval(submission) {

@@ -1,50 +1,26 @@
 <script>
   import { onMount } from 'svelte';
-  import { supabase } from '$lib/supabaseClient';
+  import { afterNavigate } from '$app/navigation';
+  import { leaderboard, message, loadLeaderboard } from '$lib/stores/leaderboardStore.js';
+  import { setupFocusReload } from '$lib/utils/focusReload.js';
 
-  let leaderboard = [];
-  let message = '';
+  let cleanupFocus;
+  let cleanupNavigation;
 
-  onMount(async () => {
-    const { data, error } = await supabase
-      .from('point_submissions')
-      .select(`
-        points,
-        approved,
-        member_id,
-        members ( id, name )
-      `)
-      .eq('approved', true);
-
-    if (error) {
-      console.error('Error loading leaderboard:', error);
-      message = 'Failed to load leaderboard.';
-      return;
-    }
-
-    const totals = new Map();
-
-    for (const entry of data) {
-      const id = entry.members?.id;
-      const name = entry.members?.name;
-      const points = entry.points || 0;
-      if (!id || !name) continue;
-
-      if (!totals.has(id)) {
-        totals.set(id, { name, points: 0 });
-      }
-      totals.get(id).points += points;
-    }
-
-    leaderboard = Array.from(totals.values())
-      .sort((a, b) => b.points - a.points)
-      .slice(0, 10);
+  onMount(() => {
+    loadLeaderboard(true);
+    cleanupNavigation = afterNavigate(() => loadLeaderboard(true));
+    cleanupFocus = setupFocusReload(() => loadLeaderboard(true));
+    return () => {
+      if (cleanupFocus) cleanupFocus();
+      if (cleanupNavigation) cleanupNavigation();
+    };
   });
 </script>
 
 <h2>🏆 Leaderboard</h2>
 
-{#if leaderboard.length > 0}
+{#if $leaderboard.length > 0}
   <div class="table-wrapper">
     <table class="desktop-table">
       <thead>
@@ -55,7 +31,7 @@
         </tr>
       </thead>
       <tbody>
-        {#each leaderboard as entry, index}
+        {#each $leaderboard as entry, index}
           <tr>
             <td>#{index + 1}</td>
             <td>{entry.name}</td>
@@ -65,7 +41,7 @@
       </tbody>
     </table>
 
-    {#each leaderboard as entry, index}
+    {#each $leaderboard as entry, index}
       <div class="mobile-card">
         <div><strong>#{index + 1}</strong></div>
         <div><strong>Member:</strong> <span>{entry.name}</span></div>
@@ -73,8 +49,8 @@
       </div>
     {/each}
   </div>
-{:else if message}
-  <p class="message">{message}</p>
+{:else if $message}
+  <p class="message">{$message}</p>
 {:else}
   <p class="message">No leaderboard data available.</p>
 {/if}
