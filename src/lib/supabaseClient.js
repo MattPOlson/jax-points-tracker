@@ -28,29 +28,15 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     storage: {
       getItem: (key) => {
         if (!browser) return null;
-        try {
-          const value = localStorage.getItem(key);
-          return value ? JSON.parse(value) : null;
-        } catch (error) {
-          console.error('Error reading from localStorage:', error);
-          return null;
-        }
+        return localStorage.getItem(key);
       },
       setItem: (key, value) => {
         if (!browser) return;
-        try {
-          localStorage.setItem(key, JSON.stringify(value));
-        } catch (error) {
-          console.error('Error writing to localStorage:', error);
-        }
+        localStorage.setItem(key, value);
       },
       removeItem: (key) => {
         if (!browser) return;
-        try {
-          localStorage.removeItem(key);
-        } catch (error) {
-          console.error('Error removing from localStorage:', error);
-        }
+        localStorage.removeItem(key);
       }
     }
   }

@@ -7,8 +7,10 @@
   import toast, { Toaster } from 'svelte-french-toast';
   import { goto } from '$app/navigation';
   import { get } from 'svelte/store';
+  import { setupFocusReload } from '$lib/utils/focusReload.js';
 
   let subscription;
+  let cleanupFocus;
 
   async function fetchUserProfile(userId) {
     try {
@@ -62,6 +64,28 @@
     }
   }
 
+  async function refreshSession() {
+    try {
+      const {
+        data: { session },
+        error
+      } = await supabase.auth.getSession();
+      if (error) throw error;
+
+      const currentUser = session?.user ?? null;
+      user.set(currentUser);
+
+      if (currentUser) {
+        await fetchUserProfile(currentUser.id);
+        await checkForApprovals(currentUser.id);
+      } else {
+        userProfile.set(null);
+      }
+    } catch (err) {
+      console.error('Failed to refresh session:', err);
+    }
+  }
+
   onMount(() => {
     if (typeof window === 'undefined') return;
 
@@ -104,9 +128,11 @@
     };
 
     init();
+    cleanupFocus = setupFocusReload(refreshSession);
 
     return () => {
       if (subscription) subscription.unsubscribe();
+      if (cleanupFocus) cleanupFocus();
     };
   });
 
