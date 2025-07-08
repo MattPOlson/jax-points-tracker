@@ -1,12 +1,11 @@
 <script>
   import '../app.css';
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { supabase } from '$lib/supabaseClient';
   import { user } from '$lib/stores/user';
   import { userProfile } from '$lib/stores/userProfile';
   import toast, { Toaster } from 'svelte-french-toast';
   import { goto } from '$app/navigation';
-  import { get } from 'svelte/store';
 
   let subscription;
 
@@ -110,6 +109,10 @@
     };
   });
 
+  onDestroy(() => {
+    if (subscription) subscription.unsubscribe();
+  });
+
   async function handleLogout() {
     try {
       const { error } = await supabase.auth.signOut();
@@ -117,6 +120,7 @@
       user.set(null);
       userProfile.set(null);
       goto('/login');
+      toast.success('Logged out successfully');
     } catch (err) {
       console.error('Logout failed:', err);
       toast.error('Failed to log out');
@@ -125,7 +129,7 @@
 </script>
 
 <div class="topbar">
-  <a href="/" class="nav-button" title="Home">
+  <a href="/" class="nav-button" title="Home" aria-label="Go to homepage">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
       <polyline points="9 22 9 12 15 12 15 22" />
@@ -133,30 +137,41 @@
   </a>
 
   {#if $user}
-    <button on:click={handleLogout} class="nav-button" title="Logout">
+    <button on:click={handleLogout} class="nav-button logout-btn" title="Logout" aria-label="Logout">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
         <polyline points="16 17 21 12 16 7" />
         <line x1="21" y1="12" x2="9" y2="12" />
       </svg>
     </button>
-    <div class="login-icon logged-in" title="You are logged in">
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="white" stroke-width="2">
-        <circle cx="20" cy="14" r="8" />
-        <path d="M6 34c0-6 8-10 14-10s14 4 14 10" />
-      </svg>
+    <div class="user-info" title={$userProfile?.name || $user.email}>
+      <div class="login-icon logged-in" title="You are logged in">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <circle cx="12" cy="8" r="5" />
+          <path d="M20 21a8 8 0 1 0-16 0" />
+        </svg>
+      </div>
+      {#if $userProfile?.name}
+        <span class="user-name">{$userProfile.name}</span>
+      {/if}
     </div>
   {:else}
     <a href="/login" aria-label="Login" class="login-icon">
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="black" stroke-width="2">
-        <circle cx="20" cy="14" r="8" />
-        <path d="M6 34c0-6 8-10 14-10s14 4 14 10" />
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+        <circle cx="12" cy="8" r="5" />
+        <path d="M20 21a8 8 0 1 0-16 0" />
       </svg>
     </a>
   {/if}
 </div>
 
-<Toaster />
+<Toaster 
+  position="top-right"
+  toastOptions={{
+    duration: 4000,
+    style: 'border-radius: 6px; background: white; color: #333;'
+  }}
+/>
 <slot />
 
 <style>
@@ -169,44 +184,117 @@
     gap: 1rem;
     align-items: center;
   }
+
   .nav-button {
     display: flex;
     align-items: center;
     justify-content: center;
     background: white;
     border: none;
-    border-radius: 50%;
+    border-radius: 6px; /* Match your design system */
     width: 48px;
     height: 48px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    transition: box-shadow 0.2s, background 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
     cursor: pointer;
     color: #333; 
     text-decoration: none;
   }
+
   .nav-button:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    background: #f0f0f0;
+    background: #f8fafc;
+    transform: translateY(-1px);
   }
+
+  .logout-btn:hover {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .user-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+    background: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+  }
+
   .login-icon {
     display: flex;
     align-items: center;
     justify-content: center;
     background: white;
-    border-radius: 50%;
+    border-radius: 6px; /* Match your design system */
     width: 48px;
     height: 48px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    transition: box-shadow 0.2s, background 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
     cursor: pointer;
+    text-decoration: none;
   }
+
   .login-icon:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    background: #f0f0f0;
+    background: #f8fafc;
+    transform: translateY(-1px);
   }
+
   .login-icon.logged-in {
-    background: #4caf50;
+    background: #2563eb; /* Match your nav-button color */
     cursor: default;
     pointer-events: none;
+  }
+
+  .login-icon.logged-in:hover {
+    transform: none;
+  }
+
+  /* Mobile responsiveness */
+  @media (max-width: 640px) {
+    .topbar {
+      top: 0.75rem;
+      right: 1rem;
+      gap: 0.75rem;
+    }
+
+    .nav-button,
+    .login-icon {
+      width: 44px;
+      height: 44px;
+    }
+
+    .user-name {
+      display: none; /* Hide username on mobile to save space */
+    }
+  }
+
+  @media (max-width: 480px) {
+    .topbar {
+      top: 0.5rem;
+      right: 0.75rem;
+      gap: 0.5rem;
+    }
+
+    .nav-button,
+    .login-icon {
+      width: 40px;
+      height: 40px;
+    }
+
+    .nav-button svg,
+    .login-icon svg {
+      width: 20px;
+      height: 20px;
+    }
   }
 </style>
