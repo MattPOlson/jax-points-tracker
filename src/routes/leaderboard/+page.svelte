@@ -1,10 +1,8 @@
 <script>
   import { onMount } from 'svelte';
   import { afterNavigate } from '$app/navigation';
-  import { leaderboard, message, loadLeaderboard } from '$lib/stores/leaderboardStore.js';
-
-  let cleanupRehydration;
-  let cleanupNavigation;
+  import { page } from '$app/stores';
+  import { leaderboard, message, loadLeaderboard, loading } from '$lib/stores/leaderboardStore.js';
 
   function setupRehydration() {
     const handler = () => loadLeaderboard(true);
@@ -19,18 +17,17 @@
     };
   }
 
-  cleanupNavigation = afterNavigate(() => loadLeaderboard(true));
-
   onMount(() => {
-    loadLeaderboard(true);
-    cleanupRehydration = setupRehydration();
-    return () => {
-      if (cleanupRehydration) cleanupRehydration();
-      if (cleanupNavigation) cleanupNavigation();
-    };
+    loadLeaderboard(true); // Initial load
+    const cleanupRehydration = setupRehydration();
+    return () => cleanupRehydration();
   });
-</script>
 
+  $: if ($page.url.pathname === '/leaderboard') {
+    loadLeaderboard(true);
+  }
+
+</script>
 <h2>🏆 Leaderboard</h2>
 
 {#if $leaderboard.length > 0}

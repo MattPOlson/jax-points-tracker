@@ -5,24 +5,76 @@
   import { ThemeSupa } from '@supabase/auth-ui-shared';
   import { goto } from '$app/navigation';
   import { user } from '$lib/stores/user';
+  import { page } from '$app/stores';
+
+  import { isLoaded as categoriesLoaded } from '$lib/stores/categoryStore'; // optional if needed post-login
+  import { isLoaded as approvalsLoaded } from '$lib/stores/approvalsStore'; // optional
+
+  import { loadApprovals } from '$lib/stores/approvalsStore';
+  import { loadCategoryData } from '$lib/stores/categoryStore';
+  import { loadLeaderboard } from '$lib/stores/leaderboardStore';
+  import { loadMySubmissions } from '$lib/stores/mySubmissionsStore';
+
 
   let subscription;
+  let splash = false;
+  let splashTimeout;
+
+  $: if ($page.url.pathname === '/' && $user?.id) {
+  loadApprovals(true);
+  loadCategoryData(true);
+  loadleaderboardData(true);
+  loadMySubmissions(true);
+  }
+
+
+  function startSplash() {
+    splash = true;
+    splashTimeout = setTimeout(() => {
+      splash = false;
+    }, 10000);
+  }
+
+  // Dismiss splash early if user + data is ready
+  $: if ($user?.id && splash) {
+    const ready = $categoriesLoaded ?? true; // customize this check with real flags
+    if (ready) {
+      clearTimeout(splashTimeout);
+      splash = false;
+    }
+  }
 
   onMount(() => {
-    // Listen for exactly “SIGNED_IN” so we can redirect as soon as login completes
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
         user.set(session.user);
-        goto('/'); // immediately redirect to home
+        startSplash(); // show splash when redirected
+        goto('/');
       }
     });
+
     subscription = data.subscription;
 
     return () => {
       if (subscription) subscription.unsubscribe();
+      clearTimeout(splashTimeout);
     };
   });
 </script>
+
+{#if splash}
+  <div class="splash-screen">
+    <p>Loading your dashboard...</p>
+  </div>
+{:else if !$user}
+  <div class="auth-wrapper">
+    <Auth
+      supabaseClient={supabase}
+      appearance={{ theme: ThemeSupa }}
+      providers={[]}
+    />
+  </div>
+{/if}
 
 <div class="auth-wrapper">
   <Auth
@@ -81,4 +133,11 @@
     background-color: #ffebee;
     color: #c62828;
   }
+
+  .splash-screen {
+  text-align: center;
+  margin-top: 6rem;
+  font-size: 1.25rem;
+  color: #666;
+}
 </style>

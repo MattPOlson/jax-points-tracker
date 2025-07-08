@@ -4,9 +4,15 @@
   import { afterNavigate } from "$app/navigation";
   import toast from "svelte-french-toast";
   import { user } from "$lib/stores/user";
-  import { approvals as storeApprovals, message as storeMessage, loadApprovals } from "$lib/stores/approvalsStore.js";
+  import {
+    approvals as storeApprovals,
+    message as storeMessage,
+    loadApprovals,
+  } from "$lib/stores/approvalsStore.js";
+  import { page } from "$app/stores";
+  import { onTabFocus } from "$lib/utils/focusRefresher.js";
+  import { tick } from "svelte";
 
-  let submissions = [];
   let message = "";
   let showModal = false;
   let selectedSubmission = null;
@@ -22,43 +28,42 @@
 
   $: if ($user?.id && $user.id !== lastUserId) {
     lastUserId = $user.id;
-    loadSubmissions(true);
   }
 
   function setupRehydration() {
-    const handler = () => loadSubmissions();
+    const handler = () => loadApprovals(true);
     const onVisibility = () => {
-      if (document.visibilityState === 'visible') handler();
+      if (document.visibilityState === "visible") handler();
     };
-    document.addEventListener('visibilitychange', onVisibility);
-    window.addEventListener('focus', handler);
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("focus", handler);
     return () => {
-      document.removeEventListener('visibilitychange', onVisibility);
-      window.removeEventListener('focus', handler);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("focus", handler);
     };
   }
 
-  cleanupNavigation = afterNavigate(() => loadSubmissions(true));
+onTabFocus(() => {
+  console.log("Tab focused, forcing hard reload");
+  window.location.reload();
+});
 
-  onMount(() => {
-    loadSubmissions(true);
-    cleanupRehydration = setupRehydration();
-    isMobile = window.innerWidth < 768;
-    const resize = () => (isMobile = window.innerWidth < 768);
-    window.addEventListener('resize', resize);
+onMount(() => {
+  loadApprovals(true);
 
-    return () => {
-      if (cleanupRehydration) cleanupRehydration();
-      if (cleanupNavigation) cleanupNavigation();
-      window.removeEventListener('resize', resize);
-    };
-  });
+  isMobile = window.innerWidth < 768;
+  const resize = () => (isMobile = window.innerWidth < 768);
+  window.addEventListener("resize", resize);
 
-  async function loadSubmissions(force = false) {
-    await loadApprovals(force);
-    submissions = $storeApprovals;
-    message = $storeMessage;
-  }
+  cleanupRehydration = setupRehydration();
+
+  return () => {
+    window.removeEventListener("resize", resize);
+    if (cleanupRehydration) cleanupRehydration();
+  };
+});
+
+
 
   function openApproval(submission) {
     selectedSubmission = submission;
@@ -66,6 +71,12 @@
   }
 
   async function confirmApproval() {
+    if (!selectedSubmission) {
+      console.log("SUBMISSION: ", selectedSubmission);
+      toast.error("No submission selected.");
+      return;
+    }
+
     const { error } = await supabase
       .from("point_submissions")
       .update({ approved: true })
@@ -74,9 +85,14 @@
     if (error) {
       message = "Failed to approve submission.";
     } else {
-      toast.success(`✅ Approved submission for ${selectedSubmission.member.name}`);
-      submissions = submissions.filter((s) => s.id !== selectedSubmission.id);
+      toast.success(
+        `✅ Approved submission for ${selectedSubmission.member.name}`,
+      );
+      storeApprovals.update((current) =>
+        current.filter((s) => s.id !== selectedSubmission.id),
+      );
     }
+
     showModal = false;
     selectedSubmission = null;
   }
@@ -109,8 +125,12 @@
     if (error) {
       message = "Failed to reject submission.";
     } else {
-      toast.success(`❌ Rejected submission for ${selectedSubmission.member.name}`);
-      submissions = submissions.filter((s) => s.id !== selectedSubmission.id);
+      toast.success(
+        `❌ Rejected submission for ${selectedSubmission.member.name}`,
+      );
+      storeApprovals.update((current) =>
+        current.filter((s) => s.id !== selectedSubmission.id),
+      );
     }
 
     showRejectModal = false;
@@ -130,7 +150,10 @@
             <div><strong>Category:</strong> {s.category}</div>
             <div><strong>Description:</strong> {s.description}</div>
             <div><strong>Points:</strong> {s.points}</div>
-            <div><strong>Event Date:</strong> {new Date(s.event_date).toLocaleDateString()}</div>
+            <div>
+              <strong>Event Date:</strong>
+              {new Date(s.event_date).toLocaleDateString()}
+            </div>
             <div class="action-buttons">
               <button on:click={() => openApproval(s)}>Approve</button>
               <button on:click={() => openReject(s)}>Reject</button>
@@ -178,21 +201,24 @@
   {/if}
 
   {#if showModal}
-    <div class="modal-overlay">
-      <div class="modal">
-        <h3>Confirm Approval</h3>
-        <p>
-          Approve <strong>{selectedSubmission.member.name}</strong>'s submission for
-          <strong>{selectedSubmission.category}</strong> –
-          <em>{selectedSubmission.description}</em> worth
-          <strong>{selectedSubmission.points}</strong> points?
-        </p>
-        <div class="modal-actions">
-          <button on:click={confirmApproval}>Yes, Approve</button>
-          <button on:click={cancelApproval} class="cancel">Cancel</button>
+    {#if selectedSubmission}
+      <div class="modal-overlay" key={selectedSubmission?.id}>
+        <div class="modal">
+          <h3>Confirm Approval</h3>
+          <p>
+            Approve <strong>{selectedSubmission.member.name}</strong>'s
+            submission for
+            <strong>{selectedSubmission.category}</strong> –
+            <em>{selectedSubmission.description}</em> worth
+            <strong>{selectedSubmission.points}</strong> points?
+          </p>
+          <div class="modal-actions">
+            <button on:click={confirmApproval}>Yes, Approve</button>
+            <button on:click={cancelApproval} class="cancel">Cancel</button>
+          </div>
         </div>
       </div>
-    </div>
+    {/if}
   {/if}
 
   {#if showRejectModal}
@@ -200,7 +226,8 @@
       <div class="modal">
         <h3>Reject Submission</h3>
         <p>
-          Reject <strong>{selectedSubmission.member.name}</strong>'s submission for
+          Reject <strong>{selectedSubmission.member.name}</strong>'s submission
+          for
           <strong>{selectedSubmission.category}</strong> –
           <em>{selectedSubmission.description}</em>?
         </p>
@@ -209,8 +236,17 @@
           <textarea bind:value={rejectionReason} rows="4" required></textarea>
         </label>
         <div class="modal-actions">
-          <button on:click={confirmReject} style="background:#d32f2f;color:white">Reject</button>
-          <button on:click={() => { showRejectModal = false; selectedSubmission = null }} class="cancel">Cancel</button>
+          <button
+            on:click={confirmReject}
+            style="background:#d32f2f;color:white">Reject</button
+          >
+          <button
+            on:click={() => {
+              showRejectModal = false;
+              selectedSubmission = null;
+            }}
+            class="cancel">Cancel</button
+          >
         </div>
       </div>
     </div>
@@ -235,7 +271,8 @@
     font-size: 0.95rem;
     min-width: 600px;
   }
-  th, td {
+  th,
+  td {
     padding: 0.75rem 1rem;
     text-align: left;
     border-bottom: 1px solid #eee;
@@ -261,7 +298,10 @@
   }
   .modal-overlay {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
@@ -274,7 +314,7 @@
     border-radius: 8px;
     max-width: 420px;
     width: 100%;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     text-align: center;
   }
   .modal h3 {
@@ -317,7 +357,7 @@
     background: white;
     margin-bottom: 1rem;
     padding: 1rem;
-    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     font-size: 0.9rem;
   }

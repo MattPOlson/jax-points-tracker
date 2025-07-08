@@ -20,13 +20,16 @@
 
   $: submissions = $storeAll;
 
-  $: if ($user?.id && $user.id !== lastUserId) {
-    lastUserId = $user.id;
-    loadSubmissions(true);
-  }
+$: submissions = $storeAll;
+$: if (submissions) applyFilters();
+
+$: if ($user?.id && $user.id !== lastUserId) {
+  lastUserId = $user.id;
+  loadSubmissions(true);
+}
 
   function setupRehydration() {
-    const handler = () => loadSubmissions();
+    const handler = () => loadSubmissions(true);
     const onVisibility = () => {
       if (document.visibilityState === 'visible') handler();
     };
@@ -56,7 +59,7 @@
 
   async function loadSubmissions(force = false) {
     await loadAllSubmissions(force);
-    applyFilters();
+    //applyFilters();
   }
 
   function applyFilters() {

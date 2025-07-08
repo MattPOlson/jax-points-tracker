@@ -10,10 +10,11 @@ export const isLoaded = writable(false);
 export const isLoading = writable(false);
 
 let lastFetched = 0;
+const CACHE_MS = 10000;
 
-export async function loadCategoryData() {
+export async function loadCategoryData(force = false) {
   const now = Date.now();
-  if (now - lastFetched < 10_000) return;
+  if (!force && now - lastFetched < CACHE_MS) return;
 
   isLoading.set(true);
 
@@ -41,6 +42,6 @@ export async function loadCategoryData() {
     console.error('❌ Failed to load category data:', err);
     isLoaded.set(false);
   } finally {
-    isLoading.set(false); // 🔐 always release the gate
+    isLoading.set(false);
   }
 }

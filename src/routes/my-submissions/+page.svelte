@@ -1,30 +1,41 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { afterNavigate } from "$app/navigation";
+  import { page } from "$app/stores";
   import { supabase } from "$lib/supabaseClient";
-  import { user } from "$lib/stores/user";
-  import { allSubmissions as storeAll, message as storeMessage, loadMySubmissions } from "$lib/stores/mySubmissionsStore.js";
+  import { userProfile } from "$lib/stores/userProfile";
+  import {
+    allSubmissions as storeAll,
+    message as storeMessage,
+    loadMySubmissions,
+    loading,
+  } from "$lib/stores/mySubmissionsStore.js";
+  import { onTabFocus } from '$lib/utils/focusRefresher.js';
 
-  // -------------------------------
-  // 0. Component state
-  // -------------------------------
-  let submissions = []; // derived: either allSubmissions or only pending
+  let submissions = [];
   let message = "";
   let showAll = false;
   let sortColumn = "event_date";
   let sortDirection = "desc";
 
   let lastUserId = null;
+  let currentUserId;
 
-  $: if ($user?.id && $user.id !== lastUserId) {
-    lastUserId = $user.id;
+  $: currentUserId = $userProfile?.id;
+
+  $: if (currentUserId && currentUserId !== lastUserId) {
+    lastUserId = currentUserId;
     loadAllSubmissions(true);
   }
 
-  // -------------------------------
-  // 1. Reactive derivation of "submissions" from "allSubmissions" + "showAll"
-  // -------------------------------
-  // Whenever allSubmissions or showAll changes, this recalculates.
+  // Auto-refresh on tab focus
+  $: if (currentUserId) {
+    onTabFocus(() => {
+      lastUserId = currentUserId;
+      loadAllSubmissions(true);
+    });
+  }
+
+  // Derive filtered/pending submissions
   $: {
     const list = $storeAll;
     if ($storeMessage) {
@@ -45,33 +56,21 @@
     }
   }
 
-  // -------------------------------
-  // 2. loadAllSubmissions(): fetches full array from Supabase
-  // -------------------------------
   async function loadAllSubmissions(force = false) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
+    if (!currentUserId) {
       message = "Please log in to view your submissions.";
       storeAll.set([]);
       return;
     }
 
-    await loadMySubmissions(user.id, sortColumn, sortDirection, force);
+    await loadMySubmissions(currentUserId, sortColumn, sortDirection, force);
     message = $storeMessage;
   }
 
-  // -------------------------------
-  // 3. Toggle “Show All” / “Show Pending Only”
-  // -------------------------------
   function toggleView() {
     showAll = !showAll;
     console.log("[submissions] toggleView clicked → showAll =", showAll);
-  
   }
-
 
   function sortTable(column) {
     if (sortColumn === column) {
@@ -92,7 +91,6 @@
     return "⏳ Pending";
   }
 
-
   function setupRehydration() {
     console.log("[submissions] setupRehydration() installing listeners");
     const handler = () => {
@@ -103,9 +101,7 @@
     };
 
     const onVisibility = () => {
-      if (document.visibilityState === "visible") {
-        handler();
-      }
+      if (document.visibilityState === "visible") handler();
     };
 
     document.addEventListener("visibilitychange", onVisibility);
@@ -118,15 +114,15 @@
     };
   }
 
-
-  const cleanupNavigation = afterNavigate(() => {
-    console.log("[submissions] afterNavigate → reload allSubmissions");
+  // 🔁 Reload safely on client-side navigation
+  $: if ($page.url.pathname === "/my-submissions" && currentUserId) {
+    console.log("[submissions] $page.url.pathname triggered reload");
     loadAllSubmissions(true);
-  });
-
+  }
 
   let cleanupRehydration;
   let isMobile = false;
+
   onMount(() => {
     console.log(
       "[submissions] onMount → initial loadAllSubmissions + setupRehydration",
@@ -134,7 +130,6 @@
     loadAllSubmissions(true);
     cleanupRehydration = setupRehydration();
 
-    // Mobile check setup
     const checkScreenSize = () => {
       isMobile = window.innerWidth < 640;
     };
@@ -143,7 +138,6 @@
 
     return () => {
       if (cleanupRehydration) cleanupRehydration();
-      if (cleanupNavigation) cleanupNavigation();
       window.removeEventListener("resize", checkScreenSize);
     };
   });

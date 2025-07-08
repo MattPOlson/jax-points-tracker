@@ -1,15 +1,41 @@
 <script>
-  import { user } from '$lib/stores/user';
-  import { userProfile } from '$lib/stores/userProfile';
+  import { user as authUser } from '$lib/stores/user'; // Supabase auth user
+  import { userProfile, loadUserProfile } from '$lib/stores/userProfile'; // `members` table row
 
-  // Reactive booleans derived from our stores:
-  $: isLoggedIn = $user !== null;
+  import { onTabFocus } from '$lib/utils/focusRefresher.js';
+  import { loadApprovals } from '$lib/stores/approvalsStore';
+  import { loadCategoryData } from '$lib/stores/categoryStore';
+  import { loadLeaderboard } from '$lib/stores/leaderboardStore';
+  import { loadMySubmissions } from '$lib/stores/mySubmissionsStore';
+  import { page } from '$app/stores';
+
+  $: isLoggedIn = $authUser !== null;
   $: isOfficer = $userProfile?.is_officer === true;
+
+  // Initial load on login to homepage
+  $: if ($page.url.pathname === '/' && $authUser?.id) {
+    loadApprovals(true);
+    loadCategoryData(true);
+    loadLeaderboard(true);
+    //loadMySubmissions(true);
+    loadUserProfile(true);
+  }
+
+  // Auto-refresh on tab focus
+  $: if ($authUser?.id) {
+    onTabFocus(() => {
+      loadApprovals(true);
+      loadCategoryData(true);
+      loadLeaderboard(true);
+      loadMySubmissions(true);
+      loadUserProfile(true);
+    });
+  }
 </script>
 
 <main>
-  <h1>🍻 JAX Points Tracker</h1>
-  <p class="subtitle">Welcome to the homebrew points tracking app!</p>
+  <h1>🍻 JAX Members Portal</h1>
+  <p class="subtitle">Have Fun Brew Better Beer!</p>
 
   <div class="nav-links">
     <a href="/submit" class="nav-button">Submit Points</a>
