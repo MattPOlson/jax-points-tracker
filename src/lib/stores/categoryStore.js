@@ -8,12 +8,14 @@ export const floridaCircuitEvents = writable([]);
 
 export const isLoaded = writable(false);
 export const isLoading = writable(false);
+export const clubEventTypes = writable([]);
 
 let lastFetched = 0;
+const CACHE_MS = 10000;
 
-export async function loadCategoryData() {
+export async function loadCategoryData(force = false) {
   const now = Date.now();
-  if (now - lastFetched < 10_000) return;
+  if (!force && now - lastFetched < CACHE_MS) return;
 
   isLoading.set(true);
 
@@ -25,9 +27,21 @@ export async function loadCategoryData() {
       supabase.from('florida_circuit_events').select('*').eq('active', true),
     ]);
 
+    const { data: clubEventTypesData, error: clubEventTypesError } = await supabase
+      .from('club_events_types')
+      .select('*')
+      .eq('active', true)  // assuming there's an active field
+      .order('event_type');
+
     if (catRes.error || placementRes.error || monthlyRes.error || floridaRes.error) {
       console.error('Supabase query failed:', { catRes, placementRes, monthlyRes, floridaRes });
       throw catRes.error || placementRes.error || monthlyRes.error || floridaRes.error;
+    }
+
+    if (clubEventTypesError) {
+      console.error('Error loading club event types:', clubEventTypesError);
+    } else {
+      clubEventTypes.set(clubEventTypesData || []);
     }
 
     categories.set(catRes.data);
@@ -41,6 +55,6 @@ export async function loadCategoryData() {
     console.error('❌ Failed to load category data:', err);
     isLoaded.set(false);
   } finally {
-    isLoading.set(false); // 🔐 always release the gate
+    isLoading.set(false);
   }
 }
