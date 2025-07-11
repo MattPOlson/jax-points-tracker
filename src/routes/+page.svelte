@@ -7,6 +7,7 @@
   import { loadLeaderboard } from '$lib/stores/leaderboardStore';
   import { loadMySubmissions } from '$lib/stores/mySubmissionsStore';
   import { page } from '$app/stores';
+  import { version } from '$lib/version.js';
 
   $: isLoggedIn = $authUser !== null;
   $: isOfficer = $userProfile?.is_officer === true;
@@ -53,7 +54,7 @@
 
 <main>
   <div class="hero-section">
-    <h1>🍻 JAX Members Portal</h1>
+    <h1>🍻 JAX Member Portal</h1>
     <p class="subtitle">Have Fun Brew Better Beer!</p>
     
     {#if isLoggedIn && $userProfile}
@@ -360,4 +361,8 @@
       font-size: 0.9rem;
     }
   }
+  
 </style>
+<footer class="version-footer">
+  <small>{version.display}</small>
+</footer>
