@@ -11,6 +11,7 @@
     loading,
   } from "$lib/stores/approvalsStore.js";
   import { page } from "$app/stores";
+  import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
 
   let message = "";
   let showApprovalModal = false;
@@ -26,19 +27,19 @@
   // Setup tab focus handler with F5 fix
   function setupEventHandlers() {
     let isFirstLoad = true;
-    
+
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && !isFirstLoad) {
-        console.log('🔄 Tab became visible - doing F5 refresh');
+      if (document.visibilityState === "visible" && !isFirstLoad) {
+        console.log("🔄 Tab became visible - doing F5 refresh");
         window.location.reload();
       }
       isFirstLoad = false;
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }
 
@@ -51,17 +52,17 @@
   }
 
   // Format date helper
-  function formatDate(dateString) {
-    try {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    } catch {
-      return 'Invalid Date';
-    }
-  }
+  //function formatDate(dateString) {
+  ///  try {
+  //    return new Date(dateString).toLocaleDateString('en-US', {
+  //      year: 'numeric',
+  //      month: 'short',
+  //      day: 'numeric'
+  //    });
+  //  } catch {
+  //    return 'Invalid Date';
+  //  }
+  //}
 
   // Open approval modal
   function openApproval(submission) {
@@ -83,17 +84,17 @@
       if (error) throw error;
 
       toast.success(
-        `✅ Approved ${selectedSubmission.member.name}'s submission for ${selectedSubmission.points} points!`
+        `✅ Approved ${selectedSubmission.member.name}'s submission for ${selectedSubmission.points} points!`,
       );
-      
+
       // Remove from store
       storeApprovals.update((current) =>
-        current.filter((s) => s.id !== selectedSubmission.id)
+        current.filter((s) => s.id !== selectedSubmission.id),
       );
 
       closeApprovalModal();
     } catch (error) {
-      console.error('Approval error:', error);
+      console.error("Approval error:", error);
       toast.error("Failed to approve submission. Please try again.");
     } finally {
       isProcessing = false;
@@ -127,24 +128,24 @@
         .update({
           rejection_reason: rejectionReason.trim(),
           approved: false,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq("id", selectedSubmission.id);
 
       if (error) throw error;
 
       toast.success(
-        `❌ Rejected ${selectedSubmission.member.name}'s submission`
+        `❌ Rejected ${selectedSubmission.member.name}'s submission`,
       );
-      
+
       // Remove from store
       storeApprovals.update((current) =>
-        current.filter((s) => s.id !== selectedSubmission.id)
+        current.filter((s) => s.id !== selectedSubmission.id),
       );
 
       closeRejectModal();
     } catch (error) {
-      console.error('Rejection error:', error);
+      console.error("Rejection error:", error);
       toast.error("Failed to reject submission. Please try again.");
     } finally {
       isProcessing = false;
@@ -171,7 +172,7 @@
 
   onDestroy(() => {
     // Cleanup all event listeners
-    cleanupFunctions.forEach(cleanup => cleanup());
+    cleanupFunctions.forEach((cleanup) => cleanup());
   });
 
   // Reload when navigating to approvals page
@@ -213,7 +214,7 @@
         <div class="summary-content">
           <div class="summary-number">{submissions.length}</div>
           <div class="summary-label">
-            {submissions.length === 1 ? 'Submission' : 'Submissions'} Pending Review
+            {submissions.length === 1 ? "Submission" : "Submissions"} Pending Review
           </div>
         </div>
       </div>
@@ -251,18 +252,22 @@
                   <span class="points-value">{s.points}</span>
                 </td>
                 <td class="date-cell">{formatDate(s.event_date)}</td>
-                <td class="submitted-cell">{formatDate(s.submitted_at)}</td>
+                <td class="submitted-cell">
+                  {s.submitted_at
+                    ? formatDate(s.submitted_at)
+                    : "Not available"}
+                </td>
                 <td class="actions-cell">
                   <div class="action-buttons">
-                    <button 
-                      on:click={() => openApproval(s)} 
+                    <button
+                      on:click={() => openApproval(s)}
                       class="approve-btn"
                       disabled={isProcessing}
                     >
                       ✅ Approve
                     </button>
-                    <button 
-                      on:click={() => openReject(s)} 
+                    <button
+                      on:click={() => openReject(s)}
                       class="reject-btn"
                       disabled={isProcessing}
                     >
@@ -287,12 +292,14 @@
                 </div>
                 <div class="member-details">
                   <div class="member-name">{s.member.name}</div>
-                  <div class="submission-date">Submitted {formatDate(s.submitted_at)}</div>
+                  <div class="submission-date">
+                    Submitted {formatDate(s.submitted_at)}
+                  </div>
                 </div>
               </div>
               <span class="category-badge">{s.category}</span>
             </div>
-            
+
             <div class="card-body">
               <div class="card-row">
                 <span class="label">Description:</span>
@@ -309,15 +316,15 @@
             </div>
 
             <div class="card-actions">
-              <button 
-                on:click={() => openApproval(s)} 
+              <button
+                on:click={() => openApproval(s)}
                 class="approve-btn mobile"
                 disabled={isProcessing}
               >
                 ✅ Approve
               </button>
-              <button 
-                on:click={() => openReject(s)} 
+              <button
+                on:click={() => openReject(s)}
                 class="reject-btn mobile"
                 disabled={isProcessing}
               >
@@ -347,10 +354,10 @@
 
   <!-- Approval Modal -->
   {#if showApprovalModal && selectedSubmission}
-    <div 
-      class="modal-overlay" 
+    <div
+      class="modal-overlay"
       on:click={closeApprovalModal}
-      on:keydown={(e) => e.key === 'Escape' && closeApprovalModal()}
+      on:keydown={(e) => e.key === "Escape" && closeApprovalModal()}
       role="dialog"
       aria-modal="true"
       aria-labelledby="approval-modal-title"
@@ -363,7 +370,8 @@
           <div class="submission-preview">
             <div class="preview-row">
               <span class="preview-label">Member:</span>
-              <span class="preview-value">{selectedSubmission.member.name}</span>
+              <span class="preview-value">{selectedSubmission.member.name}</span
+              >
             </div>
             <div class="preview-row">
               <span class="preview-label">Category:</span>
@@ -371,15 +379,20 @@
             </div>
             <div class="preview-row">
               <span class="preview-label">Description:</span>
-              <span class="preview-value">{selectedSubmission.description}</span>
+              <span class="preview-value">{selectedSubmission.description}</span
+              >
             </div>
             <div class="preview-row">
               <span class="preview-label">Points:</span>
-              <span class="preview-value points-highlight">{selectedSubmission.points}</span>
+              <span class="preview-value points-highlight"
+                >{selectedSubmission.points}</span
+              >
             </div>
             <div class="preview-row">
               <span class="preview-label">Event Date:</span>
-              <span class="preview-value">{formatDate(selectedSubmission.event_date)}</span>
+              <span class="preview-value"
+                >{formatDate(selectedSubmission.event_date)}</span
+              >
             </div>
           </div>
           <p class="confirmation-text">
@@ -387,8 +400,8 @@
           </p>
         </div>
         <div class="modal-actions">
-          <button 
-            on:click={confirmApproval} 
+          <button
+            on:click={confirmApproval}
             class="confirm-approve-btn"
             disabled={isProcessing}
             aria-describedby="approval-modal-title"
@@ -400,8 +413,8 @@
               ✅ Yes, Approve
             {/if}
           </button>
-          <button 
-            on:click={closeApprovalModal} 
+          <button
+            on:click={closeApprovalModal}
             class="cancel-btn"
             disabled={isProcessing}
           >
@@ -414,10 +427,10 @@
 
   <!-- Reject Modal -->
   {#if showRejectModal && selectedSubmission}
-    <div 
-      class="modal-overlay" 
+    <div
+      class="modal-overlay"
       on:click={closeRejectModal}
-      on:keydown={(e) => e.key === 'Escape' && closeRejectModal()}
+      on:keydown={(e) => e.key === "Escape" && closeRejectModal()}
       role="dialog"
       aria-modal="true"
       aria-labelledby="reject-modal-title"
@@ -430,7 +443,8 @@
           <div class="submission-preview">
             <div class="preview-row">
               <span class="preview-label">Member:</span>
-              <span class="preview-value">{selectedSubmission.member.name}</span>
+              <span class="preview-value">{selectedSubmission.member.name}</span
+              >
             </div>
             <div class="preview-row">
               <span class="preview-label">Category:</span>
@@ -438,13 +452,14 @@
             </div>
             <div class="preview-row">
               <span class="preview-label">Description:</span>
-              <span class="preview-value">{selectedSubmission.description}</span>
+              <span class="preview-value">{selectedSubmission.description}</span
+              >
             </div>
           </div>
           <div class="reason-section">
             <label for="rejection-reason">
               <span class="reason-label">Reason for rejection *</span>
-              <textarea 
+              <textarea
                 id="rejection-reason"
                 bind:value={rejectionReason}
                 placeholder="Please provide a clear reason for rejecting this submission..."
@@ -457,8 +472,8 @@
           </div>
         </div>
         <div class="modal-actions">
-          <button 
-            on:click={confirmReject} 
+          <button
+            on:click={confirmReject}
             class="confirm-reject-btn"
             disabled={isProcessing || !rejectionReason.trim()}
             aria-describedby="reject-modal-title"
@@ -470,8 +485,8 @@
               ❌ Reject Submission
             {/if}
           </button>
-          <button 
-            on:click={closeRejectModal} 
+          <button
+            on:click={closeRejectModal}
             class="cancel-btn"
             disabled={isProcessing}
           >
@@ -532,8 +547,12 @@
   }
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
   /* Summary Card */

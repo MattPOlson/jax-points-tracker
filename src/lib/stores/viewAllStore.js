@@ -16,7 +16,7 @@ export async function loadAllSubmissions(force = false) {
 
   const { data, error } = await supabase
     .from('point_submissions')
-    .select(`id, category, description, points, event_date, approved, rejection_reason, members(name)`)
+    .select(`id, category, description, points, event_date, submitted_at, approved, rejection_reason, members(name)`)
     .order('event_date', { ascending: false });
 
   lastLoaded = Date.now();
