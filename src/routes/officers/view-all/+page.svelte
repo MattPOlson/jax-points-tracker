@@ -1,21 +1,26 @@
 <script>
-  import { onMount, onDestroy } from 'svelte';
-  import { user } from '$lib/stores/user';
-  import { userProfile } from '$lib/stores/userProfile';
-  import { allSubmissions as storeAll, loadAllSubmissions, loading } from '$lib/stores/viewAllStore.js';
-  import { page } from '$app/stores';
+  import { onMount, onDestroy } from "svelte";
+  import { user } from "$lib/stores/user";
+  import { userProfile } from "$lib/stores/userProfile";
+  import {
+    allSubmissions as storeAll,
+    loadAllSubmissions,
+    loading,
+  } from "$lib/stores/viewAllStore.js";
+  import { page } from "$app/stores";
+  import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
 
   let submissions = [];
   let filtered = [];
   let filters = {
-    name: '',
-    category: '',
-    status: '',
-    startDate: '',
-    endDate: ''
+    name: "",
+    category: "",
+    status: "",
+    startDate: "",
+    endDate: "",
   };
-  let sortColumn = 'event_date';
-  let sortDirection = 'desc';
+  let sortColumn = "event_date";
+  let sortDirection = "desc";
   let showFilters = false;
   let cleanupFunctions = [];
 
@@ -24,19 +29,19 @@
   // Setup tab focus handler with F5 fix
   function setupEventHandlers() {
     let isFirstLoad = true;
-    
+
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && !isFirstLoad) {
-        console.log('🔄 Tab became visible - doing F5 refresh');
+      if (document.visibilityState === "visible" && !isFirstLoad) {
+        console.log("🔄 Tab became visible - doing F5 refresh");
         window.location.reload();
       }
       isFirstLoad = false;
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }
 
@@ -54,55 +59,71 @@
   }
 
   // Format date helper
-  function formatDate(dateString) {
-    try {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    } catch {
-      return 'Invalid Date';
-    }
-  }
+  //function formatDate(dateString) {
+  //  try {
+  //    return new Date(dateString).toLocaleDateString('en-US', {
+  //      year: 'numeric',
+  //      month: 'short',
+  //      day: 'numeric'
+  //    });
+  //  } catch {
+  //    return 'Invalid Date';
+  //  }
+  //}
 
   // Format status helper
   function formatStatus(submission) {
-    if (submission.approved === true) return { text: "Approved", icon: "✅", class: "status-approved" };
-    if (submission.rejection_reason) return { text: "Rejected", icon: "❌", class: "status-rejected" };
+    if (submission.approved === true)
+      return { text: "Approved", icon: "✅", class: "status-approved" };
+    if (submission.rejection_reason)
+      return { text: "Rejected", icon: "❌", class: "status-rejected" };
     return { text: "Pending", icon: "⏳", class: "status-pending" };
   }
 
   // Get unique categories for filter dropdown
-  $: categories = [...new Set(submissions.map(s => s.category).filter(Boolean))].sort();
+  $: categories = [
+    ...new Set(submissions.map((s) => s.category).filter(Boolean)),
+  ].sort();
 
   // Load submissions
   async function loadSubmissions(force = false) {
     try {
       await loadAllSubmissions(force);
     } catch (error) {
-      console.error('Error loading submissions:', error);
+      console.error("Error loading submissions:", error);
     }
   }
 
   // Apply filters and sorting
   function applyFilters() {
     let result = submissions.filter((s) => {
-      const matchesName = filters.name === '' || 
+      const matchesName =
+        filters.name === "" ||
         s.members?.name?.toLowerCase().includes(filters.name.toLowerCase());
-      const matchesCategory = filters.category === '' || 
+      const matchesCategory =
+        filters.category === "" ||
         s.category?.toLowerCase().includes(filters.category.toLowerCase());
       const matchesStatus =
-        filters.status === '' ||
-        (filters.status === 'approved' && s.approved === true) ||
-        (filters.status === 'rejected' && s.rejection_reason) ||
-        (filters.status === 'pending' && s.approved === false && !s.rejection_reason);
-      
+        filters.status === "" ||
+        (filters.status === "approved" && s.approved === true) ||
+        (filters.status === "rejected" && s.rejection_reason) ||
+        (filters.status === "pending" &&
+          s.approved === false &&
+          !s.rejection_reason);
+
       const date = new Date(s.event_date);
-      const afterStart = filters.startDate === '' || new Date(filters.startDate) <= date;
-      const beforeEnd = filters.endDate === '' || new Date(filters.endDate) >= date;
-      
-      return matchesName && matchesCategory && matchesStatus && afterStart && beforeEnd;
+      const afterStart =
+        filters.startDate === "" || new Date(filters.startDate) <= date;
+      const beforeEnd =
+        filters.endDate === "" || new Date(filters.endDate) >= date;
+
+      return (
+        matchesName &&
+        matchesCategory &&
+        matchesStatus &&
+        afterStart &&
+        beforeEnd
+      );
     });
 
     // Apply sorting
@@ -111,25 +132,25 @@
       let bVal = b[sortColumn];
 
       // Handle special cases
-      if (sortColumn === 'members') {
-        aVal = a.members?.name || '';
-        bVal = b.members?.name || '';
+      if (sortColumn === "members") {
+        aVal = a.members?.name || "";
+        bVal = b.members?.name || "";
       }
 
       // Handle dates
-      if (sortColumn === 'event_date' || sortColumn === 'submitted_at') {
+      if (sortColumn === "event_date" || sortColumn === "submitted_at") {
         aVal = new Date(aVal);
         bVal = new Date(bVal);
       }
 
       // Handle numbers
-      if (typeof aVal === 'number' && typeof bVal === 'number') {
-        return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+      if (typeof aVal === "number" && typeof bVal === "number") {
+        return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
       }
 
       // Handle strings and dates
-      if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
-      if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
       return 0;
     });
 
@@ -139,10 +160,10 @@
   // Sort table
   function sortTable(column) {
     if (sortColumn === column) {
-      sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+      sortDirection = sortDirection === "asc" ? "desc" : "asc";
     } else {
       sortColumn = column;
-      sortDirection = 'asc';
+      sortDirection = "asc";
     }
     applyFilters();
   }
@@ -150,11 +171,11 @@
   // Clear all filters
   function clearFilters() {
     filters = {
-      name: '',
-      category: '',
-      status: '',
-      startDate: '',
-      endDate: ''
+      name: "",
+      category: "",
+      status: "",
+      startDate: "",
+      endDate: "",
     };
     applyFilters();
   }
@@ -163,9 +184,10 @@
   $: filterStats = {
     total: submissions.length,
     filtered: filtered.length,
-    approved: filtered.filter(s => s.approved === true).length,
-    pending: filtered.filter(s => s.approved === false && !s.rejection_reason).length,
-    rejected: filtered.filter(s => s.rejection_reason).length
+    approved: filtered.filter((s) => s.approved === true).length,
+    pending: filtered.filter((s) => s.approved === false && !s.rejection_reason)
+      .length,
+    rejected: filtered.filter((s) => s.rejection_reason).length,
   };
 
   onMount(() => {
@@ -181,7 +203,7 @@
 
   onDestroy(() => {
     // Cleanup all event listeners
-    cleanupFunctions.forEach(cleanup => cleanup());
+    cleanupFunctions.forEach((cleanup) => cleanup());
   });
 
   // Reload when navigating to view all page
@@ -219,14 +241,14 @@
     <!-- Filter Controls -->
     <div class="controls-section">
       <div class="controls-header">
-        <button 
-          on:click={() => showFilters = !showFilters} 
+        <button
+          on:click={() => (showFilters = !showFilters)}
           class="filter-toggle"
           class:active={showFilters}
         >
-          🔍 {showFilters ? 'Hide' : 'Show'} Filters
+          🔍 {showFilters ? "Hide" : "Show"} Filters
         </button>
-        
+
         <div class="stats-summary">
           <span class="stat">Total: {filterStats.total}</span>
           {#if filterStats.filtered !== filterStats.total}
@@ -239,18 +261,22 @@
         <div class="filters-grid">
           <div class="filter-group">
             <label for="name-filter">Member Name</label>
-            <input 
+            <input
               id="name-filter"
-              type="text" 
-              placeholder="Search by name..." 
-              bind:value={filters.name} 
+              type="text"
+              placeholder="Search by name..."
+              bind:value={filters.name}
               on:input={applyFilters}
             />
           </div>
 
           <div class="filter-group">
             <label for="category-filter">Category</label>
-            <select id="category-filter" bind:value={filters.category} on:change={applyFilters}>
+            <select
+              id="category-filter"
+              bind:value={filters.category}
+              on:change={applyFilters}
+            >
               <option value="">All Categories</option>
               {#each categories as category}
                 <option value={category}>{category}</option>
@@ -260,7 +286,11 @@
 
           <div class="filter-group">
             <label for="status-filter">Status</label>
-            <select id="status-filter" bind:value={filters.status} on:change={applyFilters}>
+            <select
+              id="status-filter"
+              bind:value={filters.status}
+              on:change={applyFilters}
+            >
               <option value="">All Status</option>
               <option value="approved">✅ Approved</option>
               <option value="pending">⏳ Pending</option>
@@ -270,20 +300,20 @@
 
           <div class="filter-group">
             <label for="start-date">Start Date</label>
-            <input 
+            <input
               id="start-date"
-              type="date" 
-              bind:value={filters.startDate} 
+              type="date"
+              bind:value={filters.startDate}
               on:change={applyFilters}
             />
           </div>
 
           <div class="filter-group">
             <label for="end-date">End Date</label>
-            <input 
+            <input
               id="end-date"
-              type="date" 
-              bind:value={filters.endDate} 
+              type="date"
+              bind:value={filters.endDate}
               on:change={applyFilters}
             />
           </div>
@@ -337,51 +367,63 @@
         <table class="desktop-table">
           <thead>
             <tr>
-              <th 
+              <th
                 class="sortable"
-                class:sort-asc={sortColumn === 'members' && sortDirection === 'asc'}
-                class:sort-desc={sortColumn === 'members' && sortDirection === 'desc'}
-                on:click={() => sortTable('members')}
+                class:sort-asc={sortColumn === "members" &&
+                  sortDirection === "asc"}
+                class:sort-desc={sortColumn === "members" &&
+                  sortDirection === "desc"}
+                on:click={() => sortTable("members")}
               >
                 Member
               </th>
-              <th 
+              <th
                 class="sortable"
-                class:sort-asc={sortColumn === 'category' && sortDirection === 'asc'}
-                class:sort-desc={sortColumn === 'category' && sortDirection === 'desc'}
-                on:click={() => sortTable('category')}
+                class:sort-asc={sortColumn === "category" &&
+                  sortDirection === "asc"}
+                class:sort-desc={sortColumn === "category" &&
+                  sortDirection === "desc"}
+                on:click={() => sortTable("category")}
               >
                 Category
               </th>
-              <th 
+              <th
                 class="sortable"
-                class:sort-asc={sortColumn === 'description' && sortDirection === 'asc'}
-                class:sort-desc={sortColumn === 'description' && sortDirection === 'desc'}
-                on:click={() => sortTable('description')}
+                class:sort-asc={sortColumn === "description" &&
+                  sortDirection === "asc"}
+                class:sort-desc={sortColumn === "description" &&
+                  sortDirection === "desc"}
+                on:click={() => sortTable("description")}
               >
                 Description
               </th>
-              <th 
+              <th
                 class="sortable"
-                class:sort-asc={sortColumn === 'points' && sortDirection === 'asc'}
-                class:sort-desc={sortColumn === 'points' && sortDirection === 'desc'}
-                on:click={() => sortTable('points')}
+                class:sort-asc={sortColumn === "points" &&
+                  sortDirection === "asc"}
+                class:sort-desc={sortColumn === "points" &&
+                  sortDirection === "desc"}
+                on:click={() => sortTable("points")}
               >
                 Points
               </th>
-              <th 
+              <th
                 class="sortable"
-                class:sort-asc={sortColumn === 'event_date' && sortDirection === 'asc'}
-                class:sort-desc={sortColumn === 'event_date' && sortDirection === 'desc'}
-                on:click={() => sortTable('event_date')}
+                class:sort-asc={sortColumn === "event_date" &&
+                  sortDirection === "asc"}
+                class:sort-desc={sortColumn === "event_date" &&
+                  sortDirection === "desc"}
+                on:click={() => sortTable("event_date")}
               >
                 Event Date
               </th>
-              <th 
+              <th
                 class="sortable"
-                class:sort-asc={sortColumn === 'submitted_at' && sortDirection === 'asc'}
-                class:sort-desc={sortColumn === 'submitted_at' && sortDirection === 'desc'}
-                on:click={() => sortTable('submitted_at')}
+                class:sort-asc={sortColumn === "submitted_at" &&
+                  sortDirection === "asc"}
+                class:sort-desc={sortColumn === "submitted_at" &&
+                  sortDirection === "desc"}
+                on:click={() => sortTable("submitted_at")}
               >
                 Submitted
               </th>
@@ -394,9 +436,11 @@
                 <td class="member-cell">
                   <div class="member-info">
                     <div class="member-avatar">
-                      {(s.members?.name || 'U')[0].toUpperCase()}
+                      {(s.members?.name || "U")[0].toUpperCase()}
                     </div>
-                    <span class="member-name">{s.members?.name || 'Unknown'}</span>
+                    <span class="member-name"
+                      >{s.members?.name || "Unknown"}</span
+                    >
                   </div>
                 </td>
                 <td class="category-cell">
@@ -407,7 +451,11 @@
                   <span class="points-value">{s.points}</span>
                 </td>
                 <td class="date-cell">{formatDate(s.event_date)}</td>
-                <td class="submitted-cell">{formatDate(s.submitted_at)}</td>
+                <td class="submitted-cell">
+                  {s.submitted_at
+                    ? formatDate(s.submitted_at)
+                    : "Not available"}
+                </td>
                 <td class="status-cell">
                   <span class="status-badge {formatStatus(s).class}">
                     <span class="status-icon">{formatStatus(s).icon}</span>
@@ -427,11 +475,13 @@
             <div class="card-header">
               <div class="member-info">
                 <div class="member-avatar">
-                  {(s.members?.name || 'U')[0].toUpperCase()}
+                  {(s.members?.name || "U")[0].toUpperCase()}
                 </div>
                 <div class="member-details">
-                  <div class="member-name">{s.members?.name || 'Unknown'}</div>
-                  <div class="submission-date">Submitted {formatDate(s.submitted_at)}</div>
+                  <div class="member-name">{s.members?.name || "Unknown"}</div>
+                  <div class="submission-date">
+                    Submitted {formatSubmissionTime(s.submitted_at)}
+                  </div>
                 </div>
               </div>
               <span class="status-badge {formatStatus(s).class}">
@@ -439,7 +489,7 @@
                 {formatStatus(s).text}
               </span>
             </div>
-            
+
             <div class="card-body">
               <div class="card-row">
                 <span class="label">Category:</span>
@@ -529,8 +579,12 @@
   }
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
   /* Controls Section */
@@ -670,10 +724,18 @@
     border-left: 4px solid;
   }
 
-  .stat-card.approved { border-left-color: #059669; }
-  .stat-card.pending { border-left-color: #d97706; }
-  .stat-card.rejected { border-left-color: #dc2626; }
-  .stat-card.total { border-left-color: #ff3e00; }
+  .stat-card.approved {
+    border-left-color: #059669;
+  }
+  .stat-card.pending {
+    border-left-color: #d97706;
+  }
+  .stat-card.rejected {
+    border-left-color: #dc2626;
+  }
+  .stat-card.total {
+    border-left-color: #ff3e00;
+  }
 
   .stat-icon {
     font-size: 2rem;

@@ -47,6 +47,7 @@ export async function loadApprovals(force = false) {
       description,
       points,
       event_date,
+      submitted_at,
       member_id,
       member:member_id ( name )
     `)

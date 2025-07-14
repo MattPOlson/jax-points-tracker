@@ -9,6 +9,7 @@
     loadMySubmissions,
     loading,
   } from "$lib/stores/mySubmissionsStore.js";
+  import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
 
   let submissions = [];
   let message = "";
@@ -102,17 +103,17 @@
     return { text: "Pending", icon: "⏳", class: "status-pending" };
   }
 
-  function formatDate(dateString) {
-    try {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    } catch {
-      return 'Invalid Date';
-    }
-  }
+ // function formatDate(dateString) {
+ //   try {
+ //     return new Date(dateString).toLocaleDateString('en-US', {
+ //       year: 'numeric',
+ //       month: 'short',
+ //       day: 'numeric'
+ //     });
+ //   } catch {
+ //     return 'Invalid Date';
+ //   }
+ // }
 
   function getStatusCounts() {
     // Use the full store data, not the filtered submissions
