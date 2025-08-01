@@ -94,7 +94,7 @@
   $: needsDescription =
     selectedCategory && $isLoaded
       ? $categories.find((c) => c.name === selectedCategory)?.placement ===
-          false && selectedCategory !== "Jax Club Event"
+          false && selectedCategory !== "Jax Club Event" && selectedCategory !== "Volunteer"
       : false;
 
   // NEW: Show placement dropdown for Florida Circuit only when user placed
@@ -233,7 +233,7 @@
     } else if (selectedCategory === "Monthly Challenge") {
       return selectedEvent;
     } else if (selectedCategory === "Volunteer") {
-      return selectedFloridaEvent;
+      return `Volunteered at ${selectedFloridaEvent}`;
     } else if (selectedCategory === "Jax Club Event") {
       return selectedClubEvent;
     } else if (
@@ -451,6 +451,14 @@
             {/each}
           </select>
         </label>
+        
+        <!-- Read-only description display for Volunteer -->
+        {#if selectedFloridaEvent}
+          <div class="description-display">
+            <label class="form-label">Description</label>
+            <div class="read-only-field">Volunteered at {selectedFloridaEvent}</div>
+          </div>
+        {/if}
       {/if}
 
       <!-- Enhanced placement selection logic -->
@@ -695,5 +703,31 @@
       min-width: 44px;
       min-height: 44px;
     }
+  }
+
+  /* NEW: Read-only description field styling for Volunteer category */
+  .description-display {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-label {
+    font-weight: 500;
+    color: #333;
+  }
+
+  .read-only-field {
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    font-size: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #f8fafc;
+    color: #6b7280;
+    font-style: italic;
+    cursor: not-allowed;
   }
 </style>
