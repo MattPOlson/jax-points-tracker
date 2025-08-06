@@ -29,22 +29,43 @@
   let isSubmitting = false;
   let customDescription = "";
   let selectedClubEvent = "";
+  
+  // NEW: Florida Circuit enhancement variables
+  let didPlaceInEvent = null; // "Yes" | "No" | null
+  let pointsBreakdown = "";
+  let points = null; // Add missing points variable
 
   // Cleanup functions
   let cleanupFunctions = [];
 
   // Derived values
   $: user = $userProfile;
-  $: points = selectedPlacement
-    ? ($placementOptions.find((p) => p.value === selectedPlacement)?.points ??
-      null)
-    : selectedCategory && $isLoaded
-      ? ($placementOptions.find(
-          (p) =>
-            p.category === selectedCategory &&
-            (p.value === "EMPTY" || p.value === ""),
-        )?.points ?? null)
-      : null;
+  
+  // Enhanced points calculation with Florida Circuit logic
+  $: if (selectedCategory === "Florida Circuit" && selectedFloridaEvent) {
+    if (didPlaceInEvent === "No") {
+      points = 1; // Participation only
+      pointsBreakdown = "1 point (Participation)";
+    } else if (didPlaceInEvent === "Yes" && selectedPlacement) {
+      const placementPoints = $placementOptions.find(p => p.value === selectedPlacement)?.points ?? 0;
+      points = 1 + placementPoints;
+      pointsBreakdown = `1 (Participation) + ${placementPoints} (${selectedPlacement}) = ${points} points`;
+    } else {
+      points = null;
+      pointsBreakdown = "";
+    }
+  } else {
+    // Existing logic for other categories
+    points = selectedPlacement
+      ? ($placementOptions.find((p) => p.value === selectedPlacement)?.points ?? null)
+      : selectedCategory && $isLoaded
+        ? ($placementOptions.find(
+            (p) => p.category === selectedCategory && (p.value === "EMPTY" || p.value === ""),
+          )?.points ?? null)
+        : null;
+    
+    pointsBreakdown = points ? `${points} points` : "";
+  }
 
   // Filter data based on category selection
   $: filteredPlacements =
@@ -64,7 +85,6 @@
     selectedCategory === "Jax Club Event" && $isLoaded ? $clubEventTypes : [];
 
   // Check if category needs placement selection
-  // Check if category needs placement selection
   $: needsPlacement =
     selectedCategory && $isLoaded
       ? $categories.find((c) => c.name === selectedCategory)?.placement === true
@@ -74,8 +94,14 @@
   $: needsDescription =
     selectedCategory && $isLoaded
       ? $categories.find((c) => c.name === selectedCategory)?.placement ===
-          false && selectedCategory !== "Jax Club Event"
+          false && selectedCategory !== "Jax Club Event" && selectedCategory !== "Volunteer"
       : false;
+
+  // NEW: Show placement dropdown for Florida Circuit only when user placed
+  $: showPlacementDropdown = selectedCategory === "Florida Circuit" && 
+                            selectedFloridaEvent && 
+                            didPlaceInEvent === "Yes";
+
   // Reset dependent fields when category changes
   $: if (selectedCategory) {
     selectedEvent = "";
@@ -83,12 +109,21 @@
     selectedClubEvent = "";
     selectedPlacement = "";
     eventDate = "";
+    didPlaceInEvent = null; // Reset participation choice
   }
 
   // Reset placement when event changes
   $: if (selectedEvent || selectedFloridaEvent) {
     selectedPlacement = "";
     eventDate = "";
+    if (selectedFloridaEvent && selectedCategory === "Florida Circuit") {
+      didPlaceInEvent = null; // Reset participation choice when changing Florida Circuit events
+    }
+  }
+
+  // Reset placement when switching to participation only
+  $: if (didPlaceInEvent === "No") {
+    selectedPlacement = null;
   }
 
   // Data loading function
@@ -131,23 +166,27 @@
     };
   }
 
-  // Form validation
+  // Enhanced form validation with Florida Circuit logic
   function validateForm() {
     const errors = [];
 
     if (!selectedCategory) errors.push("Please select a category");
     if (!eventDate) errors.push("Please select an event date");
-    // Only require placement for non-Volunteer categories
-    if (needsPlacement && !selectedPlacement) {
-      errors.push("Please select a placement");
+    
+    // Florida Circuit specific validation
+    if (selectedCategory === "Florida Circuit") {
+      if (!selectedFloridaEvent) errors.push("Please select a Florida Circuit event");
+      if (didPlaceInEvent === null) errors.push("Please indicate if you placed in this event");
+      if (didPlaceInEvent === "Yes" && !selectedPlacement) errors.push("Please select your placement");
+    } else {
+      // Existing validation for other categories
+      if (needsPlacement && !selectedPlacement) {
+        errors.push("Please select a placement");
+      }
     }
 
     if (selectedCategory === "Monthly Challenge" && !selectedEvent) {
       errors.push("Please select a monthly event");
-    }
-
-    if (selectedCategory === "Florida Circuit" && !selectedFloridaEvent) {
-      errors.push("Please select a Florida Circuit event");
     }
 
     if (selectedCategory === "Volunteer" && !selectedFloridaEvent) {
@@ -178,6 +217,34 @@
     eventDate = "";
     customDescription = "";
     selectedClubEvent = "";
+    didPlaceInEvent = null; // Reset participation choice
+  }
+
+  // Enhanced description building
+  function getSubmissionDescription() {
+    if (selectedCategory === "Florida Circuit") {
+      const baseDescription = selectedFloridaEvent;
+      const placementText = didPlaceInEvent === "Yes" && selectedPlacement 
+        ? ` - ${selectedPlacement}` 
+        : didPlaceInEvent === "No" 
+          ? " - Participation Only"
+          : "";
+      return baseDescription + placementText;
+    } else if (selectedCategory === "Monthly Challenge") {
+      return selectedEvent;
+    } else if (selectedCategory === "Volunteer") {
+      return `Volunteered at ${selectedFloridaEvent}`;
+    } else if (selectedCategory === "Jax Club Event") {
+      return selectedClubEvent;
+    } else if (
+      selectedCategory === "Brew Pick of Destiny" ||
+      selectedCategory === "Officer Position" ||
+      selectedCategory === "JAX Presentation" ||
+      selectedCategory === "Host Group Brew"
+    ) {
+      return customDescription.trim();
+    }
+    return "";
   }
 
   // Submit handler
@@ -193,23 +260,7 @@
     isSubmitting = true;
 
     try {
-      let description = "";
-      if (selectedCategory === "Monthly Challenge") {
-        description = selectedEvent;
-      } else if (selectedCategory === "Florida Circuit") {
-        description = selectedFloridaEvent;
-      } else if (selectedCategory === "Volunteer") {
-        description = selectedFloridaEvent;
-      } else if (selectedCategory === "Jax Club Event") {
-        description = selectedClubEvent;
-      } else if (
-        selectedCategory === "Brew Pick of Destiny" ||
-        selectedCategory === "Officer Position" ||
-        selectedCategory === "JAX Presentation" ||
-        selectedCategory === "Host Group Brew"
-      ) {
-        description = customDescription.trim();
-      }
+      const description = getSubmissionDescription();
 
       const payload = {
         member_id: user.id,
@@ -239,7 +290,7 @@
     }
   }
 
-  // Check if form is valid for submission
+  // Enhanced form validation for submission
   $: canSubmit =
     selectedCategory &&
     eventDate &&
@@ -247,12 +298,15 @@
     !isSubmitting &&
     !$isLoading &&
     !$isLoadingProfile &&
+    // Florida Circuit specific validation
+    (selectedCategory !== "Florida Circuit" || 
+     (selectedFloridaEvent && didPlaceInEvent && 
+      (didPlaceInEvent === "No" || selectedPlacement))) &&
+    // Existing validations for other categories
     ((selectedCategory === "Monthly Challenge" &&
       selectedEvent &&
       selectedPlacement) ||
-      (selectedCategory === "Florida Circuit" &&
-        selectedFloridaEvent &&
-        selectedPlacement) ||
+      (selectedCategory === "Florida Circuit") || // Handled above
       (selectedCategory === "Jax Club Event" && selectedClubEvent) ||
       (selectedCategory === "Volunteer" && selectedFloridaEvent) ||
       ((selectedCategory === "Brew Pick of Destiny" ||
@@ -336,6 +390,33 @@
         </label>
       {/if}
 
+      <!-- NEW: Florida Circuit Placement Question -->
+      {#if selectedCategory === "Florida Circuit" && selectedFloridaEvent}
+        <div class="placement-question">
+          <label class="question-label">Did you place in this event? *</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input
+                type="radio"
+                bind:group={didPlaceInEvent}
+                value="No"
+                class="radio-input"
+              />
+              <span class="radio-text">No - Participation Only</span>
+            </label>
+            <label class="radio-option">
+              <input
+                type="radio"
+                bind:group={didPlaceInEvent}
+                value="Yes"
+                class="radio-input"
+              />
+              <span class="radio-text">Yes - I placed in this event</span>
+            </label>
+          </div>
+        </div>
+      {/if}
+
       {#if selectedCategory === "Monthly Challenge"}
         <label>
           Monthly Event *
@@ -370,9 +451,18 @@
             {/each}
           </select>
         </label>
+        
+        <!-- Read-only description display for Volunteer -->
+        {#if selectedFloridaEvent}
+          <div class="description-display">
+            <label class="form-label">Description</label>
+            <div class="read-only-field">Volunteered at {selectedFloridaEvent}</div>
+          </div>
+        {/if}
       {/if}
 
-      {#if filteredPlacements.length > 0 && needsPlacement && (selectedCategory !== "Monthly Challenge" || selectedEvent) && (selectedCategory !== "Florida Circuit" || selectedFloridaEvent) && (selectedCategory !== "Jax Club Event" || selectedClubEvent)}
+      <!-- Enhanced placement selection logic -->
+      {#if (filteredPlacements.length > 0 && needsPlacement && (selectedCategory !== "Monthly Challenge" || selectedEvent) && (selectedCategory !== "Florida Circuit" || showPlacementDropdown) && (selectedCategory !== "Jax Club Event" || selectedClubEvent)) || showPlacementDropdown}
         <label>
           Placement *
           <select bind:value={selectedPlacement} required>
@@ -384,9 +474,10 @@
         </label>
       {/if}
 
-      {#if selectedPlacement || (selectedCategory === "Volunteer" && selectedFloridaEvent) || (selectedCategory === "Jax Club Event" && selectedClubEvent) || ((selectedCategory === "Brew Pick of Destiny" || selectedCategory === "Officer Position" || selectedCategory === "JAX Presentation" || selectedCategory === "Host Group Brew") && customDescription.trim())}
+      <!-- Enhanced points and date display -->
+      {#if selectedPlacement || (selectedCategory === "Florida Circuit" && didPlaceInEvent === "No") || (selectedCategory === "Volunteer" && selectedFloridaEvent) || (selectedCategory === "Jax Club Event" && selectedClubEvent) || ((selectedCategory === "Brew Pick of Destiny" || selectedCategory === "Officer Position" || selectedCategory === "JAX Presentation" || selectedCategory === "Host Group Brew") && customDescription.trim())}
         <div class="points-display">
-          <p><strong>Points: {points ?? "—"}</strong></p>
+          <p><strong>Points: {pointsBreakdown || (points ? `${points} points` : "—")}</strong></p>
         </div>
 
         <label>
@@ -544,5 +635,99 @@
   textarea:focus {
     outline: none;
     border-color: #2563eb;
+  }
+
+  /* NEW: Florida Circuit Radio Button Styling */
+  .placement-question {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .question-label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+  }
+
+  .radio-option:hover {
+    border-color: #ff3e00;
+    background-color: #fef2f2;
+  }
+
+  .radio-option:has(.radio-input:checked) {
+    border-color: #ff3e00;
+    background-color: #fef2f2;
+  }
+
+  .radio-input {
+    width: 20px;
+    height: 20px;
+    accent-color: #ff3e00;
+    cursor: pointer;
+  }
+
+  .radio-text {
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    flex-grow: 1;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 480px) {
+    .radio-option {
+      min-height: 44px; /* Touch target requirement */
+      padding: 1rem 0.75rem;
+    }
+    
+    .radio-input {
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
+
+  /* NEW: Read-only description field styling for Volunteer category */
+  .description-display {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-label {
+    font-weight: 500;
+    color: #333;
+  }
+
+  .read-only-field {
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    font-size: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #f8fafc;
+    color: #6b7280;
+    font-style: italic;
+    cursor: not-allowed;
   }
 </style>
