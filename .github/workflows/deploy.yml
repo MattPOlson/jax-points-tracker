@@ -11,6 +11,7 @@ on:
   pull_request:
     branches:
       - master
+    types: [closed]
 
 env:
   PROJECT_ID: jax-points-tracker
@@ -22,8 +23,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     
-    # Only deploy on push events (not PRs)
-    if: github.event_name == 'push'
+    # Deploy on:
+    # 1. Direct pushes to non-master branches (feature branches)
+    # 2. Merged PRs to master (production deployments)
+    if: |
+      (github.event_name == 'push' && github.ref != 'refs/heads/master') ||
+      (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'master')
     
     steps:
     - name: Checkout code
@@ -45,8 +50,14 @@ jobs:
     - name: Extract branch name and set service name
       id: extract_branch
       run: |
-        # Get the branch name from the ref
-        BRANCH_NAME=${GITHUB_REF#refs/heads/}
+        # Get the branch name from the ref or PR target
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          # For merged PRs, use the target branch (master)
+          BRANCH_NAME="${{ github.event.pull_request.base.ref }}"
+        else
+          # For direct pushes, use the pushed branch
+          BRANCH_NAME=${GITHUB_REF#refs/heads/}
+        fi
         echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
         
         # Set service name based on branch
@@ -92,12 +103,12 @@ jobs:
         echo "🔗 URL: ${{ steps.get_url.outputs.service_url }}"
         echo "🌿 Branch: ${{ steps.extract_branch.outputs.branch_name }}"
 
-  # Optional: Build-only job for PRs (no deployment)
+  # Build-only job for open PRs (validation before merge)
   build-only:
     runs-on: ubuntu-latest
     
-    # Only run on pull requests
-    if: github.event_name == 'pull_request'
+    # Only run on open pull requests (not merged ones)
+    if: github.event_name == 'pull_request' && github.event.action != 'closed'
     
     steps:
     - name: Checkout code
