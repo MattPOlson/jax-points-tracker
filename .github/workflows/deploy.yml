@@ -1,0 +1,128 @@
+# .github/workflows/deploy.yml
+name: Build and Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - 'feature/*'
+      - 'hotfix/*'
+  pull_request:
+    branches:
+      - master
+
+env:
+  PROJECT_ID: jax-points-tracker
+  REGION: us-central1
+  SUPABASE_URL: https://ftdradvuyhumgrjrsmkp.supabase.co
+  SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0ZHJhZHZ1eWh1bWdyanJzbWtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3NjY1NjQsImV4cCI6MjA2MzM0MjU2NH0.SxWO5NdfiyM36KeSWof2DP5H18FmE7inlwJw8yQINqk
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    # Only deploy on push events (not PRs)
+    if: github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: ${{ env.PROJECT_ID }}
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Configure Docker to use gcloud as a credential helper
+      run: gcloud auth configure-docker
+
+    - name: Extract branch name and set service name
+      id: extract_branch
+      run: |
+        # Get the branch name from the ref
+        BRANCH_NAME=${GITHUB_REF#refs/heads/}
+        echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+        
+        # Set service name based on branch
+        if [ "$BRANCH_NAME" = "master" ]; then
+          SERVICE_NAME="jax-points"
+        else
+          # Replace special characters and convert to lowercase for Cloud Run naming
+          CLEAN_BRANCH=$(echo "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')
+          SERVICE_NAME="jax-points-$CLEAN_BRANCH"
+        fi
+        echo "service_name=$SERVICE_NAME" >> $GITHUB_OUTPUT
+        echo "🚀 Deploying to service: $SERVICE_NAME"
+
+    - name: Build and submit to Cloud Build
+      run: |
+        gcloud builds submit --config cloudbuild.yaml \
+          --substitutions=_SERVICE_NAME=${{ steps.extract_branch.outputs.service_name }}
+
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy ${{ steps.extract_branch.outputs.service_name }} \
+          --image gcr.io/${{ env.PROJECT_ID }}/jax-points \
+          --platform managed \
+          --allow-unauthenticated \
+          --region ${{ env.REGION }} \
+          --port 8080 \
+          --set-env-vars SUPABASE_URL=${{ env.SUPABASE_URL }} \
+          --set-env-vars SUPABASE_ANON_KEY=${{ env.SUPABASE_ANON_KEY }}
+
+    - name: Get service URL
+      id: get_url
+      run: |
+        SERVICE_URL=$(gcloud run services describe ${{ steps.extract_branch.outputs.service_name }} \
+          --platform managed \
+          --region ${{ env.REGION }} \
+          --format 'value(status.url)')
+        echo "service_url=$SERVICE_URL" >> $GITHUB_OUTPUT
+
+    - name: Output deployment info
+      run: |
+        echo "✅ Deployment completed successfully!"
+        echo "🌍 Service: ${{ steps.extract_branch.outputs.service_name }}"
+        echo "🔗 URL: ${{ steps.get_url.outputs.service_url }}"
+        echo "🌿 Branch: ${{ steps.extract_branch.outputs.branch_name }}"
+
+  # Optional: Build-only job for PRs (no deployment)
+  build-only:
+    runs-on: ubuntu-latest
+    
+    # Only run on pull requests
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: ${{ env.PROJECT_ID }}
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Configure Docker to use gcloud as a credential helper
+      run: gcloud auth configure-docker
+
+    - name: Build only (PR validation)
+      run: |
+        echo "🔍 Building for PR validation..."
+        gcloud builds submit --config cloudbuild.yaml
+
+    - name: PR Build Status
+      run: |
+        echo "✅ PR build completed successfully!"
+        echo "📦 Docker image built and validated"
+        echo "🔀 PR: ${{ github.head_ref }} → ${{ github.base_ref }}"
