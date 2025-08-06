@@ -6,6 +6,8 @@
   import { loadCategoryData } from '$lib/stores/categoryStore';
   import { loadLeaderboard } from '$lib/stores/leaderboardStore';
   import { loadMySubmissions } from '$lib/stores/mySubmissionsStore';
+  import { loadCompetitionData, activeCompetitions } from '$lib/stores/bjcpCategoryStore';
+  import { loadMyEntries, entryStats } from '$lib/stores/myCompetitionEntriesStore';
   import { page } from '$app/stores';
   import { version } from '$lib/version.js';
 
@@ -18,6 +20,8 @@
     loadCategoryData(true);
     loadLeaderboard(true);
     loadUserProfile(true);
+    loadCompetitionData(true); // Load competition data
+    loadMyEntries(true); // Load user's competition entries
   }
 
   // Auto-refresh on tab focus with tab reload fix
@@ -28,11 +32,36 @@
     });
   }
 
+  // Competition status for display
+  $: competitionStatus = getCompetitionStatus($activeCompetitions, $entryStats);
+
+  function getCompetitionStatus(competitions, stats) {
+    if (!competitions || competitions.length === 0) {
+      return { text: 'No active competitions', badge: null };
+    }
+    
+    const activeCount = competitions.length;
+    const userEntries = stats?.active || 0;
+    
+    if (userEntries > 0) {
+      return { 
+        text: `${activeCount} active competition${activeCount === 1 ? '' : 's'}`, 
+        badge: `${userEntries} ${userEntries === 1 ? 'entry' : 'entries'}` 
+      };
+    }
+    
+    return { 
+      text: `${activeCount} active competition${activeCount === 1 ? '' : 's'}`, 
+      badge: 'Enter now!' 
+    };
+  }
+
   // Navigation items configuration
   const navItems = [
     { href: '/submit', label: 'Submit Points', icon: '📝', description: 'Submit your brewing achievements' },
     { href: '/my-submissions', label: 'My Submissions', icon: '📋', description: 'Track your submission status' },
-    { href: '/leaderboard', label: 'Leaderboard', icon: '🏆', description: 'See who\'s brewing the best' },
+    { href: '/competitions', label: 'Competitions', icon: '🏆', description: 'Enter beer competitions', isCompetition: true },
+    { href: '/leaderboard', label: 'Leaderboard', icon: '🏅', description: 'See who\'s brewing the best' },
     { href: '/profile', label: 'My Profile', icon: '👤', description: 'Manage your account', authRequired: true }
   ];
 
@@ -80,11 +109,19 @@
     <h2>Quick Actions</h2>
     <div class="nav-links">
       {#each visibleNavItems as item}
-        <a href={item.href} class="nav-button">
+        <a href={item.href} class="nav-button" class:competition-button={item.isCompetition}>
           <span class="nav-icon">{item.icon}</span>
           <div class="nav-content">
             <span class="nav-label">{item.label}</span>
             <span class="nav-description">{item.description}</span>
+            {#if item.isCompetition && isLoggedIn && competitionStatus}
+              <div class="competition-status">
+                <span class="status-text">{competitionStatus.text}</span>
+                {#if competitionStatus.badge}
+                  <span class="status-badge">{competitionStatus.badge}</span>
+                {/if}
+              </div>
+            {/if}
           </div>
         </a>
       {/each}
@@ -218,6 +255,53 @@
     border-color: #2563eb;
   }
 
+  /* Competition button styling */
+  .competition-button {
+    border-color: #ff3e00;
+    background: linear-gradient(135deg, #fff 0%, #fff8f6 100%);
+  }
+
+  .competition-button:hover {
+    background-color: #ff3e00;
+    border-color: #ff3e00;
+    box-shadow: 0 4px 12px rgba(255, 62, 0, 0.3);
+  }
+
+  .competition-status {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .status-text {
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 500;
+  }
+
+  .competition-button:hover .status-text {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .status-badge {
+    display: inline-block;
+    background: #ff3e00;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .competition-button:hover .status-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+
   .officer-button {
     border-color: #ff3e00;
     background: linear-gradient(135deg, #fff 0%, #fef7f0 100%);
@@ -240,6 +324,7 @@
     flex-direction: column;
     align-items: flex-start;
     text-align: left;
+    flex: 1;
   }
 
   .nav-label {
@@ -305,6 +390,19 @@
     .nav-description {
       font-size: 0.8rem;
     }
+
+    .competition-status {
+      align-items: flex-start;
+    }
+
+    .status-text {
+      font-size: 0.7rem;
+    }
+
+    .status-badge {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.4rem;
+    }
   }
 
   /* Desktop styles */
@@ -359,6 +457,19 @@
 
     .nav-description {
       font-size: 0.9rem;
+    }
+
+    .competition-status {
+      align-items: center;
+      margin-top: 0.75rem;
+    }
+
+    .status-text {
+      font-size: 0.8rem;
+    }
+
+    .status-badge {
+      font-size: 0.75rem;
     }
   }
   
