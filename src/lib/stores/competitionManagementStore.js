@@ -1,6 +1,6 @@
 // src/lib/stores/competitionManagementStore.js
 import { writable, derived, get } from 'svelte/store';
-import { supabase } from '$lib/supabase';
+import { supabase } from "$lib/supabaseClient";
 import { userProfile } from '$lib/stores/userProfile';
 
 // Store for all competitions (officer view)

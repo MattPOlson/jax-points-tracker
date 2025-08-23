@@ -5,7 +5,7 @@
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
   import { competitionManagementStore } from '$lib/stores/competitionManagementStore';
-  import { supabase } from '$lib/supabase';
+  import { supabase } from "$lib/supabaseClient";
   
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
