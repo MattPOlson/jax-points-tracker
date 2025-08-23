@@ -1,10 +1,10 @@
 <!-- src/routes/competitions/my-entries/+page.svelte -->
 <!-- JAX Members Portal - My Competition Entries -->
 <script>
-  import { onMount, onDestroy } from 'svelte';
-  import { goto } from '$app/navigation';
-  import { userProfile } from '$lib/stores/userProfile.js';
-  import { 
+  import { onMount, onDestroy } from "svelte";
+  import { goto } from "$app/navigation";
+  import { userProfile } from "$lib/stores/userProfile.js";
+  import {
     myEntries,
     entriesByCompetition,
     entryStats,
@@ -17,14 +17,14 @@
     getPaymentStatus,
     isLoaded,
     isLoading,
-    error
-  } from '$lib/stores/myCompetitionEntriesStore.js';
-  import { 
+    error,
+  } from "$lib/stores/myCompetitionEntriesStore.js";
+  import {
     bjcpCategories,
     mainCategories,
     categoriesByNumber,
-    loadCompetitionData
-  } from '$lib/stores/bjcpCategoryStore.js';
+    loadCompetitionData,
+  } from "$lib/stores/bjcpCategoryStore.js";
 
   // =============================================
   // Tab Switching Fix (CRITICAL)
@@ -33,17 +33,18 @@
 
   function setupEventHandlers() {
     let isFirstLoad = true;
-    
+
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && !isFirstLoad) {
-        console.log('🔄 Tab became visible - doing F5 refresh');
+      if (document.visibilityState === "visible" && !isFirstLoad) {
+        console.log("🔄 Tab became visible - doing F5 refresh");
         window.location.reload();
       }
       isFirstLoad = false;
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
   }
 
   // =============================================
@@ -52,11 +53,11 @@
   let editingEntry = null;
   let showDeleteConfirm = null;
   let editForm = {
-    beer_name: '',
-    beer_notes: '',
-    bjcp_category_id: '',
-    main_category: '',
-    subcategory: ''
+    beer_name: "",
+    beer_notes: "",
+    bjcp_category_id: "",
+    main_category: "",
+    subcategory: "",
   };
   let saving = false;
   let saveError = null;
@@ -64,16 +65,16 @@
   // =============================================
   // Reactive Variables
   // =============================================
-  
+
   // Get available subcategories for editing
-  $: availableSubcategories = editForm.main_category 
-    ? ($categoriesByNumber[editForm.main_category]?.subcategories || [])
+  $: availableSubcategories = editForm.main_category
+    ? $categoriesByNumber[editForm.main_category]?.subcategories || []
     : [];
 
   // Reset subcategory when main category changes
   $: if (editForm.main_category) {
-    editForm.subcategory = '';
-    editForm.bjcp_category_id = '';
+    editForm.subcategory = "";
+    editForm.bjcp_category_id = "";
   }
 
   // Set bjcp_category_id when subcategory is selected
@@ -86,21 +87,18 @@
   // =============================================
   onMount(async () => {
     cleanup = setupEventHandlers();
-    
+
     // Redirect if not logged in
     if (!$userProfile?.id) {
-      goto('/login');
+      goto("/login");
       return;
     }
 
     // Load data
     try {
-      await Promise.all([
-        loadMyEntries(),
-        loadCompetitionData()
-      ]);
+      await Promise.all([loadMyEntries(), loadCompetitionData()]);
     } catch (err) {
-      console.error('Failed to load data:', err);
+      console.error("Failed to load data:", err);
     }
   });
 
@@ -111,15 +109,15 @@
   // =============================================
   // Edit Functions
   // =============================================
-  
+
   function startEdit(entry) {
     editingEntry = entry.id;
     editForm = {
       beer_name: entry.beer_name,
-      beer_notes: entry.beer_notes || '',
+      beer_notes: entry.beer_notes || "",
       bjcp_category_id: entry.bjcp_category.id,
       main_category: entry.bjcp_category.category_number,
-      subcategory: entry.bjcp_category.id
+      subcategory: entry.bjcp_category.id,
     };
     saveError = null;
   }
@@ -127,11 +125,11 @@
   function cancelEdit() {
     editingEntry = null;
     editForm = {
-      beer_name: '',
-      beer_notes: '',
-      bjcp_category_id: '',
-      main_category: '',
-      subcategory: ''
+      beer_name: "",
+      beer_notes: "",
+      bjcp_category_id: "",
+      main_category: "",
+      subcategory: "",
     };
     saveError = null;
   }
@@ -146,22 +144,21 @@
       await updateEntry(editingEntry, {
         beer_name: editForm.beer_name.trim(),
         beer_notes: editForm.beer_notes.trim(),
-        bjcp_category_id: editForm.bjcp_category_id
+        bjcp_category_id: editForm.bjcp_category_id,
       });
 
       // Success - close edit mode
       editingEntry = null;
       editForm = {
-        beer_name: '',
-        beer_notes: '',
-        bjcp_category_id: '',
-        main_category: '',
-        subcategory: ''
+        beer_name: "",
+        beer_notes: "",
+        bjcp_category_id: "",
+        main_category: "",
+        subcategory: "",
       };
-
     } catch (err) {
-      console.error('Failed to update entry:', err);
-      saveError = err.message || 'Failed to update entry';
+      console.error("Failed to update entry:", err);
+      saveError = err.message || "Failed to update entry";
     } finally {
       saving = false;
     }
@@ -170,7 +167,7 @@
   // =============================================
   // Delete Functions
   // =============================================
-  
+
   function confirmDelete(entry) {
     showDeleteConfirm = entry.id;
   }
@@ -186,7 +183,7 @@
       await deleteEntry(showDeleteConfirm);
       showDeleteConfirm = null;
     } catch (err) {
-      console.error('Failed to delete entry:', err);
+      console.error("Failed to delete entry:", err);
       // Could add error handling here
     }
   }
@@ -194,9 +191,9 @@
   // =============================================
   // Helper Functions
   // =============================================
-  
+
   function getCategoryDisplayName(subcategory) {
-    return subcategory ? `${subcategory.letter} - ${subcategory.name}` : '';
+    return subcategory ? `${subcategory.letter} - ${subcategory.name}` : "";
   }
 </script>
 
@@ -223,8 +220,8 @@
       <div class="loading-spinner"></div>
       <p>Loading your entries...</p>
     </div>
-  
-  <!-- Error State -->
+
+    <!-- Error State -->
   {:else if $error}
     <div class="error-container">
       <h2>❌ Error Loading Entries</h2>
@@ -234,9 +231,8 @@
       </button>
     </div>
 
-  <!-- Loaded State -->
+    <!-- Loaded State -->
   {:else if $isLoaded}
-    
     <!-- Statistics Cards -->
     <div class="stats-grid">
       <div class="stat-card">
@@ -259,7 +255,10 @@
 
     <!-- Action Buttons -->
     <div class="action-buttons">
-      <button on:click={() => goto('/competitions/submit-entry')} class="primary-button">
+      <button
+        on:click={() => goto("/competitions/submit-entry")}
+        class="primary-button"
+      >
         ➕ Submit New Entry
       </button>
       <button on:click={() => loadMyEntries(true)} class="secondary-button">
@@ -272,17 +271,19 @@
       <div class="empty-state">
         <h2>📝 No Entries Yet</h2>
         <p>You haven't submitted any competition entries.</p>
-        <button on:click={() => goto('/competitions/submit-entry')} class="primary-button">
+        <button
+          on:click={() => goto("/competitions/submit-entry")}
+          class="primary-button"
+        >
           🍺 Submit Your First Entry
         </button>
       </div>
 
-    <!-- Entries List -->
+      <!-- Entries List -->
     {:else}
       <div class="entries-container">
         {#each $entriesByCompetition as compGroup}
           <div class="competition-group">
-            
             <!-- Competition Header -->
             <div class="competition-header">
               <h2>{compGroup.competition.name}</h2>
@@ -302,13 +303,23 @@
             <div class="entries-list">
               {#each compGroup.entries as entry}
                 <div class="entry-card">
-                  
                   <!-- Entry Header -->
                   <div class="entry-header">
                     <h3>{entry.beer_name}</h3>
                     <div class="entry-meta">
-                      <span class="entry-number">#{entry.entry_number}</span>
-                      <span class="payment-status {getPaymentStatus(entry).class}">
+                      {#if entry.competition.results_published}
+                        <span class="entry-number">#{entry.entry_number}</span>
+                      {:else}
+                        <span
+                          class="entry-number blurred"
+                          title="Entry number hidden until results are published"
+                        >
+                          #{entry.entry_number}
+                        </span>
+                      {/if}
+                      <span
+                        class="payment-status {getPaymentStatus(entry).class}"
+                      >
                         {getPaymentStatus(entry).text}
                       </span>
                     </div>
@@ -316,11 +327,9 @@
 
                   <!-- Entry Details -->
                   <div class="entry-details">
-                    
                     <!-- Editing Mode -->
                     {#if editingEntry === entry.id}
                       <div class="edit-form">
-                        
                         <!-- Error Message -->
                         {#if saveError}
                           <div class="error-message">
@@ -331,8 +340,8 @@
                         <!-- Beer Name -->
                         <div class="form-group">
                           <label for="edit-beer-name">Beer Name *</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             id="edit-beer-name"
                             bind:value={editForm.beer_name}
                             disabled={saving}
@@ -342,8 +351,9 @@
 
                         <!-- Main Category -->
                         <div class="form-group">
-                          <label for="edit-main-category">BJCP Category *</label>
-                          <select 
+                          <label for="edit-main-category">BJCP Category *</label
+                          >
+                          <select
                             id="edit-main-category"
                             bind:value={editForm.main_category}
                             disabled={saving}
@@ -361,8 +371,10 @@
                         <!-- Subcategory -->
                         {#if editForm.main_category && availableSubcategories.length > 0}
                           <div class="form-group">
-                            <label for="edit-subcategory">BJCP Subcategory *</label>
-                            <select 
+                            <label for="edit-subcategory"
+                              >BJCP Subcategory *</label
+                            >
+                            <select
                               id="edit-subcategory"
                               bind:value={editForm.subcategory}
                               disabled={saving}
@@ -381,7 +393,7 @@
                         <!-- Beer Notes -->
                         <div class="form-group">
                           <label for="edit-beer-notes">Beer Notes</label>
-                          <textarea 
+                          <textarea
                             id="edit-beer-notes"
                             bind:value={editForm.beer_notes}
                             disabled={saving}
@@ -392,19 +404,21 @@
 
                         <!-- Edit Actions -->
                         <div class="edit-actions">
-                          <button 
-                            type="button" 
+                          <button
+                            type="button"
                             on:click={cancelEdit}
                             class="cancel-button"
                             disabled={saving}
                           >
                             ❌ Cancel
                           </button>
-                          <button 
-                            type="button" 
+                          <button
+                            type="button"
                             on:click={saveEdit}
                             class="save-button"
-                            disabled={saving || !editForm.beer_name.trim() || !editForm.bjcp_category_id}
+                            disabled={saving ||
+                              !editForm.beer_name.trim() ||
+                              !editForm.bjcp_category_id}
                           >
                             {#if saving}
                               🔄 Saving...
@@ -415,14 +429,14 @@
                         </div>
                       </div>
 
-                    <!-- View Mode -->
+                      <!-- View Mode -->
                     {:else}
                       <div class="entry-info">
                         <div class="info-row">
                           <span class="label">Category:</span>
                           <span class="value">{entry.category_display}</span>
                         </div>
-                        
+
                         {#if entry.beer_notes}
                           <div class="info-row">
                             <span class="label">Notes:</span>
@@ -445,11 +459,13 @@
                               {getAwardDisplay(entry.result)}
                             </span>
                           </div>
-                          
+
                           {#if entry.result?.judge_notes}
                             <div class="info-row">
                               <span class="label">Judge Notes:</span>
-                              <span class="value">{entry.result.judge_notes}</span>
+                              <span class="value"
+                                >{entry.result.judge_notes}</span
+                              >
                             </div>
                           {/if}
                         {/if}
@@ -457,10 +473,9 @@
 
                       <!-- Entry Actions -->
                       <div class="entry-actions">
-                        
                         <!-- Edit Button -->
                         {#if canEditEntry(entry)}
-                          <button 
+                          <button
                             on:click={() => startEdit(entry)}
                             class="edit-button"
                           >
@@ -470,7 +485,7 @@
 
                         <!-- Delete Button -->
                         {#if canEditEntry(entry)}
-                          <button 
+                          <button
                             on:click={() => confirmDelete(entry)}
                             class="delete-button"
                           >
@@ -481,7 +496,10 @@
                         <!-- Deadline Warning -->
                         {#if entry.can_edit && entry.days_until_deadline <= 7}
                           <div class="deadline-warning">
-                            ⚠️ {entry.days_until_deadline} day{entry.days_until_deadline !== 1 ? 's' : ''} left to edit
+                            ⚠️ {entry.days_until_deadline} day{entry.days_until_deadline !==
+                            1
+                              ? "s"
+                              : ""} left to edit
                           </div>
                         {/if}
                       </div>
@@ -504,7 +522,7 @@
       <h2>🗑️ Delete Entry</h2>
       <p>Are you sure you want to delete this competition entry?</p>
       <p><strong>This action cannot be undone.</strong></p>
-      
+
       <div class="modal-actions">
         <button on:click={cancelDelete} class="cancel-button">
           ❌ Cancel
@@ -551,12 +569,13 @@
   }
 
   /* Loading and Error States */
-  .loading-container, .error-container {
+  .loading-container,
+  .error-container {
     text-align: center;
     padding: 3rem 2rem;
     background: white;
     border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-left: 4px solid #ff3e00;
   }
 
@@ -571,8 +590,12 @@
   }
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
   .retry-button {
@@ -602,7 +625,7 @@
   .stat-card {
     background: white;
     border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-left: 4px solid #ff3e00;
     padding: 1.5rem;
     text-align: center;
@@ -667,7 +690,7 @@
     padding: 3rem 2rem;
     background: white;
     border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-left: 4px solid #ff3e00;
   }
 
@@ -686,7 +709,7 @@
   .competition-group {
     background: white;
     border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-left: 4px solid #ff3e00;
     overflow: hidden;
   }
