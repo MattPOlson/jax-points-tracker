@@ -29,22 +29,22 @@
   // =============================================
   // Tab Switching Fix (CRITICAL)
   // =============================================
-  //let cleanup;
+  let cleanup;
 
-  //function setupEventHandlers() {
-  //  let isFirstLoad = true;
+  function setupEventHandlers() {
+    let isFirstLoad = true;
     
-  //  const handleVisibilityChange = () => {
-  //    if (document.visibilityState === 'visible' && !isFirstLoad) {
-  //      console.log('🔄 Tab became visible - doing F5 refresh');
-  //      window.location.reload();
-  //    }
-  //    isFirstLoad = false;
-  //  };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && !isFirstLoad) {
+        console.log('🔄 Tab became visible - doing F5 refresh');
+        window.location.reload();
+      }
+      isFirstLoad = false;
+    };
 
-  //  document.addEventListener('visibilitychange', handleVisibilityChange);
-  //  return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  //}
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }
 
   // =============================================
   // Component State
@@ -85,13 +85,13 @@
   // Lifecycle
   // =============================================
   onMount(async () => {
-    //cleanup = setupEventHandlers();
+    cleanup = setupEventHandlers();
     
     // Redirect if not logged in
-   // if (!$userProfile?.id) {
-   //   goto('/login');
-   //   return;
-    //}
+    if (!$userProfile?.id) {
+      goto('/login');
+      return;
+    }
 
     // Load data
     try {
@@ -104,9 +104,9 @@
     }
   });
 
-  //onDestroy(() => {
-    //if (cleanup) cleanup();
-  //});
+  onDestroy(() => {
+    if (cleanup) cleanup();
+  });
 
   // =============================================
   // Edit Functions
@@ -775,6 +775,29 @@
     background: #f3f4f6;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
+    position: relative;
+  }
+
+  .entry-number.blurred {
+    background: #fee2e2;
+    color: transparent;
+    text-shadow: 0 0 8px #dc2626;
+    cursor: help;
+  }
+
+  .entry-number.blurred::after {
+    content: "Hidden until judged";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #dc2626;
+    color: white;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
   }
 
   .payment-status {
