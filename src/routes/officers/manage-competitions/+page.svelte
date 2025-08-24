@@ -193,23 +193,27 @@
 
   .hero {
     text-align: center;
-    margin-bottom: 2rem;
-    padding: 2rem 1rem;
-    background: linear-gradient(135deg, #ff3e00 0%, #ff6b35 100%);
-    border-radius: 12px;
-    color: white;
+    margin-bottom: 3rem;
+  }
+
+  .hero .emoji {
+    font-size: 4rem;
+    margin-bottom: 0.5rem;
   }
 
   .hero h1 {
-    font-size: 2.5rem;
-    font-weight: 100;
+    color: #ff3e00;
     text-transform: uppercase;
-    margin: 0.5rem 0;
+    font-size: 4rem;
+    font-weight: 100;
+    margin: 0 0 0.25em;
+    line-height: 1.1;
   }
 
   .hero .subtitle {
-    font-size: 1.1rem;
-    opacity: 0.9;
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 500;
   }
 
   .stats-grid {
@@ -422,10 +426,45 @@
     margin-bottom: 1rem;
   }
 
-  /* Mobile responsiveness */
+  /* Mobile styles */
+  @media (max-width: 480px) {
+    .hero h1 {
+      font-size: 2.5rem;
+    }
+
+    .hero .emoji {
+      font-size: 3rem;
+    }
+
+    .hero .subtitle {
+      font-size: 1rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .competitions-table {
+      overflow-x: auto;
+    }
+
+    table {
+      min-width: 600px;
+    }
+
+    .actions {
+      flex-direction: column;
+    }
+
+    .btn-small {
+      width: 100%;
+    }
+  }
+
+  /* Tablet styles */
   @media (max-width: 768px) {
     .hero h1 {
-      font-size: 2rem;
+      font-size: 3rem;
     }
 
     .stats-grid {
@@ -487,7 +526,7 @@
 <div class="container">
   <!-- Hero Section -->
   <div class="hero">
-    <div>🏆</div>
+    <div class="emoji">🏆</div>
     <h1>Manage Competitions</h1>
     <p class="subtitle">Create and manage brewing competitions</p>
   </div>
