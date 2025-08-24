@@ -186,20 +186,20 @@ async function deleteCompetition(competitionId) {
 
 // Toggle competition status (active/inactive)
 async function toggleCompetitionStatus(competitionId, newStatus) {
-  return updateCompetition(competitionId, { is_active: newStatus });
+  return updateCompetition(competitionId, { active: newStatus });
 }
 
 // Derived stores for filtering
 const activeCompetitions = derived(
   allCompetitions,
-  $allCompetitions => $allCompetitions.filter(c => c.is_active)
+  $allCompetitions => $allCompetitions.filter(c => c.active)
 );
 
 const upcomingCompetitions = derived(
   allCompetitions,
   $allCompetitions => $allCompetitions.filter(c => {
     const deadline = new Date(c.entry_deadline);
-    return deadline > new Date() && c.is_active;
+    return deadline > new Date() && c.active;
   })
 );
 
@@ -207,7 +207,7 @@ const pastCompetitions = derived(
   allCompetitions,
   $allCompetitions => $allCompetitions.filter(c => {
     const deadline = new Date(c.entry_deadline);
-    return deadline <= new Date() || !c.is_active;
+    return deadline <= new Date() || !c.active;
   })
 );
 
@@ -216,7 +216,7 @@ const competitionStats = derived(
   allCompetitions,
   $allCompetitions => {
     const total = $allCompetitions.length;
-    const active = $allCompetitions.filter(c => c.is_active).length;
+    const active = $allCompetitions.filter(c => c.active).length;
     const totalEntries = $allCompetitions.reduce((sum, c) => sum + (c.entry_count || 0), 0);
     const avgEntries = total > 0 ? Math.round(totalEntries / total) : 0;
 
