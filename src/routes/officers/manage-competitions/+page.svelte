@@ -196,6 +196,11 @@
     margin-bottom: 3rem;
   }
 
+  .hero .emoji {
+    font-size: 4rem;
+    margin-bottom: 0.5rem;
+  }
+
   .hero h1 {
     color: #ff3e00;
     text-transform: uppercase;
@@ -203,14 +208,6 @@
     font-weight: 100;
     margin: 0 0 0.25em;
     line-height: 1.1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-  }
-
-  .hero h1 .emoji {
-    font-size: 1em;
   }
 
   .hero .subtitle {
@@ -435,6 +432,10 @@
       font-size: 2.5rem;
     }
 
+    .hero .emoji {
+      font-size: 3rem;
+    }
+
     .hero .subtitle {
       font-size: 1rem;
     }
@@ -525,7 +526,8 @@
 <div class="container">
   <!-- Hero Section -->
   <div class="hero">
-    <h1><span class="emoji">🏆</span> Manage Competitions</h1>
+    <div class="emoji">🏆</div>
+    <h1>Manage Competitions</h1>
     <p class="subtitle">Create and manage brewing competitions</p>
   </div>
 
