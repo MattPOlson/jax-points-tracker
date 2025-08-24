@@ -69,7 +69,7 @@
       color: 'secondary'
     },
     {
-      href: '/officer-tools/manage-competitions',
+      href: '/officers/manage-competitions',
       label: 'Manage Competitions',
       icon: '🏆',
       description: 'Create and manage brewing competitions',

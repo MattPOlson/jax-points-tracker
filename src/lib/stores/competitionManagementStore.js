@@ -1,6 +1,6 @@
 // src/lib/stores/competitionManagementStore.js
 import { writable, derived, get } from 'svelte/store';
-import { supabase } from "$lib/supabaseClient";
+import { supabase } from '$lib/supabaseClient';
 import { userProfile } from '$lib/stores/userProfile';
 
 // Store for all competitions (officer view)
@@ -35,15 +35,44 @@ async function loadCompetitions(forceRefresh = false) {
   error.set(null);
 
   try {
-    // Get all competitions with entry counts
-    const { data: competitionsData, error: competitionsError } = await supabase
-      .rpc('get_competitions_with_stats');
-
-    if (competitionsError) throw competitionsError;
+    // Try to use the RPC function first, fall back to direct query if it doesn't exist
+    let competitionsData;
+    
+    try {
+      // Attempt to use the optimized RPC function
+      const { data, error } = await supabase
+        .rpc('get_competitions_with_stats');
+      
+      if (error) throw error;
+      competitionsData = data;
+    } catch (rpcError) {
+      console.log('RPC function not available, using direct query');
+      
+      // Fallback: Query competitions directly and get counts separately
+      const { data: comps, error: compsError } = await supabase
+        .from('competitions')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (compsError) throw compsError;
+      
+      // Get entry counts for each competition
+      competitionsData = await Promise.all((comps || []).map(async (comp) => {
+        const { count } = await supabase
+          .from('competition_entries')
+          .select('*', { count: 'exact', head: true })
+          .eq('competition_id', comp.id);
+        
+        return {
+          ...comp,
+          entry_count: count || 0
+        };
+      }));
+    }
 
     // Sort by created_at desc (newest first)
     const sortedCompetitions = (competitionsData || []).sort((a, b) => 
-      new Date(b.created_at) - new Date(a.created_at)
+      new Date(b.created_at || b.entry_deadline) - new Date(a.created_at || a.entry_deadline)
     );
 
     allCompetitions.set(sortedCompetitions);

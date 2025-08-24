@@ -1,4 +1,4 @@
-<!-- src/routes/officer-tools/manage-competitions/+page.svelte -->
+<!-- src/routes/officers/manage-competitions/+page.svelte -->
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
@@ -129,17 +129,17 @@
 
   // Navigate to create page
   function navigateToCreate() {
-    goto('/officer-tools/manage-competitions/create');
+    goto('/officers/manage-competitions/create');
   }
 
   // Navigate to edit page
   function navigateToEdit(competitionId) {
-    goto(`/officer-tools/manage-competitions/edit/${competitionId}`);
+    goto(`/officers/manage-competitions/edit/${competitionId}`);
   }
 
   // Navigate to entries page
   function navigateToEntries(competitionId) {
-    goto(`/officer-tools/manage-competitions/entries/${competitionId}`);
+    goto(`/officers/manage-competitions/entries/${competitionId}`);
   }
 
   // Force refresh

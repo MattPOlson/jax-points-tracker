@@ -1,4 +1,4 @@
-<!-- src/routes/officer-tools/manage-competitions/create/+page.svelte -->
+<!-- src/routes/officers/manage-competitions/create/+page.svelte -->
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
@@ -132,7 +132,7 @@
     const result = await competitionManagementStore.createCompetition(competitionData);
     
     if (result.success) {
-      goto('/officer-tools/manage-competitions');
+      goto('/officers/manage-competitions');
     } else {
       alert(`Error creating competition: ${result.error}`);
       isSubmitting = false;
@@ -141,7 +141,7 @@
 
   // Cancel and go back
   function handleCancel() {
-    goto('/officer-tools/manage-competitions');
+    goto('/officers/manage-competitions');
   }
 </script>
 
@@ -161,11 +161,21 @@
     color: white;
   }
 
+  .hero .emoji {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+  }
+
   .hero h1 {
     font-size: 2.5rem;
     font-weight: 100;
     text-transform: uppercase;
     margin: 0.5rem 0;
+  }
+
+  .hero .subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
   }
 
   .form-card {
@@ -330,8 +340,9 @@
 <div class="container">
   <!-- Hero Section -->
   <div class="hero">
-    <div>➕</div>
+    <div class="emoji">🏆</div>
     <h1>Create Competition</h1>
+    <p class="subtitle">Set up a new brewing competition</p>
   </div>
 
   <!-- Form Card -->
