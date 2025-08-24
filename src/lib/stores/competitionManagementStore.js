@@ -284,12 +284,12 @@ function initializeStore() {
 // Export store and functions
 export const competitionManagementStore = {
   subscribe: allCompetitions.subscribe,
-  isLoading: { subscribe: isLoading.subscribe },
-  error: { subscribe: error.subscribe },
-  activeCompetitions: { subscribe: activeCompetitions.subscribe },
-  upcomingCompetitions: { subscribe: upcomingCompetitions.subscribe },
-  pastCompetitions: { subscribe: pastCompetitions.subscribe },
-  stats: { subscribe: competitionStats.subscribe },
+  isLoading: isLoading,
+  error: error,
+  activeCompetitions: activeCompetitions,
+  upcomingCompetitions: upcomingCompetitions,
+  pastCompetitions: pastCompetitions,
+  stats: competitionStats,
   loadCompetitions,
   createCompetition,
   updateCompetition,

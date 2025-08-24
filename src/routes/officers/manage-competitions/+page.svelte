@@ -15,6 +15,9 @@
   let showDeleteConfirm = false;
   let competitionToDelete = null;
 
+  // Import the individual stores
+  const { isLoading, error, stats, activeCompetitions, upcomingCompetitions, pastCompetitions } = competitionManagementStore;
+
   // Initialize store
   onMount(() => {
     console.log('🎯 Manage Competitions page mounted');
@@ -61,11 +64,14 @@
   // Debug reactive statements
   $: {
     console.log('🔄 Reactive update:');
-    console.log('  - isLoading:', $competitionManagementStore.isLoading);
-    console.log('  - error:', $competitionManagementStore.error);
+    console.log('  - isLoading:', $isLoading);
+    console.log('  - error:', $error);
     console.log('  - competitions:', $competitionManagementStore);
-    console.log('  - stats:', $competitionManagementStore.stats);
+    console.log('  - stats:', $stats);
   }
+
+  // Import the individual stores
+  //const { isLoading, error, stats, activeCompetitions, upcomingCompetitions, pastCompetitions } = competitionManagementStore;
 
   // Filtered competitions based on search and status
   $: filteredCompetitions = (() => {
@@ -74,13 +80,13 @@
     
     switch (filterStatus) {
       case 'active':
-        comps = $competitionManagementStore.activeCompetitions || [];
+        comps = $activeCompetitions || [];
         break;
       case 'upcoming':
-        comps = $competitionManagementStore.upcomingCompetitions || [];
+        comps = $upcomingCompetitions || [];
         break;
       case 'past':
-        comps = $competitionManagementStore.pastCompetitions || [];
+        comps = $pastCompetitions || [];
         break;
       default:
         comps = $competitionManagementStore || [];
@@ -487,23 +493,23 @@
   </div>
 
   <!-- Statistics -->
-  {#if !$competitionManagementStore.isLoading}
+  {#if !$isLoading}
     <div class="stats-grid">
       <div class="stat-card">
         <div class="label">Total Competitions</div>
-        <div class="value">{$competitionManagementStore.stats.total}</div>
+        <div class="value">{$stats.total}</div>
       </div>
       <div class="stat-card">
         <div class="label">Active</div>
-        <div class="value">{$competitionManagementStore.stats.active}</div>
+        <div class="value">{$stats.active}</div>
       </div>
       <div class="stat-card">
         <div class="label">Total Entries</div>
-        <div class="value">{$competitionManagementStore.stats.totalEntries}</div>
+        <div class="value">{$stats.totalEntries}</div>
       </div>
       <div class="stat-card">
         <div class="label">Avg Entries</div>
-        <div class="value">{$competitionManagementStore.stats.avgEntries}</div>
+        <div class="value">{$stats.avgEntries}</div>
       </div>
     </div>
   {/if}
@@ -531,14 +537,14 @@
   </div>
 
   <!-- Error State -->
-  {#if $competitionManagementStore.error}
+  {#if $error}
     <div class="error">
-      ⚠️ {$competitionManagementStore.error}
+      ⚠️ {$error}
     </div>
   {/if}
 
   <!-- Loading State -->
-  {#if $competitionManagementStore.isLoading}
+  {#if $isLoading}
     <div class="loading">
       <div class="spinner"></div>
       <p>Loading competitions...</p>
