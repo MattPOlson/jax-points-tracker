@@ -154,28 +154,30 @@
 
   .hero {
     text-align: center;
-    margin-bottom: 2rem;
-    padding: 2rem 1rem;
-    background: linear-gradient(135deg, #ff3e00 0%, #ff6b35 100%);
-    border-radius: 12px;
-    color: white;
-  }
-
-  .hero .emoji {
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 3rem;
   }
 
   .hero h1 {
-    font-size: 2.5rem;
-    font-weight: 100;
+    color: #ff3e00;
     text-transform: uppercase;
-    margin: 0.5rem 0;
+    font-size: 4rem;
+    font-weight: 100;
+    margin: 0 0 0.25em;
+    line-height: 1.1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .hero h1 .emoji {
+    font-size: 1em;
   }
 
   .hero .subtitle {
-    font-size: 1.1rem;
-    opacity: 0.9;
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 500;
   }
 
   .form-card {
@@ -313,10 +315,37 @@
     border-bottom: 2px solid #ff3e00;
   }
 
-  /* Mobile responsiveness */
+  /* Mobile styles */
+  @media (max-width: 480px) {
+    .hero h1 {
+      font-size: 2.5rem;
+    }
+
+    .hero .subtitle {
+      font-size: 1rem;
+    }
+
+    .form-card {
+      padding: 1.5rem;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+      flex-direction: column-reverse;
+    }
+
+    .btn {
+      width: 100%;
+    }
+  }
+
+  /* Tablet styles */
   @media (max-width: 768px) {
     .hero h1 {
-      font-size: 2rem;
+      font-size: 3rem;
     }
 
     .form-card {
@@ -340,8 +369,7 @@
 <div class="container">
   <!-- Hero Section -->
   <div class="hero">
-    <div class="emoji">🏆</div>
-    <h1>Create Competition</h1>
+    <h1><span class="emoji">🏆</span> Create Competition</h1>
     <p class="subtitle">Set up a new brewing competition</p>
   </div>
 

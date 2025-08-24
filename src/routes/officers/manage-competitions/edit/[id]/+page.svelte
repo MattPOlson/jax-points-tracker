@@ -1,37 +1,37 @@
-<!-- src/routes/officers/manage-competitions/create/+page.svelte -->
+<!-- src/routes/officers/manage-competitions/edit/[id]/+page.svelte -->
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
   import { competitionManagementStore } from '$lib/stores/competitionManagementStore';
+  import { supabase } from '$lib/supabaseClient';
   
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
     goto('/');
   }
 
+  // Get competition ID from URL
+  $: competitionId = $page.params.id;
+
   // Form fields
   let name = '';
   let description = '';
   let entryDeadline = '';
   let judgingDate = '';
-  let entryFee = 5; // Default $5 fee
-  let maxEntriesPerMember = 5; // Default max 5 entries
+  let entryFee = 5;
+  let maxEntriesPerMember = 5;
   let isActive = true;
-  let hideJudgingDate = false; // Whether to keep judging date private
+  let hideJudgingDate = false;
   
+  let isLoading = true;
   let isSubmitting = false;
   let validationErrors = {};
+  let competition = null;
 
-  // Set default dates (deadline = 2 weeks from now, judging = 3 weeks from now)
   onMount(() => {
-    const today = new Date();
-    const twoWeeks = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
-    const threeWeeks = new Date(today.getTime() + 21 * 24 * 60 * 60 * 1000);
-    
-    entryDeadline = formatDateForInput(twoWeeks);
-    judgingDate = formatDateForInput(threeWeeks);
-    
+    loadCompetition();
     setupEventHandlers();
   });
 
@@ -54,6 +54,39 @@
   onDestroy(() => {
     // Cleanup handled by setupEventHandlers return
   });
+
+  // Load competition data
+  async function loadCompetition() {
+    isLoading = true;
+    
+    try {
+      const { data, error } = await supabase
+        .from('competitions')
+        .select('*')
+        .eq('id', competitionId)
+        .single();
+      
+      if (error) throw error;
+      
+      if (data) {
+        competition = data;
+        name = data.name || '';
+        description = data.description || '';
+        entryDeadline = formatDateForInput(new Date(data.entry_deadline));
+        judgingDate = formatDateForInput(new Date(data.judging_date));
+        entryFee = data.entry_fee || 0;
+        maxEntriesPerMember = data.max_entries_per_member || 5;
+        isActive = data.is_active ?? true;
+        hideJudgingDate = data.hide_judging_date ?? false;
+      }
+    } catch (err) {
+      console.error('Error loading competition:', err);
+      alert('Failed to load competition');
+      goto('/officers/manage-competitions');
+    } finally {
+      isLoading = false;
+    }
+  }
 
   // Format date for form input
   function formatDateForInput(date) {
@@ -79,14 +112,6 @@
     
     if (!entryDeadline) {
       errors.entryDeadline = 'Entry deadline is required';
-    } else {
-      const deadline = new Date(entryDeadline);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      if (deadline < today) {
-        errors.entryDeadline = 'Entry deadline must be in the future';
-      }
     }
     
     if (!judgingDate) {
@@ -118,7 +143,7 @@
     
     isSubmitting = true;
     
-    const competitionData = {
+    const updates = {
       name: name.trim(),
       description: description.trim() || null,
       entry_deadline: entryDeadline,
@@ -129,12 +154,12 @@
       hide_judging_date: hideJudgingDate
     };
     
-    const result = await competitionManagementStore.createCompetition(competitionData);
+    const result = await competitionManagementStore.updateCompetition(competitionId, updates);
     
     if (result.success) {
       goto('/officers/manage-competitions');
     } else {
-      alert(`Error creating competition: ${result.error}`);
+      alert(`Error updating competition: ${result.error}`);
       isSubmitting = false;
     }
   }
@@ -143,6 +168,9 @@
   function handleCancel() {
     goto('/officers/manage-competitions');
   }
+
+  // Check if competition has entries (affects what can be edited)
+  $: hasEntries = competition?.entry_count > 0;
 </script>
 
 <style>
@@ -154,28 +182,50 @@
 
   .hero {
     text-align: center;
-    margin-bottom: 2rem;
-    padding: 2rem 1rem;
-    background: linear-gradient(135deg, #ff3e00 0%, #ff6b35 100%);
-    border-radius: 12px;
-    color: white;
-  }
-
-  .hero .emoji {
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 3rem;
   }
 
   .hero h1 {
-    font-size: 2.5rem;
-    font-weight: 100;
+    color: #ff3e00;
     text-transform: uppercase;
-    margin: 0.5rem 0;
+    font-size: 4rem;
+    font-weight: 100;
+    margin: 0 0 0.25em;
+    line-height: 1.1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .hero h1 .emoji {
+    font-size: 1em;
   }
 
   .hero .subtitle {
-    font-size: 1.1rem;
-    opacity: 0.9;
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 500;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 3rem;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #ff3e00;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 
   .form-card {
@@ -184,6 +234,20 @@
     border-radius: 6px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border-left: 4px solid #ff3e00;
+  }
+
+  .warning-banner {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    color: #92400e;
+  }
+
+  .warning-banner strong {
+    display: block;
+    margin-bottom: 0.25rem;
   }
 
   .form-group {
@@ -219,6 +283,11 @@
 
   .form-control.error {
     border-color: #dc2626;
+  }
+
+  .form-control:disabled {
+    background: #f5f5f5;
+    cursor: not-allowed;
   }
 
   textarea.form-control {
@@ -313,10 +382,40 @@
     border-bottom: 2px solid #ff3e00;
   }
 
-  /* Mobile responsiveness */
-  @media (max-width: 768px) {
+  .entry-stats {
+    background: #f9fafb;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: #666;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ff3e00;
+  }
+
+  /* Mobile styles */
+  @media (max-width: 480px) {
     .hero h1 {
-      font-size: 2rem;
+      font-size: 2.5rem;
+    }
+
+    .hero .subtitle {
+      font-size: 1rem;
     }
 
     .form-card {
@@ -334,178 +433,239 @@
     .btn {
       width: 100%;
     }
+
+    .entry-stats {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+  }
+
+  /* Tablet styles */
+  @media (max-width: 768px) {
+    .hero h1 {
+      font-size: 3rem;
+    }
+
+    .form-card {
+      padding: 1.5rem;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+      flex-direction: column-reverse;
+    }
+
+    .btn {
+      width: 100%;
+    }
+
+    .entry-stats {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
   }
 </style>
 
 <div class="container">
   <!-- Hero Section -->
   <div class="hero">
-    <div class="emoji">🏆</div>
-    <h1>Create Competition</h1>
-    <p class="subtitle">Set up a new brewing competition</p>
+    <h1><span class="emoji">✏️</span> Edit Competition</h1>
+    <p class="subtitle">Update competition details</p>
   </div>
 
-  <!-- Form Card -->
-  <div class="form-card">
-    <form on:submit|preventDefault={handleSubmit}>
-      <!-- Basic Information -->
-      <div class="section-title">Basic Information</div>
-      
-      <div class="form-group">
-        <label for="name" class="required">Competition Name</label>
-        <input
-          type="text"
-          id="name"
-          class="form-control {validationErrors.name ? 'error' : ''}"
-          bind:value={name}
-          placeholder="e.g., Spring 2025 Homebrew Competition"
-          maxlength="100"
-          disabled={isSubmitting}
-        />
-        {#if validationErrors.name}
-          <div class="error-message">{validationErrors.name}</div>
-        {/if}
-      </div>
+  {#if isLoading}
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading competition...</p>
+    </div>
+  {:else if competition}
+    <!-- Form Card -->
+    <div class="form-card">
+      {#if hasEntries}
+        <div class="warning-banner">
+          <strong>⚠️ This competition has entries</strong>
+          Some fields cannot be modified after entries have been submitted.
+        </div>
+        
+        <div class="entry-stats">
+          <div class="stat">
+            <span class="stat-label">Total Entries</span>
+            <span class="stat-value">{competition.entry_count || 0}</span>
+          </div>
+        </div>
+      {/if}
 
-      <div class="form-group">
-        <label for="description">Description</label>
-        <textarea
-          id="description"
-          class="form-control {validationErrors.description ? 'error' : ''}"
-          bind:value={description}
-          placeholder="Optional description or special instructions"
-          maxlength="500"
-          disabled={isSubmitting}
-        />
-        {#if validationErrors.description}
-          <div class="error-message">{validationErrors.description}</div>
-        {/if}
-        <div class="help-text">Provide any additional details about the competition</div>
-      </div>
-
-      <!-- Dates -->
-      <div class="section-title">Important Dates</div>
-      
-      <div class="form-row">
+      <form on:submit|preventDefault={handleSubmit}>
+        <!-- Basic Information -->
+        <div class="section-title">Basic Information</div>
+        
         <div class="form-group">
-          <label for="entryDeadline" class="required">Entry Deadline</label>
+          <label for="name" class="required">Competition Name</label>
           <input
-            type="date"
-            id="entryDeadline"
-            class="form-control {validationErrors.entryDeadline ? 'error' : ''}"
-            bind:value={entryDeadline}
+            type="text"
+            id="name"
+            class="form-control {validationErrors.name ? 'error' : ''}"
+            bind:value={name}
+            placeholder="e.g., Spring 2025 Homebrew Competition"
+            maxlength="100"
             disabled={isSubmitting}
           />
-          {#if validationErrors.entryDeadline}
-            <div class="error-message">{validationErrors.entryDeadline}</div>
+          {#if validationErrors.name}
+            <div class="error-message">{validationErrors.name}</div>
           {/if}
-          <div class="help-text">Last day to submit entries</div>
         </div>
 
         <div class="form-group">
-          <label for="judgingDate" class="required">Judging Date</label>
-          <input
-            type="date"
-            id="judgingDate"
-            class="form-control {validationErrors.judgingDate ? 'error' : ''}"
-            bind:value={judgingDate}
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            class="form-control {validationErrors.description ? 'error' : ''}"
+            bind:value={description}
+            placeholder="Optional description or special instructions"
+            maxlength="500"
             disabled={isSubmitting}
           />
-          {#if validationErrors.judgingDate}
-            <div class="error-message">{validationErrors.judgingDate}</div>
+          {#if validationErrors.description}
+            <div class="error-message">{validationErrors.description}</div>
           {/if}
-          <div class="help-text">When judging will take place</div>
+          <div class="help-text">Provide any additional details about the competition</div>
         </div>
-      </div>
 
-      <div class="checkbox-group">
-        <input
-          type="checkbox"
-          id="hideJudgingDate"
-          bind:checked={hideJudgingDate}
-          disabled={isSubmitting}
-        />
-        <label for="hideJudgingDate">
-          Keep judging date private until after entry deadline
-        </label>
-      </div>
+        <!-- Dates -->
+        <div class="section-title">Important Dates</div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="entryDeadline" class="required">Entry Deadline</label>
+            <input
+              type="date"
+              id="entryDeadline"
+              class="form-control {validationErrors.entryDeadline ? 'error' : ''}"
+              bind:value={entryDeadline}
+              disabled={isSubmitting || hasEntries}
+            />
+            {#if validationErrors.entryDeadline}
+              <div class="error-message">{validationErrors.entryDeadline}</div>
+            {/if}
+            <div class="help-text">
+              {hasEntries ? 'Cannot change after entries submitted' : 'Last day to submit entries'}
+            </div>
+          </div>
 
-      <!-- Entry Settings -->
-      <div class="section-title">Entry Settings</div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label for="entryFee">Entry Fee ($)</label>
+          <div class="form-group">
+            <label for="judgingDate" class="required">Judging Date</label>
+            <input
+              type="date"
+              id="judgingDate"
+              class="form-control {validationErrors.judgingDate ? 'error' : ''}"
+              bind:value={judgingDate}
+              disabled={isSubmitting}
+            />
+            {#if validationErrors.judgingDate}
+              <div class="error-message">{validationErrors.judgingDate}</div>
+            {/if}
+            <div class="help-text">When judging will take place</div>
+          </div>
+        </div>
+
+        <div class="checkbox-group">
           <input
-            type="number"
-            id="entryFee"
-            class="form-control {validationErrors.entryFee ? 'error' : ''}"
-            bind:value={entryFee}
-            min="0"
-            max="100"
-            step="1"
+            type="checkbox"
+            id="hideJudgingDate"
+            bind:checked={hideJudgingDate}
             disabled={isSubmitting}
           />
-          {#if validationErrors.entryFee}
-            <div class="error-message">{validationErrors.entryFee}</div>
-          {/if}
-          <div class="help-text">Fee per entry (0 for free)</div>
+          <label for="hideJudgingDate">
+            Keep judging date private until after entry deadline
+          </label>
         </div>
 
-        <div class="form-group">
-          <label for="maxEntries">Max Entries Per Member</label>
+        <!-- Entry Settings -->
+        <div class="section-title">Entry Settings</div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="entryFee">Entry Fee ($)</label>
+            <input
+              type="number"
+              id="entryFee"
+              class="form-control {validationErrors.entryFee ? 'error' : ''}"
+              bind:value={entryFee}
+              min="0"
+              max="100"
+              step="1"
+              disabled={isSubmitting || hasEntries}
+            />
+            {#if validationErrors.entryFee}
+              <div class="error-message">{validationErrors.entryFee}</div>
+            {/if}
+            <div class="help-text">
+              {hasEntries ? 'Cannot change after entries submitted' : 'Fee per entry (0 for free)'}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="maxEntries">Max Entries Per Member</label>
+            <input
+              type="number"
+              id="maxEntries"
+              class="form-control {validationErrors.maxEntriesPerMember ? 'error' : ''}"
+              bind:value={maxEntriesPerMember}
+              min="1"
+              max="20"
+              disabled={isSubmitting || hasEntries}
+            />
+            {#if validationErrors.maxEntriesPerMember}
+              <div class="error-message">{validationErrors.maxEntriesPerMember}</div>
+            {/if}
+            <div class="help-text">
+              {hasEntries ? 'Cannot change after entries submitted' : 'Maximum entries allowed per member'}
+            </div>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="section-title">Status</div>
+        
+        <div class="checkbox-group">
           <input
-            type="number"
-            id="maxEntries"
-            class="form-control {validationErrors.maxEntriesPerMember ? 'error' : ''}"
-            bind:value={maxEntriesPerMember}
-            min="1"
-            max="20"
+            type="checkbox"
+            id="isActive"
+            bind:checked={isActive}
             disabled={isSubmitting}
           />
-          {#if validationErrors.maxEntriesPerMember}
-            <div class="error-message">{validationErrors.maxEntriesPerMember}</div>
-          {/if}
-          <div class="help-text">Maximum entries allowed per member</div>
+          <label for="isActive">
+            Competition is active and accepting entries
+          </label>
         </div>
-      </div>
+        <div class="help-text">
+          Uncheck to close competition to new entries
+        </div>
 
-      <!-- Status -->
-      <div class="section-title">Status</div>
-      
-      <div class="checkbox-group">
-        <input
-          type="checkbox"
-          id="isActive"
-          bind:checked={isActive}
-          disabled={isSubmitting}
-        />
-        <label for="isActive">
-          Competition is active and accepting entries
-        </label>
-      </div>
-      <div class="help-text">
-        Uncheck to create as draft (can be activated later)
-      </div>
-
-      <!-- Form Actions -->
-      <div class="form-actions">
-        <button 
-          type="button" 
-          class="btn btn-secondary"
-          on:click={handleCancel}
-          disabled={isSubmitting}
-        >
-          Cancel
-        </button>
-        <button 
-          type="submit" 
-          class="btn btn-primary"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Creating...' : 'Create Competition'}
-        </button>
-      </div>
-    </form>
-  </div>
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            on:click={handleCancel}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
+      </form>
+    </div>
+  {/if}
 </div>
