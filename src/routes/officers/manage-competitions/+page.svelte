@@ -17,8 +17,25 @@
 
   // Initialize store
   onMount(() => {
+    console.log('🎯 Manage Competitions page mounted');
+    console.log('📊 Current user profile:', $userProfile);
+    console.log('🔐 Is officer?:', $userProfile?.is_officer);
+    
     competitionManagementStore.initialize();
-    setupEventHandlers();
+    console.log('✅ Competition store initialized');
+    
+    const cleanup = setupEventHandlers();
+    
+    // Subscribe to store for debugging
+    const unsubscribe = competitionManagementStore.subscribe(value => {
+      console.log('📦 Store updated with competitions:', value);
+    });
+    
+    // Return cleanup function
+    return () => {
+      cleanup();
+      unsubscribe();
+    };
   });
 
   // Tab switching fix (CRITICAL - Supabase connection issue)
@@ -41,8 +58,18 @@
     // Cleanup handled by setupEventHandlers return
   });
 
+  // Debug reactive statements
+  $: {
+    console.log('🔄 Reactive update:');
+    console.log('  - isLoading:', $competitionManagementStore.isLoading);
+    console.log('  - error:', $competitionManagementStore.error);
+    console.log('  - competitions:', $competitionManagementStore);
+    console.log('  - stats:', $competitionManagementStore.stats);
+  }
+
   // Filtered competitions based on search and status
   $: filteredCompetitions = (() => {
+    console.log('🔍 Computing filtered competitions...');
     let comps = [];
     
     switch (filterStatus) {
@@ -59,6 +86,8 @@
         comps = $competitionManagementStore || [];
     }
 
+    console.log('📋 Competitions before filter:', comps);
+
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       comps = comps.filter(c => 
@@ -67,6 +96,7 @@
       );
     }
 
+    console.log('📋 Competitions after filter:', comps);
     return comps;
   })();
 
