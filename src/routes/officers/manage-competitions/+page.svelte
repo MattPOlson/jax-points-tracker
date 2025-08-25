@@ -172,6 +172,11 @@
     goto(`/officers/manage-competitions/entries/${competitionId}`);
   }
 
+  // Navigate to results page
+  function navigateToResults(competitionId) {
+    goto(`/officers/manage-competitions/results/${competitionId}`);
+  }
+
   // Force refresh
   async function forceRefresh() {
     const { loadCompetitions } = await import('$lib/stores/competitionManagementStore');
@@ -377,6 +382,11 @@
 
   .btn-entries {
     background: #8b5cf6;
+    color: white;
+  }
+
+  .btn-results {
+    background: #f59e0b;
     color: white;
   }
 
@@ -641,6 +651,12 @@
                     on:click={() => navigateToEntries(competition.id)}
                   >
                     📋 Entries
+                  </button>
+                  <button 
+                    class="btn btn-small btn-results"
+                    on:click={() => navigateToResults(competition.id)}
+                  >
+                    🏆 Enter Results
                   </button>
                   <button 
                     class="btn btn-small btn-toggle {competition.is_active ? 'inactive' : ''}"
