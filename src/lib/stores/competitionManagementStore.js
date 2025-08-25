@@ -324,6 +324,37 @@ export function resetStore() {
     lastRefresh.set(null);
 }
 
+// Export the entire store object for compatibility
+export const competitionManagementStore = {
+    // Store variables (these need to be accessed with $ prefix)
+    subscribe: (callback) => {
+        return derived([competitions, isLoading, error, stats, filteredCompetitions], 
+            ([competitions, isLoading, error, stats, filteredCompetitions]) => ({
+                competitions,
+                isLoading,
+                error,
+                stats,
+                filteredCompetitions
+            })
+        ).subscribe(callback);
+    },
+    
+    // Store methods
+    loadCompetitions,
+    loadCompetitionEntries,
+    createCompetition,
+    updateCompetition,
+    deleteCompetition,
+    resetStore,
+    forceRefresh,
+    
+    // Initialize method that your officers page expects
+    initialize: async () => {
+        console.log('🚀 Initializing competition management store');
+        await loadCompetitions(false);
+    }
+};
+
 export async function forceRefresh() {
     lastRefresh.set(null);
     await loadCompetitions(true);
