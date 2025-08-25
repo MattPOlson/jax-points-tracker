@@ -117,12 +117,36 @@
     return date.toISOString().split('T')[0];
   }
 
+  // Get days until deadline
+  function getDaysUntilDeadline(competition) {
+    if (!competition.entry_deadline) return 0;
+    const now = new Date();
+    const deadline = new Date(competition.entry_deadline);
+    const diffTime = deadline - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+  }
+
+  // Format deadline with time
+  function formatDeadline(competition) {
+    if (!competition.entry_deadline) return 'No deadline set';
+    const deadline = new Date(competition.entry_deadline);
+    return deadline.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
   // Get status badge
   function getStatusBadge(competition) {
     const now = new Date();
     const deadline = new Date(competition.entry_deadline);
     
-    if (!competition.is_active) {
+    if (!competition.active) {
       return { text: 'Inactive', class: 'badge-inactive' };
     } else if (deadline < now) {
       return { text: 'Closed', class: 'badge-closed' };
@@ -133,11 +157,20 @@
     }
   }
 
+  // Get status for mobile cards
+  function getMobileStatus(competition) {
+    if (!competition.active) return 'closed';
+    const now = new Date();
+    const deadline = new Date(competition.entry_deadline);
+    if (deadline < now) return 'closed';
+    return 'open';
+  }
+
   // Toggle competition status
   async function toggleStatus(competition) {
     try {
       const { updateCompetition } = await import('$lib/stores/competitionManagementStore');
-      await updateCompetition(competition.id, { is_active: !competition.is_active });
+      await updateCompetition(competition.id, { active: !competition.active });
     } catch (err) {
       alert(`Error: ${err.message}`);
     }
@@ -434,62 +467,226 @@
     margin-bottom: 1rem;
   }
 
-  /* Mobile styles */
-  @media (max-width: 480px) {
-    .hero h1 {
-      font-size: 2.5rem;
-    }
-
-    .hero .subtitle {
-      font-size: 1rem;
-    }
-
-    .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .competitions-table {
-      overflow-x: auto;
-    }
-
-    table {
-      min-width: 600px;
-    }
-
-    .actions {
-      flex-direction: column;
-    }
-
-    .btn-small {
-      width: 100%;
-    }
+  /* Mobile Competition Cards - Vertical Layout */
+  .competition-cards {
+    display: none;
   }
 
-  /* Tablet styles */
-  @media (max-width: 768px) {
-    .hero h1 {
-      font-size: 3rem;
-    }
+  .competition-card {
+    background: white;
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #ff3e00;
+  }
 
-    .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+  .competition-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
 
-    .competitions-table {
-      overflow-x: auto;
-    }
+  .competition-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+  }
 
-    table {
-      min-width: 600px;
-    }
+  .competition-status {
+    flex-shrink: 0;
+  }
 
-    .actions {
-      flex-direction: column;
-    }
+  .status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
 
-    .btn-small {
-      width: 100%;
-    }
+  .status-open {
+    background: #dbeafe;
+    color: #1d4ed8;
+  }
+
+  .status-judging {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .status-completed {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .status-closed {
+    background: #f3f4f6;
+    color: #6b7280;
+  }
+
+  /* Competition details grid */
+  .competition-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f9f9f9;
+    border-radius: 4px;
+  }
+
+  .detail-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .detail-label {
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+  }
+
+  .detail-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  /* Action buttons - vertical stack */
+  .competition-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .action-btn {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Button color variants */
+  .btn-view {
+    background: #2563eb;
+    color: white;
+  }
+
+  .btn-view:hover {
+    background: #1d4ed8;
+  }
+
+  .btn-edit-mobile {
+    background: #059669;
+    color: white;
+  }
+
+  .btn-edit-mobile:hover {
+    background: #047857;
+  }
+
+  .btn-results-mobile {
+    background: #ff3e00;
+    color: white;
+  }
+
+  .btn-results-mobile:hover {
+    background: #e63600;
+  }
+
+  .btn-entries-mobile {
+    background: #7c3aed;
+    color: white;
+  }
+
+  .btn-entries-mobile:hover {
+    background: #6d28d9;
+  }
+
+  .btn-toggle-mobile {
+    background: #059669;
+    color: white;
+  }
+
+  .btn-toggle-mobile:hover {
+    background: #047857;
+  }
+
+  .btn-toggle-mobile.inactive {
+    background: #dc2626;
+  }
+
+  .btn-toggle-mobile.inactive:hover {
+    background: #b91c1c;
+  }
+
+  .btn-delete-mobile {
+    background: #dc2626;
+    color: white;
+  }
+
+  .btn-delete-mobile:hover {
+    background: #b91c1c;
+  }
+
+  /* Entry count badge */
+  .entry-count {
+    background: rgba(255, 62, 0, 0.1);
+    color: #ff3e00;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+  }
+
+  /* Deadline formatting */
+  .deadline-info {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 0.5rem;
+  }
+
+  .deadline-urgent {
+    color: #dc2626;
+    font-weight: 600;
+  }
+
+  .deadline-soon {
+    color: #f59e0b;
+    font-weight: 500;
+  }
+
+  /* Competition description */
+  .competition-description {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.4;
   }
 
   /* Modal styles */
@@ -524,6 +721,67 @@
     gap: 1rem;
     justify-content: flex-end;
     margin-top: 1.5rem;
+  }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    .hero h1 {
+      font-size: 2.5rem;
+    }
+
+    .hero .subtitle {
+      font-size: 1rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .competitions-table {
+      display: none;
+    }
+
+    .competition-cards {
+      display: block;
+    }
+
+    .controls {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .search-input, .filter-select {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero h1 {
+      font-size: 2rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .container {
+      padding: 0.5rem;
+    }
+
+    .competition-details {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Ensure cards are hidden on desktop */
+  @media (min-width: 769px) {
+    .competition-cards {
+      display: none;
+    }
+    
+    .competitions-table {
+      display: block;
+    }
   }
 </style>
 
@@ -609,7 +867,7 @@
       {/if}
     </div>
   {:else}
-    <!-- Competitions Table -->
+    <!-- Desktop Table View -->
     <div class="competitions-table">
       <table>
         <thead>
@@ -659,10 +917,10 @@
                     🏆 Enter Results
                   </button>
                   <button 
-                    class="btn btn-small btn-toggle {competition.is_active ? 'inactive' : ''}"
+                    class="btn btn-small btn-toggle {competition.active ? 'inactive' : ''}"
                     on:click={() => toggleStatus(competition)}
                   >
-                    {competition.is_active ? '⏸️ Deactivate' : '▶️ Activate'}
+                    {competition.active ? '⏸️ Deactivate' : '▶️ Activate'}
                   </button>
                   {#if competition.entry_count === 0}
                     <button 
@@ -681,6 +939,108 @@
           {/each}
         </tbody>
       </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="competition-cards">
+      {#each filteredCompetitions as competition}
+        <div class="competition-card">
+          <!-- Header with name and status -->
+          <div class="competition-header">
+            <h3 class="competition-name">{competition.name}</h3>
+            <div class="competition-status">
+              <span class="status-badge status-{getMobileStatus(competition)}">
+                {getStatusBadge(competition).text}
+              </span>
+            </div>
+          </div>
+
+          <!-- Competition details grid -->
+          <div class="competition-details">
+            <div class="detail-item">
+              <span class="detail-label">Entries</span>
+              <span class="detail-value">{competition.entry_count || 0}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Entry Fee</span>
+              <span class="detail-value">${competition.entry_fee || 0}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Max Entries</span>
+              <span class="detail-value">{competition.max_entries_per_member || 'No limit'}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Status</span>
+              <span class="detail-value {competition.active ? '' : 'deadline-urgent'}">
+                {competition.active ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+          </div>
+
+          <!-- Deadline info -->
+          <div class="deadline-info">
+            <strong>Entry Deadline:</strong>
+            <span class="{getDaysUntilDeadline(competition) <= 3 ? 'deadline-urgent' : getDaysUntilDeadline(competition) <= 7 ? 'deadline-soon' : ''}">
+              {formatDeadline(competition)}
+            </span>
+            {#if getDaysUntilDeadline(competition) > 0}
+              <span class="deadline-countdown">
+                ({getDaysUntilDeadline(competition)} days left)
+              </span>
+            {/if}
+          </div>
+
+          <!-- Description (if exists) -->
+          {#if competition.description}
+            <div class="competition-description">
+              {competition.description}
+            </div>
+          {/if}
+
+          <!-- Action buttons - vertical stack -->
+          <div class="competition-actions">
+            <button 
+              class="action-btn btn-edit-mobile"
+              on:click={() => navigateToEdit(competition.id)}
+            >
+              ✏️ Edit Competition
+            </button>
+            
+            <button 
+              class="action-btn btn-entries-mobile"
+              on:click={() => navigateToEntries(competition.id)}
+            >
+              📋 Manage Entries ({competition.entry_count || 0})
+            </button>
+            
+            <button 
+              class="action-btn btn-results-mobile"
+              on:click={() => navigateToResults(competition.id)}
+            >
+              🏆 Enter Results
+            </button>
+            
+            <button 
+              class="action-btn btn-toggle-mobile {competition.active ? 'inactive' : ''}"
+              on:click={() => toggleStatus(competition)}
+            >
+              ⚡ {competition.active ? 'Deactivate' : 'Activate'}
+            </button>
+
+            {#if competition.entry_count === 0}
+              <button 
+                class="action-btn btn-delete-mobile"
+                on:click={() => {
+                  competitionToDelete = competition;
+                  showDeleteConfirm = true;
+                }}
+              >
+                🗑️ Delete Competition
+              </button>
+            {/if}
+          </div>
+        </div>
+      {/each}
     </div>
   {/if}
 </div>
