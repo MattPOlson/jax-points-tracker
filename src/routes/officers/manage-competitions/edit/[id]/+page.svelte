@@ -4,7 +4,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
-  import { competitionManagementStore } from '$lib/stores/competitionManagementStore';
+  import { competitionManagementStore, updateCompetition } from '$lib/stores/competitionManagementStore';
   import { supabase } from '$lib/supabaseClient';
   
   // Check officer status
@@ -154,12 +154,12 @@
       hide_judging_date: hideJudgingDate
     };
     
-    const result = await competitionManagementStore.updateCompetition(competitionId, updates);
-    
-    if (result.success) {
+    try {
+      await updateCompetition(competitionId, updates);
       goto('/officers/manage-competitions');
-    } else {
-      alert(`Error updating competition: ${result.error}`);
+    } catch (error) {
+      console.error('Error updating competition:', error);
+      alert(`Error updating competition: ${error.message}`);
       isSubmitting = false;
     }
   }
