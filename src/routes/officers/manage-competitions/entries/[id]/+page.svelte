@@ -220,128 +220,142 @@
   }
 
   // Print selected labels
-  function printLabels() {
-    const entriesToPrint = selectedEntries.size > 0 
-      ? filteredEntries.filter(e => selectedEntries.has(e.id))
-      : filteredEntries;
-    
-    if (entriesToPrint.length === 0) {
-      alert('No entries selected for printing');
-      return;
-    }
+ // Fixed print labels function for competition entries
+function printLabels() {
+  const entriesToPrint = selectedEntries.size > 0 
+    ? filteredEntries.filter(e => selectedEntries.has(e.id))
+    : filteredEntries;
+  
+  if (entriesToPrint.length === 0) {
+    alert('No entries selected for printing');
+    return;
+  }
 
-    // Create print window
-    const printWindow = window.open('', '_blank');
-    
-    // Generate label HTML
-    const labelsHtml = entriesToPrint.map(entry => `
-      <div class="label">
-        <div class="label-header">
-          <strong>${competition?.name || 'Competition'}</strong>
-        </div>
-        <div class="entry-number">
-          Entry #: <span>${entry.entry_number}</span>
-        </div>
-        <div class="beer-style">
-          Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span>
-          ${entry.bjcp_category?.category_name ? `<br><small>${entry.bjcp_category.category_name}</small>` : ''}
-        </div>
-        ${entry.special_ingredients ? `
-          <div class="special">
-            Special: ${entry.special_ingredients}
-          </div>
-        ` : ''}
-        ${entry.notes ? `
-          <div class="notes">
-            Notes: ${entry.notes}
-          </div>
-        ` : ''}
+  // Create print window
+  const printWindow = window.open('', '_blank');
+  
+  // Generate label HTML
+  const labelsHtml = entriesToPrint.map(entry => `
+    <div class="label">
+      <div class="label-header">
+        <strong>${competition?.name || 'Competition'}</strong>
       </div>
-    `).join('');
+      <div class="entry-number">
+        Entry #: <span>${entry.entry_number}</span>
+      </div>
+      <div class="beer-style">
+        Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span>
+        ${entry.bjcp_category?.category_name ? `<br><small>${entry.bjcp_category.category_name}</small>` : ''}
+      </div>
+      ${entry.special_ingredients ? `
+        <div class="special">
+          Special: ${entry.special_ingredients}
+        </div>
+      ` : ''}
+      ${entry.notes ? `
+        <div class="notes">
+          Notes: ${entry.notes}
+        </div>
+      ` : ''}
+    </div>
+  `).join('');
 
-    // Write print document
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Competition Entry Labels</title>
-        <style>
-          @page {
-            size: 4in 3in;
-            margin: 0;
+  // Write print document with fixed CSS
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Competition Entry Labels</title>
+      <style>
+        @page {
+          size: 8.5in 11in;
+          margin: 0.5in;
+        }
+        body {
+          margin: 0;
+          padding: 0;
+          font-family: Arial, sans-serif;
+        }
+        .labels-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.25in;
+          justify-content: flex-start;
+        }
+        .label {
+          width: 4in;
+          height: 3in;
+          padding: 0.25in;
+          box-sizing: border-box;
+          border: 1px solid #000;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          margin-bottom: 0.25in;
+          break-inside: avoid;
+        }
+        .label-header {
+          font-size: 14pt;
+          text-align: center;
+          margin-bottom: 0.25in;
+          border-bottom: 2px solid #000;
+          padding-bottom: 0.125in;
+        }
+        .entry-number {
+          font-size: 18pt;
+          font-weight: bold;
+          margin-bottom: 0.125in;
+        }
+        .entry-number span {
+          font-size: 24pt;
+          color: #ff3e00;
+        }
+        .beer-style {
+          font-size: 14pt;
+          margin-bottom: 0.125in;
+        }
+        .beer-style span {
+          font-weight: bold;
+          font-size: 16pt;
+        }
+        .beer-style small {
+          font-size: 10pt;
+          color: #666;
+        }
+        .special, .notes {
+          font-size: 10pt;
+          margin-top: 0.125in;
+          padding-top: 0.125in;
+          border-top: 1px solid #ccc;
+        }
+        @media print {
+          .label {
+            border: 1px solid #000 !important;
           }
           body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
           }
-          .label {
-            width: 4in;
-            height: 3in;
-            padding: 0.25in;
-            box-sizing: border-box;
-            page-break-after: always;
-            border: 1px solid #000;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-          }
-          .label-header {
-            font-size: 14pt;
-            text-align: center;
-            margin-bottom: 0.25in;
-            border-bottom: 2px solid #000;
-            padding-bottom: 0.125in;
-          }
-          .entry-number {
-            font-size: 18pt;
-            font-weight: bold;
-            margin-bottom: 0.125in;
-          }
-          .entry-number span {
-            font-size: 24pt;
-            color: #ff3e00;
-          }
-          .beer-style {
-            font-size: 14pt;
-            margin-bottom: 0.125in;
-          }
-          .beer-style span {
-            font-weight: bold;
-            font-size: 16pt;
-          }
-          .beer-style small {
-            font-size: 10pt;
-            color: #666;
-          }
-          .special, .notes {
-            font-size: 10pt;
-            margin-top: 0.125in;
-            padding-top: 0.125in;
-            border-top: 1px solid #ccc;
-          }
-          @media print {
-            .label {
-              border: none;
-            }
-          }
-        </style>
-      </head>
-      <body>
+        }
+      </style>
+    </head>
+    <body>
+      <div class="labels-container">
         ${labelsHtml}
-      </body>
-      </html>
-    `);
+      </div>
+    </body>
+    </html>
+  `);
 
-    printWindow.document.close();
-    printWindow.focus();
-    
-    // Trigger print after a short delay
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 250);
-  }
+  printWindow.document.close();
+  printWindow.focus();
+  
+  // Trigger print after a short delay
+  setTimeout(() => {
+    printWindow.print();
+    printWindow.close();
+  }, 250);
+}
 
   // Format date
   function formatDate(dateString) {
