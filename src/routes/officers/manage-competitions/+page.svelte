@@ -3,7 +3,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
   import { userProfile } from '$lib/stores/userProfile';
-  import { competitionManagementStore } from '$lib/stores/competitionManagementStore';
+  import { competitionManagementStore, competitions, isLoading, error, stats } from '$lib/stores/competitionManagementStore';
   
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -14,9 +14,6 @@
   let filterStatus = 'all'; // all, active, upcoming, past
   let showDeleteConfirm = false;
   let competitionToDelete = null;
-
-  // Import the individual stores
-  const { isLoading, error, stats, activeCompetitions, upcomingCompetitions, pastCompetitions } = competitionManagementStore;
 
   // Initialize store
   onMount(() => {
@@ -29,15 +26,9 @@
     
     const cleanup = setupEventHandlers();
     
-    // Subscribe to store for debugging
-    const unsubscribe = competitionManagementStore.subscribe(value => {
-      console.log('📦 Store updated with competitions:', value);
-    });
-    
     // Return cleanup function
     return () => {
       cleanup();
-      unsubscribe();
     };
   });
 
@@ -66,12 +57,9 @@
     console.log('🔄 Reactive update:');
     console.log('  - isLoading:', $isLoading);
     console.log('  - error:', $error);
-    console.log('  - competitions:', $competitionManagementStore);
+    console.log('  - competitions:', $competitions);
     console.log('  - stats:', $stats);
   }
-
-  // Import the individual stores
-//  const { isLoading, error, stats, activeCompetitions, upcomingCompetitions, pastCompetitions } = competitionManagementStore;
 
   // Filtered competitions based on search and status
   $: filteredCompetitions = (() => {
@@ -80,16 +68,24 @@
     
     switch (filterStatus) {
       case 'active':
-        comps = $activeCompetitions || [];
+        comps = ($competitions || []).filter(c => c.is_active);
         break;
       case 'upcoming':
-        comps = $upcomingCompetitions || [];
+        comps = ($competitions || []).filter(c => {
+          const now = new Date();
+          const deadline = new Date(c.entry_deadline);
+          return !c.is_active && deadline > now;
+        });
         break;
       case 'past':
-        comps = $pastCompetitions || [];
+        comps = ($competitions || []).filter(c => {
+          const now = new Date();
+          const deadline = new Date(c.entry_deadline);
+          return deadline <= now;
+        });
         break;
       default:
-        comps = $competitionManagementStore || [];
+        comps = $competitions || [];
     }
 
     console.log('📋 Competitions before filter:', comps);
@@ -139,13 +135,11 @@
 
   // Toggle competition status
   async function toggleStatus(competition) {
-    const result = await competitionManagementStore.toggleCompetitionStatus(
-      competition.id, 
-      !competition.is_active
-    );
-    
-    if (!result.success) {
-      alert(`Error: ${result.error}`);
+    try {
+      const { updateCompetition } = await import('$lib/stores/competitionManagementStore');
+      await updateCompetition(competition.id, { is_active: !competition.is_active });
+    } catch (err) {
+      alert(`Error: ${err.message}`);
     }
   }
 
@@ -153,13 +147,13 @@
   async function deleteCompetition() {
     if (!competitionToDelete) return;
     
-    const result = await competitionManagementStore.deleteCompetition(competitionToDelete.id);
-    
-    if (result.success) {
+    try {
+      const { deleteCompetition: deleteComp } = await import('$lib/stores/competitionManagementStore');
+      await deleteComp(competitionToDelete.id);
       showDeleteConfirm = false;
       competitionToDelete = null;
-    } else {
-      alert(`Error: ${result.error}`);
+    } catch (err) {
+      alert(`Error: ${err.message}`);
     }
   }
 
@@ -179,8 +173,9 @@
   }
 
   // Force refresh
-  function forceRefresh() {
-    competitionManagementStore.loadCompetitions(true);
+  async function forceRefresh() {
+    const { loadCompetitions } = await import('$lib/stores/competitionManagementStore');
+    await loadCompetitions(true);
   }
 </script>
 

@@ -17,8 +17,12 @@ export const lastRefresh = writable(null);
 // =============================================
 
 export const stats = derived(competitions, ($competitions) => {
+    console.log('📊 Computing stats for competitions:', $competitions);
+    
     if (!Array.isArray($competitions) || $competitions.length === 0) {
-        return { total: 0, active: 0, totalEntries: 0, avgEntries: 0 };
+        const defaultStats = { total: 0, active: 0, totalEntries: 0, avgEntries: 0 };
+        console.log('📊 Using default stats:', defaultStats);
+        return defaultStats;
     }
 
     const total = $competitions.length;
@@ -26,7 +30,9 @@ export const stats = derived(competitions, ($competitions) => {
     const totalEntries = $competitions.reduce((sum, comp) => sum + (comp.entry_count || 0), 0);
     const avgEntries = total > 0 ? Math.round(totalEntries / total * 10) / 10 : 0;
 
-    return { total, active, totalEntries, avgEntries };
+    const computedStats = { total, active, totalEntries, avgEntries };
+    console.log('📊 Computed stats:', computedStats);
+    return computedStats;
 });
 
 export const filteredCompetitions = derived(competitions, ($competitions) => {
