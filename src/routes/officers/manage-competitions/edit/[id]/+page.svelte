@@ -76,7 +76,7 @@
         judgingDate = formatDateForInput(new Date(data.judging_date));
         entryFee = data.entry_fee || 0;
         maxEntriesPerMember = data.max_entries_per_member || 5;
-        isActive = data.is_active ?? true;
+        isActive = data.active ?? true;
         hideJudgingDate = data.hide_judging_date ?? false;
       }
     } catch (err) {
@@ -150,7 +150,7 @@
       judging_date: judgingDate,
       entry_fee: entryFee,
       max_entries_per_member: maxEntriesPerMember,
-      is_active: isActive,
+      active: isActive,
       hide_judging_date: hideJudgingDate
     };
     
