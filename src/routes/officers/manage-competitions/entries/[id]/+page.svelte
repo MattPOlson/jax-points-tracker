@@ -74,9 +74,12 @@
             email,
             phone
           ),
-          bjcp_categories!competition_entries_bjcp_category_fkey(
-            name,
-            category_code
+          bjcp_category:bjcp_categories(
+            id,
+            category_number,
+            subcategory_letter,
+            subcategory_name,
+            category_name
           )
         `)
         .eq('competition_id', competitionId)
@@ -107,8 +110,8 @@
         entry.beer_name?.toLowerCase().includes(query) ||
         entry.members?.name?.toLowerCase().includes(query) ||
         entry.members?.email?.toLowerCase().includes(query) ||
-        entry.bjcp_category?.toLowerCase().includes(query) ||
-        entry.bjcp_subcategory?.toLowerCase().includes(query) ||
+        entry.bjcp_category?.category_name?.toLowerCase().includes(query) ||
+        `${entry.bjcp_category?.category_number}${entry.bjcp_category?.subcategory_letter}`.toLowerCase().includes(query) ||
         entry.special_ingredients?.toLowerCase().includes(query) ||
         entry.notes?.toLowerCase().includes(query)
       );
@@ -132,8 +135,8 @@
           bVal = b.beer_name || '';
           break;
         case 'category':
-          aVal = `${a.bjcp_category || ''}-${a.bjcp_subcategory || ''}`;
-          bVal = `${b.bjcp_category || ''}-${b.bjcp_subcategory || ''}`;
+          aVal = `${a.bjcp_category?.category_number || ''}${a.bjcp_category?.subcategory_letter || ''}`;
+          bVal = `${b.bjcp_category?.category_number || ''}${b.bjcp_category?.subcategory_letter || ''}`;
           break;
         case 'paid':
           aVal = a.is_paid ? 1 : 0;
@@ -240,8 +243,8 @@
           Entry #: <span>${entry.entry_number}</span>
         </div>
         <div class="beer-style">
-          Style: <span>${entry.bjcp_category}${entry.bjcp_subcategory}</span>
-          ${entry.bjcp_categories?.name ? `<br><small>${entry.bjcp_categories.name}</small>` : ''}
+          Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span>
+          ${entry.bjcp_category?.category_name ? `<br><small>${entry.bjcp_category.category_name}</small>` : ''}
         </div>
         ${entry.special_ingredients ? `
           <div class="special">
@@ -785,10 +788,10 @@
                 <td>{entry.beer_name || '-'}</td>
                 <td>
                   <span class="category-badge">
-                    {entry.bjcp_category}{entry.bjcp_subcategory}
+                    {entry.bjcp_category?.category_number || ''}{entry.bjcp_category?.subcategory_letter || ''}
                   </span>
-                  {#if entry.bjcp_categories?.name}
-                    <br><small>{entry.bjcp_categories.name}</small>
+                  {#if entry.bjcp_category?.category_name}
+                    <br><small>{entry.bjcp_category.category_name}</small>
                   {/if}
                 </td>
                 <td>
