@@ -123,17 +123,6 @@
         <div class="card-arrow">→</div>
       </div>
 
-      <!-- Officer Tools Card (if officer) -->
-      {#if $userProfile?.is_officer}
-        <div class="action-card officer" on:click={() => navigateTo('/competitions/manage')}>
-          <div class="card-icon">⚙️</div>
-          <div class="card-content">
-            <h3>Manage Competitions</h3>
-            <p>Officer tools for competition management</p>
-          </div>
-          <div class="card-arrow">→</div>
-        </div>
-      {/if}
     </div>
   </section>
 
