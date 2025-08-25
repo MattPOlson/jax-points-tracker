@@ -126,9 +126,26 @@
       toast.error('Failed to log out');
     }
   }
+
+  function handleGoBack() {
+    // Check if there's history to go back to
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      // Fallback to home if no history
+      goto('/');
+    }
+  }
 </script>
 
 <div class="topbar">
+  <button on:click={handleGoBack} class="nav-button" title="Go back" aria-label="Go back to previous page">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m12 19-7-7 7-7" />
+      <path d="M19 12H5" />
+    </svg>
+  </button>
+  
   <a href="/" class="nav-button" title="Home" aria-label="Go to homepage">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
