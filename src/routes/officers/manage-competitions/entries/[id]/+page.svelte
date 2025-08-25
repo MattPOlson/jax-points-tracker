@@ -219,8 +219,7 @@
     }
   }
 
-  // Print selected labels
- // Fixed print labels function for competition entries
+// Fixed print labels function for competition entries
 function printLabels() {
   const entriesToPrint = selectedEntries.size > 0 
     ? filteredEntries.filter(e => selectedEntries.has(e.id))
@@ -260,7 +259,7 @@ function printLabels() {
     </div>
   `).join('');
 
-  // Write print document with fixed CSS
+  // Write print document with updated CSS for 3.375" x 2.125" labels
   printWindow.document.write(`
     <!DOCTYPE html>
     <html>
@@ -279,53 +278,53 @@ function printLabels() {
         .labels-container {
           display: flex;
           flex-wrap: wrap;
-          gap: 0.25in;
+          gap: 0.1875in;
           justify-content: flex-start;
         }
         .label {
-          width: 4in;
-          height: 3in;
-          padding: 0.25in;
+          width: 3.375in;
+          height: 2.125in;
+          padding: 0.125in;
           box-sizing: border-box;
           border: 1px solid #000;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          margin-bottom: 0.25in;
+          margin-bottom: 0.1875in;
           break-inside: avoid;
         }
         .label-header {
-          font-size: 14pt;
+          font-size: 10pt;
           text-align: center;
-          margin-bottom: 0.25in;
-          border-bottom: 2px solid #000;
-          padding-bottom: 0.125in;
+          margin-bottom: 0.1in;
+          border-bottom: 1px solid #000;
+          padding-bottom: 0.05in;
         }
         .entry-number {
-          font-size: 18pt;
+          font-size: 14pt;
           font-weight: bold;
-          margin-bottom: 0.125in;
+          margin-bottom: 0.1in;
         }
         .entry-number span {
-          font-size: 24pt;
+          font-size: 18pt;
           color: #ff3e00;
         }
         .beer-style {
-          font-size: 14pt;
-          margin-bottom: 0.125in;
+          font-size: 10pt;
+          margin-bottom: 0.1in;
         }
         .beer-style span {
           font-weight: bold;
-          font-size: 16pt;
+          font-size: 12pt;
         }
         .beer-style small {
-          font-size: 10pt;
+          font-size: 8pt;
           color: #666;
         }
         .special, .notes {
-          font-size: 10pt;
-          margin-top: 0.125in;
-          padding-top: 0.125in;
+          font-size: 8pt;
+          margin-top: 0.05in;
+          padding-top: 0.05in;
           border-top: 1px solid #ccc;
         }
         @media print {
