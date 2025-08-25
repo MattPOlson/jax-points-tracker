@@ -40,7 +40,7 @@ export const categoriesByNumber = derived(bjcpCategories, ($bjcpCategories) => {
                 id: cat.id,
                 letter: cat.subcategory_letter,
                 name: cat.subcategory_name,
-                full_name: cat.full_name,
+                full_name: cat.subcategory_name, // Updated to use subcategory_name
                 description: cat.description
             });
         }
@@ -73,7 +73,7 @@ export const allCompetitions = derived(competitions, ($competitions) => {
 // Load Functions
 // =============================================
 
-// Load BJCP categories from database
+// Load BJCP categories from database - FIXED to use direct query
 export async function loadBjcpCategories(forceRefresh = false) {
     const now = new Date();
     const lastRefreshTime = get(lastRefresh);
@@ -90,8 +90,12 @@ export async function loadBjcpCategories(forceRefresh = false) {
     try {
         console.log('📋 Loading BJCP categories...');
         
+        // FIXED: Use direct table query instead of RPC
         const { data, error: queryError } = await supabase
-            .rpc('get_bjcp_categories');
+            .from('bjcp_categories')
+            .select('*')
+            .order('category_number', { ascending: true })
+            .order('subcategory_letter', { ascending: true });
 
         if (queryError) {
             console.error('❌ Error loading BJCP categories:', queryError);
@@ -111,7 +115,7 @@ export async function loadBjcpCategories(forceRefresh = false) {
     }
 }
 
-// Load competitions from database
+// Load competitions from database - FIXED to use direct query
 export async function loadCompetitions(forceRefresh = false) {
     const now = new Date();
     const lastRefreshTime = get(lastRefresh);
@@ -128,8 +132,11 @@ export async function loadCompetitions(forceRefresh = false) {
     try {
         console.log('🏆 Loading competitions...');
         
+        // FIXED: Use direct table query instead of RPC
         const { data, error: queryError } = await supabase
-            .rpc('get_active_competitions');
+            .from('competitions')
+            .select('*')
+            .order('entry_deadline', { ascending: false });
 
         if (queryError) {
             console.error('❌ Error loading competitions:', queryError);
@@ -319,7 +326,6 @@ export async function deactivateCompetition(competitionId) {
 // =============================================
 // Store Helpers (following established patterns)
 // =============================================
-
 
 // Reset all stores to initial state
 export function resetStores() {
