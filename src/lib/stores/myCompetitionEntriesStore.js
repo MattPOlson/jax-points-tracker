@@ -154,8 +154,7 @@ export async function loadMyEntries(forceRefresh = false) {
                 results:competition_results(
                     score,
                     placement,
-                    judge_notes,
-                    award_type
+                    judge_notes
                 )
             `)
             .eq('member_id', userId)
@@ -356,14 +355,19 @@ export function formatDeadline(entry) {
 export function getAwardDisplay(result) {
     if (!result) return null;
     
-    const awards = {
-        'first': '🥇 1st Place',
-        'second': '🥈 2nd Place', 
-        'third': '🥉 3rd Place',
-        'best_of_show': '🏆 Best of Show'
-    };
-    
-    return awards[result.award_type] || `Score: ${result.score}/50`;
+    // Use placement instead of award_type
+    switch (result.placement) {
+        case '1':
+            return '🥇 1st Place';
+        case '2':
+            return '🥈 2nd Place';
+        case '3':
+            return '🥉 3rd Place';
+        case 'HM':
+            return '🏅 Honorable Mention';
+        default:
+            return result.score ? `Score: ${result.score}/50` : 'No Results';
+    }
 }
 
 // Get payment status display
