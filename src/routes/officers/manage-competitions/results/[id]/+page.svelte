@@ -191,6 +191,8 @@
     if (entry) {
       entry[field] = value;
       unsavedChanges.add(entryId);
+      // Trigger Svelte reactivity for Set
+      unsavedChanges = unsavedChanges;
       
       // Update has_results status
       entry.has_results = entry.score && entry.score > 0;
@@ -249,6 +251,8 @@
       if (error) throw error;
 
       unsavedChanges.delete(entryId);
+      // Trigger Svelte reactivity for Set
+      unsavedChanges = unsavedChanges;
       entry.has_results = true;
       
       // Show success feedback only for individual saves
