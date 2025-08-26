@@ -63,6 +63,11 @@
   let saveError = null;
 
   // =============================================
+  // Competition Filter State
+  // =============================================
+  let selectedCompetitionId = "all"; // Default to show all competitions
+  
+  // =============================================
   // Reactive Variables
   // =============================================
 
@@ -81,6 +86,55 @@
   $: if (editForm.subcategory) {
     editForm.bjcp_category_id = editForm.subcategory;
   }
+
+  // =============================================
+  // Competition Filtering Logic
+  // =============================================
+
+  // Get unique competitions from entries for dropdown
+  $: availableCompetitions = $myEntries.reduce((acc, entry) => {
+    const compId = entry.competition.id;
+    if (!acc.find(c => c.id === compId)) {
+      acc.push({
+        id: compId,
+        name: entry.competition.name,
+        active: entry.competition.active,
+        entry_deadline: entry.competition.entry_deadline
+      });
+    }
+    return acc;
+  }, []).sort((a, b) => new Date(b.entry_deadline) - new Date(a.entry_deadline));
+
+  // Filter entries by selected competition
+  $: filteredEntries = selectedCompetitionId === "all" 
+    ? $myEntries 
+    : $myEntries.filter(entry => entry.competition.id === selectedCompetitionId);
+
+  // Group filtered entries by competition (same logic as original entriesByCompetition)
+  $: filteredEntriesByCompetition = filteredEntries.reduce((acc, entry) => {
+    const compId = entry.competition.id;
+    if (!acc[compId]) {
+      acc[compId] = {
+        competition: entry.competition,
+        entries: []
+      };
+    }
+    acc[compId].entries.push(entry);
+    return acc;
+  }, {});
+
+  // Convert to array and sort (same as original)
+  $: filteredEntriesByCompetitionArray = Object.values(filteredEntriesByCompetition).sort((a, b) => 
+    new Date(b.competition.entry_deadline) - new Date(a.competition.entry_deadline)
+  );
+
+  // Calculate filtered stats
+  $: filteredStats = {
+    total: filteredEntries.length,
+    active: filteredEntries.filter(entry => entry.can_edit).length,
+    paid: filteredEntries.filter(entry => entry.entry_fee_paid).length,
+    pending_payment: filteredEntries.filter(entry => !entry.entry_fee_paid).length
+  };
 
   // =============================================
   // Lifecycle
@@ -214,6 +268,29 @@
     <p>Manage your beer competition submissions</p>
   </section>
 
+  <!-- Competition Filter -->
+  {#if $isLoaded && availableCompetitions.length > 1}
+    <div class="filter-section">
+      <div class="filter-container">
+        <label for="competition-filter" class="filter-label">
+          Filter by Competition:
+        </label>
+        <select 
+          id="competition-filter"
+          bind:value={selectedCompetitionId}
+          class="competition-select"
+        >
+          <option value="all">All Competitions ({$myEntries.length})</option>
+          {#each availableCompetitions as competition}
+            <option value={competition.id}>
+              {competition.name} ({filteredEntries.filter(e => e.competition.id === competition.id).length})
+            </option>
+          {/each}
+        </select>
+      </div>
+    </div>
+  {/if}
+
   <!-- Loading State -->
   {#if $isLoading && !$isLoaded}
     <div class="loading-container">
@@ -236,19 +313,19 @@
     <!-- Statistics Cards -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-number">{$entryStats.total}</div>
+        <div class="stat-number">{filteredStats.total}</div>
         <div class="stat-label">Total Entries</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number">{$entryStats.active}</div>
+        <div class="stat-number">{filteredStats.active}</div>
         <div class="stat-label">Active Entries</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number">{$entryStats.paid}</div>
+        <div class="stat-number">{filteredStats.paid}</div>
         <div class="stat-label">Paid Entries</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number">{$entryStats.pending_payment}</div>
+        <div class="stat-number">{filteredStats.pending_payment}</div>
         <div class="stat-label">Pending Payment</div>
       </div>
     </div>
@@ -267,7 +344,7 @@
     </div>
 
     <!-- No Entries State -->
-    {#if $myEntries.length === 0}
+    {#if filteredEntries.length === 0 && selectedCompetitionId === "all"}
       <div class="empty-state">
         <h2>📝 No Entries Yet</h2>
         <p>You haven't submitted any competition entries.</p>
@@ -279,10 +356,23 @@
         </button>
       </div>
 
+    <!-- No Entries for Selected Competition -->
+    {:else if filteredEntries.length === 0 && selectedCompetitionId !== "all"}
+      <div class="empty-state">
+        <h2>🔍 No Entries Found</h2>
+        <p>No entries found for the selected competition.</p>
+        <button
+          on:click={() => selectedCompetitionId = "all"}
+          class="secondary-button"
+        >
+          📋 Show All Entries
+        </button>
+      </div>
+
       <!-- Entries List -->
     {:else}
       <div class="entries-container">
-        {#each $entriesByCompetition as compGroup}
+        {#each filteredEntriesByCompetitionArray as compGroup}
           <div class="competition-group">
             <!-- Competition Header -->
             <div class="competition-header">
@@ -566,6 +656,47 @@
     font-size: 1.1rem;
     color: #666;
     margin: 0;
+  }
+
+  /* Competition Filter */
+  .filter-section {
+    margin-bottom: 2rem;
+  }
+
+  .filter-container {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #ff3e00;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+
+  .competition-select {
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    background: white;
+    color: #333;
+    min-width: 250px;
+    cursor: pointer;
+  }
+
+  .competition-select:focus {
+    outline: none;
+    border-color: #ff3e00;
+    box-shadow: 0 0 0 3px rgba(255, 62, 0, 0.1);
   }
 
   /* Loading and Error States */
@@ -1063,6 +1194,17 @@
 
     .hero h1 {
       font-size: 2rem;
+    }
+
+    .filter-container {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .competition-select {
+      width: 100%;
+      min-width: unset;
     }
 
     .stats-grid {
