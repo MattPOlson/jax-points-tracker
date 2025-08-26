@@ -58,7 +58,8 @@
 
       // Auto-select the most recent competition if available
       if (competitions.length > 0) {
-        await selectCompetition(competitions[0]);
+        selectedCompetition = competitions[0];
+        await loadResultsForCompetition(competitions[0]);
       }
 
     } catch (err) {
@@ -69,9 +70,24 @@
     }
   }
 
+  // Handle competition selection from dropdown
+  async function handleCompetitionSelect(event) {
+    const competitionId = event.target.value;
+    if (!competitionId) {
+      selectedCompetition = null;
+      results = [];
+      return;
+    }
+
+    const competition = competitions.find(c => c.id === competitionId);
+    if (competition) {
+      selectedCompetition = competition;
+      await loadResultsForCompetition(competition);
+    }
+  }
+
   // Load results for selected competition
-  async function selectCompetition(competition) {
-    selectedCompetition = competition;
+  async function loadResultsForCompetition(competition) {
     isLoadingResults = true;
     error = null;
 
@@ -241,43 +257,21 @@
     margin-bottom: 1rem;
   }
 
-  .competition-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1rem;
-  }
-
-  .competition-option {
-    padding: 1rem;
-    border: 2px solid #e5e7eb;
+  .competition-select {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
     border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    font-size: 1rem;
     background: white;
-  }
-
-  .competition-option:hover {
-    border-color: #ff3e00;
-    box-shadow: 0 2px 8px rgba(255, 62, 0, 0.1);
-  }
-
-  .competition-option.selected {
-    border-color: #ff3e00;
-    background: #fef7f0;
-  }
-
-  .competition-name {
-    font-size: 1.1rem;
-    font-weight: 600;
     color: #333;
-    margin-bottom: 0.5rem;
   }
 
-  .competition-info {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.875rem;
-    color: #666;
+  .competition-select:focus {
+    outline: none;
+    border-color: #ff3e00;
+    box-shadow: 0 0 0 3px rgba(255, 62, 0, 0.1);
   }
 
   .results-summary {
@@ -563,20 +557,18 @@
     <!-- Competition Selector -->
     <div class="competition-selector">
       <div class="selector-label">Select Competition to View Results:</div>
-      <div class="competition-grid">
+      <select 
+        class="competition-select" 
+        on:change={handleCompetitionSelect}
+        value={selectedCompetition?.id || ''}
+      >
+        <option value="">Choose a competition...</option>
         {#each competitions as competition}
-          <div 
-            class="competition-option {selectedCompetition?.id === competition.id ? 'selected' : ''}"
-            on:click={() => selectCompetition(competition)}
-          >
-            <div class="competition-name">{competition.name}</div>
-            <div class="competition-info">
-              <span>Judged: {formatDate(competition.judging_date)}</span>
-              <span>Fee: ${competition.entry_fee || 0}</span>
-            </div>
-          </div>
+          <option value={competition.id}>
+            {competition.name} - Judged {formatDate(competition.judging_date)}
+          </option>
         {/each}
-      </div>
+      </select>
     </div>
 
     {#if selectedCompetition}
