@@ -153,7 +153,7 @@ export async function loadMyEntries(forceRefresh = false) {
                 ),
                 results:competition_results(
                     score,
-                    place,
+                    placement,
                     judge_notes,
                     award_type
                 )
