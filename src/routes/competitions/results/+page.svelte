@@ -212,6 +212,133 @@
   function navigateToCompetitions() {
     goto('/competitions');
   }
+
+  // Print labels function for competition results
+  function printResults() {
+    if (!results || results.length === 0) {
+      alert('No results available to print');
+      return;
+    }
+
+    // Create print window
+    const printWindow = window.open('', '_blank');
+    
+    // Generate label HTML including Member Name and Beer Name
+    const labelsHtml = results.map(result => `
+      <div class="label">
+        <div class="label-header">
+          <strong>${selectedCompetition?.name || 'Competition'}</strong>
+        </div>
+        <div class="entry-number">
+          Entry #: <span>${result.entry_number}</span>
+        </div>
+        <div class="member-name">
+          Member: <span>${result.member_name || 'Unknown'}</span>
+        </div>
+        <div class="beer-name">
+          Beer: <span>${result.beer_name || 'Unknown'}</span>
+        </div>
+        <div class="beer-style">
+          Style: <span>${result.bjcp_category?.category_number || ''}${result.bjcp_category?.subcategory_letter || ''}</span>
+          ${result.bjcp_category?.category_name ? `<br><small>${result.bjcp_category.category_name}</small>` : ''}
+        </div>
+        ${result.score ? `
+          <div class="score">
+            Score: <span>${result.score}/50</span>
+          </div>
+        ` : ''}
+        ${result.placement ? `
+          <div class="placement">
+            Placement: <span>${result.placement}</span>
+          </div>
+        ` : ''}
+      </div>
+    `).join('');
+
+    // Write print document with updated CSS for 3.375" x 2.125" labels
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Competition Results Labels</title>
+        <style>
+          @page {
+            size: 8.5in 11in;
+            margin: 0.25in;
+          }
+          
+          body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            line-height: 1.2;
+          }
+          
+          .label {
+            width: 3.375in;
+            height: 2.125in;
+            border: 1px solid #000;
+            float: left;
+            padding: 0.1in;
+            box-sizing: border-box;
+            margin-right: 0.125in;
+            margin-bottom: 0.125in;
+            page-break-inside: avoid;
+            overflow: hidden;
+          }
+          
+          .label:nth-child(2n) {
+            margin-right: 0;
+          }
+          
+          .label-header {
+            text-align: center;
+            border-bottom: 1px solid #000;
+            margin-bottom: 0.05in;
+            padding-bottom: 0.02in;
+            font-weight: bold;
+            font-size: 11px;
+          }
+          
+          .entry-number, .member-name, .beer-name, .beer-style, .score, .placement {
+            margin-bottom: 0.03in;
+            font-size: 9px;
+          }
+          
+          .entry-number span, .member-name span, .beer-name span, .beer-style span, .score span, .placement span {
+            font-weight: bold;
+          }
+          
+          .beer-style small {
+            font-size: 7px;
+            color: #666;
+          }
+
+          @media print {
+            body {
+              margin: 0 !important;
+            }
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+        </style>
+      </head>
+      <body>
+        ${labelsHtml}
+      </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.focus();
+    
+    // Trigger print after a short delay
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 250);
+  }
 </script>
 
 <style>
@@ -426,6 +553,21 @@
     display: inline-block;
   }
 
+  .btn-primary {
+    background: #ff3e00;
+    color: white;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: #e6370a;
+  }
+
+  .btn-primary:disabled {
+    background: #d1d5db;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+
   .btn-secondary {
     background: #6b7280;
     color: white;
@@ -528,6 +670,13 @@
 
   <!-- Controls -->
   <div class="controls">
+    <button 
+      class="btn btn-primary"
+      on:click={printResults}
+      disabled={!results || results.length === 0}
+    >
+      🖨️ Print Results Labels
+    </button>
     <button class="btn btn-secondary" on:click={navigateToCompetitions}>
       Back to Competitions
     </button>
