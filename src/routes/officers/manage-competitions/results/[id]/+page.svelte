@@ -201,13 +201,18 @@
   }
 
   // Save individual entry results
-  async function saveEntryResults(entryId) {
+  async function saveEntryResults(entryId, skipToast = false) {
     const entry = entries.find(e => e.id === entryId);
-    if (!entry) return;
+    if (!entry) {
+      throw new Error(`Entry with ID ${entryId} not found`);
+    }
+
+    const wasCalledFromSaveAll = skipToast;
+    if (!wasCalledFromSaveAll) {
+      isSaving = true;
+    }
 
     try {
-      isSaving = true;
-
       const resultData = {
         competition_id: competitionId,
         entry_id: entryId,
@@ -246,14 +251,21 @@
       unsavedChanges.delete(entryId);
       entry.has_results = true;
       
-      // Show success feedback
-      showToast('Results saved successfully', 'success');
+      // Show success feedback only for individual saves
+      if (!skipToast) {
+        showToast('Results saved successfully', 'success');
+      }
 
     } catch (err) {
       console.error('Error saving results:', err);
-      alert('Failed to save results');
+      if (!skipToast) {
+        alert('Failed to save results');
+      }
+      throw err; // Re-throw for saveAllResults to handle
     } finally {
-      isSaving = false;
+      if (!wasCalledFromSaveAll) {
+        isSaving = false;
+      }
     }
   }
 
@@ -266,9 +278,25 @@
 
     try {
       isSaving = true;
-      const promises = Array.from(unsavedChanges).map(entryId => saveEntryResults(entryId));
-      await Promise.all(promises);
-      showToast('All results saved successfully', 'success');
+      let successCount = 0;
+      let errorCount = 0;
+      
+      // Process each entry sequentially to avoid race conditions
+      for (const entryId of Array.from(unsavedChanges)) {
+        try {
+          await saveEntryResults(entryId, true);
+          successCount++;
+        } catch (err) {
+          console.error(`Error saving entry ${entryId}:`, err);
+          errorCount++;
+        }
+      }
+      
+      if (errorCount === 0) {
+        showToast(`All ${successCount} results saved successfully`, 'success');
+      } else {
+        showToast(`${successCount} results saved, ${errorCount} failed`, errorCount > successCount ? 'error' : 'success');
+      }
     } catch (err) {
       console.error('Error saving all results:', err);
       alert('Failed to save all results');
