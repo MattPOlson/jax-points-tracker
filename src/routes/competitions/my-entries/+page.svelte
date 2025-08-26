@@ -29,7 +29,6 @@
   // =============================================
   // Tab Switching Fix (CRITICAL)
   // =============================================
-  let cleanup;
 
   function setupEventHandlers() {
     let isFirstLoad = true;
