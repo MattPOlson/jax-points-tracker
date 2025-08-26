@@ -249,6 +249,133 @@
   function getCategoryDisplayName(subcategory) {
     return subcategory ? `${subcategory.letter} - ${subcategory.name}` : "";
   }
+
+  // Print labels function for my entries
+  function printEntries() {
+    if (!filteredEntries || filteredEntries.length === 0) {
+      alert('No entries available to print');
+      return;
+    }
+
+    // Create print window
+    const printWindow = window.open('', '_blank');
+    
+    // Generate label HTML including Member Name and Beer Name
+    const labelsHtml = filteredEntries.map(entry => `
+      <div class="label">
+        <div class="label-header">
+          <strong>${entry.competition?.name || 'Competition'}</strong>
+        </div>
+        <div class="entry-number">
+          Entry #: <span>${entry.entry_number}</span>
+        </div>
+        <div class="member-name">
+          Member: <span>${$userProfile?.full_name || $userProfile?.email || 'Unknown'}</span>
+        </div>
+        <div class="beer-name">
+          Beer: <span>${entry.beer_name || 'Unknown'}</span>
+        </div>
+        <div class="beer-style">
+          Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span>
+          ${entry.bjcp_category?.category_name ? `<br><small>${entry.bjcp_category.category_name}</small>` : ''}
+        </div>
+        ${entry.special_ingredients ? `
+          <div class="special">
+            Special: <span>${entry.special_ingredients}</span>
+          </div>
+        ` : ''}
+        ${entry.notes ? `
+          <div class="notes">
+            Notes: <span>${entry.notes}</span>
+          </div>
+        ` : ''}
+      </div>
+    `).join('');
+
+    // Write print document with updated CSS for 3.375" x 2.125" labels
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>My Competition Entry Labels</title>
+        <style>
+          @page {
+            size: 8.5in 11in;
+            margin: 0.25in;
+          }
+          
+          body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            line-height: 1.2;
+          }
+          
+          .label {
+            width: 3.375in;
+            height: 2.125in;
+            border: 1px solid #000;
+            float: left;
+            padding: 0.1in;
+            box-sizing: border-box;
+            margin-right: 0.125in;
+            margin-bottom: 0.125in;
+            page-break-inside: avoid;
+            overflow: hidden;
+          }
+          
+          .label:nth-child(2n) {
+            margin-right: 0;
+          }
+          
+          .label-header {
+            text-align: center;
+            border-bottom: 1px solid #000;
+            margin-bottom: 0.05in;
+            padding-bottom: 0.02in;
+            font-weight: bold;
+            font-size: 11px;
+          }
+          
+          .entry-number, .member-name, .beer-name, .beer-style, .special, .notes {
+            margin-bottom: 0.03in;
+            font-size: 9px;
+          }
+          
+          .entry-number span, .member-name span, .beer-name span, .beer-style span, .special span, .notes span {
+            font-weight: bold;
+          }
+          
+          .beer-style small {
+            font-size: 7px;
+            color: #666;
+          }
+
+          @media print {
+            body {
+              margin: 0 !important;
+            }
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+        </style>
+      </head>
+      <body>
+        ${labelsHtml}
+      </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.focus();
+    
+    // Trigger print after a short delay
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 250);
+  }
 </script>
 
 <!-- =============================================
@@ -337,6 +464,13 @@
         class="primary-button"
       >
         ➕ Submit New Entry
+      </button>
+      <button 
+        on:click={printEntries}
+        class="primary-button"
+        disabled={filteredEntries.length === 0}
+      >
+        🖨️ Print Entry Labels
       </button>
       <button on:click={() => loadMyEntries(true)} class="secondary-button">
         🔄 Refresh
@@ -796,8 +930,14 @@
     transition: background 0.2s;
   }
 
-  .primary-button:hover {
+  .primary-button:hover:not(:disabled) {
     background: #e63600;
+  }
+
+  .primary-button:disabled {
+    background: #d1d5db;
+    color: #9ca3af;
+    cursor: not-allowed;
   }
 
   .secondary-button {
