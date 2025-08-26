@@ -27,24 +27,8 @@
   } from "$lib/stores/bjcpCategoryStore.js";
 
   // =============================================
-  // Tab Switching Fix (CRITICAL)
+  // Component Lifecycle
   // =============================================
-
-  function setupEventHandlers() {
-    let isFirstLoad = true;
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible" && !isFirstLoad) {
-        console.log("🔄 Tab became visible - doing F5 refresh");
-        window.location.reload();
-      }
-      isFirstLoad = false;
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () =>
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }
 
   // =============================================
   // Component State
@@ -139,8 +123,6 @@
   // Lifecycle
   // =============================================
   onMount(async () => {
-    cleanup = setupEventHandlers();
-
     // Redirect if not logged in
     if (!$userProfile?.id) {
       goto("/login");
@@ -155,9 +137,6 @@
     }
   });
 
-  onDestroy(() => {
-    if (cleanup) cleanup();
-  });
 
   // =============================================
   // Edit Functions
