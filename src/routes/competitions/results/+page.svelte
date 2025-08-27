@@ -4,6 +4,7 @@
   import { goto } from '$app/navigation';
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
+  import { setupGracefulTabRefresh } from "$lib/utils/focusRefresher.js";
   
   let competitions = [];
   let selectedCompetition = null;
@@ -12,29 +13,11 @@
   let isLoadingResults = false;
   let error = null;
 
+  // Setup graceful tab refresh for Supabase connectivity
+  setupGracefulTabRefresh();
+
   onMount(() => {
     loadPublishedCompetitions();
-    setupEventHandlers();
-  });
-
-  // Tab switching fix (CRITICAL - Supabase connection issue)
-  function setupEventHandlers() {
-    let isFirstLoad = true;
-    
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && !isFirstLoad) {
-        console.log('Tab became visible - doing F5 refresh');
-        window.location.reload();
-      }
-      isFirstLoad = false;
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }
-
-  onDestroy(() => {
-    // Cleanup handled by setupEventHandlers return
   });
 
   // Load competitions with published results

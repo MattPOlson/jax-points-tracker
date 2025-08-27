@@ -25,10 +25,14 @@
     categoriesByNumber,
     loadCompetitionData,
   } from "$lib/stores/bjcpCategoryStore.js";
+  import { setupGracefulTabRefresh } from "$lib/utils/focusRefresher.js";
 
   // =============================================
   // Component Lifecycle
   // =============================================
+  
+  // Setup graceful tab refresh for Supabase connectivity
+  setupGracefulTabRefresh();
 
   // =============================================
   // Component State
@@ -248,7 +252,7 @@
           Entry #: <span>${entry.entry_number}</span>
         </div>
         <div class="member-name">
-          Member: <span>${$userProfile?.full_name || $userProfile?.email || 'Unknown'}</span>
+          Member: <span>${$userProfile?.name || $userProfile?.email || 'Unknown'}</span>
         </div>
         <div class="beer-name">
           Beer: <span>${entry.beer_name || 'Unknown'}</span>
