@@ -363,7 +363,7 @@
         <div class="form-group">
           <label>Brewer</label>
           <div class="brewer-info">
-            <span class="brewer-name">{$userProfile?.full_name || $userProfile?.email}</span>
+            <span class="brewer-name">{$userProfile?.name || $userProfile?.email}</span>
             <span class="auto-filled">(automatically filled)</span>
           </div>
         </div>
