@@ -4,7 +4,6 @@
   import toast from "svelte-french-toast";
   import { user } from "$lib/stores/user";
   import { userProfile } from "$lib/stores/userProfile";
-  import { setupGracefulTabRefresh } from "$lib/utils/focusRefresher.js";
   import {
     approvals as storeApprovals,
     message as storeMessage,
@@ -25,8 +24,24 @@
   $: submissions = $storeApprovals;
   $: message = $storeMessage;
 
-  // Setup graceful tab refresh for Supabase connectivity
-  setupGracefulTabRefresh();
+  // Setup tab focus handler with F5 fix
+  function setupEventHandlers() {
+    let isFirstLoad = true;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && !isFirstLoad) {
+        console.log("🔄 Tab became visible - doing F5 refresh");
+        window.location.reload();
+      }
+      isFirstLoad = false;
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }
 
   // Check if user is authorized
   $: isAuthorized = $user && $userProfile?.is_officer;
@@ -145,6 +160,10 @@
   }
 
   onMount(() => {
+    // Setup tab focus handling
+    const cleanup = setupEventHandlers();
+    cleanupFunctions.push(cleanup);
+
     // Initial load if authorized
     if (isAuthorized) {
       loadApprovals(true);
