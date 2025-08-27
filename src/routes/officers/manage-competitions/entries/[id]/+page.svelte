@@ -282,8 +282,8 @@ function printLabels() {
           justify-content: flex-start;
         }
         .label {
-          width: 3.375in;
-          height: 2.125in;
+          width: 2.25in;
+          height: 1.25in;
           padding: 0.125in;
           box-sizing: border-box;
           border: 1px solid #000;

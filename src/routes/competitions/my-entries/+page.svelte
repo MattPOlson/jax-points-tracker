@@ -291,8 +291,8 @@
           }
           
           .label {
-            width: 3.375in;
-            height: 2.125in;
+            width: 2.25in;
+            height: 1.25in;
             border: 1px solid #000;
             float: left;
             padding: 0.1in;
