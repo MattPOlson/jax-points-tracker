@@ -117,7 +117,7 @@
       judging_date: judgingDate,
       entry_fee: entryFee,
       max_entries_per_member: maxEntriesPerMember,
-      is_active: isActive,
+      active: isActive,
       hide_judging_date: hideJudgingDate
     };
     
