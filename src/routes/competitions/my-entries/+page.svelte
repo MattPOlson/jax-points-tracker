@@ -326,7 +326,7 @@
           }
           
           .beer-style small {
-            font-size: 7px;
+            font-size: 8px;
             color: #666;
           }
 

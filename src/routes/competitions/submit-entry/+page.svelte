@@ -23,20 +23,7 @@
   // =============================================
   let cleanup;
 
- // function setupEventHandlers() {
- //   let isFirstLoad = true;
-    
- //   const handleVisibilityChange = () => {
- //     if (document.visibilityState === 'visible' && !isFirstLoad) {
- //       console.log('🔄 Tab became visible - doing F5 refresh');
- //       window.location.reload();
- //     }
- //     isFirstLoad = false;
- //   };
-
- //   document.addEventListener('visibilitychange', handleVisibilityChange);
- //   return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
- // }
+ // Removed problematic tab visibility handler - already commented out
 
   // =============================================
   // Form State

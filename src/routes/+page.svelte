@@ -1,7 +1,6 @@
 <script>
   import { user as authUser } from '$lib/stores/user';
   import { userProfile, loadUserProfile } from '$lib/stores/userProfile';
-  import { onTabFocus } from '$lib/utils/focusRefresher.js';
   import { loadApprovals } from '$lib/stores/approvalsStore';
   import { loadCategoryData } from '$lib/stores/categoryStore';
   import { loadLeaderboard } from '$lib/stores/leaderboardStore';
@@ -24,13 +23,7 @@
     loadMyEntries(true); // Load user's competition entries
   }
 
-  // Auto-refresh on tab focus with tab reload fix
-  $: if ($authUser?.id) {
-    onTabFocus(() => {
-      // Use window.location.reload() to fix tab switching issues
-      window.location.reload();
-    });
-  }
+  // Removed auto-refresh on tab focus - causes issues with Supabase tab switching
 
   // Competition status for display
   $: competitionStatus = getCompetitionStatus($activeCompetitions, $entryStats);
