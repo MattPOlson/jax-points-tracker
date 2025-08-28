@@ -542,6 +542,8 @@ function printLabels() {
               border: 2px solid #333;
               padding: 20px;
               background-color: #f0f0f0;
+              page-break-inside: avoid;
+              break-inside: avoid;
             }
             
             .top-picks-title {
