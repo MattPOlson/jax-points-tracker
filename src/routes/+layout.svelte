@@ -79,18 +79,21 @@
 
         const { data } = supabase.auth.onAuthStateChange(
           async (event, session) => {
-            const u = session?.user ?? null;
-            user.set(u);
+            // Use setTimeout to make auth operations non-blocking for tab switching
+            setTimeout(async () => {
+              const u = session?.user ?? null;
+              user.set(u);
 
-            if (event === 'SIGNED_IN' && u) {
-              await fetchUserProfile(u.id);
-              await checkForApprovals(u.id);
-              if (window.location.pathname === '/login') goto('/');
-            }
+              if (event === 'SIGNED_IN' && u) {
+                await fetchUserProfile(u.id);
+                await checkForApprovals(u.id);
+                if (window.location.pathname === '/login') goto('/');
+              }
 
-            if (event === 'SIGNED_OUT') {
-              userProfile.set(null);
-            }
+              if (event === 'SIGNED_OUT') {
+                userProfile.set(null);
+              }
+            }, 0);
           }
         );
 

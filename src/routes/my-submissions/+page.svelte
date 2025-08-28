@@ -22,22 +22,12 @@
 
   $: currentUserId = $userProfile?.id;
 
-  // Setup tab focus handler with F5 fix
+  // Setup tab focus handler - removed problematic reload for tab switching fix
   function setupEventHandlers() {
-    let isFirstLoad = true;
-    
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && !isFirstLoad) {
-        console.log('🔄 Tab became visible - doing F5 refresh');
-        window.location.reload();
-      }
-      isFirstLoad = false;
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
+    // Previously had auto-reload on tab visibility change, but this caused issues
+    // with Supabase connection handling during tab switching
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      // No cleanup needed now
     };
   }
 
