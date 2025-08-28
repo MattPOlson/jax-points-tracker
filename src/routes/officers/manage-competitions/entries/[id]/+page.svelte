@@ -364,6 +364,63 @@ function printLabels() {
     goto('/officers/manage-competitions');
   }
 
+  // Export entries to CSV
+  function exportToCSV() {
+    // Use filtered entries if search is active, otherwise use selected entries or all entries
+    const entriesToExport = selectedEntries.size > 0 
+      ? filteredEntries.filter(entry => selectedEntries.has(entry.id))
+      : filteredEntries;
+    
+    if (entriesToExport.length === 0) {
+      alert('No entries to export');
+      return;
+    }
+
+    // CSV headers
+    const headers = [
+      'Entry Number',
+      'Member Name', 
+      'Email',
+      'Phone',
+      'Beer Name',
+      'Category Number',
+      'Category Name',
+      'Subcategory Name',
+      'Paid',
+      'Submitted Date'
+    ];
+
+    // Convert entries to CSV format
+    const csvRows = [
+      headers.join(','), // Header row
+      ...entriesToExport.map(entry => [
+        entry.entry_number || '',
+        `"${entry.members?.name || ''}"`, // Quoted for names with commas
+        entry.members?.email || '',
+        entry.members?.phone || '',
+        `"${entry.beer_name || ''}"`, // Quoted for beer names with commas
+        `${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}`,
+        `"${entry.bjcp_category?.category_name || ''}"`,
+        `"${entry.bjcp_category?.subcategory_name || ''}"`,
+        entry.is_paid ? 'Yes' : 'No',
+        formatDate(entry.created_at)
+      ].join(','))
+    ];
+
+    // Create and download CSV file
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${competition?.name || 'competition'}_entries_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
+
   // Reactive statements
   $: filterAndSortEntries(), searchQuery, sortColumn, sortDirection;
   $: selectAll = selectedEntries.size === filteredEntries.length && filteredEntries.length > 0;
@@ -705,6 +762,13 @@ function printLabels() {
         disabled={filteredEntries.length === 0}
       >
         🖨️ Print Labels {selectedEntries.size > 0 ? `(${selectedEntries.size})` : '(All)'}
+      </button>
+      <button 
+        class="btn btn-success"
+        on:click={exportToCSV}
+        disabled={filteredEntries.length === 0}
+      >
+        📊 Export CSV {selectedEntries.size > 0 ? `(${selectedEntries.size})` : '(All)'}
       </button>
       <button class="btn btn-secondary" on:click={navigateBack}>
         ← Back
