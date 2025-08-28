@@ -417,6 +417,201 @@ function printLabels() {
     window.URL.revokeObjectURL(url);
   }
 
+  // Print judging sheets for internal competition
+  function printJudgingSheets() {
+    const entriesToPrint = selectedEntries.size > 0 
+      ? filteredEntries.filter(entry => selectedEntries.has(entry.id))
+      : filteredEntries;
+    
+    if (entriesToPrint.length === 0) {
+      alert('No entries to print judging sheets for');
+      return;
+    }
+
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    
+    // Generate the judging sheet HTML
+    const judgingSheetHtml = generateJudgingSheetHtml(entriesToPrint);
+    
+    printWindow.document.write(judgingSheetHtml);
+    printWindow.document.close();
+    
+    // Wait for content to load then print
+    printWindow.onload = () => {
+      printWindow.print();
+      printWindow.close();
+    };
+  }
+
+  // Generate HTML for judging sheets
+  function generateJudgingSheetHtml(entries) {
+    const competitionName = competition?.name || 'Competition';
+    const currentDate = new Date().toLocaleDateString();
+    
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Judging Sheet - ${competitionName}</title>
+          <style>
+            @media print {
+              body { margin: 0; }
+              .page-break { page-break-before: always; }
+            }
+            
+            body {
+              font-family: Arial, sans-serif;
+              font-size: 12px;
+              line-height: 1.4;
+              margin: 20px;
+            }
+            
+            .header {
+              text-align: center;
+              margin-bottom: 30px;
+              border-bottom: 2px solid #333;
+              padding-bottom: 15px;
+            }
+            
+            .competition-title {
+              font-size: 18px;
+              font-weight: bold;
+              margin-bottom: 5px;
+            }
+            
+            .judge-info {
+              margin: 20px 0;
+              border: 1px solid #666;
+              padding: 15px;
+            }
+            
+            .judge-line {
+              display: inline-block;
+              border-bottom: 1px solid #333;
+              width: 200px;
+              height: 20px;
+              margin: 0 10px;
+            }
+            
+            .entries-section {
+              margin: 20px 0;
+            }
+            
+            .entry-item {
+              border: 1px solid #ccc;
+              margin-bottom: 15px;
+              padding: 10px;
+              background-color: #fafafa;
+            }
+            
+            .entry-header {
+              font-weight: bold;
+              margin-bottom: 8px;
+              display: flex;
+              justify-content: space-between;
+            }
+            
+            .entry-number {
+              font-size: 14px;
+              color: #000;
+            }
+            
+            .beer-style {
+              color: #666;
+              font-size: 11px;
+            }
+            
+            .tasting-notes {
+              margin-top: 10px;
+            }
+            
+            .notes-label {
+              font-weight: bold;
+              margin-bottom: 5px;
+            }
+            
+            .notes-lines {
+              border-bottom: 1px solid #ccc;
+              height: 80px;
+              margin-bottom: 10px;
+            }
+            
+            .top-picks {
+              margin-top: 40px;
+              border: 2px solid #333;
+              padding: 20px;
+              background-color: #f0f0f0;
+            }
+            
+            .top-picks-title {
+              font-size: 16px;
+              font-weight: bold;
+              text-align: center;
+              margin-bottom: 20px;
+            }
+            
+            .pick-line {
+              margin: 15px 0;
+              font-size: 14px;
+            }
+            
+            .pick-number {
+              display: inline-block;
+              border-bottom: 2px solid #333;
+              width: 100px;
+              height: 25px;
+              margin-left: 20px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="competition-title">${competitionName} - Judging Sheet</div>
+            <div>Date: ${currentDate}</div>
+          </div>
+          
+          <div class="judge-info">
+            <strong>Judge Name:</strong> <span class="judge-line"></span>
+            <strong style="margin-left: 40px;">Signature:</strong> <span class="judge-line"></span>
+          </div>
+          
+          <div class="entries-section">
+            ${entries.map(entry => `
+              <div class="entry-item">
+                <div class="entry-header">
+                  <div class="entry-number">Entry #${entry.entry_number}</div>
+                  <div class="beer-style">
+                    ${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''} - 
+                    ${entry.bjcp_category?.subcategory_name || 'Unknown Style'}
+                  </div>
+                </div>
+                ${entry.special_ingredients ? `<div><strong>Special Notes:</strong> ${entry.special_ingredients}</div>` : ''}
+                <div class="tasting-notes">
+                  <div class="notes-label">Tasting Notes:</div>
+                  <div class="notes-lines"></div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          
+          <div class="top-picks">
+            <div class="top-picks-title">Your Top 3 Picks</div>
+            <div class="pick-line">
+              <strong>1st Place Entry #:</strong> <span class="pick-number"></span>
+            </div>
+            <div class="pick-line">
+              <strong>2nd Place Entry #:</strong> <span class="pick-number"></span>
+            </div>
+            <div class="pick-line">
+              <strong>3rd Place Entry #:</strong> <span class="pick-number"></span>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  }
+
   // Reactive statements
   $: filterAndSortEntries(), searchQuery, sortColumn, sortDirection;
   $: selectAll = selectedEntries.size === filteredEntries.length && filteredEntries.length > 0;
@@ -765,6 +960,13 @@ function printLabels() {
         disabled={filteredEntries.length === 0}
       >
         📊 Export CSV {selectedEntries.size > 0 ? `(${selectedEntries.size})` : '(All)'}
+      </button>
+      <button 
+        class="btn btn-info"
+        on:click={printJudgingSheets}
+        disabled={filteredEntries.length === 0}
+      >
+        📝 Print Judging Sheets {selectedEntries.size > 0 ? `(${selectedEntries.size})` : '(All)'}
       </button>
       <button class="btn btn-secondary" on:click={navigateBack}>
         ← Back
