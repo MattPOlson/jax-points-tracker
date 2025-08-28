@@ -270,6 +270,11 @@ export const competitionManagementStore = {
     ).subscribe,
     
     loadCompetitions,
+    loadCompetitionEntries,
+    createCompetition,
+    updateCompetition,
+    deleteCompetition,
+    forceRefresh,
     initialize: async () => {
         console.log('Initializing competition management store');
         await loadCompetitions(false);
