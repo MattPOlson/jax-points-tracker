@@ -380,8 +380,6 @@ function printLabels() {
     const headers = [
       'Entry Number',
       'Member Name', 
-      'Email',
-      'Phone',
       'Beer Name',
       'Category Number',
       'Category Name',
@@ -396,8 +394,6 @@ function printLabels() {
       ...entriesToExport.map(entry => [
         entry.entry_number || '',
         `"${entry.members?.name || ''}"`, // Quoted for names with commas
-        entry.members?.email || '',
-        entry.members?.phone || '',
         `"${entry.beer_name || ''}"`, // Quoted for beer names with commas
         `${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}`,
         `"${entry.bjcp_category?.category_name || ''}"`,
