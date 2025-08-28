@@ -80,15 +80,18 @@
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event, session?.user?.id);
       
-      if (event === 'SIGNED_IN' && session?.user) {
-        user.set(session.user);
-        startSplash(); // Show splash for new sign-ins
-        goto('/');
-      } else if (event === 'SIGNED_OUT') {
-        user.set(null);
-        splash = false;
-        clearTimeout(splashTimeout);
-      }
+      // Use setTimeout to make auth operations non-blocking for tab switching
+      setTimeout(() => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          user.set(session.user);
+          startSplash(); // Show splash for new sign-ins
+          goto('/');
+        } else if (event === 'SIGNED_OUT') {
+          user.set(null);
+          splash = false;
+          clearTimeout(splashTimeout);
+        }
+      }, 0);
     });
 
     subscription = data.subscription;

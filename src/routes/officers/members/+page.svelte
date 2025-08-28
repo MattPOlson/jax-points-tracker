@@ -15,20 +15,12 @@
     canManageOfficers
   } from '$lib/stores/memberManagementStore';
 
-  // CRITICAL: Tab switching fix for Supabase connection issues
+  // Removed tab switching reload - causes issues with Supabase tab switching
   function setupEventHandlers() {
-    let isFirstLoad = true;
-    
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && !isFirstLoad) {
-        console.log('🔄 Tab became visible - doing F5 refresh');
-        window.location.reload();
-      }
-      isFirstLoad = false;
+    // Tab visibility handling removed for better Supabase compatibility
+    return () => {
+      // No cleanup needed now
     };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }
 
   // Component state

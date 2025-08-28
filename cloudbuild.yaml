@@ -2,11 +2,16 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - build
-      - '--build-arg=VITE_SUPABASE_URL=https://ftdradvuyhumgrjrsmkp.supabase.co'
-      - '--build-arg=VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0ZHJhZHZ1eWh1bWdyanJzbWtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3NjY1NjQsImV4cCI6MjA2MzM0MjU2NH0.SxWO5NdfiyM36KeSWof2DP5H18FmE7inlwJw8yQINqk'
+      - '--build-arg=VITE_SUPABASE_URL=${_VITE_SUPABASE_URL}'
+      - '--build-arg=VITE_SUPABASE_ANON_KEY=${_VITE_SUPABASE_ANON_KEY}'
       - '-t'
       - 'gcr.io/jax-points-tracker/jax-points'
       - '.'
 
 images:
   - 'gcr.io/jax-points-tracker/jax-points'
+
+# Default substitutions (these will be overridden by command line)
+substitutions:
+  _VITE_SUPABASE_URL: 'placeholder'
+  _VITE_SUPABASE_ANON_KEY: 'placeholder'

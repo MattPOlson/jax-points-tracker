@@ -4,6 +4,7 @@
   import { supabase } from '$lib/supabaseClient';
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
+  import { competitionManagementStore } from '$lib/stores/competitionManagementStore';
 
   let isLoading = true;
   let accessDenied = false;
@@ -13,6 +14,8 @@
   let pendingReviews = 0;
   let activeMembers = 0;
   let pointsThisMonth = 0;
+  let activeCompetitions = 0;
+  let totalCompetitionEntries = 0;
 
   // Check authorization and load data when user/profile changes
   $: if ($user !== undefined && $userProfile !== undefined) {
@@ -28,6 +31,8 @@
       // User is an officer - load dashboard stats
       accessDenied = false;
       loadDashboardStats();
+      // Initialize competition store for officers
+      competitionManagementStore.initialize();
     }
   }
 
@@ -41,7 +46,13 @@
     }
   });
 
-  // Officer tools configuration
+  // Subscribe to competition stats
+  $: if ($competitionManagementStore.stats) {
+    activeCompetitions = $competitionManagementStore.stats.active;
+    totalCompetitionEntries = $competitionManagementStore.stats.totalEntries;
+  }
+
+  // Officer tools configuration - Updated with competitions
   const officerTools = [
     {
       href: '/officers/approvals',
@@ -56,6 +67,13 @@
       icon: '📊',
       description: 'Browse all member points and submissions',
       color: 'secondary'
+    },
+    {
+      href: '/officers/manage-competitions',
+      label: 'Manage Competitions',
+      icon: '🏆',
+      description: 'Create and manage brewing competitions',
+      color: 'competition'
     },
     {
       href: '/officers/members',
@@ -96,7 +114,7 @@
       if (membersError) throw membersError;
       activeMembers = membersData?.length || 0;
 
-// Get points submitted this month (dynamic current month)
+      // Get points submitted this month (dynamic current month)
       const now = new Date();
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const firstDayOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
@@ -110,6 +128,9 @@
       
       if (pointsError) throw pointsError;
       pointsThisMonth = pointsData?.reduce((sum, submission) => sum + (submission.points || 0), 0) || 0;
+
+      // Load competition stats
+      await competitionManagementStore.loadCompetitions();
 
     } catch (error) {
       console.error('Error loading dashboard stats:', error);
@@ -165,6 +186,12 @@
             <div class="tool-content">
               <h3 class="tool-label">{tool.label}</h3>
               <p class="tool-description">{tool.description}</p>
+              {#if tool.label === 'Manage Competitions' && !$competitionManagementStore.isLoading}
+                <div class="tool-stats">
+                  <span class="stat-badge">{activeCompetitions} Active</span>
+                  <span class="stat-badge">{totalCompetitionEntries} Entries</span>
+                </div>
+              {/if}
             </div>
             <div class="tool-arrow">→</div>
           </a>
@@ -202,7 +229,7 @@
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">🏆</div>
+          <div class="stat-icon">🆙</div>
           <div class="stat-content">
             <div class="stat-label">Points This Month</div>
             <div class="stat-value">
@@ -210,6 +237,32 @@
                 <div class="stat-loading"></div>
               {:else}
                 {pointsThisMonth.toLocaleString()}
+              {/if}
+            </div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-content">
+            <div class="stat-label">Active Competitions</div>
+            <div class="stat-value">
+              {#if $competitionManagementStore.isLoading}
+                <div class="stat-loading"></div>
+              {:else}
+                {activeCompetitions}
+              {/if}
+            </div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🍺</div>
+          <div class="stat-content">
+            <div class="stat-label">Competition Entries</div>
+            <div class="stat-value">
+              {#if $competitionManagementStore.isLoading}
+                <div class="stat-loading"></div>
+              {:else}
+                {totalCompetitionEntries}
               {/if}
             </div>
           </div>
@@ -381,6 +434,10 @@
     --accent-color: #059669;
   }
 
+  .tool-card.competition {
+    --accent-color: #ff3e00;
+  }
+
   .tool-card.tertiary {
     --accent-color: #dc2626;
   }
@@ -422,6 +479,21 @@
     color: #666;
     margin: 0;
     line-height: 1.4;
+  }
+
+  .tool-stats {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .stat-badge {
+    background: rgba(255, 62, 0, 0.1);
+    color: #ff3e00;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
   }
 
   .tool-arrow {
@@ -560,6 +632,10 @@
     .stat-card {
       padding: 1rem;
     }
+
+    .tool-stats {
+      justify-content: center;
+    }
   }
 
   /* Desktop styles */
@@ -570,6 +646,12 @@
 
     .stats-grid {
       grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(5, 1fr);
     }
   }
 

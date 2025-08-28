@@ -25,21 +25,11 @@
   $: message = $storeMessage;
 
   // Setup tab focus handler with F5 fix
+  // Removed tab visibility handler - causes issues with Supabase tab switching
   function setupEventHandlers() {
-    let isFirstLoad = true;
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible" && !isFirstLoad) {
-        console.log("🔄 Tab became visible - doing F5 refresh");
-        window.location.reload();
-      }
-      isFirstLoad = false;
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
+    // Tab visibility handling removed for better Supabase compatibility
     return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      // No cleanup needed now
     };
   }
 
