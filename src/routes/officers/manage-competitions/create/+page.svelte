@@ -121,12 +121,18 @@
       hide_judging_date: hideJudgingDate
     };
     
-    const result = await competitionManagementStore.createCompetition(competitionData);
-    
-    if (result.success) {
-      goto('/officers/manage-competitions');
-    } else {
-      alert(`Error creating competition: ${result.error}`);
+    try {
+      const result = await competitionManagementStore.createCompetition(competitionData);
+      
+      // If we get here with data, it was successful
+      if (result && result.id) {
+        goto('/officers/manage-competitions');
+      } else {
+        throw new Error('Competition was not created properly');
+      }
+    } catch (error) {
+      console.error('Error creating competition:', error);
+      alert(`Error creating competition: ${error.message || 'Unknown error occurred'}`);
       isSubmitting = false;
     }
   }
