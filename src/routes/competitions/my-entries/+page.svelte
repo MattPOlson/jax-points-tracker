@@ -649,7 +649,21 @@
                         <div class="info-row">
                           <span class="label">Submitted:</span>
                           <span class="value">
-                            {new Date(entry.submitted_at).toLocaleDateString()}
+                            {(() => {
+                              if (!entry.submitted_at) return 'N/A';
+                              try {
+                                let isoString = entry.submitted_at;
+                                if (entry.submitted_at.includes(' ') && !entry.submitted_at.includes('T')) {
+                                  isoString = entry.submitted_at.replace(' ', 'T');
+                                  if (!isoString.includes('+') && !isoString.includes('Z')) {
+                                    isoString += 'Z';
+                                  }
+                                }
+                                return new Date(isoString).toLocaleDateString();
+                              } catch {
+                                return 'Invalid Date';
+                              }
+                            })()}
                           </span>
                         </div>
 

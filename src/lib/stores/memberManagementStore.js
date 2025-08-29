@@ -43,9 +43,25 @@ export const filteredMembers = derived(
       ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
       
       filtered = filtered.filter(member => {
+        const parseTimestamp = (timestamp) => {
+          if (!timestamp) return new Date(0);
+          try {
+            let isoString = timestamp;
+            if (timestamp.includes(' ') && !timestamp.includes('T')) {
+              isoString = timestamp.replace(' ', 'T');
+              if (!isoString.includes('+') && !isoString.includes('Z')) {
+                isoString += 'Z';
+              }
+            }
+            return new Date(isoString);
+          } catch {
+            return new Date(0);
+          }
+        };
+        
         const lastActivity = member.last_submission_date ? 
-          new Date(member.last_submission_date) : 
-          new Date(member.created_at);
+          parseTimestamp(member.last_submission_date) : 
+          parseTimestamp(member.created_at);
         
         if ($activityFilter === 'active') {
           return lastActivity >= ninetyDaysAgo;
@@ -85,9 +101,25 @@ export const memberStats = derived(
         acc.totalOfficers++;
       }
       
+      const parseTimestamp = (timestamp) => {
+        if (!timestamp) return new Date(0);
+        try {
+          let isoString = timestamp;
+          if (timestamp.includes(' ') && !timestamp.includes('T')) {
+            isoString = timestamp.replace(' ', 'T');
+            if (!isoString.includes('+') && !isoString.includes('Z')) {
+              isoString += 'Z';
+            }
+          }
+          return new Date(isoString);
+        } catch {
+          return new Date(0);
+        }
+      };
+      
       const lastActivity = member.last_submission_date ? 
-        new Date(member.last_submission_date) : 
-        new Date(member.created_at);
+        parseTimestamp(member.last_submission_date) : 
+        parseTimestamp(member.created_at);
       
       if (lastActivity >= ninetyDaysAgo) {
         acc.activeMembers++;
@@ -284,9 +316,35 @@ export const memberManagementStore = {
       role: member.role_display,
       totalPoints: member.total_points,
       monthlyPoints: member.monthly_points,
-      joinDate: new Date(member.created_at).toLocaleDateString(),
-      lastActivity: member.last_submission_date ? 
-        new Date(member.last_submission_date).toLocaleDateString() : 
+      joinDate: (() => {
+        if (!member.created_at) return 'N/A';
+        try {
+          let isoString = member.created_at;
+          if (member.created_at.includes(' ') && !member.created_at.includes('T')) {
+            isoString = member.created_at.replace(' ', 'T');
+            if (!isoString.includes('+') && !isoString.includes('Z')) {
+              isoString += 'Z';
+            }
+          }
+          return new Date(isoString).toLocaleDateString();
+        } catch {
+          return 'Invalid Date';
+        }
+      })(),
+      lastActivity: member.last_submission_date ? (() => {
+        try {
+          let isoString = member.last_submission_date;
+          if (member.last_submission_date.includes(' ') && !member.last_submission_date.includes('T')) {
+            isoString = member.last_submission_date.replace(' ', 'T');
+            if (!isoString.includes('+') && !isoString.includes('Z')) {
+              isoString += 'Z';
+            }
+          }
+          return new Date(isoString).toLocaleDateString();
+        } catch {
+          return 'Invalid Date';
+        }
+      })() : 
         'Never',
       totalSubmissions: member.total_approved_submissions
     }));

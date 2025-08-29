@@ -135,8 +135,20 @@
           bVal = b.is_paid ? 1 : 0;
           break;
         case 'created_at':
-          aVal = new Date(a.created_at);
-          bVal = new Date(b.created_at);
+          // Handle space-separated datetime format for sorting
+          const parseDateTime = (dateString) => {
+            if (!dateString) return new Date(0);
+            let isoString = dateString;
+            if (dateString.includes(' ') && !dateString.includes('T')) {
+              isoString = dateString.replace(' ', 'T');
+              if (!isoString.includes('+') && !isoString.includes('Z')) {
+                isoString += 'Z';
+              }
+            }
+            return new Date(isoString);
+          };
+          aVal = parseDateTime(a.created_at);
+          bVal = parseDateTime(b.created_at);
           break;
         default:
           aVal = a[sortColumn] || '';
