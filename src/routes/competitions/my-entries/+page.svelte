@@ -298,7 +298,7 @@
           
           .label {
             width: 2.25in;
-            height: 1.25in;
+            height: 1.5in;
             border: 1px solid #000;
             float: left;
             padding: 0.1in;
@@ -332,8 +332,7 @@
           }
           
           .beer-style small {
-            font-size: 8px;
-            color: #666;
+            font-size: 9px;
           }
 
           @media print {
