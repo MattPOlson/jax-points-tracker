@@ -239,37 +239,42 @@
     const printWindow = window.open('', '_blank');
     
     // Generate label HTML including Member Name and Beer Name
-    const labelsHtml = filteredEntries.map(entry => `
-      <div class="label">
-        <div class="label-header">
-          <strong>${entry.competition?.name || 'Competition'}</strong>
-        </div>
-        <div class="entry-number">
-          Entry #: <span>${entry.entry_number}</span>
-        </div>
-        <div class="member-name">
-          Member: <span>${$userProfile?.name || $userProfile?.email || 'Unknown'}</span>
-        </div>
-        <div class="beer-name">
-          Beer: <span>${entry.beer_name || 'Unknown'}</span>
-        </div>
-        <div class="beer-style">
-          Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span>
-          ${entry.bjcp_category?.category_name ? `<br><small>${entry.bjcp_category.category_name}</small>` : ''}
-          ${entry.bjcp_category?.subcategory_name ? `<br><small>${entry.bjcp_category.subcategory_name}</small>` : ''}
-        </div>
-        ${entry.beer_notes? `
-          <div class="special">
-            Special: <span>${entry.beer_notes}</span>
+    // Create 3 copies of each label (for 3 bottles per entry)
+    const labelsHtml = filteredEntries.flatMap(entry => {
+      const labelTemplate = `
+        <div class="label">
+          <div class="label-header">
+            <strong>${entry.competition?.name || 'Competition'}</strong>
           </div>
-        ` : ''}
-        ${entry.notes ? `
-          <div class="notes">
-            Notes: <span>${entry.notes}</span>
+          <div class="entry-number">
+            Entry #: <span>${entry.entry_number}</span>
           </div>
-        ` : ''}
-      </div>
-    `).join('');
+          <div class="member-name">
+            Member: <span>${$userProfile?.name || $userProfile?.email || 'Unknown'}</span>
+          </div>
+          <div class="beer-name">
+            Beer: <span>${entry.beer_name || 'Unknown'}</span>
+          </div>
+          <div class="beer-style">
+            Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span>
+            ${entry.bjcp_category?.category_name ? `<br><small>${entry.bjcp_category.category_name}</small>` : ''}
+            ${entry.bjcp_category?.subcategory_name ? `<br><small>${entry.bjcp_category.subcategory_name}</small>` : ''}
+          </div>
+          ${entry.beer_notes? `
+            <div class="special">
+              Special: <span>${entry.beer_notes}</span>
+            </div>
+          ` : ''}
+          ${entry.notes ? `
+            <div class="notes">
+              Notes: <span>${entry.notes}</span>
+            </div>
+          ` : ''}
+        </div>
+      `;
+      // Return 3 copies of each label
+      return [labelTemplate, labelTemplate, labelTemplate];
+    }).join('');
 
     // Write print document with updated CSS for 3.375" x 2.125" labels
     printWindow.document.write(`
