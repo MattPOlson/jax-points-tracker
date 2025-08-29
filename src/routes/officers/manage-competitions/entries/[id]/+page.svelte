@@ -260,7 +260,7 @@ function printLabels() {
         <div class="beer-style">
           Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span> - ${entry.bjcp_category?.category_name || ''}
           ${entry.bjcp_category?.subcategory_name ? `<br><small>${entry.bjcp_category.subcategory_name}</small>` : ''}
-          ${entry.special_ingredients ? `<br><small>Special: ${entry.special_ingredients}</small>` : ''}
+          ${entry.beer_notes ? `<br><small>Special: ${entry.beer_notes}</small>` : ''}
         </div>
         ${entry.notes ? `
           <div class="notes">
@@ -297,7 +297,7 @@ function printLabels() {
         }
         .label {
           width: 2.25in;
-          height: 1.25in;
+          height: 1.50in;
           padding: 0.125in;
           box-sizing: border-box;
           border: 1px solid #000;
@@ -332,11 +332,10 @@ function printLabels() {
           font-size: 12pt;
         }
         .beer-style small {
-          font-size: 8pt;
-          color: #666;
+          font-size: 9pt;
         }
         .special, .notes {
-          font-size: 8pt;
+          font-size: 9pt;
           margin-top: 0.05in;
           padding-top: 0.05in;
           border-top: 1px solid #ccc;
