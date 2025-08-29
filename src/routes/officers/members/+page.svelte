@@ -63,11 +63,34 @@
   // Format date helper
   function formatDate(dateString) {
     if (!dateString) return 'Never';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    try {
+      // Handle space-separated datetime format (e.g., "2025-08-29 03:43:21.894974")
+      let isoString = dateString;
+      if (dateString.includes(' ') && !dateString.includes('T')) {
+        // Replace space with 'T' and add timezone if missing
+        isoString = dateString.replace(' ', 'T');
+        if (!isoString.includes('+') && !isoString.includes('Z')) {
+          // Assume local timezone if no timezone specified
+          isoString += 'Z';
+        }
+      }
+
+      const date = new Date(isoString);
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date after parsing:', dateString, '->', isoString);
+        return 'Invalid Date';
+      }
+
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (error) {
+      console.warn('Error formatting date:', dateString, error);
+      return 'Invalid Date';
+    }
   }
 
   // Get activity status
