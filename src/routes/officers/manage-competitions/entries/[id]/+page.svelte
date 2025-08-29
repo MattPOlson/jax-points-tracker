@@ -140,7 +140,17 @@
             if (!dateString) return new Date(0);
             let isoString = dateString;
             if (dateString.includes(' ') && !dateString.includes('T')) {
+              // Replace space with 'T'
               isoString = dateString.replace(' ', 'T');
+              
+              // Truncate microseconds to milliseconds if present (6 digits to 3)
+              if (isoString.includes('.')) {
+                const [datePart, fractionalPart] = isoString.split('.');
+                const milliseconds = fractionalPart.substring(0, 3);
+                isoString = `${datePart}.${milliseconds}`;
+              }
+              
+              // Add timezone if missing
               if (!isoString.includes('+') && !isoString.includes('Z')) {
                 isoString += 'Z';
               }
@@ -362,21 +372,32 @@ function printLabels() {
 
   // Format date
   function formatDate(dateString) {
-    if (!dateString) return 'Invalid Date';
+    if (!dateString) return 'No date';
     
     try {
-      // Handle space-separated datetime format (e.g., "2025-08-29 03:43:21.894974")
+      // Handle PostgreSQL timestamp format: "2025-08-29 03:43:21.894974"
       let isoString = dateString;
+      
+      // Convert space-separated format to ISO format
       if (dateString.includes(' ') && !dateString.includes('T')) {
-        // Replace space with 'T' and add timezone if missing
+        // Replace space with 'T'
         isoString = dateString.replace(' ', 'T');
+        
+        // Truncate microseconds to milliseconds if present (6 digits to 3)
+        if (isoString.includes('.')) {
+          const [datePart, fractionalPart] = isoString.split('.');
+          const milliseconds = fractionalPart.substring(0, 3);
+          isoString = `${datePart}.${milliseconds}`;
+        }
+        
+        // Add timezone if missing
         if (!isoString.includes('+') && !isoString.includes('Z')) {
-          // Assume local timezone if no timezone specified
           isoString += 'Z';
         }
       }
 
       const date = new Date(isoString);
+      
       // Check if date is valid
       if (isNaN(date.getTime())) {
         console.warn('Invalid date after parsing:', dateString, '->', isoString);
