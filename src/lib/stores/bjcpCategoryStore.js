@@ -66,7 +66,26 @@ export const activeCompetitions = derived(competitions, ($competitions) => {
 
 // Get all competitions for officer management
 export const allCompetitions = derived(competitions, ($competitions) => {
-    return $competitions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    return $competitions.sort((a, b) => {
+        // Helper function to parse timestamps safely
+        const parseTimestamp = (timestamp) => {
+            if (!timestamp) return new Date(0);
+            try {
+                let isoString = timestamp;
+                if (timestamp.includes(' ') && !timestamp.includes('T')) {
+                    isoString = timestamp.replace(' ', 'T');
+                    if (!isoString.includes('+') && !isoString.includes('Z')) {
+                        isoString += 'Z';
+                    }
+                }
+                return new Date(isoString);
+            } catch {
+                return new Date(0);
+            }
+        };
+        
+        return parseTimestamp(b.created_at) - parseTimestamp(a.created_at);
+    });
 });
 
 // =============================================

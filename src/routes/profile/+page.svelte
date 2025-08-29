@@ -44,7 +44,25 @@
   function formatDate(dateString) {
     if (!dateString) return 'N/A';
     try {
-      return new Date(dateString).toLocaleDateString('en-US', {
+      // Handle space-separated datetime format (e.g., "2025-08-29 03:43:21.894974")
+      let isoString = dateString;
+      if (dateString.includes(' ') && !dateString.includes('T')) {
+        // Replace space with 'T' and add timezone if missing
+        isoString = dateString.replace(' ', 'T');
+        if (!isoString.includes('+') && !isoString.includes('Z')) {
+          // Assume local timezone if no timezone specified
+          isoString += 'Z';
+        }
+      }
+
+      const date = new Date(isoString);
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date after parsing:', dateString, '->', isoString);
+        return 'Invalid Date';
+      }
+
+      return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
@@ -58,7 +76,25 @@
   function formatDateTime(dateString) {
     if (!dateString) return 'N/A';
     try {
-      return new Date(dateString).toLocaleString('en-US', {
+      // Handle space-separated datetime format (e.g., "2025-08-29 03:43:21.894974")
+      let isoString = dateString;
+      if (dateString.includes(' ') && !dateString.includes('T')) {
+        // Replace space with 'T' and add timezone if missing
+        isoString = dateString.replace(' ', 'T');
+        if (!isoString.includes('+') && !isoString.includes('Z')) {
+          // Assume local timezone if no timezone specified
+          isoString += 'Z';
+        }
+      }
+
+      const date = new Date(isoString);
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid datetime after parsing:', dateString, '->', isoString);
+        return 'Invalid Date';
+      }
+
+      return date.toLocaleString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',

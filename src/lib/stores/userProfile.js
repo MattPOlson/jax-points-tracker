@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { browser } from '$app/environment';
 import { supabase } from '$lib/supabaseClient';
 
 export const userProfile = writable(null);
@@ -42,8 +43,15 @@ export async function loadUserProfile(force = false) {
       console.error('Failed to load user profile:', error);
       userProfile.set(null);
     } else {
-      userProfile.set(data);
-      lastLoaded = Date.now();
+      if (browser) {
+        setTimeout(() => {
+          userProfile.set(data);
+          lastLoaded = Date.now();
+        }, 0);
+      } else {
+        userProfile.set(data);
+        lastLoaded = Date.now();
+      }
     }
   } catch (err) {
     console.error('❌ Failed to load user profile:', err);

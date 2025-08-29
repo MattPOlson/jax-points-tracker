@@ -23,8 +23,33 @@ export function formatDate(dateString, options = {}) {
                            (dateString.includes('T') && dateString.split('T')[1] !== '00:00:00');
     
     if (hasTimeComponent) {
-      // For timestamps, use JavaScript's native parsing which handles timezones correctly
-      const date = new Date(dateString);
+      // For timestamps with space format (e.g., "2025-08-29 03:43:21.894974"), 
+      // convert to ISO format for better browser compatibility
+      let isoString = dateString;
+      if (dateString.includes(' ') && !dateString.includes('T')) {
+        // Replace space with 'T'
+        isoString = dateString.replace(' ', 'T');
+        
+        // Truncate microseconds to milliseconds if present (6 digits to 3)
+        if (isoString.includes('.')) {
+          const [datePart, fractionalPart] = isoString.split('.');
+          const milliseconds = fractionalPart.substring(0, 3);
+          isoString = `${datePart}.${milliseconds}`;
+        }
+        
+        // Add timezone if missing
+        if (!isoString.includes('+') && !isoString.includes('Z')) {
+          // Assume local timezone if no timezone specified
+          isoString += 'Z';
+        }
+      }
+      
+      const date = new Date(isoString);
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date after parsing:', dateString, '->', isoString);
+        return 'Invalid Date';
+      }
       return date.toLocaleDateString('en-US', defaultOptions);
     } else {
       // For date-only strings, parse manually to avoid timezone conversion
@@ -61,7 +86,32 @@ export function formatDateTime(datetimeString, options = {}) {
       ...options
     };
 
-    const date = new Date(datetimeString);
+    // Handle space-separated datetime format (e.g., "2025-08-29 03:43:21.894974")
+    let isoString = datetimeString;
+    if (datetimeString.includes(' ') && !datetimeString.includes('T')) {
+      // Replace space with 'T'
+      isoString = datetimeString.replace(' ', 'T');
+      
+      // Truncate microseconds to milliseconds if present (6 digits to 3)
+      if (isoString.includes('.')) {
+        const [datePart, fractionalPart] = isoString.split('.');
+        const milliseconds = fractionalPart.substring(0, 3);
+        isoString = `${datePart}.${milliseconds}`;
+      }
+      
+      // Add timezone if missing
+      if (!isoString.includes('+') && !isoString.includes('Z')) {
+        // Assume local timezone if no timezone specified
+        isoString += 'Z';
+      }
+    }
+
+    const date = new Date(isoString);
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      console.warn('Invalid datetime after parsing:', datetimeString, '->', isoString);
+      return 'Invalid Date';
+    }
     return date.toLocaleDateString('en-US', defaultOptions);
   } catch (error) {
     console.warn('Error formatting datetime:', datetimeString, error);
@@ -79,7 +129,33 @@ export function formatSubmissionTime(timestampString, showSeconds = false) {
   if (!timestampString) return 'Invalid Date';
   
   try {
-    const date = new Date(timestampString);
+    // Handle space-separated datetime format (e.g., "2025-08-29 03:43:21.894974")
+    let isoString = timestampString;
+    if (timestampString.includes(' ') && !timestampString.includes('T')) {
+      // Replace space with 'T'
+      isoString = timestampString.replace(' ', 'T');
+      
+      // Truncate microseconds to milliseconds if present (6 digits to 3)
+      if (isoString.includes('.')) {
+        const [datePart, fractionalPart] = isoString.split('.');
+        const milliseconds = fractionalPart.substring(0, 3);
+        isoString = `${datePart}.${milliseconds}`;
+      }
+      
+      // Add timezone if missing
+      if (!isoString.includes('+') && !isoString.includes('Z')) {
+        // Assume local timezone if no timezone specified
+        isoString += 'Z';
+      }
+    }
+
+    const date = new Date(isoString);
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      console.warn('Invalid submission time after parsing:', timestampString, '->', isoString);
+      return 'Invalid Date';
+    }
+
     const options = {
       month: 'short',
       day: 'numeric',

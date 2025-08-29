@@ -134,9 +134,31 @@
           aVal = a.is_paid ? 1 : 0;
           bVal = b.is_paid ? 1 : 0;
           break;
-        case 'created_at':
-          aVal = new Date(a.created_at);
-          bVal = new Date(b.created_at);
+        case 'submitted_at':
+          // Handle space-separated datetime format for sorting
+          const parseDateTime = (dateString) => {
+            if (!dateString) return new Date(0);
+            let isoString = dateString;
+            if (dateString.includes(' ') && !dateString.includes('T')) {
+              // Replace space with 'T'
+              isoString = dateString.replace(' ', 'T');
+              
+              // Truncate microseconds to milliseconds if present (6 digits to 3)
+              if (isoString.includes('.')) {
+                const [datePart, fractionalPart] = isoString.split('.');
+                const milliseconds = fractionalPart.substring(0, 3);
+                isoString = `${datePart}.${milliseconds}`;
+              }
+              
+              // Add timezone if missing
+              if (!isoString.includes('+') && !isoString.includes('Z')) {
+                isoString += 'Z';
+              }
+            }
+            return new Date(isoString);
+          };
+          aVal = parseDateTime(a.submitted_at);
+          bVal = parseDateTime(b.submitted_at);
           break;
         default:
           aVal = a[sortColumn] || '';
@@ -225,31 +247,31 @@ function printLabels() {
   // Create print window
   const printWindow = window.open('', '_blank');
   
-  // Generate label HTML
-  const labelsHtml = entriesToPrint.map(entry => `
-    <div class="label">
-      <div class="label-header">
-        <strong>${competition?.name || 'Competition'}</strong>
-      </div>
-      <div class="entry-number">
-        Entry #: <span>${entry.entry_number}</span>
-      </div>
-      <div class="beer-style">
-        Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span>
-        ${entry.bjcp_category?.category_name ? `<br><small>${entry.bjcp_category.category_name}</small>` : ''}
-      </div>
-      ${entry.special_ingredients ? `
-        <div class="special">
-          Special: ${entry.special_ingredients}
+  // Generate label HTML - create 3 copies of each label (for 3 bottles per entry)
+  const labelsHtml = entriesToPrint.flatMap(entry => {
+    const labelTemplate = `
+      <div class="label">
+        <div class="label-header">
+          <strong>${competition?.name || 'Competition'}</strong>
         </div>
-      ` : ''}
-      ${entry.notes ? `
-        <div class="notes">
-          Notes: ${entry.notes}
+        <div class="entry-number">
+          Entry #: <span>${entry.entry_number}</span>
         </div>
-      ` : ''}
-    </div>
-  `).join('');
+        <div class="beer-style">
+          Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span> - ${entry.bjcp_category?.category_name || ''}
+          ${entry.bjcp_category?.subcategory_name ? `<br><small>${entry.bjcp_category.subcategory_name}</small>` : ''}
+          ${entry.beer_notes ? `<br><small>Special: ${entry.beer_notes}</small>` : ''}
+        </div>
+        ${entry.notes ? `
+          <div class="notes">
+            Notes: ${entry.notes}
+          </div>
+        ` : ''}
+      </div>
+    `;
+    // Return 3 copies of each label
+    return [labelTemplate, labelTemplate, labelTemplate];
+  }).join('');
 
   // Write print document with updated CSS for 3.375" x 2.125" labels
   printWindow.document.write(`
@@ -275,7 +297,7 @@ function printLabels() {
         }
         .label {
           width: 2.25in;
-          height: 1.25in;
+          height: 1.50in;
           padding: 0.125in;
           box-sizing: border-box;
           border: 1px solid #000;
@@ -310,11 +332,10 @@ function printLabels() {
           font-size: 12pt;
         }
         .beer-style small {
-          font-size: 8pt;
-          color: #666;
+          font-size: 9pt;
         }
         .special, .notes {
-          font-size: 8pt;
+          font-size: 9pt;
           margin-top: 0.05in;
           padding-top: 0.05in;
           border-top: 1px solid #ccc;
@@ -350,13 +371,54 @@ function printLabels() {
 
   // Format date
   function formatDate(dateString) {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    if (!dateString || dateString === null || dateString === undefined) {
+      return 'No date';
+    }
+    
+    try {
+      // Convert to string in case it's not already
+      const dateStr = String(dateString).trim();
+      
+      // Handle PostgreSQL timestamp format: "2025-08-29 03:43:21.894974"
+      let isoString = dateStr;
+      
+      // Convert space-separated format to ISO format
+      if (dateStr.includes(' ') && !dateStr.includes('T')) {
+        // Replace space with 'T'
+        isoString = dateStr.replace(' ', 'T');
+        
+        // Truncate microseconds to milliseconds if present (6 digits to 3)
+        if (isoString.includes('.')) {
+          const [datePart, fractionalPart] = isoString.split('.');
+          const milliseconds = fractionalPart.substring(0, 3);
+          isoString = `${datePart}.${milliseconds}`;
+        }
+        
+        // Add timezone if missing
+        if (!isoString.includes('+') && !isoString.includes('Z')) {
+          isoString += 'Z';
+        }
+      }
+
+      const date = new Date(isoString);
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date after parsing:', dateStr, '->', isoString);
+        return 'Invalid Date';
+      }
+
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      console.warn('Error formatting date:', dateString, error);
+      return 'Invalid Date';
+    }
   }
 
   // Navigate back
@@ -399,7 +461,7 @@ function printLabels() {
         `"${entry.bjcp_category?.category_name || ''}"`,
         `"${entry.bjcp_category?.subcategory_name || ''}"`,
         entry.is_paid ? 'Yes' : 'No',
-        formatDate(entry.created_at)
+        formatDate(entry.submitted_at)
       ].join(','))
     ];
 
@@ -1029,9 +1091,9 @@ function printLabels() {
                   <span class="sort-indicator">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                 {/if}
               </th>
-              <th on:click={() => handleSort('created_at')}>
+              <th on:click={() => handleSort('submitted_at')}>
                 Submitted
-                {#if sortColumn === 'created_at'}
+                {#if sortColumn === 'submitted_at'}
                   <span class="sort-indicator">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                 {/if}
               </th>
@@ -1072,7 +1134,7 @@ function printLabels() {
                     <span>{entry.is_paid ? 'Paid' : 'Unpaid'}</span>
                   </div>
                 </td>
-                <td>{formatDate(entry.created_at)}</td>
+                <td>{formatDate(entry.submitted_at)}</td>
               </tr>
             {/each}
           </tbody>
