@@ -134,7 +134,7 @@
           aVal = a.is_paid ? 1 : 0;
           bVal = b.is_paid ? 1 : 0;
           break;
-        case 'created_at':
+        case 'submitted_at':
           // Handle space-separated datetime format for sorting
           const parseDateTime = (dateString) => {
             if (!dateString) return new Date(0);
@@ -157,8 +157,8 @@
             }
             return new Date(isoString);
           };
-          aVal = parseDateTime(a.created_at);
-          bVal = parseDateTime(b.created_at);
+          aVal = parseDateTime(a.submitted_at);
+          bVal = parseDateTime(b.submitted_at);
           break;
         default:
           aVal = a[sortColumn] || '';
@@ -373,14 +373,12 @@ function printLabels() {
   // Format date
   function formatDate(dateString) {
     if (!dateString || dateString === null || dateString === undefined) {
-      console.log('formatDate: No dateString provided:', dateString);
       return 'No date';
     }
     
     try {
       // Convert to string in case it's not already
       const dateStr = String(dateString).trim();
-      console.log('formatDate: Processing dateString:', dateStr);
       
       // Handle PostgreSQL timestamp format: "2025-08-29 03:43:21.894974"
       let isoString = dateStr;
@@ -403,9 +401,7 @@ function printLabels() {
         }
       }
 
-      console.log('formatDate: ISO string:', isoString);
       const date = new Date(isoString);
-      console.log('formatDate: Parsed date:', date);
       
       // Check if date is valid
       if (isNaN(date.getTime())) {
@@ -413,15 +409,13 @@ function printLabels() {
         return 'Invalid Date';
       }
 
-      const formatted = date.toLocaleDateString('en-US', {
+      return date.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
       });
-      console.log('formatDate: Formatted result:', formatted);
-      return formatted;
     } catch (error) {
       console.warn('Error formatting date:', dateString, error);
       return 'Invalid Date';
@@ -468,7 +462,7 @@ function printLabels() {
         `"${entry.bjcp_category?.category_name || ''}"`,
         `"${entry.bjcp_category?.subcategory_name || ''}"`,
         entry.is_paid ? 'Yes' : 'No',
-        formatDate(entry.created_at)
+        formatDate(entry.submitted_at)
       ].join(','))
     ];
 
@@ -1098,9 +1092,9 @@ function printLabels() {
                   <span class="sort-indicator">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                 {/if}
               </th>
-              <th on:click={() => handleSort('created_at')}>
+              <th on:click={() => handleSort('submitted_at')}>
                 Submitted
-                {#if sortColumn === 'created_at'}
+                {#if sortColumn === 'submitted_at'}
                   <span class="sort-indicator">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                 {/if}
               </th>
@@ -1141,7 +1135,7 @@ function printLabels() {
                     <span>{entry.is_paid ? 'Paid' : 'Unpaid'}</span>
                   </div>
                 </td>
-                <td>{formatDate(entry.created_at)}</td>
+                <td>{formatDate(entry.submitted_at)}</td>
               </tr>
             {/each}
           </tbody>
