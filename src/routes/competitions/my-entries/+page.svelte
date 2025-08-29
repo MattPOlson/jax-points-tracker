@@ -248,7 +248,7 @@
           Entry #: <span>${entry.entry_number}</span>
         </div>
         <div class="member-name">
-          Member: <span>${$userProfile?.full_name || $userProfile?.email || 'Unknown'}</span>
+          Member: <span>${$userProfile?.name || $userProfile?.email || 'Unknown'}</span>
         </div>
         <div class="beer-name">
           Beer: <span>${entry.beer_name || 'Unknown'}</span>
@@ -256,10 +256,11 @@
         <div class="beer-style">
           Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span>
           ${entry.bjcp_category?.category_name ? `<br><small>${entry.bjcp_category.category_name}</small>` : ''}
+          ${entry.bjcp_category?.subcategory_name ? `<br><small>${entry.bjcp_category.subcategory_name}</small>` : ''}
         </div>
-        ${entry.special_ingredients ? `
+        ${entry.beer_notes? `
           <div class="special">
-            Special: <span>${entry.special_ingredients}</span>
+            Special: <span>${entry.beer_notes}</span>
           </div>
         ` : ''}
         ${entry.notes ? `
