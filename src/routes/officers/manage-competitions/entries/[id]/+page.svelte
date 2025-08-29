@@ -372,16 +372,23 @@ function printLabels() {
 
   // Format date
   function formatDate(dateString) {
-    if (!dateString) return 'No date';
+    if (!dateString || dateString === null || dateString === undefined) {
+      console.log('formatDate: No dateString provided:', dateString);
+      return 'No date';
+    }
     
     try {
+      // Convert to string in case it's not already
+      const dateStr = String(dateString).trim();
+      console.log('formatDate: Processing dateString:', dateStr);
+      
       // Handle PostgreSQL timestamp format: "2025-08-29 03:43:21.894974"
-      let isoString = dateString;
+      let isoString = dateStr;
       
       // Convert space-separated format to ISO format
-      if (dateString.includes(' ') && !dateString.includes('T')) {
+      if (dateStr.includes(' ') && !dateStr.includes('T')) {
         // Replace space with 'T'
-        isoString = dateString.replace(' ', 'T');
+        isoString = dateStr.replace(' ', 'T');
         
         // Truncate microseconds to milliseconds if present (6 digits to 3)
         if (isoString.includes('.')) {
@@ -396,21 +403,25 @@ function printLabels() {
         }
       }
 
+      console.log('formatDate: ISO string:', isoString);
       const date = new Date(isoString);
+      console.log('formatDate: Parsed date:', date);
       
       // Check if date is valid
       if (isNaN(date.getTime())) {
-        console.warn('Invalid date after parsing:', dateString, '->', isoString);
+        console.warn('Invalid date after parsing:', dateStr, '->', isoString);
         return 'Invalid Date';
       }
 
-      return date.toLocaleDateString('en-US', {
+      const formatted = date.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
       });
+      console.log('formatDate: Formatted result:', formatted);
+      return formatted;
     } catch (error) {
       console.warn('Error formatting date:', dateString, error);
       return 'Invalid Date';
