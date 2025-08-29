@@ -247,31 +247,31 @@ function printLabels() {
   // Create print window
   const printWindow = window.open('', '_blank');
   
-  // Generate label HTML
-  const labelsHtml = entriesToPrint.map(entry => `
-    <div class="label">
-      <div class="label-header">
-        <strong>${competition?.name || 'Competition'}</strong>
-      </div>
-      <div class="entry-number">
-        Entry #: <span>${entry.entry_number}</span>
-      </div>
-      <div class="beer-style">
-        Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span>
-        ${entry.bjcp_category?.category_name ? `<br><small>${entry.bjcp_category.category_name}</small>` : ''}
-      </div>
-      ${entry.special_ingredients ? `
-        <div class="special">
-          Special: ${entry.special_ingredients}
+  // Generate label HTML - create 3 copies of each label (for 3 bottles per entry)
+  const labelsHtml = entriesToPrint.flatMap(entry => {
+    const labelTemplate = `
+      <div class="label">
+        <div class="label-header">
+          <strong>${competition?.name || 'Competition'}</strong>
         </div>
-      ` : ''}
-      ${entry.notes ? `
-        <div class="notes">
-          Notes: ${entry.notes}
+        <div class="entry-number">
+          Entry #: <span>${entry.entry_number}</span>
         </div>
-      ` : ''}
-    </div>
-  `).join('');
+        <div class="beer-style">
+          Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span> - ${entry.bjcp_category?.category_name || ''}
+          ${entry.bjcp_category?.subcategory_name ? `<br><small>${entry.bjcp_category.subcategory_name}</small>` : ''}
+          ${entry.special_ingredients ? `<br><small>Special: ${entry.special_ingredients}</small>` : ''}
+        </div>
+        ${entry.notes ? `
+          <div class="notes">
+            Notes: ${entry.notes}
+          </div>
+        ` : ''}
+      </div>
+    `;
+    // Return 3 copies of each label
+    return [labelTemplate, labelTemplate, labelTemplate];
+  }).join('');
 
   // Write print document with updated CSS for 3.375" x 2.125" labels
   printWindow.document.write(`
