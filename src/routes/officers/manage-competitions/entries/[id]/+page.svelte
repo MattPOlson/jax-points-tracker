@@ -647,10 +647,10 @@ function printLabels() {
                   <div class="entry-number">Entry #${entry.entry_number}</div>
                   <div class="beer-style">
                     ${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''} - 
-                    ${entry.bjcp_category?.subcategory_name || 'Unknown Style'}
+                    ${entry.bjcp_category?.category_name || 'Unknown Category'}${entry.bjcp_category?.subcategory_name ? ` - ${entry.bjcp_category.subcategory_name}` : ''}
                   </div>
                 </div>
-                ${entry.special_ingredients ? `<div><strong>Special Notes:</strong> ${entry.special_ingredients}</div>` : ''}
+                ${entry.beer_notes ? `<div><strong>Additional Notes:</strong> ${entry.beer_notes}</div>` : ''}
                 <div class="tasting-notes">
                   <div class="notes-label">Tasting Notes:</div>
                   <div class="notes-lines"></div>
