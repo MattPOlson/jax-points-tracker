@@ -125,11 +125,11 @@
     if (!judgingDate) {
       errors.judgingDate = 'Judging date is required';
     } else {
-      const judging = new Date(judgingDate);
-      const deadline = new Date(entryDeadline);
+      const judging = new Date(`${judgingDate}T${judgingDateTime}:00`);
+      const deadline = new Date(`${entryDeadline}T${entryDeadlineTime}:00`);
       
       if (judging <= deadline) {
-        errors.judgingDate = 'Judging date must be after entry deadline';
+        errors.judgingDate = 'Judging date and time must be after entry deadline';
       }
     }
     
