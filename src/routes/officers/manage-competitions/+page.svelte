@@ -906,7 +906,7 @@
                   <small>{competition.description}</small>
                 {/if}
               </td>
-              <td>{formatDate(competition.entry_deadline)}</td>
+              <td>{formatDeadline(competition)}</td>
               <td>
                 <span class="badge {getStatusBadge(competition).class}">
                   {getStatusBadge(competition).text}

@@ -14,7 +14,9 @@
   let name = '';
   let description = '';
   let entryDeadline = '';
+  let entryDeadlineTime = '00:00'; // Default 12:00 AM (midnight)
   let judgingDate = '';
+  let judgingDateTime = '00:00'; // Default 12:00 AM (midnight)
   let entryFee = 5; // Default $5 fee
   let maxEntriesPerMember = 5; // Default max 5 entries
   let isActive = true;
@@ -113,8 +115,8 @@
     const competitionData = {
       name: name.trim(),
       description: description.trim() || null,
-      entry_deadline: entryDeadline,
-      judging_date: judgingDate,
+      entry_deadline: `${entryDeadline}T${entryDeadlineTime}:00`,
+      judging_date: `${judgingDate}T${judgingDateTime}:00`,
       entry_fee: entryFee,
       max_entries_per_member: maxEntriesPerMember,
       active: isActive,
@@ -238,6 +240,19 @@
     gap: 1rem;
   }
 
+  .datetime-inputs {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .datetime-inputs .form-control {
+    width: 100%;
+  }
+
+  .time-input {
+    flex: 0 0 120px;
+  }
+
   .checkbox-group {
     display: flex;
     align-items: center;
@@ -331,6 +346,14 @@
       grid-template-columns: 1fr;
     }
 
+    .datetime-inputs {
+      flex-direction: column;
+    }
+
+    .time-input {
+      flex: 1;
+    }
+
     .form-actions {
       flex-direction: column-reverse;
     }
@@ -415,32 +438,50 @@
       <div class="form-row">
         <div class="form-group">
           <label for="entryDeadline" class="required">Entry Deadline</label>
-          <input
-            type="date"
-            id="entryDeadline"
-            class="form-control {validationErrors.entryDeadline ? 'error' : ''}"
-            bind:value={entryDeadline}
-            disabled={isSubmitting}
-          />
+          <div class="datetime-inputs">
+            <input
+              type="date"
+              id="entryDeadline"
+              class="form-control {validationErrors.entryDeadline ? 'error' : ''}"
+              bind:value={entryDeadline}
+              disabled={isSubmitting}
+            />
+            <input
+              type="time"
+              id="entryDeadlineTime"
+              class="form-control time-input"
+              bind:value={entryDeadlineTime}
+              disabled={isSubmitting}
+            />
+          </div>
           {#if validationErrors.entryDeadline}
             <div class="error-message">{validationErrors.entryDeadline}</div>
           {/if}
-          <div class="help-text">Last day to submit entries</div>
+          <div class="help-text">Date and time when entries close</div>
         </div>
 
         <div class="form-group">
           <label for="judgingDate" class="required">Judging Date</label>
-          <input
-            type="date"
-            id="judgingDate"
-            class="form-control {validationErrors.judgingDate ? 'error' : ''}"
-            bind:value={judgingDate}
-            disabled={isSubmitting}
-          />
+          <div class="datetime-inputs">
+            <input
+              type="date"
+              id="judgingDate"
+              class="form-control {validationErrors.judgingDate ? 'error' : ''}"
+              bind:value={judgingDate}
+              disabled={isSubmitting}
+            />
+            <input
+              type="time"
+              id="judgingDateTime"
+              class="form-control time-input"
+              bind:value={judgingDateTime}
+              disabled={isSubmitting}
+            />
+          </div>
           {#if validationErrors.judgingDate}
             <div class="error-message">{validationErrors.judgingDate}</div>
           {/if}
-          <div class="help-text">When judging will take place</div>
+          <div class="help-text">Date and time when judging will take place</div>
         </div>
       </div>
 

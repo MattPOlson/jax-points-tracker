@@ -19,7 +19,9 @@
   let name = '';
   let description = '';
   let entryDeadline = '';
+  let entryDeadlineTime = '00:00';
   let judgingDate = '';
+  let judgingDateTime = '00:00';
   let entryFee = 5;
   let maxEntriesPerMember = 5;
   let isActive = true;
@@ -64,8 +66,15 @@
         competition = data;
         name = data.name || '';
         description = data.description || '';
-        entryDeadline = formatDateForInput(new Date(data.entry_deadline));
-        judgingDate = formatDateForInput(new Date(data.judging_date));
+        
+        const entryDeadlineDate = new Date(data.entry_deadline);
+        entryDeadline = formatDateForInput(entryDeadlineDate);
+        entryDeadlineTime = formatTimeForInput(entryDeadlineDate);
+        
+        const judgingDateDate = new Date(data.judging_date);
+        judgingDate = formatDateForInput(judgingDateDate);
+        judgingDateTime = formatTimeForInput(judgingDateDate);
+        
         entryFee = data.entry_fee || 0;
         maxEntriesPerMember = data.max_entries_per_member || 5;
         isActive = data.active ?? true;
@@ -86,6 +95,13 @@
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  // Format time for form input
+  function formatTimeForInput(date) {
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
   }
 
   // Validate form
@@ -138,8 +154,8 @@
     const updates = {
       name: name.trim(),
       description: description.trim() || null,
-      entry_deadline: entryDeadline,
-      judging_date: judgingDate,
+      entry_deadline: `${entryDeadline}T${entryDeadlineTime}:00`,
+      judging_date: `${judgingDate}T${judgingDateTime}:00`,
       entry_fee: entryFee,
       max_entries_per_member: maxEntriesPerMember,
       active: isActive,
@@ -299,6 +315,19 @@
     gap: 1rem;
   }
 
+  .datetime-inputs {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .datetime-inputs .form-control {
+    width: 100%;
+  }
+
+  .time-input {
+    flex: 0 0 120px;
+  }
+
   .checkbox-group {
     display: flex;
     align-items: center;
@@ -418,6 +447,14 @@
       grid-template-columns: 1fr;
     }
 
+    .datetime-inputs {
+      flex-direction: column;
+    }
+
+    .time-input {
+      flex: 1;
+    }
+
     .form-actions {
       flex-direction: column-reverse;
     }
@@ -534,34 +571,52 @@
         <div class="form-row">
           <div class="form-group">
             <label for="entryDeadline" class="required">Entry Deadline</label>
-            <input
-              type="date"
-              id="entryDeadline"
-              class="form-control {validationErrors.entryDeadline ? 'error' : ''}"
-              bind:value={entryDeadline}
-              disabled={isSubmitting || hasEntries}
-            />
+            <div class="datetime-inputs">
+              <input
+                type="date"
+                id="entryDeadline"
+                class="form-control {validationErrors.entryDeadline ? 'error' : ''}"
+                bind:value={entryDeadline}
+                disabled={isSubmitting || hasEntries}
+              />
+              <input
+                type="time"
+                id="entryDeadlineTime"
+                class="form-control time-input"
+                bind:value={entryDeadlineTime}
+                disabled={isSubmitting || hasEntries}
+              />
+            </div>
             {#if validationErrors.entryDeadline}
               <div class="error-message">{validationErrors.entryDeadline}</div>
             {/if}
             <div class="help-text">
-              {hasEntries ? 'Cannot change after entries submitted' : 'Last day to submit entries'}
+              {hasEntries ? 'Cannot change after entries submitted' : 'Date and time when entries close'}
             </div>
           </div>
 
           <div class="form-group">
             <label for="judgingDate" class="required">Judging Date</label>
-            <input
-              type="date"
-              id="judgingDate"
-              class="form-control {validationErrors.judgingDate ? 'error' : ''}"
-              bind:value={judgingDate}
-              disabled={isSubmitting}
-            />
+            <div class="datetime-inputs">
+              <input
+                type="date"
+                id="judgingDate"
+                class="form-control {validationErrors.judgingDate ? 'error' : ''}"
+                bind:value={judgingDate}
+                disabled={isSubmitting}
+              />
+              <input
+                type="time"
+                id="judgingDateTime"
+                class="form-control time-input"
+                bind:value={judgingDateTime}
+                disabled={isSubmitting}
+              />
+            </div>
             {#if validationErrors.judgingDate}
               <div class="error-message">{validationErrors.judgingDate}</div>
             {/if}
-            <div class="help-text">When judging will take place</div>
+            <div class="help-text">Date and time when judging will take place</div>
           </div>
         </div>
 
