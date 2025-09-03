@@ -297,7 +297,7 @@ function printLabels() {
         }
         .label {
           width: 2.25in;
-          height: 1.50in;
+          height: 2.25in;
           padding: 0.125in;
           box-sizing: border-box;
           border: 1px solid #000;
