@@ -56,7 +56,7 @@
         .from('competition_judges')
         .select(`
           *,
-          judge:members(id, name, email, phone)
+          judge:members!competition_judges_judge_id_fkey(id, name, email, phone)
         `)
         .eq('competition_id', competitionId)
         .eq('active', true);
@@ -69,7 +69,7 @@
         .from('competition_entries')
         .select(`
           *,
-          members(id, name, email),
+          members!competition_entries_member_id_fkey(id, name, email),
           bjcp_categories(id, category_number, subcategory_letter, category_name, subcategory_name)
         `)
         .eq('competition_id', competitionId)
@@ -84,7 +84,7 @@
         .select(`
           *,
           entry:competition_entries!inner(id, entry_number, beer_name),
-          judge:members(id, name)
+          judge:members!competition_judging_sessions_judge_id_fkey(id, name)
         `)
         .eq('competition_id', competitionId);
 
@@ -101,7 +101,7 @@
         .select(`
           *,
           entry:competition_entries!inner(id, entry_number, beer_name),
-          judge:members(id, name),
+          judge:members!competition_rankings_judge_id_fkey(id, name),
           category:bjcp_categories(category_name, category_number, subcategory_letter)
         `)
         .eq('competition_id', competitionId)

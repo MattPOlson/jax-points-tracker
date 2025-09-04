@@ -47,7 +47,7 @@ class CompetitionJudgingStore {
         .from('competition_judges')
         .select(`
           *,
-          judge:members(id, name, email, phone),
+          judge:members!competition_judges_judge_id_fkey(id, name, email, phone),
           competition:competitions(id, name, judging_date)
         `)
         .eq('competition_id', competitionId)
@@ -92,7 +92,7 @@ class CompetitionJudgingStore {
         .insert([assignmentData])
         .select(`
           *,
-          judge:members(id, name, email, phone),
+          judge:members!competition_judges_judge_id_fkey(id, name, email, phone),
           competition:competitions(id, name, judging_date)
         `)
         .single();

@@ -105,7 +105,7 @@
         .from('competition_entries')
         .select(`
           id, entry_number, beer_name, beer_notes,
-          members(name)
+          members!competition_entries_member_id_fkey(name)
         `)
         .eq('competition_id', competitionId)
         .eq('bjcp_category_id', selectedCategory.id)
