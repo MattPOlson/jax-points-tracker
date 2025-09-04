@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS competition_judging_sessions (
     -- Judge feedback
     judge_notes TEXT, -- Public notes visible to entrant
     private_notes TEXT, -- Private notes only visible to judges/officers
+    scoresheet_data JSONB, -- Complete BJCP scoresheet data (descriptors, assessments, detailed comments)
     
     -- Session metadata
     judged_at TIMESTAMPTZ DEFAULT NOW(),

@@ -841,6 +841,14 @@
           </button>
 
           <a 
+            href="/judge/competition/{competitionId}/scoresheet"
+            class="nav-btn nav-btn-secondary"
+            style="text-decoration: none; display: flex; align-items: center; justify-content: center;"
+          >
+            📋 BJCP Scoresheet
+          </a>
+
+          <a 
             href="/judge/competition/{competitionId}/rankings"
             class="nav-btn nav-btn-secondary"
             style="text-decoration: none; display: flex; align-items: center; justify-content: center;"

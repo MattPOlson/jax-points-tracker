@@ -249,6 +249,7 @@ class CompetitionJudgingStore {
         total_score: judgingData.total_score || null,
         judge_notes: judgingData.judge_notes || null,
         private_notes: judgingData.private_notes || null,
+        scoresheet_data: judgingData.scoresheet_data || null, // Store full scoresheet data
         judged_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
