@@ -7,6 +7,8 @@
   import toast, { Toaster } from 'svelte-french-toast';
   import { goto } from '$app/navigation';
 
+  let hasJudgeAssignments = false;
+
   let subscription;
 
   async function fetchUserProfile(userId) {
@@ -18,9 +20,29 @@
         .single();
       if (error) throw error;
       userProfile.set(data);
+      
+      // Check if user has any judge assignments
+      await checkJudgeAssignments(userId);
     } catch (err) {
       console.error('Failed to fetch profile:', err);
       userProfile.set(null);
+    }
+  }
+
+  async function checkJudgeAssignments(userId) {
+    try {
+      const { data, error } = await supabase
+        .from('competition_judges')
+        .select('id')
+        .eq('judge_id', userId)
+        .eq('active', true)
+        .limit(1);
+      
+      if (error) throw error;
+      hasJudgeAssignments = data && data.length > 0;
+    } catch (err) {
+      console.error('Failed to check judge assignments:', err);
+      hasJudgeAssignments = false;
     }
   }
 
@@ -92,6 +114,7 @@
 
               if (event === 'SIGNED_OUT') {
                 userProfile.set(null);
+                hasJudgeAssignments = false;
               }
             }, 0);
           }
@@ -122,6 +145,7 @@
       if (error) throw error;
       user.set(null);
       userProfile.set(null);
+      hasJudgeAssignments = false;
       goto('/login');
       toast.success('Logged out successfully');
     } catch (err) {
@@ -155,6 +179,14 @@
       <polyline points="9 22 9 12 15 12 15 22" />
     </svg>
   </a>
+
+  {#if $user && hasJudgeAssignments}
+    <a href="/judge" class="nav-button judge-button" title="Judge Portal" aria-label="Go to judge portal">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2L15.09 8.26L22 9L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9L8.91 8.26L12 2Z" />
+      </svg>
+    </a>
+  {/if}
 
   {#if $user}
     <button on:click={handleLogout} class="nav-button logout-btn" title="Logout" aria-label="Logout">
@@ -230,6 +262,17 @@
   .logout-btn:hover {
     background: #fef2f2;
     color: #dc2626;
+  }
+
+  .judge-button {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    color: white;
+  }
+
+  .judge-button:hover {
+    background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(5, 150, 105, 0.3);
   }
 
   .user-info {
