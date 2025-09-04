@@ -227,6 +227,14 @@
     goto(`/officers/manage-competitions/results/${competitionId}`);
   }
 
+  function navigateToJudges(competitionId) {
+    goto(`/officers/manage-competitions/judges/${competitionId}`);
+  }
+
+  function navigateToJudgingDashboard(competitionId) {
+    goto(`/officers/manage-competitions/judging-dashboard/${competitionId}`);
+  }
+
   // Force refresh
   async function forceRefresh() {
     const { loadCompetitions } = await import('$lib/stores/competitionManagementStore');
@@ -440,6 +448,16 @@
     color: white;
   }
 
+  .btn-judges {
+    background: #059669;
+    color: white;
+  }
+
+  .btn-dashboard {
+    background: #7c3aed;
+    color: white;
+  }
+
   .btn-delete {
     background: #dc2626;
     color: white;
@@ -639,6 +657,24 @@
   }
 
   .btn-entries-mobile:hover {
+    background: #6d28d9;
+  }
+
+  .btn-judges-mobile {
+    background: #059669;
+    color: white;
+  }
+
+  .btn-judges-mobile:hover {
+    background: #047857;
+  }
+
+  .btn-dashboard-mobile {
+    background: #7c3aed;
+    color: white;
+  }
+
+  .btn-dashboard-mobile:hover {
     background: #6d28d9;
   }
 
@@ -928,6 +964,18 @@
                     📋 Entries
                   </button>
                   <button 
+                    class="btn btn-small btn-judges"
+                    on:click={() => navigateToJudges(competition.id)}
+                  >
+                    👩‍⚖️ Judges
+                  </button>
+                  <button 
+                    class="btn btn-small btn-dashboard"
+                    on:click={() => navigateToJudgingDashboard(competition.id)}
+                  >
+                    📊 Dashboard
+                  </button>
+                  <button 
                     class="btn btn-small btn-results"
                     on:click={() => navigateToResults(competition.id)}
                   >
@@ -1028,6 +1076,20 @@
               on:click={() => navigateToEntries(competition.id)}
             >
               📋 Manage Entries ({competition.entry_count || 0})
+            </button>
+            
+            <button 
+              class="action-btn btn-judges-mobile"
+              on:click={() => navigateToJudges(competition.id)}
+            >
+              👩‍⚖️ Manage Judges
+            </button>
+            
+            <button 
+              class="action-btn btn-dashboard-mobile"
+              on:click={() => navigateToJudgingDashboard(competition.id)}
+            >
+              📊 Judging Dashboard
             </button>
             
             <button 
