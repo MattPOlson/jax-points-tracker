@@ -296,9 +296,16 @@ class CompetitionJudgingStore {
           return entry;
         });
 
+        // Also update currentEntry if it's the one we just saved
+        let updatedCurrentEntry = store.currentEntry;
+        if (store.currentEntry && store.currentEntry.id === entryId) {
+          updatedCurrentEntry = updatedEntries.find(e => e.id === entryId);
+        }
+
         return {
           ...store,
-          assignedEntries: updatedEntries
+          assignedEntries: updatedEntries,
+          currentEntry: updatedCurrentEntry
         };
       });
 
