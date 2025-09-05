@@ -125,8 +125,12 @@
     }
   });
 
-  // Reactive statements
-  $: totalScore = calculateTotalScore();
+  // Reactive statements - reference individual fields to ensure reactivity
+  $: totalScore = (parseInt(scoresheetData.aroma_score) || 0) + 
+                 (parseInt(scoresheetData.appearance_score) || 0) + 
+                 (parseInt(scoresheetData.flavor_score) || 0) + 
+                 (parseInt(scoresheetData.mouthfeel_score) || 0) + 
+                 (parseInt(scoresheetData.overall_score) || 0);
   $: progress = competitionJudgingStore.getJudgingProgress();
   $: if ($currentEntry && currentEntryId !== $currentEntry.id) loadCurrentEntryData();
   
@@ -229,7 +233,7 @@
     const max = scoreMaximums[field];
     
     if (value === '' || (numValue >= 0 && numValue <= max)) {
-      scoresheetData = { ...scoresheetData, [field]: value };
+      scoresheetData[field] = value;
       scheduleAutoSave();
     }
   }
@@ -239,13 +243,7 @@
   }
 
   function handleDescriptorChange(descriptor) {
-    scoresheetData = { 
-      ...scoresheetData, 
-      descriptors: { 
-        ...scoresheetData.descriptors, 
-        [descriptor]: !scoresheetData.descriptors[descriptor] 
-      } 
-    };
+    scoresheetData.descriptors[descriptor] = !scoresheetData.descriptors[descriptor];
     scheduleAutoSave();
   }
 

@@ -65,8 +65,12 @@
     }
   });
 
-  // Reactive statements
-  $: totalScore = calculateTotalScore();
+  // Reactive statements - reference individual fields to ensure reactivity
+  $: totalScore = (parseInt(judgingData.aroma_score) || 0) + 
+                 (parseInt(judgingData.appearance_score) || 0) + 
+                 (parseInt(judgingData.flavor_score) || 0) + 
+                 (parseInt(judgingData.mouthfeel_score) || 0) + 
+                 (parseInt(judgingData.overall_score) || 0);
   $: progress = competitionJudgingStore.getJudgingProgress();
   
   // Load judging data for current entry
@@ -120,7 +124,7 @@
     const value = event.target.value;
     
     if (value === '' || validateScore(field, value)) {
-      judgingData = { ...judgingData, [field]: value };
+      judgingData[field] = value;
       scheduleAutoSave();
     } else {
       // Reset to previous valid value
