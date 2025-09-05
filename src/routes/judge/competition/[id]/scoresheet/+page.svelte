@@ -439,6 +439,10 @@
     text-align: center;
     font-weight: bold;
     font-size: 1.1rem;
+    box-sizing: border-box;
+    margin: 0;
+    background-color: white;
+    display: inline-block;
   }
 
   .score-display {
@@ -457,6 +461,10 @@
     font-family: inherit;
     resize: vertical;
     font-size: 0.9rem;
+    box-sizing: border-box;
+    margin: 0;
+    background-color: white;
+    display: block;
   }
 
   .descriptors-grid {
