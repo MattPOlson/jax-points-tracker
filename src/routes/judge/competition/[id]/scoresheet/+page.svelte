@@ -17,6 +17,7 @@
   let currentEntryIndex = 0;
   let autoSaveTimeout = null;
   let currentEntryId = null; // Track current entry to prevent unnecessary reloading
+  let justSaved = false; // Track if we just saved to prevent reload
 
   // BJCP Score Sheet Data Structure
   let scoresheetData = {
@@ -128,12 +129,20 @@
   // Reactive statements
   $: totalScore = calculateTotalScore();
   $: progress = competitionJudgingStore.getJudgingProgress();
+  $: if ($currentEntry) loadCurrentEntryData();
   
   function loadCurrentEntryData() {
     if (!$currentEntry) return;
     
     // Only reload if this is actually a different entry
     if (currentEntryId === $currentEntry.id) return;
+    
+    // Don't reload if we just saved (prevents form reset after save)
+    if (justSaved) {
+      justSaved = false;
+      return;
+    }
+    
     currentEntryId = $currentEntry.id;
     
     console.log('Loading data for entry:', $currentEntry.id);
@@ -293,6 +302,7 @@
         scoresheet_data: JSON.stringify(scoresheetData)
       };
 
+      justSaved = true; // Set flag to prevent reload after save
       await competitionJudgingStore.saveJudgingResults($currentEntry.id, dataToSave);
       console.log('Save successful');
       showToast('Progress saved', 'success');
