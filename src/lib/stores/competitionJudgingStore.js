@@ -246,7 +246,7 @@ class CompetitionJudgingStore {
         flavor_score: judgingData.flavor_score || null,
         mouthfeel_score: judgingData.mouthfeel_score || null,
         overall_score: judgingData.overall_score || null,
-        total_score: judgingData.total_score || null,
+        // total_score is auto-calculated by database as a generated column
         judge_notes: judgingData.judge_notes || null,
         private_notes: judgingData.private_notes || null,
         scoresheet_data: judgingData.scoresheet_data || null, // Store full scoresheet data

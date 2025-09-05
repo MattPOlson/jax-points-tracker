@@ -147,8 +147,8 @@
 
     try {
       const dataToSave = {
-        ...judgingData,
-        total_score: totalScore
+        ...judgingData
+        // total_score is auto-calculated by database
       };
 
       // Convert empty strings to null for database

@@ -217,7 +217,7 @@
         flavor_score: parseInt(scoresheetData.flavor_score) || null,
         mouthfeel_score: parseInt(scoresheetData.mouthfeel_score) || null,
         overall_score: parseInt(scoresheetData.overall_score) || null,
-        total_score: totalScore,
+        // total_score is auto-calculated by database
         
         // Combine all comments into judge_notes for compatibility
         judge_notes: [
