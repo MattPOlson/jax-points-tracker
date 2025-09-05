@@ -16,6 +16,7 @@
 
   let currentEntryIndex = 0;
   let autoSaveTimeout = null;
+  let currentEntryId = null; // Track current entry to prevent unnecessary reloading
 
   // BJCP Score Sheet Data Structure
   let scoresheetData = {
@@ -131,24 +132,70 @@
   function loadCurrentEntryData() {
     if (!$currentEntry) return;
     
+    // Only reload if this is actually a different entry
+    if (currentEntryId === $currentEntry.id) return;
+    currentEntryId = $currentEntry.id;
+    
+    console.log('Loading data for entry:', $currentEntry.id);
+    
+    // Reset scoresheet data to defaults
+    scoresheetData = {
+      aroma_score: '',
+      appearance_score: '',
+      flavor_score: '',
+      mouthfeel_score: '',
+      overall_score: '',
+      aroma_comments: '',
+      appearance_comments: '',
+      flavor_comments: '',
+      mouthfeel_comments: '',
+      overall_comments: '',
+      bottle_inspection_appropriate: true,
+      bottle_inspection_comments: '',
+      descriptors: {
+        acetaldehyde: false,
+        alcoholic: false,
+        astringent: false,
+        diacetyl: false,
+        dms: false,
+        estery: false,
+        grassy: false,
+        light_struck: false,
+        metallic: false,
+        musty: false,
+        oxidized: false,
+        phenolic: false,
+        solvent: false,
+        sour_acidic: false,
+        sulfur: false,
+        vegetal: false,
+        yeasty: false
+      },
+      stylistic_accuracy: 50,
+      technical_merit: 50,
+      intangibles: 50,
+      private_notes: ''
+    };
+    
     // Load existing judging data if available
     const existingJudging = $currentEntry.judging;
-    if (existingJudging && existingJudging.scoresheet_data) {
-      try {
-        const savedData = JSON.parse(existingJudging.scoresheet_data);
-        scoresheetData = { ...scoresheetData, ...savedData };
-      } catch (e) {
-        console.warn('Could not parse existing scoresheet data');
-      }
-    }
-    
-    // Load basic scores
     if (existingJudging) {
-      scoresheetData.aroma_score = existingJudging.aroma_score || '';
-      scoresheetData.appearance_score = existingJudging.appearance_score || '';
-      scoresheetData.flavor_score = existingJudging.flavor_score || '';
-      scoresheetData.mouthfeel_score = existingJudging.mouthfeel_score || '';
-      scoresheetData.overall_score = existingJudging.overall_score || '';
+      // Load basic scores
+      if (existingJudging.aroma_score) scoresheetData.aroma_score = existingJudging.aroma_score;
+      if (existingJudging.appearance_score) scoresheetData.appearance_score = existingJudging.appearance_score;
+      if (existingJudging.flavor_score) scoresheetData.flavor_score = existingJudging.flavor_score;
+      if (existingJudging.mouthfeel_score) scoresheetData.mouthfeel_score = existingJudging.mouthfeel_score;
+      if (existingJudging.overall_score) scoresheetData.overall_score = existingJudging.overall_score;
+      
+      // Load detailed scoresheet data if available
+      if (existingJudging.scoresheet_data) {
+        try {
+          const savedData = JSON.parse(existingJudging.scoresheet_data);
+          scoresheetData = { ...scoresheetData, ...savedData };
+        } catch (e) {
+          console.warn('Could not parse existing scoresheet data:', e);
+        }
+      }
     }
   }
 
@@ -208,15 +255,27 @@
   }
 
   async function saveProgress() {
-    if (!$currentEntry || isSaving) return;
+    if (!$currentEntry || isSaving || !$activeSession.sessionActive) return;
+
+    // Don't save if no actual data has been entered
+    const hasData = scoresheetData.aroma_score || scoresheetData.appearance_score || 
+                   scoresheetData.flavor_score || scoresheetData.mouthfeel_score || 
+                   scoresheetData.overall_score || scoresheetData.aroma_comments ||
+                   scoresheetData.appearance_comments || scoresheetData.flavor_comments ||
+                   scoresheetData.mouthfeel_comments || scoresheetData.overall_comments;
+    
+    if (!hasData) return;
+
+    isSaving = true;
+    console.log('Saving progress for entry:', $currentEntry.id);
 
     try {
       const dataToSave = {
-        aroma_score: parseInt(scoresheetData.aroma_score) || null,
-        appearance_score: parseInt(scoresheetData.appearance_score) || null,
-        flavor_score: parseInt(scoresheetData.flavor_score) || null,
-        mouthfeel_score: parseInt(scoresheetData.mouthfeel_score) || null,
-        overall_score: parseInt(scoresheetData.overall_score) || null,
+        aroma_score: scoresheetData.aroma_score ? parseInt(scoresheetData.aroma_score) : null,
+        appearance_score: scoresheetData.appearance_score ? parseInt(scoresheetData.appearance_score) : null,
+        flavor_score: scoresheetData.flavor_score ? parseInt(scoresheetData.flavor_score) : null,
+        mouthfeel_score: scoresheetData.mouthfeel_score ? parseInt(scoresheetData.mouthfeel_score) : null,
+        overall_score: scoresheetData.overall_score ? parseInt(scoresheetData.overall_score) : null,
         // total_score is auto-calculated by database
         
         // Combine all comments into judge_notes for compatibility
@@ -226,7 +285,7 @@
           scoresheetData.flavor_comments && `FLAVOR: ${scoresheetData.flavor_comments}`,
           scoresheetData.mouthfeel_comments && `MOUTHFEEL: ${scoresheetData.mouthfeel_comments}`,
           scoresheetData.overall_comments && `OVERALL: ${scoresheetData.overall_comments}`
-        ].filter(Boolean).join('\n\n'),
+        ].filter(Boolean).join('\n\n') || null,
         
         private_notes: scoresheetData.private_notes || null,
         
@@ -235,10 +294,13 @@
       };
 
       await competitionJudgingStore.saveJudgingResults($currentEntry.id, dataToSave);
+      console.log('Save successful');
       showToast('Progress saved', 'success');
     } catch (err) {
       console.error('Error auto-saving:', err);
-      showToast('Failed to save progress', 'error');
+      showToast(`Failed to save: ${err.message}`, 'error');
+    } finally {
+      isSaving = false;
     }
   }
 
@@ -249,7 +311,7 @@
     if (nextIndex < entries.length) {
       currentEntryIndex = nextIndex;
       competitionJudgingStore.setCurrentEntry(nextIndex);
-      loadCurrentEntryData();
+      // loadCurrentEntryData will be called by reactive statement
     }
   }
 
@@ -257,7 +319,7 @@
     if (currentEntryIndex > 0) {
       currentEntryIndex = currentEntryIndex - 1;
       competitionJudgingStore.setCurrentEntry(currentEntryIndex);
-      loadCurrentEntryData();
+      // loadCurrentEntryData will be called by reactive statement
     }
   }
 
