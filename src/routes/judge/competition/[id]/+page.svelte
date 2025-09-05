@@ -434,6 +434,9 @@
     padding: 1rem;
     border-radius: 8px;
     border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .score-label {
@@ -459,6 +462,10 @@
     font-weight: 600;
     text-align: center;
     transition: border-color 0.2s ease;
+    box-sizing: border-box;
+    margin: 0;
+    background-color: white;
+    display: block;
   }
 
   .score-input:focus {
