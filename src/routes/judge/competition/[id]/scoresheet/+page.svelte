@@ -243,7 +243,13 @@
   }
 
   function handleDescriptorChange(descriptor) {
-    scoresheetData.descriptors[descriptor] = !scoresheetData.descriptors[descriptor];
+    scoresheetData = {
+      ...scoresheetData,
+      descriptors: {
+        ...scoresheetData.descriptors,
+        [descriptor]: !scoresheetData.descriptors[descriptor]
+      }
+    };
     scheduleAutoSave();
   }
 
@@ -843,7 +849,7 @@
                 <input
                   type="checkbox"
                   class="descriptor-checkbox"
-                  bind:checked={scoresheetData.descriptors[key]}
+                  checked={scoresheetData.descriptors[key]}
                   on:change={() => handleDescriptorChange(key)}
                 />
                 <div class="descriptor-label">
