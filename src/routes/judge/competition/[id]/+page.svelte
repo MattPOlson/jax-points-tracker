@@ -120,7 +120,7 @@
     const value = event.target.value;
     
     if (value === '' || validateScore(field, value)) {
-      judgingData[field] = value;
+      judgingData = { ...judgingData, [field]: value };
       scheduleAutoSave();
     } else {
       // Reset to previous valid value

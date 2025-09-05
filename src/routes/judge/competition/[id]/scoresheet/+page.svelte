@@ -229,7 +229,7 @@
     const max = scoreMaximums[field];
     
     if (value === '' || (numValue >= 0 && numValue <= max)) {
-      scoresheetData[field] = value;
+      scoresheetData = { ...scoresheetData, [field]: value };
       scheduleAutoSave();
     }
   }
@@ -239,7 +239,13 @@
   }
 
   function handleDescriptorChange(descriptor) {
-    scoresheetData.descriptors[descriptor] = !scoresheetData.descriptors[descriptor];
+    scoresheetData = { 
+      ...scoresheetData, 
+      descriptors: { 
+        ...scoresheetData.descriptors, 
+        [descriptor]: !scoresheetData.descriptors[descriptor] 
+      } 
+    };
     scheduleAutoSave();
   }
 
