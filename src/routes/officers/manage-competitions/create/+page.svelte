@@ -4,7 +4,7 @@
   import { goto } from '$app/navigation';
   import { userProfile } from '$lib/stores/userProfile';
   import { competitionManagementStore } from '$lib/stores/competitionManagementStore';
-  import { bjcpCategories, categoriesByNumber, loadCategories } from '$lib/stores/bjcpCategoryStore';
+  import { bjcpCategories, categoriesByNumber, loadBjcpCategories } from '$lib/stores/bjcpCategoryStore';
   import CategorySelector from '$lib/components/CategorySelector.svelte';
   import RankingGroupManager from '$lib/components/RankingGroupManager.svelte';
   
@@ -43,7 +43,7 @@
     judgingDate = formatDateForInput(threeWeeks);
     
     // Load BJCP categories for category selection
-    await loadCategories();
+    await loadBjcpCategories();
     
     setupEventHandlers();
   });
