@@ -538,6 +538,7 @@
     resize: vertical;
     font-family: inherit;
     transition: border-color 0.2s ease;
+    box-sizing: border-box;
   }
 
   .notes-textarea:focus {
@@ -627,6 +628,10 @@
     .total-score-value {
       font-size: 2rem;
     }
+
+    .notes-textarea {
+      padding: 0.6rem;
+    }
   }
 
   @media (max-width: 480px) {
@@ -640,6 +645,19 @@
 
     .entry-card {
       padding: 1rem;
+    }
+
+    .notes-textarea {
+      padding: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .notes-grid {
+      gap: 1rem;
+    }
+
+    .notes-item {
+      margin-bottom: 0.5rem;
     }
   }
 </style>
