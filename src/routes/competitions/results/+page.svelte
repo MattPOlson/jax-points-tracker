@@ -124,20 +124,48 @@
         .select('id, category_name, category_number, subcategory_letter, subcategory_name')
         .in('id', categoryIds);
 
+      // Load ranking groups if using custom system
+      let rankingGroups = [];
+      if (competition.category_system === 'custom') {
+        const { data: groupsData, error: groupsError } = await supabase
+          .from('competition_ranking_groups')
+          .select('*')
+          .eq('competition_id', competition.id)
+          .order('group_order');
+
+        if (!groupsError) {
+          rankingGroups = groupsData || [];
+        }
+      }
+
       // Combine all data
       results = resultsData.map(result => {
         const entry = entriesData.find(e => e.id === result.entry_id);
         const member = membersData?.find(m => m.id === entry?.member_id);
         const category = categoriesData?.find(c => c.id === entry?.bjcp_category_id);
 
+        const categoryDisplay = category 
+          ? `${category.category_number}${category.subcategory_letter || ''} - ${category.category_name}`
+          : 'Unknown Category';
+
+        // Find ranking group for this entry's category
+        let rankingGroupName = null;
+        if (rankingGroups.length > 0 && entry?.bjcp_category_id) {
+          const group = rankingGroups.find(g => 
+            g.bjcp_category_ids.includes(entry.bjcp_category_id)
+          );
+          rankingGroupName = group?.group_name || null;
+        }
+
         return {
           ...result,
           entry_number: entry?.entry_number || 'N/A',
           beer_name: entry?.beer_name || 'Unknown Beer',
           member_name: member?.name || 'Unknown Member',
-          category_display: category 
-            ? `${category.category_number}${category.subcategory_letter || ''} - ${category.category_name}`
-            : 'Unknown Category',
+          category_display: categoryDisplay,
+          ranking_group_name: rankingGroupName,
+          // Use ranking group for display if available, otherwise use individual category
+          display_group: rankingGroupName || categoryDisplay,
           category_number: category?.category_number || '',
           subcategory_letter: category?.subcategory_letter || ''
         };
@@ -169,13 +197,13 @@
     }
   }
 
-  // Group results by category
+  // Group results by category or ranking group
   $: resultsByCategory = results.reduce((acc, result) => {
-    const categoryKey = result.category_display;
-    if (!acc[categoryKey]) {
-      acc[categoryKey] = [];
+    const groupKey = result.display_group;
+    if (!acc[groupKey]) {
+      acc[groupKey] = [];
     }
-    acc[categoryKey].push(result);
+    acc[groupKey].push(result);
     return acc;
   }, {});
 

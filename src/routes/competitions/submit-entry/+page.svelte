@@ -41,9 +41,25 @@
   // Reactive Variables
   // =============================================
   
-  // Get available subcategories based on selected main category
+  // Get allowed categories for selected competition
+  $: allowedCategoryIds = selectedCompetitionObj?.category_system === 'custom' 
+    ? (selectedCompetitionObj.category_restrictions || [])
+    : null;
+
+  // Get available main categories (filtered if custom system)
+  $: availableMainCategories = allowedCategoryIds
+    ? $mainCategories.filter(category => {
+        // Check if any subcategory in this main category is allowed
+        const categorySubcategories = $categoriesByNumber[category.number]?.subcategories || [];
+        return categorySubcategories.some(sub => allowedCategoryIds.includes(sub.id));
+      })
+    : $mainCategories;
+
+  // Get available subcategories based on selected main category (filtered if custom system)
   $: availableSubcategories = selectedMainCategory 
-    ? ($categoriesByNumber[selectedMainCategory]?.subcategories || [])
+    ? ($categoriesByNumber[selectedMainCategory]?.subcategories || []).filter(sub => 
+        allowedCategoryIds ? allowedCategoryIds.includes(sub.id) : true
+      )
     : [];
 
   // Get selected competition object
@@ -268,6 +284,11 @@
               {#if selectedCompetitionObj.description}
                 <p><strong>Description:</strong> {selectedCompetitionObj.description}</p>
               {/if}
+              {#if selectedCompetitionObj.category_system === 'custom'}
+                <div class="custom-categories-notice">
+                  <p><strong>📋 Custom Categories:</strong> This competition only accepts specific BJCP categories. Only allowed categories will be shown in the selection below.</p>
+                </div>
+              {/if}
             </div>
           {/if}
         </div>
@@ -282,7 +303,7 @@
             required
           >
             <option value="">Select main category...</option>
-            {#each $mainCategories as category}
+            {#each availableMainCategories as category}
               <option value={category.number}>
                 {category.number} - {category.name}
               </option>
@@ -547,6 +568,20 @@
   .competition-info p {
     margin: 0.25rem 0;
     font-size: 0.9rem;
+  }
+
+  .custom-categories-notice {
+    background: #e0f7fa;
+    border: 1px solid #4dd0e1;
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .custom-categories-notice p {
+    margin: 0;
+    color: #006064;
+    font-weight: 500;
   }
 
   .category-description {
