@@ -47,40 +47,88 @@
     error = null;
 
     try {
-      // Get all categories that have entries in this competition
-      const { data: entriesData, error: entriesError } = await supabase
-        .from('competition_entries')
-        .select(`
-          bjcp_category_id,
-          bjcp_categories(
-            id, category_number, subcategory_letter, 
-            subcategory_name, category_name
-          )
-        `)
-        .eq('competition_id', competitionId);
+      // First check if competition has custom ranking groups
+      const { data: competitionData, error: compError } = await supabase
+        .from('competitions')
+        .select('category_system')
+        .eq('id', competitionId)
+        .single();
 
-      if (entriesError) throw entriesError;
+      if (compError) throw compError;
 
-      // Group by category and count entries
-      const categoryMap = new Map();
-      entriesData.forEach(entry => {
-        const category = entry.bjcp_categories;
-        if (category) {
-          const key = category.id;
-          if (categoryMap.has(key)) {
-            categoryMap.get(key).entryCount++;
-          } else {
-            categoryMap.set(key, {
-              ...category,
-              entryCount: 1,
-              displayName: `${category.category_number}${category.subcategory_letter || ''} - ${category.category_name}${category.subcategory_name ? ` (${category.subcategory_name})` : ''}`
+      if (competitionData.category_system === 'custom') {
+        // Load custom ranking groups
+        const { data: rankingGroups, error: groupsError } = await supabase
+          .from('competition_ranking_groups')
+          .select(`
+            id, group_name, group_description, bjcp_category_ids, group_order
+          `)
+          .eq('competition_id', competitionId)
+          .order('group_order');
+
+        if (groupsError) throw groupsError;
+
+        // For each ranking group, count entries
+        const groupsWithCounts = [];
+        for (const group of rankingGroups || []) {
+          const categoryIds = group.bjcp_category_ids;
+          
+          const { data: entriesData, error: entriesError } = await supabase
+            .from('competition_entries')
+            .select('id, bjcp_category_id')
+            .eq('competition_id', competitionId)
+            .in('bjcp_category_id', categoryIds);
+
+          if (entriesError) throw entriesError;
+
+          if (entriesData && entriesData.length > 0) {
+            groupsWithCounts.push({
+              ...group,
+              isCustomGroup: true,
+              entryCount: entriesData.length,
+              displayName: group.group_name
             });
           }
         }
-      });
 
-      categories = Array.from(categoryMap.values())
-        .sort((a, b) => a.category_number.localeCompare(b.category_number));
+        categories = groupsWithCounts;
+      } else {
+        // Load individual categories (default system)
+        const { data: entriesData, error: entriesError } = await supabase
+          .from('competition_entries')
+          .select(`
+            bjcp_category_id,
+            bjcp_categories(
+              id, category_number, subcategory_letter, 
+              subcategory_name, category_name
+            )
+          `)
+          .eq('competition_id', competitionId);
+
+        if (entriesError) throw entriesError;
+
+        // Group by category and count entries
+        const categoryMap = new Map();
+        entriesData.forEach(entry => {
+          const category = entry.bjcp_categories;
+          if (category) {
+            const key = category.id;
+            if (categoryMap.has(key)) {
+              categoryMap.get(key).entryCount++;
+            } else {
+              categoryMap.set(key, {
+                ...category,
+                isCustomGroup: false,
+                entryCount: 1,
+                displayName: `${category.category_number}${category.subcategory_letter || ''} - ${category.category_name}${category.subcategory_name ? ` (${category.subcategory_name})` : ''}`
+              });
+            }
+          }
+        });
+
+        categories = Array.from(categoryMap.values())
+          .sort((a, b) => a.category_number.localeCompare(b.category_number));
+      }
 
       // Auto-select first category if available
       if (categories.length > 0) {
@@ -100,18 +148,45 @@
     if (!selectedCategory) return;
 
     try {
-      // Load entries for this category
-      const { data: entriesData, error: entriesError } = await supabase
-        .from('competition_entries')
-        .select(`
-          id, entry_number, beer_name, beer_notes,
-          members!competition_entries_member_id_fkey(name)
-        `)
-        .eq('competition_id', competitionId)
-        .eq('bjcp_category_id', selectedCategory.id)
-        .order('entry_number');
+      let entriesData;
+      
+      if (selectedCategory.isCustomGroup) {
+        // Load entries for all categories in this ranking group
+        const { data: groupEntriesData, error: entriesError } = await supabase
+          .from('competition_entries')
+          .select(`
+            id, entry_number, beer_name, beer_notes, bjcp_category_id,
+            members!competition_entries_member_id_fkey(name),
+            bjcp_categories!competition_entries_bjcp_category_id_fkey(
+              category_number, subcategory_letter, subcategory_name, category_name
+            )
+          `)
+          .eq('competition_id', competitionId)
+          .in('bjcp_category_id', selectedCategory.bjcp_category_ids)
+          .order('entry_number');
 
-      if (entriesError) throw entriesError;
+        if (entriesError) throw entriesError;
+        entriesData = groupEntriesData;
+      } else {
+        // Load entries for this single category
+        const { data: singleCategoryData, error: entriesError } = await supabase
+          .from('competition_entries')
+          .select(`
+            id, entry_number, beer_name, beer_notes, bjcp_category_id,
+            members!competition_entries_member_id_fkey(name),
+            bjcp_categories!competition_entries_bjcp_category_id_fkey(
+              category_number, subcategory_letter, subcategory_name, category_name
+            )
+          `)
+          .eq('competition_id', competitionId)
+          .eq('bjcp_category_id', selectedCategory.id)
+          .order('entry_number');
+
+        if (entriesError) throw entriesError;
+        entriesData = singleCategoryData;
+      }
+
+      if (!entriesData) throw new Error('No entries data loaded');
 
       // Load existing judging scores for this judge
       const entryIds = entriesData.map(e => e.id);
@@ -126,28 +201,51 @@
         console.warn('No judging data found:', judgingError);
       }
 
-      // Load existing rankings for this judge and category
-      const { data: rankingsData, error: rankingsError } = await supabase
-        .from('competition_rankings')
-        .select('*')
-        .eq('competition_id', competitionId)
-        .eq('judge_id', $userProfile.id)
-        .eq('bjcp_category_id', selectedCategory.id)
-        .order('rank_position');
+      // Load existing rankings for this judge and category/group
+      let rankingsData = [];
+      if (selectedCategory.isCustomGroup) {
+        // Load rankings for all categories in this group
+        const { data: groupRankingsData, error: rankingsError } = await supabase
+          .from('competition_rankings')
+          .select('*')
+          .eq('competition_id', competitionId)
+          .eq('judge_id', $userProfile.id)
+          .eq('ranking_group_id', selectedCategory.id)
+          .order('rank_position');
 
-      if (rankingsError) {
-        console.warn('No existing rankings found:', rankingsError);
+        if (rankingsError) {
+          console.warn('No existing group rankings found:', rankingsError);
+        } else {
+          rankingsData = groupRankingsData;
+        }
+      } else {
+        // Load rankings for single category
+        const { data: categoryRankingsData, error: rankingsError } = await supabase
+          .from('competition_rankings')
+          .select('*')
+          .eq('competition_id', competitionId)
+          .eq('judge_id', $userProfile.id)
+          .eq('bjcp_category_id', selectedCategory.id)
+          .order('rank_position');
+
+        if (rankingsError) {
+          console.warn('No existing category rankings found:', rankingsError);
+        } else {
+          rankingsData = categoryRankingsData;
+        }
       }
 
       // Combine entry data with judging scores
       categoryEntries = entriesData.map(entry => {
         const judging = judgingData?.find(j => j.entry_id === entry.id);
+        const categoryInfo = entry.bjcp_categories;
         return {
           ...entry,
           member_name: entry.members?.name || 'Unknown',
           total_score: judging?.total_score || 0,
           judge_notes: judging?.judge_notes || '',
-          hasScore: !!(judging?.total_score)
+          hasScore: !!(judging?.total_score),
+          category_display: categoryInfo ? `${categoryInfo.category_number}${categoryInfo.subcategory_letter || ''} - ${categoryInfo.subcategory_name || categoryInfo.category_name}` : 'Unknown Category'
         };
       });
 
