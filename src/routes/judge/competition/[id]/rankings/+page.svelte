@@ -171,7 +171,8 @@
           id: null, // Not saved yet
           competition_id: competitionId,
           judge_id: $userProfile.id,
-          bjcp_category_id: selectedCategory.id,
+          bjcp_category_id: selectedCategory.isCustomGroup ? null : selectedCategory.id,
+          ranking_group_id: selectedCategory.isCustomGroup ? selectedCategory.id : null,
           entry_id: entry.id,
           rank_position: index + 1,
           ranking_notes: '',
@@ -218,21 +219,33 @@
 
     isSaving = true;
     try {
-      // First, delete existing rankings for this category and judge
-      const { error: deleteError } = await supabase
-        .from('competition_rankings')
-        .delete()
-        .eq('competition_id', competitionId)
-        .eq('judge_id', $userProfile.id)
-        .eq('bjcp_category_id', selectedCategory.id);
+      // First, delete existing rankings for this category/group and judge
+      if (selectedCategory.isCustomGroup) {
+        const { error: deleteError } = await supabase
+          .from('competition_rankings')
+          .delete()
+          .eq('competition_id', competitionId)
+          .eq('judge_id', $userProfile.id)
+          .eq('ranking_group_id', selectedCategory.id);
 
-      if (deleteError) throw deleteError;
+        if (deleteError) throw deleteError;
+      } else {
+        const { error: deleteError } = await supabase
+          .from('competition_rankings')
+          .delete()
+          .eq('competition_id', competitionId)
+          .eq('judge_id', $userProfile.id)
+          .eq('bjcp_category_id', selectedCategory.id);
+
+        if (deleteError) throw deleteError;
+      }
 
       // Insert new rankings
       const rankingsToInsert = rankings.map(ranking => ({
         competition_id: competitionId,
         judge_id: $userProfile.id,
-        bjcp_category_id: selectedCategory.id,
+        bjcp_category_id: selectedCategory.isCustomGroup ? null : selectedCategory.id,
+        ranking_group_id: selectedCategory.isCustomGroup ? selectedCategory.id : null,
         entry_id: ranking.entry_id,
         rank_position: ranking.rank_position,
         ranking_notes: ranking.ranking_notes || null
@@ -474,9 +487,9 @@
   }
 
   .entry-details {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
     margin-bottom: 0.25rem;
   }
 
@@ -566,7 +579,7 @@
     }
 
     .entry-details {
-      grid-template-columns: 1fr;
+      gap: 0.125rem;
     }
 
     .ranking-item {
@@ -675,6 +688,11 @@
                     <div class="detail-text">
                       Brewer: {ranking.entry.member_name}
                     </div>
+                    {#if selectedCategory?.isCustomGroup}
+                      <div class="detail-text">
+                        Category: {ranking.entry.category_display}
+                      </div>
+                    {/if}
                   </div>
                   
                   <div class="score-display">
