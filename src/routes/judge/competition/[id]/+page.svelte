@@ -603,6 +603,13 @@
     background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
   }
 
+  .nav-btn-link {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   /* Mobile optimizations */
   @media (max-width: 768px) {
     .judging-container {
@@ -883,16 +890,14 @@
 
           <a 
             href="/judge/competition/{competitionId}/scoresheet"
-            class="nav-btn nav-btn-secondary"
-            style="text-decoration: none; display: flex; align-items: center; justify-content: center;"
+            class="nav-btn nav-btn-secondary nav-btn-link"
           >
             📋 BJCP Scoresheet
           </a>
 
           <a 
             href="/judge/competition/{competitionId}/rankings"
-            class="nav-btn nav-btn-secondary"
-            style="text-decoration: none; display: flex; align-items: center; justify-content: center;"
+            class="nav-btn nav-btn-secondary nav-btn-link"
           >
             🏆 Rankings
           </a>
