@@ -619,10 +619,13 @@
 
     .nav-buttons {
       flex-direction: column;
+      gap: 0.75rem;
     }
 
     .nav-btn {
       width: 100%;
+      flex: none;
+      margin: 0;
     }
 
     .total-score-value {
@@ -645,6 +648,15 @@
 
     .entry-card {
       padding: 1rem;
+    }
+
+    .nav-buttons {
+      gap: 0.5rem;
+    }
+
+    .nav-btn {
+      padding: 0.875rem 1.25rem;
+      font-size: 0.9rem;
     }
 
     .notes-textarea {
