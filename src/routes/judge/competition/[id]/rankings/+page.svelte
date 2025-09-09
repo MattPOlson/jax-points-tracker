@@ -269,7 +269,7 @@
           id: null, // Not saved yet
           competition_id: competitionId,
           judge_id: $userProfile.id,
-          bjcp_category_id: selectedCategory.isCustomGroup ? null : selectedCategory.id,
+          bjcp_category_id: selectedCategory.isCustomGroup ? entry.bjcp_category_id : selectedCategory.id,
           ranking_group_id: selectedCategory.isCustomGroup ? selectedCategory.id : null,
           entry_id: entry.id,
           rank_position: index + 1,
@@ -342,7 +342,7 @@
       const rankingsToInsert = rankings.map(ranking => ({
         competition_id: competitionId,
         judge_id: $userProfile.id,
-        bjcp_category_id: selectedCategory.isCustomGroup ? null : selectedCategory.id,
+        bjcp_category_id: selectedCategory.isCustomGroup ? ranking.entry.bjcp_category_id : selectedCategory.id,
         ranking_group_id: selectedCategory.isCustomGroup ? selectedCategory.id : null,
         entry_id: ranking.entry_id,
         rank_position: ranking.rank_position,
@@ -782,9 +782,6 @@
                   <div class="entry-details">
                     <div class="detail-text">
                       <strong>{ranking.entry.beer_name || 'No name'}</strong>
-                    </div>
-                    <div class="detail-text">
-                      Brewer: {ranking.entry.member_name}
                     </div>
                     {#if selectedCategory?.isCustomGroup}
                       <div class="detail-text">
