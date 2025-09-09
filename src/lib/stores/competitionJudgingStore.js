@@ -197,10 +197,20 @@ class CompetitionJudgingStore {
       // Merge judging data with entries
       const entriesWithJudging = entries.map(entry => {
         const judgingSession = existingJudging?.find(j => j.entry_id === entry.id);
+        
+        // Check if entry has been judged by looking for valid scores
+        const hasValidScores = judgingSession && (
+          judgingSession.aroma_score !== null ||
+          judgingSession.appearance_score !== null ||
+          judgingSession.flavor_score !== null ||
+          judgingSession.mouthfeel_score !== null ||
+          judgingSession.overall_score !== null
+        );
+        
         return {
           ...entry,
           judging: judgingSession || null,
-          hasBeenJudged: !!judgingSession?.score
+          hasBeenJudged: !!hasValidScores
         };
       });
 
@@ -287,10 +297,19 @@ class CompetitionJudgingStore {
       judgingSessionStore.update(store => {
         const updatedEntries = store.assignedEntries.map(entry => {
           if (entry.id === entryId) {
+            // Check if entry has been judged by looking for valid scores
+            const hasValidScores = result.data && (
+              result.data.aroma_score !== null ||
+              result.data.appearance_score !== null ||
+              result.data.flavor_score !== null ||
+              result.data.mouthfeel_score !== null ||
+              result.data.overall_score !== null
+            );
+            
             return {
               ...entry,
               judging: result.data,
-              hasBeenJudged: true
+              hasBeenJudged: !!hasValidScores
             };
           }
           return entry;
