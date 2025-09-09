@@ -220,6 +220,11 @@
     return entries.filter(entry => categoryIds.includes(entry.bjcp_category_id)).length;
   }
 
+  function hasMultipleJudges(rankings) {
+    const judgeIds = new Set(rankings.map(r => r.judge_id));
+    return judgeIds.size > 1;
+  }
+
   async function finalizeResults() {
     if (!confirm('Are you sure you want to finalize all results? This will aggregate scores and create final standings.')) {
       return;
@@ -238,48 +243,136 @@
     }
   }
 
+  function getPointsForRanking(rankPosition) {
+    // Point system: 1st=3pts, 2nd=2pts, 3rd=1pt, others=0pts
+    switch (rankPosition) {
+      case 1: return 3;
+      case 2: return 2;
+      case 3: return 1;
+      default: return 0;
+    }
+  }
+
+  function compileMultiJudgeRankings(entryId, categoryId, groupId = null) {
+    // Get all rankings for this entry from all judges
+    let entryRankings = [];
+    
+    if (groupId) {
+      // For custom ranking groups
+      entryRankings = rankings.filter(r => 
+        r.entry_id === entryId && r.ranking_group_id === groupId
+      );
+    } else {
+      // For individual categories
+      entryRankings = rankings.filter(r => 
+        r.entry_id === entryId && r.bjcp_category_id === categoryId
+      );
+    }
+
+    // Calculate total points from all judges
+    const totalPoints = entryRankings.reduce((sum, ranking) => {
+      return sum + getPointsForRanking(ranking.rank_position);
+    }, 0);
+
+    return {
+      totalPoints,
+      judgeCount: entryRankings.length,
+      rankings: entryRankings
+    };
+  }
+
   async function processAndFinalizeResults() {
-    // This function would aggregate all judging data and create final results
-    // For now, we'll update the existing competition_results table
+    // This function aggregates all judging data and creates final results using multi-judge point compilation
     
     const finalResults = [];
 
+    // Group entries by category or ranking group for proper compilation
+    const entriesByGroup = new Map();
+    
     for (const entry of entries) {
       const entryScores = getEntryScores(entry.id);
       
       if (entryScores.count > 0) {
+        // Determine the grouping key (category or custom group)
+        let groupKey = entry.bjcp_category_id;
+        let isCustomGroup = false;
+        
+        // Check if entry belongs to a custom ranking group
+        for (const group of rankingGroups) {
+          let categoryIds;
+          try {
+            categoryIds = Array.isArray(group.bjcp_category_ids) 
+              ? group.bjcp_category_ids 
+              : JSON.parse(group.bjcp_category_ids);
+          } catch (e) {
+            console.warn('Failed to parse bjcp_category_ids for group:', group.id);
+            continue;
+          }
+          
+          if (categoryIds.includes(entry.bjcp_category_id)) {
+            groupKey = `group_${group.id}`;
+            isCustomGroup = true;
+            break;
+          }
+        }
+
+        if (!entriesByGroup.has(groupKey)) {
+          entriesByGroup.set(groupKey, []);
+        }
+        
+        entriesByGroup.get(groupKey).push({
+          ...entry,
+          entryScores,
+          isCustomGroup,
+          groupId: isCustomGroup ? groupKey.split('_')[1] : null
+        });
+      }
+    }
+
+    // Process each group separately to determine rankings
+    for (const [groupKey, groupEntries] of entriesByGroup) {
+      // Calculate points for each entry in this group
+      const entriesWithPoints = groupEntries.map(entry => {
+        const compilation = compileMultiJudgeRankings(
+          entry.id, 
+          entry.bjcp_category_id, 
+          entry.groupId
+        );
+        
+        return {
+          ...entry,
+          compilation
+        };
+      });
+
+      // Sort by total points (highest first), then by average score as tiebreaker
+      entriesWithPoints.sort((a, b) => {
+        if (b.compilation.totalPoints !== a.compilation.totalPoints) {
+          return b.compilation.totalPoints - a.compilation.totalPoints;
+        }
+        // Tiebreaker: use average score
+        return b.entryScores.average - a.entryScores.average;
+      });
+
+      // Assign placements based on final ranking
+      entriesWithPoints.forEach((entry, index) => {
         // Calculate final score (average of all judges)
-        const finalScore = entryScores.average;
+        const finalScore = entry.entryScores.average;
         
         // Get any judge notes
-        const allNotes = entryScores.sessions
+        const allNotes = entry.entryScores.sessions
           .filter(s => s.judge_notes)
           .map(s => s.judge_notes)
           .join('\n\n---\n\n');
 
-        // Determine placement based on rankings and scores
-        // This is a simplified approach - real competitions might use more complex algorithms
+        // Determine placement based on compiled ranking position
         let placement = null;
-        
-        // First check if this entry appears in category rankings
-        const categoryRankings = getCategoryRankings(entry.bjcp_category_id);
-        let ranking = categoryRankings.find(r => r.entry_id === entry.id);
-        
-        // If not found in category rankings, check ranking groups
-        if (!ranking) {
-          for (const group of rankingGroups) {
-            const groupRankings = getGroupRankings(group.id);
-            ranking = groupRankings.find(r => r.entry_id === entry.id);
-            if (ranking) break;
-          }
-        }
-        
-        // Set placement based on rank position
-        if (ranking) {
-          if (ranking.rank_position === 1) placement = '1';
-          else if (ranking.rank_position === 2) placement = '2';
-          else if (ranking.rank_position === 3) placement = '3';
-          else if (ranking.rank_position <= 5) placement = 'HM'; // Honorable mention for top 5
+        if (entry.compilation.totalPoints > 0) {
+          const rankPosition = index + 1;
+          if (rankPosition === 1) placement = '1';
+          else if (rankPosition === 2) placement = '2';
+          else if (rankPosition === 3) placement = '3';
+          else if (rankPosition <= 5) placement = 'HM'; // Honorable mention for top 5
         }
 
         finalResults.push({
@@ -288,9 +381,12 @@
           score: Math.round(finalScore),
           placement: placement,
           judge_notes: allNotes || null,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          // Add debugging info (can be removed later)
+          debug_points: entry.compilation.totalPoints,
+          debug_judge_count: entry.compilation.judgeCount
         });
-      }
+      });
     }
 
     // Upsert results into competition_results table
@@ -798,20 +894,20 @@
 
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
             <div>
-              <h4>Categories ({categories.length})</h4>
-              {#each categories as category}
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                  <span>{category.name}</span>
-                  <span>{category.entryCount} entries</span>
-                </div>
-              {/each}
-              
-              {#if rankingGroups.length > 0}
-                <h4 style="margin-top: 1.5rem;">Custom Ranking Groups ({rankingGroups.length})</h4>
+              {#if competition?.category_system === 'custom' && rankingGroups.length > 0}
+                <h4>Custom Ranking Groups ({rankingGroups.length})</h4>
                 {#each rankingGroups as group}
                   <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                     <span>{group.group_name}</span>
                     <span>{getGroupEntryCount(group)} entries</span>
+                  </div>
+                {/each}
+              {:else}
+                <h4>Categories ({categories.length})</h4>
+                {#each categories as category}
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>{category.name}</span>
+                    <span>{category.entryCount} entries</span>
                   </div>
                 {/each}
               {/if}
@@ -940,90 +1036,113 @@
           </h2>
         </div>
         <div class="section-content">
-          <!-- Individual Category Rankings -->
-          {#each categories as category}
-            {@const categoryRankings = getCategoryRankings(category.id)}
-            <div style="margin-bottom: 2rem;">
-              <h4>{category.name}</h4>
-              {#if categoryRankings.length === 0}
-                <p style="color: #666; font-style: italic;">No rankings submitted yet</p>
-              {:else}
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>Rank</th>
-                      <th>Entry</th>
-                      <th>Judge</th>
-                      <th>Notes</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {#each categoryRankings as ranking}
+          <!-- Show individual categories OR custom groups, not both -->
+          {#if competition?.category_system === 'custom' && rankingGroups.length > 0}
+            <!-- Custom Ranking Group Rankings -->
+            {#each rankingGroups as group}
+              {@const groupRankings = getGroupRankings(group.id)}
+              <div style="margin-bottom: 2rem;">
+                <h4>{group.group_name}</h4>
+                {#if group.group_description}
+                  <p style="color: #666; font-size: 0.875rem; margin-bottom: 1rem;">{group.group_description}</p>
+                {/if}
+                {#if groupRankings.length === 0}
+                  <p style="color: #666; font-style: italic;">No rankings submitted yet</p>
+                {:else}
+                  {#if groupRankings.length > 1 && hasMultipleJudges(groupRankings)}
+                    <div style="background: #dcfce7; border: 1px solid #22c55e; border-radius: 6px; padding: 1rem; margin-bottom: 1rem;">
+                      <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: #166534;">
+                        ✅ Multi-Judge Point Compilation
+                      </div>
+                      <p style="color: #166534; margin: 0.5rem 0 0; font-size: 0.875rem;">
+                        Rankings from {new Set(groupRankings.map(r => r.judge_id)).size} judges will be compiled using point system: 1st=3pts, 2nd=2pts, 3rd=1pt. Final placement determined by highest total points.
+                      </p>
+                    </div>
+                  {/if}
+                  <table class="data-table">
+                    <thead>
                       <tr>
-                        <td>
-                          <span style="font-size: 1.2rem; font-weight: 600;">
-                            {ranking.rank_position === 1 ? '🥇' : ranking.rank_position === 2 ? '🥈' : ranking.rank_position === 3 ? '🥉' : `${ranking.rank_position}.`}
-                          </span>
-                        </td>
-                        <td>
-                          <div>
-                            <div style="font-weight: 600; color: #ff3e00;">#{ranking.entry?.entry_number}</div>
-                            <div style="font-size: 0.875rem;">{ranking.entry?.beer_name || 'No name'}</div>
-                          </div>
-                        </td>
-                        <td>{ranking.judge?.name}</td>
-                        <td>{ranking.ranking_notes || '-'}</td>
+                        <th>Rank</th>
+                        <th>Entry</th>
+                        <th>Judge</th>
+                        <th>Notes</th>
                       </tr>
-                    {/each}
-                  </tbody>
-                </table>
-              {/if}
-            </div>
-          {/each}
-          
-          <!-- Custom Ranking Group Rankings -->
-          {#each rankingGroups as group}
-            {@const groupRankings = getGroupRankings(group.id)}
-            <div style="margin-bottom: 2rem;">
-              <h4>{group.group_name}</h4>
-              {#if group.group_description}
-                <p style="color: #666; font-size: 0.875rem; margin-bottom: 1rem;">{group.group_description}</p>
-              {/if}
-              {#if groupRankings.length === 0}
-                <p style="color: #666; font-style: italic;">No rankings submitted yet</p>
-              {:else}
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>Rank</th>
-                      <th>Entry</th>
-                      <th>Judge</th>
-                      <th>Notes</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {#each groupRankings as ranking}
+                    </thead>
+                    <tbody>
+                      {#each groupRankings as ranking}
+                        <tr>
+                          <td>
+                            <span style="font-size: 1.2rem; font-weight: 600;">
+                              {ranking.rank_position === 1 ? '🥇' : ranking.rank_position === 2 ? '🥈' : ranking.rank_position === 3 ? '🥉' : `${ranking.rank_position}.`}
+                            </span>
+                          </td>
+                          <td>
+                            <div>
+                              <div style="font-weight: 600; color: #ff3e00;">#{ranking.entry?.entry_number}</div>
+                              <div style="font-size: 0.875rem;">{ranking.entry?.beer_name || 'No name'}</div>
+                            </div>
+                          </td>
+                          <td>{ranking.judge?.name}</td>
+                          <td>{ranking.ranking_notes || '-'}</td>
+                        </tr>
+                      {/each}
+                    </tbody>
+                  </table>
+                {/if}
+              </div>
+            {/each}
+          {:else}
+            <!-- Individual Category Rankings (default system) -->
+            {#each categories as category}
+              {@const categoryRankings = getCategoryRankings(category.id)}
+              <div style="margin-bottom: 2rem;">
+                <h4>{category.name}</h4>
+                {#if categoryRankings.length === 0}
+                  <p style="color: #666; font-style: italic;">No rankings submitted yet</p>
+                {:else}
+                  {#if categoryRankings.length > 1 && hasMultipleJudges(categoryRankings)}
+                    <div style="background: #dcfce7; border: 1px solid #22c55e; border-radius: 6px; padding: 1rem; margin-bottom: 1rem;">
+                      <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: #166534;">
+                        ✅ Multi-Judge Point Compilation
+                      </div>
+                      <p style="color: #166534; margin: 0.5rem 0 0; font-size: 0.875rem;">
+                        Rankings from {new Set(categoryRankings.map(r => r.judge_id)).size} judges will be compiled using point system: 1st=3pts, 2nd=2pts, 3rd=1pt. Final placement determined by highest total points.
+                      </p>
+                    </div>
+                  {/if}
+                  <table class="data-table">
+                    <thead>
                       <tr>
-                        <td>
-                          <span style="font-size: 1.2rem; font-weight: 600;">
-                            {ranking.rank_position === 1 ? '🥇' : ranking.rank_position === 2 ? '🥈' : ranking.rank_position === 3 ? '🥉' : `${ranking.rank_position}.`}
-                          </span>
-                        </td>
-                        <td>
-                          <div>
-                            <div style="font-weight: 600; color: #ff3e00;">#{ranking.entry?.entry_number}</div>
-                            <div style="font-size: 0.875rem;">{ranking.entry?.beer_name || 'No name'}</div>
-                          </div>
-                        </td>
-                        <td>{ranking.judge?.name}</td>
-                        <td>{ranking.ranking_notes || '-'}</td>
+                        <th>Rank</th>
+                        <th>Entry</th>
+                        <th>Judge</th>
+                        <th>Notes</th>
                       </tr>
-                    {/each}
-                  </tbody>
-                </table>
-              {/if}
-            </div>
-          {/each}
+                    </thead>
+                    <tbody>
+                      {#each categoryRankings as ranking}
+                        <tr>
+                          <td>
+                            <span style="font-size: 1.2rem; font-weight: 600;">
+                              {ranking.rank_position === 1 ? '🥇' : ranking.rank_position === 2 ? '🥈' : ranking.rank_position === 3 ? '🥉' : `${ranking.rank_position}.`}
+                            </span>
+                          </td>
+                          <td>
+                            <div>
+                              <div style="font-weight: 600; color: #ff3e00;">#{ranking.entry?.entry_number}</div>
+                              <div style="font-size: 0.875rem;">{ranking.entry?.beer_name || 'No name'}</div>
+                            </div>
+                          </td>
+                          <td>{ranking.judge?.name}</td>
+                          <td>{ranking.ranking_notes || '-'}</td>
+                        </tr>
+                      {/each}
+                    </tbody>
+                  </table>
+                {/if}
+              </div>
+            {/each}
+          {/if}
         </div>
       {/if}
     </div>
