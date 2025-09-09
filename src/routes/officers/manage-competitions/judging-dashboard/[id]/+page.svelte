@@ -20,6 +20,7 @@
   let judgingSessions = [];
   let rankings = [];
   let categories = [];
+  let rankingGroups = [];
   let selectedView = 'overview'; // overview, entries, judges, rankings
   let selectedCategory = 'all';
   let isLoading = true;
@@ -102,7 +103,8 @@
           *,
           entry:competition_entries!inner(id, entry_number, beer_name),
           judge:members!competition_rankings_judge_id_fkey(id, name),
-          category:bjcp_categories(category_name, category_number, subcategory_letter)
+          category:bjcp_categories(category_name, category_number, subcategory_letter),
+          ranking_group:competition_ranking_groups(id, group_name, group_description)
         `)
         .eq('competition_id', competitionId)
         .order('bjcp_category_id')
@@ -113,6 +115,20 @@
         rankings = [];
       } else {
         rankings = rankingsData || [];
+      }
+
+      // Load ranking groups for custom category system
+      const { data: groupsData, error: groupsError } = await supabase
+        .from('competition_ranking_groups')
+        .select('*')
+        .eq('competition_id', competitionId)
+        .order('group_order');
+
+      if (groupsError) {
+        console.warn('No ranking groups found:', groupsError);
+        rankingGroups = [];
+      } else {
+        rankingGroups = groupsData || [];
       }
 
       // Extract categories
@@ -186,6 +202,24 @@
     return rankings.filter(r => r.bjcp_category_id === categoryId);
   }
 
+  function getGroupRankings(groupId) {
+    return rankings.filter(r => r.ranking_group_id === groupId);
+  }
+
+  function getGroupEntryCount(group) {
+    if (!group.bjcp_category_ids) return 0;
+    let categoryIds;
+    try {
+      categoryIds = Array.isArray(group.bjcp_category_ids) 
+        ? group.bjcp_category_ids 
+        : JSON.parse(group.bjcp_category_ids);
+    } catch (e) {
+      console.warn('Failed to parse bjcp_category_ids:', group.bjcp_category_ids);
+      return 0;
+    }
+    return entries.filter(entry => categoryIds.includes(entry.bjcp_category_id)).length;
+  }
+
   async function finalizeResults() {
     if (!confirm('Are you sure you want to finalize all results? This will aggregate scores and create final standings.')) {
       return;
@@ -225,11 +259,22 @@
 
         // Determine placement based on rankings and scores
         // This is a simplified approach - real competitions might use more complex algorithms
-        const categoryRankings = getCategoryRankings(entry.bjcp_category_id);
         let placement = null;
         
-        // Find if this entry appears in rankings
-        const ranking = categoryRankings.find(r => r.entry_id === entry.id);
+        // First check if this entry appears in category rankings
+        const categoryRankings = getCategoryRankings(entry.bjcp_category_id);
+        let ranking = categoryRankings.find(r => r.entry_id === entry.id);
+        
+        // If not found in category rankings, check ranking groups
+        if (!ranking) {
+          for (const group of rankingGroups) {
+            const groupRankings = getGroupRankings(group.id);
+            ranking = groupRankings.find(r => r.entry_id === entry.id);
+            if (ranking) break;
+          }
+        }
+        
+        // Set placement based on rank position
         if (ranking) {
           if (ranking.rank_position === 1) placement = '1';
           else if (ranking.rank_position === 2) placement = '2';
@@ -760,6 +805,16 @@
                   <span>{category.entryCount} entries</span>
                 </div>
               {/each}
+              
+              {#if rankingGroups.length > 0}
+                <h4 style="margin-top: 1.5rem;">Custom Ranking Groups ({rankingGroups.length})</h4>
+                {#each rankingGroups as group}
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>{group.group_name}</span>
+                    <span>{getGroupEntryCount(group)} entries</span>
+                  </div>
+                {/each}
+              {/if}
             </div>
 
             <div>
@@ -876,9 +931,16 @@
 
       {:else if selectedView === 'rankings'}
         <div class="section-header">
-          <h2 class="section-title">Category Rankings</h2>
+          <h2 class="section-title">
+            {#if rankingGroups.length > 0}
+              Rankings
+            {:else}
+              Category Rankings
+            {/if}
+          </h2>
         </div>
         <div class="section-content">
+          <!-- Individual Category Rankings -->
           {#each categories as category}
             {@const categoryRankings = getCategoryRankings(category.id)}
             <div style="margin-bottom: 2rem;">
@@ -897,6 +959,50 @@
                   </thead>
                   <tbody>
                     {#each categoryRankings as ranking}
+                      <tr>
+                        <td>
+                          <span style="font-size: 1.2rem; font-weight: 600;">
+                            {ranking.rank_position === 1 ? '🥇' : ranking.rank_position === 2 ? '🥈' : ranking.rank_position === 3 ? '🥉' : `${ranking.rank_position}.`}
+                          </span>
+                        </td>
+                        <td>
+                          <div>
+                            <div style="font-weight: 600; color: #ff3e00;">#{ranking.entry?.entry_number}</div>
+                            <div style="font-size: 0.875rem;">{ranking.entry?.beer_name || 'No name'}</div>
+                          </div>
+                        </td>
+                        <td>{ranking.judge?.name}</td>
+                        <td>{ranking.ranking_notes || '-'}</td>
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
+              {/if}
+            </div>
+          {/each}
+          
+          <!-- Custom Ranking Group Rankings -->
+          {#each rankingGroups as group}
+            {@const groupRankings = getGroupRankings(group.id)}
+            <div style="margin-bottom: 2rem;">
+              <h4>{group.group_name}</h4>
+              {#if group.group_description}
+                <p style="color: #666; font-size: 0.875rem; margin-bottom: 1rem;">{group.group_description}</p>
+              {/if}
+              {#if groupRankings.length === 0}
+                <p style="color: #666; font-style: italic;">No rankings submitted yet</p>
+              {:else}
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Entry</th>
+                      <th>Judge</th>
+                      <th>Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {#each groupRankings as ranking}
                       <tr>
                         <td>
                           <span style="font-size: 1.2rem; font-weight: 600;">
