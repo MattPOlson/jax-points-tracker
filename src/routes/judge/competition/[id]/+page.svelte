@@ -627,12 +627,15 @@
     .nav-buttons {
       flex-direction: column;
       gap: 0.75rem;
+      padding: 0 0.5rem;
     }
 
-    .nav-btn {
+    .nav-btn,
+    a.nav-btn {
       width: 100%;
       flex: none;
       margin: 0;
+      box-sizing: border-box;
     }
 
     .total-score-value {
@@ -641,42 +644,90 @@
 
     .notes-textarea {
       padding: 0.6rem;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0;
+    }
+
+    .notes-grid {
+      padding: 0;
+    }
+
+    .notes-item {
+      width: 100%;
+      padding: 0;
     }
   }
 
   @media (max-width: 480px) {
+    .judging-container {
+      padding: 0.25rem;
+    }
+
     .score-grid {
       grid-template-columns: 1fr;
     }
 
     .header {
       padding: 1rem;
+      margin-bottom: 0.5rem;
     }
 
     .entry-card {
       padding: 1rem;
+      margin: 0;
     }
 
     .nav-buttons {
       gap: 0.5rem;
+      padding: 0.25rem;
+      margin-top: 1rem;
     }
 
-    .nav-btn {
+    .nav-btn,
+    a.nav-btn {
       padding: 0.875rem 1.25rem;
       font-size: 0.9rem;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0;
     }
 
     .notes-textarea {
-      padding: 0.5rem;
+      padding: 0.75rem;
       font-size: 0.9rem;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0;
+      min-height: 100px;
     }
 
     .notes-grid {
       gap: 1rem;
+      padding: 0;
+      margin: 0;
     }
 
     .notes-item {
       margin-bottom: 0.5rem;
+      padding: 0;
+      width: 100%;
+    }
+
+    .notes-label {
+      margin-bottom: 0.5rem;
+      padding: 0 0.25rem;
+    }
+
+    /* Ensure consistent spacing */
+    .scoring-section,
+    .notes-section {
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      padding: 0 0.25rem;
+      margin-bottom: 0.75rem;
     }
   }
 </style>
