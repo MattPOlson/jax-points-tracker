@@ -1123,8 +1123,7 @@
                           </tr>
                         </thead>
                         <tbody>
-                          {@const uniqueEntries = getUniqueEntriesFromRankings(groupRankings)}
-                          {#each uniqueEntries
+                          {#each getUniqueEntriesFromRankings(groupRankings)
                             .map(entry => ({ ...entry, summary: getEntryPointsSummary(entry.id, entry.bjcp_category_id, group.id) }))
                             .sort((a, b) => b.summary.totalPoints - a.summary.totalPoints) as entry, index}
                             <tr>
@@ -1227,8 +1226,7 @@
                           </tr>
                         </thead>
                         <tbody>
-                          {@const uniqueEntries = getUniqueEntriesFromRankings(categoryRankings)}
-                          {#each uniqueEntries
+                          {#each getUniqueEntriesFromRankings(categoryRankings)
                             .map(entry => ({ ...entry, summary: getEntryPointsSummary(entry.id, category.id, null) }))
                             .sort((a, b) => b.summary.totalPoints - a.summary.totalPoints) as entry, index}
                             <tr>
