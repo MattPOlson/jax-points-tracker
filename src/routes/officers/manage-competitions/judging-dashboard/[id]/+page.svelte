@@ -1073,86 +1073,85 @@
                       </p>
                     </div>
                   {/if}
-                  <table class="data-table">
-                    <thead>
-                      <tr>
-                        <th>Rank</th>
-                        <th>Entry</th>
-                        <th>Points</th>
-                        <th>Judge</th>
-                        <th>Notes</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {#each groupRankings as ranking}
-                        {@const entryPoints = getPointsForRanking(ranking.rank_position)}
+                  {#if hasMultipleJudges(groupRankings)}
+                    <!-- Show compiled results for multiple judges -->
+                    <table class="data-table">
+                      <thead>
                         <tr>
-                          <td>
-                            <span style="font-size: 1.2rem; font-weight: 600;">
-                              {ranking.rank_position === 1 ? '🥇' : ranking.rank_position === 2 ? '🥈' : ranking.rank_position === 3 ? '🥉' : `${ranking.rank_position}.`}
-                            </span>
-                          </td>
-                          <td>
-                            <div>
-                              <div style="font-weight: 600; color: #ff3e00;">#{ranking.entry?.entry_number}</div>
-                              <div style="font-size: 0.875rem;">{ranking.entry?.beer_name || 'No name'}</div>
-                            </div>
-                          </td>
-                          <td>
-                            <span style="font-weight: 600; color: {entryPoints > 0 ? '#059669' : '#666'};">
-                              {entryPoints} {entryPoints === 1 ? 'pt' : 'pts'}
-                            </span>
-                          </td>
-                          <td>{ranking.judge?.name}</td>
-                          <td>{ranking.ranking_notes || '-'}</td>
+                          <th>Rank</th>
+                          <th>Entry</th>
+                          <th>Total Points</th>
+                          <th>Judges</th>
                         </tr>
-                      {/each}
-                    </tbody>
-                  </table>
-                  
-                  {#if groupRankings.length > 1 && hasMultipleJudges(groupRankings)}
-                    <div style="margin-top: 2rem; padding-top: 1rem; border-top: 2px solid #e5e7eb;">
-                      <h5 style="color: #333; margin-bottom: 1rem;">📊 Total Points Summary</h5>
-                      <table class="data-table">
-                        <thead>
+                      </thead>
+                      <tbody>
+                        {#each getUniqueEntriesFromRankings(groupRankings)
+                          .map(entry => ({ ...entry, summary: getEntryPointsSummary(entry.id, entry.bjcp_category_id, group.id) }))
+                          .sort((a, b) => b.summary.totalPoints - a.summary.totalPoints) as entry, index}
                           <tr>
-                            <th>Final Rank</th>
-                            <th>Entry</th>
-                            <th>Total Points</th>
-                            <th>Judges</th>
+                            <td>
+                              <span style="font-size: 1.2rem; font-weight: 600;">
+                                {index + 1 === 1 ? '🥇' : index + 1 === 2 ? '🥈' : index + 1 === 3 ? '🥉' : `${index + 1}.`}
+                              </span>
+                            </td>
+                            <td>
+                              <div>
+                                <div style="font-weight: 600; color: #ff3e00;">#{entry.entry_number}</div>
+                                <div style="font-size: 0.875rem;">{entry.beer_name || 'No name'}</div>
+                              </div>
+                            </td>
+                            <td>
+                              <span style="font-weight: 700; font-size: 1.1rem; color: #059669;">
+                                {entry.summary.totalPoints} {entry.summary.totalPoints === 1 ? 'pt' : 'pts'}
+                              </span>
+                            </td>
+                            <td>
+                              <span style="color: #666;">
+                                {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'}
+                              </span>
+                            </td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          {#each getUniqueEntriesFromRankings(groupRankings)
-                            .map(entry => ({ ...entry, summary: getEntryPointsSummary(entry.id, entry.bjcp_category_id, group.id) }))
-                            .sort((a, b) => b.summary.totalPoints - a.summary.totalPoints) as entry, index}
-                            <tr>
-                              <td>
-                                <span style="font-size: 1.1rem; font-weight: 600;">
-                                  {index + 1 === 1 ? '🥇' : index + 1 === 2 ? '🥈' : index + 1 === 3 ? '🥉' : `${index + 1}.`}
-                                </span>
-                              </td>
-                              <td>
-                                <div>
-                                  <div style="font-weight: 600; color: #ff3e00;">#{entry.entry_number}</div>
-                                  <div style="font-size: 0.875rem;">{entry.beer_name || 'No name'}</div>
-                                </div>
-                              </td>
-                              <td>
-                                <span style="font-weight: 700; font-size: 1.1rem; color: #059669;">
-                                  {entry.summary.totalPoints} {entry.summary.totalPoints === 1 ? 'pt' : 'pts'}
-                                </span>
-                              </td>
-                              <td>
-                                <span style="color: #666;">
-                                  {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'}
-                                </span>
-                              </td>
-                            </tr>
-                          {/each}
-                        </tbody>
-                      </table>
-                    </div>
+                        {/each}
+                      </tbody>
+                    </table>
+                  {:else}
+                    <!-- Show individual rankings for single judge -->
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Rank</th>
+                          <th>Entry</th>
+                          <th>Points</th>
+                          <th>Judge</th>
+                          <th>Notes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {#each groupRankings as ranking}
+                          {@const entryPoints = getPointsForRanking(ranking.rank_position)}
+                          <tr>
+                            <td>
+                              <span style="font-size: 1.2rem; font-weight: 600;">
+                                {ranking.rank_position === 1 ? '🥇' : ranking.rank_position === 2 ? '🥈' : ranking.rank_position === 3 ? '🥉' : `${ranking.rank_position}.`}
+                              </span>
+                            </td>
+                            <td>
+                              <div>
+                                <div style="font-weight: 600; color: #ff3e00;">#{ranking.entry?.entry_number}</div>
+                                <div style="font-size: 0.875rem;">{ranking.entry?.beer_name || 'No name'}</div>
+                              </div>
+                            </td>
+                            <td>
+                              <span style="font-weight: 600; color: {entryPoints > 0 ? '#059669' : '#666'};">
+                                {entryPoints} {entryPoints === 1 ? 'pt' : 'pts'}
+                              </span>
+                            </td>
+                            <td>{ranking.judge?.name}</td>
+                            <td>{ranking.ranking_notes || '-'}</td>
+                          </tr>
+                        {/each}
+                      </tbody>
+                    </table>
                   {/if}
                 {/if}
               </div>
@@ -1176,86 +1175,85 @@
                       </p>
                     </div>
                   {/if}
-                  <table class="data-table">
-                    <thead>
-                      <tr>
-                        <th>Rank</th>
-                        <th>Entry</th>
-                        <th>Points</th>
-                        <th>Judge</th>
-                        <th>Notes</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {#each categoryRankings as ranking}
-                        {@const entryPoints = getPointsForRanking(ranking.rank_position)}
+                  {#if hasMultipleJudges(categoryRankings)}
+                    <!-- Show compiled results for multiple judges -->
+                    <table class="data-table">
+                      <thead>
                         <tr>
-                          <td>
-                            <span style="font-size: 1.2rem; font-weight: 600;">
-                              {ranking.rank_position === 1 ? '🥇' : ranking.rank_position === 2 ? '🥈' : ranking.rank_position === 3 ? '🥉' : `${ranking.rank_position}.`}
-                            </span>
-                          </td>
-                          <td>
-                            <div>
-                              <div style="font-weight: 600; color: #ff3e00;">#{ranking.entry?.entry_number}</div>
-                              <div style="font-size: 0.875rem;">{ranking.entry?.beer_name || 'No name'}</div>
-                            </div>
-                          </td>
-                          <td>
-                            <span style="font-weight: 600; color: {entryPoints > 0 ? '#059669' : '#666'};">
-                              {entryPoints} {entryPoints === 1 ? 'pt' : 'pts'}
-                            </span>
-                          </td>
-                          <td>{ranking.judge?.name}</td>
-                          <td>{ranking.ranking_notes || '-'}</td>
+                          <th>Rank</th>
+                          <th>Entry</th>
+                          <th>Total Points</th>
+                          <th>Judges</th>
                         </tr>
-                      {/each}
-                    </tbody>
-                  </table>
-                  
-                  {#if categoryRankings.length > 1 && hasMultipleJudges(categoryRankings)}
-                    <div style="margin-top: 2rem; padding-top: 1rem; border-top: 2px solid #e5e7eb;">
-                      <h5 style="color: #333; margin-bottom: 1rem;">📊 Total Points Summary</h5>
-                      <table class="data-table">
-                        <thead>
+                      </thead>
+                      <tbody>
+                        {#each getUniqueEntriesFromRankings(categoryRankings)
+                          .map(entry => ({ ...entry, summary: getEntryPointsSummary(entry.id, category.id, null) }))
+                          .sort((a, b) => b.summary.totalPoints - a.summary.totalPoints) as entry, index}
                           <tr>
-                            <th>Final Rank</th>
-                            <th>Entry</th>
-                            <th>Total Points</th>
-                            <th>Judges</th>
+                            <td>
+                              <span style="font-size: 1.2rem; font-weight: 600;">
+                                {index + 1 === 1 ? '🥇' : index + 1 === 2 ? '🥈' : index + 1 === 3 ? '🥉' : `${index + 1}.`}
+                              </span>
+                            </td>
+                            <td>
+                              <div>
+                                <div style="font-weight: 600; color: #ff3e00;">#{entry.entry_number}</div>
+                                <div style="font-size: 0.875rem;">{entry.beer_name || 'No name'}</div>
+                              </div>
+                            </td>
+                            <td>
+                              <span style="font-weight: 700; font-size: 1.1rem; color: #059669;">
+                                {entry.summary.totalPoints} {entry.summary.totalPoints === 1 ? 'pt' : 'pts'}
+                              </span>
+                            </td>
+                            <td>
+                              <span style="color: #666;">
+                                {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'}
+                              </span>
+                            </td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          {#each getUniqueEntriesFromRankings(categoryRankings)
-                            .map(entry => ({ ...entry, summary: getEntryPointsSummary(entry.id, category.id, null) }))
-                            .sort((a, b) => b.summary.totalPoints - a.summary.totalPoints) as entry, index}
-                            <tr>
-                              <td>
-                                <span style="font-size: 1.1rem; font-weight: 600;">
-                                  {index + 1 === 1 ? '🥇' : index + 1 === 2 ? '🥈' : index + 1 === 3 ? '🥉' : `${index + 1}.`}
-                                </span>
-                              </td>
-                              <td>
-                                <div>
-                                  <div style="font-weight: 600; color: #ff3e00;">#{entry.entry_number}</div>
-                                  <div style="font-size: 0.875rem;">{entry.beer_name || 'No name'}</div>
-                                </div>
-                              </td>
-                              <td>
-                                <span style="font-weight: 700; font-size: 1.1rem; color: #059669;">
-                                  {entry.summary.totalPoints} {entry.summary.totalPoints === 1 ? 'pt' : 'pts'}
-                                </span>
-                              </td>
-                              <td>
-                                <span style="color: #666;">
-                                  {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'}
-                                </span>
-                              </td>
-                            </tr>
-                          {/each}
-                        </tbody>
-                      </table>
-                    </div>
+                        {/each}
+                      </tbody>
+                    </table>
+                  {:else}
+                    <!-- Show individual rankings for single judge -->
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Rank</th>
+                          <th>Entry</th>
+                          <th>Points</th>
+                          <th>Judge</th>
+                          <th>Notes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {#each categoryRankings as ranking}
+                          {@const entryPoints = getPointsForRanking(ranking.rank_position)}
+                          <tr>
+                            <td>
+                              <span style="font-size: 1.2rem; font-weight: 600;">
+                                {ranking.rank_position === 1 ? '🥇' : ranking.rank_position === 2 ? '🥈' : ranking.rank_position === 3 ? '🥉' : `${ranking.rank_position}.`}
+                              </span>
+                            </td>
+                            <td>
+                              <div>
+                                <div style="font-weight: 600; color: #ff3e00;">#{ranking.entry?.entry_number}</div>
+                                <div style="font-size: 0.875rem;">{ranking.entry?.beer_name || 'No name'}</div>
+                              </div>
+                            </td>
+                            <td>
+                              <span style="font-weight: 600; color: {entryPoints > 0 ? '#059669' : '#666'};">
+                                {entryPoints} {entryPoints === 1 ? 'pt' : 'pts'}
+                              </span>
+                            </td>
+                            <td>{ranking.judge?.name}</td>
+                            <td>{ranking.ranking_notes || '-'}</td>
+                          </tr>
+                        {/each}
+                      </tbody>
+                    </table>
                   {/if}
                 {/if}
               </div>
