@@ -148,9 +148,7 @@
       const { data: resultsData, error: resultsError } = await supabase
         .from('competition_results')
         .select('*')
-        .eq('competition_id', competition.id)
-        .order('placement', { ascending: true, nullsLast: true })
-        .order('score', { ascending: false });
+        .eq('competition_id', competition.id);
 
       if (resultsError) throw resultsError;
 
@@ -279,20 +277,71 @@
     }
   }
 
-  // Group results by category or ranking group
-  $: resultsByCategory = results.reduce((acc, result) => {
-    const groupKey = result.display_group;
-    if (!acc[groupKey]) {
-      acc[groupKey] = [];
-    }
-    acc[groupKey].push(result);
-    return acc;
-  }, {});
+  // Calculate placement based on ranking points within each category/group
+  function calculateRankingBasedPlacement(results) {
+    const resultsByGroup = results.reduce((acc, result) => {
+      const groupKey = result.display_group;
+      if (!acc[groupKey]) {
+        acc[groupKey] = [];
+      }
+      acc[groupKey].push(result);
+      return acc;
+    }, {});
 
-  // Get awards summary
+    // Sort each group by ranking points (descending) then by score as tiebreaker
+    Object.keys(resultsByGroup).forEach(groupKey => {
+      resultsByGroup[groupKey].sort((a, b) => {
+        if (b.ranking_points !== a.ranking_points) {
+          return b.ranking_points - a.ranking_points;
+        }
+        // Tiebreaker: use score
+        return (b.score || 0) - (a.score || 0);
+      });
+
+      // Assign placement based on ranking points position
+      let currentRank = 1;
+      let previousPoints = null;
+      let sameRankCount = 0;
+
+      resultsByGroup[groupKey].forEach((result, index) => {
+        if (previousPoints !== null && result.ranking_points < previousPoints) {
+          currentRank = index + 1;
+          sameRankCount = 0;
+        } else if (previousPoints !== null && result.ranking_points === previousPoints) {
+          sameRankCount++;
+        }
+
+        // Only assign placement if there are ranking points
+        if (result.ranking_points > 0) {
+          if (currentRank === 1) {
+            result.calculated_placement = '1';
+          } else if (currentRank === 2) {
+            result.calculated_placement = '2';
+          } else if (currentRank === 3) {
+            result.calculated_placement = '3';
+          } else if (currentRank <= 6) { // Top 6 get honorable mention
+            result.calculated_placement = 'HM';
+          } else {
+            result.calculated_placement = '';
+          }
+        } else {
+          result.calculated_placement = '';
+        }
+
+        previousPoints = result.ranking_points;
+      });
+    });
+
+    return resultsByGroup;
+  }
+
+  // Group results by category or ranking group and calculate ranking-based placements
+  $: resultsByCategory = calculateRankingBasedPlacement(results);
+
+  // Get awards summary based on calculated placements
   $: awardsSummary = {
     totalEntries: results.length,
-    placedEntries: results.filter(r => r.placement && r.placement !== '').length,
+    placedEntries: results.filter(r => r.calculated_placement && r.calculated_placement !== '').length,
     categories: Object.keys(resultsByCategory).length,
     averageScore: results.length > 0 
       ? Math.round((results.reduce((sum, r) => sum + (r.score || 0), 0) / results.length) * 10) / 10
@@ -775,10 +824,10 @@
                       {/if}
                     </td>
                     <td>
-                      {#if result.placement}
-                        <span class="placement-badge {getPlacementDisplay(result.placement).class}">
-                          <span>{getPlacementDisplay(result.placement).medal}</span>
-                          <span>{getPlacementDisplay(result.placement).text}</span>
+                      {#if result.calculated_placement}
+                        <span class="placement-badge {getPlacementDisplay(result.calculated_placement).class}">
+                          <span>{getPlacementDisplay(result.calculated_placement).medal}</span>
+                          <span>{getPlacementDisplay(result.calculated_placement).text}</span>
                         </span>
                       {:else}
                         <span class="placement-badge placement-none">No Placement</span>
