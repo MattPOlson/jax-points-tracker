@@ -395,10 +395,7 @@
           score: Math.round(finalScore),
           placement: placement,
           judge_notes: allNotes || null,
-          updated_at: new Date().toISOString(),
-          // Add debugging info (can be removed later)
-          debug_points: entry.compilation.totalPoints,
-          debug_judge_count: entry.compilation.judgeCount
+          updated_at: new Date().toISOString()
         });
       });
     }
@@ -1082,12 +1079,14 @@
                           <th>Entry</th>
                           <th>Total Points</th>
                           <th>Judges</th>
+                          <th>Placement</th>
                         </tr>
                       </thead>
                       <tbody>
                         {#each getUniqueEntriesFromRankings(groupRankings)
                           .map(entry => ({ ...entry, summary: getEntryPointsSummary(entry.id, entry.bjcp_category_id, group.id) }))
                           .sort((a, b) => b.summary.totalPoints - a.summary.totalPoints) as entry, index}
+                          {@const placement = index + 1 === 1 ? '1st' : index + 1 === 2 ? '2nd' : index + 1 === 3 ? '3rd' : index + 1 <= 5 ? 'HM' : '-'}
                           <tr>
                             <td>
                               <span style="font-size: 1.2rem; font-weight: 600;">
@@ -1108,6 +1107,11 @@
                             <td>
                               <span style="color: #666;">
                                 {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'}
+                              </span>
+                            </td>
+                            <td>
+                              <span style="font-weight: 600; color: {placement === '1st' ? '#d4af37' : placement === '2nd' ? '#c0c0c0' : placement === '3rd' ? '#cd7f32' : placement === 'HM' ? '#059669' : '#666'};">
+                                {placement}
                               </span>
                             </td>
                           </tr>
@@ -1184,12 +1188,14 @@
                           <th>Entry</th>
                           <th>Total Points</th>
                           <th>Judges</th>
+                          <th>Placement</th>
                         </tr>
                       </thead>
                       <tbody>
                         {#each getUniqueEntriesFromRankings(categoryRankings)
                           .map(entry => ({ ...entry, summary: getEntryPointsSummary(entry.id, category.id, null) }))
                           .sort((a, b) => b.summary.totalPoints - a.summary.totalPoints) as entry, index}
+                          {@const placement = index + 1 === 1 ? '1st' : index + 1 === 2 ? '2nd' : index + 1 === 3 ? '3rd' : index + 1 <= 5 ? 'HM' : '-'}
                           <tr>
                             <td>
                               <span style="font-size: 1.2rem; font-weight: 600;">
@@ -1210,6 +1216,11 @@
                             <td>
                               <span style="color: #666;">
                                 {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'}
+                              </span>
+                            </td>
+                            <td>
+                              <span style="font-weight: 600; color: {placement === '1st' ? '#d4af37' : placement === '2nd' ? '#c0c0c0' : placement === '3rd' ? '#cd7f32' : placement === 'HM' ? '#059669' : '#666'};">
+                                {placement}
                               </span>
                             </td>
                           </tr>
