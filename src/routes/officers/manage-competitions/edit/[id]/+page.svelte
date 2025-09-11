@@ -69,14 +69,12 @@
         .from('competitions')
         .select(`
           *,
-          competition_categories (
-            category_id,
-            category_name
-          ),
           competition_ranking_groups (
             id,
-            name,
-            category_ids
+            group_name,
+            group_description,
+            bjcp_category_ids,
+            group_order
           )
         `)
         .eq('id', competitionId)
@@ -103,19 +101,24 @@
         hideJudgingDate = data.hide_judging_date ?? false;
         
         // Load category system settings
-        if (data.competition_categories && data.competition_categories.length > 0) {
-          categorySystem = 'custom';
-          selectedCategories = data.competition_categories.map(cc => cc.category_id);
+        categorySystem = data.category_system || 'default';
+        
+        if (categorySystem === 'custom' && data.category_restrictions) {
+          selectedCategories = Array.isArray(data.category_restrictions) 
+            ? data.category_restrictions 
+            : JSON.parse(data.category_restrictions);
           
           if (data.competition_ranking_groups && data.competition_ranking_groups.length > 0) {
             rankingGroups = data.competition_ranking_groups.map(rg => ({
               id: rg.id,
-              name: rg.name,
-              categoryIds: rg.category_ids
+              name: rg.group_name,
+              description: rg.group_description || '',
+              categories: Array.isArray(rg.bjcp_category_ids) 
+                ? rg.bjcp_category_ids 
+                : JSON.parse(rg.bjcp_category_ids)
             }));
           }
         } else {
-          categorySystem = 'default';
           selectedCategories = [];
           rankingGroups = [];
         }
@@ -192,7 +195,7 @@
     isSubmitting = true;
     
     try {
-      // Update basic competition data
+      // Update basic competition data including category system
       const basicUpdates = {
         name: name.trim(),
         description: description.trim() || null,
@@ -202,53 +205,37 @@
         max_entries_per_member: maxEntriesPerMember,
         active: isActive,
         hide_judging_date: hideJudgingDate,
-        category_system: categorySystem
+        category_system: categorySystem,
+        category_restrictions: categorySystem === 'custom' && selectedCategories.length > 0 
+          ? selectedCategories 
+          : null
       };
       
       await updateCompetition(competitionId, basicUpdates);
       
-      // Handle category system updates if not disabled due to existing entries
+      // Handle ranking group updates if not disabled due to existing entries
       if (!hasEntries) {
-        // Remove existing category assignments and ranking groups
-        await supabase
-          .from('competition_categories')
-          .delete()
-          .eq('competition_id', competitionId);
-          
+        // Remove existing ranking groups
         await supabase
           .from('competition_ranking_groups')
           .delete()
           .eq('competition_id', competitionId);
         
-        // Add new category assignments for custom system
-        if (categorySystem === 'custom' && selectedCategories.length > 0) {
-          const categoryData = selectedCategories.map(categoryId => ({
+        // Add new ranking groups for custom system
+        if (categorySystem === 'custom' && rankingGroups.length > 0) {
+          const groupData = rankingGroups.map((group, index) => ({
             competition_id: competitionId,
-            category_id: categoryId,
-            category_name: $bjcpCategories.find(c => c.id === categoryId)?.category_name || 'Unknown'
+            group_name: group.name,
+            group_description: group.description || null,
+            bjcp_category_ids: group.categories,
+            group_order: index + 1
           }));
           
-          const { error: categoryError } = await supabase
-            .from('competition_categories')
-            .insert(categoryData);
+          const { error: groupError } = await supabase
+            .from('competition_ranking_groups')
+            .insert(groupData);
             
-          if (categoryError) throw categoryError;
-          
-          // Add ranking groups if any
-          if (rankingGroups.length > 0) {
-            const groupData = rankingGroups.map((group, index) => ({
-              competition_id: competitionId,
-              name: group.name,
-              category_ids: group.categoryIds,
-              group_order: index + 1
-            }));
-            
-            const { error: groupError } = await supabase
-              .from('competition_ranking_groups')
-              .insert(groupData);
-              
-            if (groupError) throw groupError;
-          }
+          if (groupError) throw groupError;
         }
       }
       
