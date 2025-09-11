@@ -277,7 +277,7 @@
     }
   }
 
-  // Calculate placement based on ranking points within each category/group
+  // Calculate placement based on ranking points within each category/group, with score fallback
   function calculateRankingBasedPlacement(results) {
     const resultsByGroup = results.reduce((acc, result) => {
       const groupKey = result.display_group;
@@ -288,48 +288,88 @@
       return acc;
     }, {});
 
-    // Sort each group by ranking points (descending) then by score as tiebreaker
+    // Process each group
     Object.keys(resultsByGroup).forEach(groupKey => {
-      resultsByGroup[groupKey].sort((a, b) => {
-        if (b.ranking_points !== a.ranking_points) {
-          return b.ranking_points - a.ranking_points;
-        }
-        // Tiebreaker: use score
-        return (b.score || 0) - (a.score || 0);
-      });
+      const groupResults = resultsByGroup[groupKey];
+      
+      // Check if any entries in this group have ranking points
+      const hasRankingPoints = groupResults.some(result => result.ranking_points > 0);
 
-      // Assign placement based on ranking points position
-      let currentRank = 1;
-      let previousPoints = null;
-      let sameRankCount = 0;
+      if (hasRankingPoints) {
+        // Use ranking points system
+        groupResults.sort((a, b) => {
+          if (b.ranking_points !== a.ranking_points) {
+            return b.ranking_points - a.ranking_points;
+          }
+          // Tiebreaker: use score
+          return (b.score || 0) - (a.score || 0);
+        });
 
-      resultsByGroup[groupKey].forEach((result, index) => {
-        if (previousPoints !== null && result.ranking_points < previousPoints) {
-          currentRank = index + 1;
-          sameRankCount = 0;
-        } else if (previousPoints !== null && result.ranking_points === previousPoints) {
-          sameRankCount++;
-        }
+        // Assign placement based on ranking points position
+        let currentRank = 1;
+        let previousPoints = null;
 
-        // Only assign placement if there are ranking points
-        if (result.ranking_points > 0) {
-          if (currentRank === 1) {
-            result.calculated_placement = '1';
-          } else if (currentRank === 2) {
-            result.calculated_placement = '2';
-          } else if (currentRank === 3) {
-            result.calculated_placement = '3';
-          } else if (currentRank <= 6) { // Top 6 get honorable mention
-            result.calculated_placement = 'HM';
+        groupResults.forEach((result, index) => {
+          if (previousPoints !== null && result.ranking_points < previousPoints) {
+            currentRank = index + 1;
+          }
+
+          // Only assign placement if there are ranking points
+          if (result.ranking_points > 0) {
+            if (currentRank === 1) {
+              result.calculated_placement = '1';
+            } else if (currentRank === 2) {
+              result.calculated_placement = '2';
+            } else if (currentRank === 3) {
+              result.calculated_placement = '3';
+            } else if (currentRank <= 6) { // Top 6 get honorable mention
+              result.calculated_placement = 'HM';
+            } else {
+              result.calculated_placement = '';
+            }
           } else {
             result.calculated_placement = '';
           }
-        } else {
-          result.calculated_placement = '';
-        }
 
-        previousPoints = result.ranking_points;
-      });
+          previousPoints = result.ranking_points;
+        });
+      } else {
+        // Fallback to score-based system when no ranking points exist
+        groupResults.sort((a, b) => {
+          return (b.score || 0) - (a.score || 0);
+        });
+
+        // Assign placement based on score position
+        let currentRank = 1;
+        let previousScore = null;
+
+        groupResults.forEach((result, index) => {
+          const currentScore = result.score || 0;
+          
+          if (previousScore !== null && currentScore < previousScore) {
+            currentRank = index + 1;
+          }
+
+          // Assign placement based on score (only for entries with scores > 0)
+          if (currentScore > 0) {
+            if (currentRank === 1) {
+              result.calculated_placement = '1';
+            } else if (currentRank === 2) {
+              result.calculated_placement = '2';
+            } else if (currentRank === 3) {
+              result.calculated_placement = '3';
+            } else if (currentRank <= 6) { // Top 6 get honorable mention
+              result.calculated_placement = 'HM';
+            } else {
+              result.calculated_placement = '';
+            }
+          } else {
+            result.calculated_placement = '';
+          }
+
+          previousScore = currentScore;
+        });
+      }
     });
 
     return resultsByGroup;
