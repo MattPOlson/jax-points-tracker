@@ -5,6 +5,9 @@
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
   import { competitionManagementStore, updateCompetition } from '$lib/stores/competitionManagementStore';
+  import { bjcpCategories, categoriesByNumber, loadBjcpCategories } from '$lib/stores/bjcpCategoryStore';
+  import CategorySelector from '$lib/components/CategorySelector.svelte';
+  import RankingGroupManager from '$lib/components/RankingGroupManager.svelte';
   import { supabase } from '$lib/supabaseClient';
   
   // Check officer status
@@ -27,12 +30,20 @@
   let isActive = true;
   let hideJudgingDate = false;
   
+  // Category system settings
+  let categorySystem = 'default'; // 'default' or 'custom'
+  let selectedCategories = []; // Array of selected category IDs for custom system
+  let rankingGroups = []; // Array of ranking groups for custom system
+  
   let isLoading = true;
   let isSubmitting = false;
   let validationErrors = {};
   let competition = null;
 
-  onMount(() => {
+  onMount(async () => {
+    // Load BJCP categories for category selection
+    await loadBjcpCategories();
+    
     loadCompetition();
     setupEventHandlers();
   });
@@ -56,7 +67,18 @@
     try {
       const { data, error } = await supabase
         .from('competitions')
-        .select('*')
+        .select(`
+          *,
+          competition_categories (
+            category_id,
+            category_name
+          ),
+          competition_ranking_groups (
+            id,
+            name,
+            category_ids
+          )
+        `)
         .eq('id', competitionId)
         .single();
       
@@ -79,6 +101,24 @@
         maxEntriesPerMember = data.max_entries_per_member || 5;
         isActive = data.active ?? true;
         hideJudgingDate = data.hide_judging_date ?? false;
+        
+        // Load category system settings
+        if (data.competition_categories && data.competition_categories.length > 0) {
+          categorySystem = 'custom';
+          selectedCategories = data.competition_categories.map(cc => cc.category_id);
+          
+          if (data.competition_ranking_groups && data.competition_ranking_groups.length > 0) {
+            rankingGroups = data.competition_ranking_groups.map(rg => ({
+              id: rg.id,
+              name: rg.name,
+              categoryIds: rg.category_ids
+            }));
+          }
+        } else {
+          categorySystem = 'default';
+          selectedCategories = [];
+          rankingGroups = [];
+        }
       }
     } catch (err) {
       console.error('Error loading competition:', err);
@@ -151,19 +191,67 @@
     
     isSubmitting = true;
     
-    const updates = {
-      name: name.trim(),
-      description: description.trim() || null,
-      entry_deadline: `${entryDeadline}T${entryDeadlineTime}:00`,
-      judging_date: `${judgingDate}T${judgingDateTime}:00`,
-      entry_fee: entryFee,
-      max_entries_per_member: maxEntriesPerMember,
-      active: isActive,
-      hide_judging_date: hideJudgingDate
-    };
-    
     try {
-      await updateCompetition(competitionId, updates);
+      // Update basic competition data
+      const basicUpdates = {
+        name: name.trim(),
+        description: description.trim() || null,
+        entry_deadline: `${entryDeadline}T${entryDeadlineTime}:00`,
+        judging_date: `${judgingDate}T${judgingDateTime}:00`,
+        entry_fee: entryFee,
+        max_entries_per_member: maxEntriesPerMember,
+        active: isActive,
+        hide_judging_date: hideJudgingDate,
+        category_system: categorySystem
+      };
+      
+      await updateCompetition(competitionId, basicUpdates);
+      
+      // Handle category system updates if not disabled due to existing entries
+      if (!hasEntries) {
+        // Remove existing category assignments and ranking groups
+        await supabase
+          .from('competition_categories')
+          .delete()
+          .eq('competition_id', competitionId);
+          
+        await supabase
+          .from('competition_ranking_groups')
+          .delete()
+          .eq('competition_id', competitionId);
+        
+        // Add new category assignments for custom system
+        if (categorySystem === 'custom' && selectedCategories.length > 0) {
+          const categoryData = selectedCategories.map(categoryId => ({
+            competition_id: competitionId,
+            category_id: categoryId,
+            category_name: $bjcpCategories.find(c => c.id === categoryId)?.category_name || 'Unknown'
+          }));
+          
+          const { error: categoryError } = await supabase
+            .from('competition_categories')
+            .insert(categoryData);
+            
+          if (categoryError) throw categoryError;
+          
+          // Add ranking groups if any
+          if (rankingGroups.length > 0) {
+            const groupData = rankingGroups.map((group, index) => ({
+              competition_id: competitionId,
+              name: group.name,
+              category_ids: group.categoryIds,
+              group_order: index + 1
+            }));
+            
+            const { error: groupError } = await supabase
+              .from('competition_ranking_groups')
+              .insert(groupData);
+              
+            if (groupError) throw groupError;
+          }
+        }
+      }
+      
       goto('/officers/manage-competitions');
     } catch (error) {
       console.error('Error updating competition:', error);
@@ -497,6 +585,56 @@
       align-items: flex-start;
       gap: 1rem;
     }
+    
+    .custom-category-section {
+      padding: 1rem;
+    }
+  }
+  
+  /* Radio Group Styles */
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .radio-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .radio-option:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+  }
+  
+  .radio-option:has(input:checked) {
+    border-color: #ff3e00;
+    background: #fff5f5;
+  }
+  
+  .radio-label {
+    flex: 1;
+  }
+  
+  .radio-description {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 0.25rem;
+  }
+  
+  .custom-category-section {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
   }
 </style>
 
@@ -675,6 +813,73 @@
             </div>
           </div>
         </div>
+
+        <!-- Category System -->
+        <div class="section-title">Category System</div>
+        
+        <div class="form-group">
+          <label>Ranking System</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input
+                type="radio"
+                bind:group={categorySystem}
+                value="default"
+                disabled={isSubmitting || hasEntries}
+              />
+              <span class="radio-label">
+                <strong>Default BJCP System</strong>
+                <div class="radio-description">
+                  Allow all BJCP categories, rank each category individually
+                </div>
+              </span>
+            </label>
+            
+            <label class="radio-option">
+              <input
+                type="radio"
+                bind:group={categorySystem}
+                value="custom"
+                disabled={isSubmitting || hasEntries}
+              />
+              <span class="radio-label">
+                <strong>Custom Category System</strong>
+                <div class="radio-description">
+                  Select specific categories and create custom ranking groups
+                </div>
+              </span>
+            </label>
+          </div>
+          {#if hasEntries}
+            <div class="help-text">Cannot change after entries submitted</div>
+          {/if}
+        </div>
+        
+        {#if categorySystem === 'custom'}
+          <div class="custom-category-section">
+            <CategorySelector
+              bind:selectedCategories
+              disabled={hasEntries}
+              on:change={() => {
+                // Reset ranking groups when categories change
+                if (!hasEntries) {
+                  rankingGroups = [];
+                }
+              }}
+            />
+            
+            {#if selectedCategories.length > 0}
+              <div style="margin-top: 1.5rem;">
+                <RankingGroupManager
+                  bind:rankingGroups
+                  {selectedCategories}
+                  disabled={hasEntries}
+                  on:change={() => {}}
+                />
+              </div>
+            {/if}
+          </div>
+        {/if}
 
         <!-- Status -->
         <div class="section-title">Status</div>
