@@ -28,6 +28,64 @@
   // Results tracking
   let resultsData = new Map();
 
+  // Helper functions for ranking points calculation
+  function getPointsForRanking(rankPosition) {
+    // Point system: 1st=3pts, 2nd=2pts, 3rd=1pt, others=0pts
+    switch (rankPosition) {
+      case 1: return 3;
+      case 2: return 2;
+      case 3: return 1;
+      default: return 0;
+    }
+  }
+
+  function calculateEntryPoints(entryId, categoryId, rankings, rankingGroups) {
+    // Get all rankings for this entry from all judges
+    let entryRankings = [];
+    
+    // Check if entry belongs to a custom ranking group
+    let groupId = null;
+    for (const group of rankingGroups) {
+      let categoryIds;
+      try {
+        categoryIds = Array.isArray(group.bjcp_category_ids) 
+          ? group.bjcp_category_ids 
+          : JSON.parse(group.bjcp_category_ids);
+      } catch (e) {
+        console.warn('Failed to parse bjcp_category_ids for group:', group.id);
+        continue;
+      }
+      
+      if (categoryIds.includes(categoryId)) {
+        groupId = group.id;
+        break;
+      }
+    }
+    
+    if (groupId) {
+      // For custom ranking groups
+      entryRankings = rankings.filter(r => 
+        r.entry_id === entryId && r.ranking_group_id === groupId
+      );
+    } else {
+      // For individual categories
+      entryRankings = rankings.filter(r => 
+        r.entry_id === entryId && r.bjcp_category_id === categoryId
+      );
+    }
+
+    // Calculate total points from all judges
+    const totalPoints = entryRankings.reduce((sum, ranking) => {
+      return sum + getPointsForRanking(ranking.rank_position);
+    }, 0);
+
+    return {
+      totalPoints,
+      judgeCount: entryRankings.length,
+      rankings: entryRankings
+    };
+  }
+
   onMount(() => {
     loadCompetitionAndEntries();
     setupEventHandlers();
@@ -100,11 +158,39 @@
         console.warn('No existing results found:', resultsError);
       }
 
+      // Load rankings data
+      const { data: rankingsData, error: rankingsError } = await supabase
+        .from('competition_rankings')
+        .select(`
+          *,
+          entry:competition_entries!inner(id, entry_number, beer_name),
+          judge:members!competition_rankings_judge_id_fkey(id, name),
+          category:bjcp_categories(category_name, category_number, subcategory_letter),
+          ranking_group:competition_ranking_groups(id, group_name, group_description)
+        `)
+        .eq('competition_id', competitionId)
+        .order('bjcp_category_id')
+        .order('rank_position');
+
+      const rankings = rankingsData || [];
+
+      // Load ranking groups for custom category system
+      const { data: groupsData, error: groupsError } = await supabase
+        .from('competition_ranking_groups')
+        .select('*')
+        .eq('competition_id', competitionId)
+        .order('group_order');
+
+      const rankingGroups = groupsData || [];
+
       // Combine all data manually
       entries = entriesData.map(entry => {
         const member = membersData?.find(m => m.id === entry.member_id);
         const category = categoriesData?.find(c => c.id === entry.bjcp_category_id);
         const result = resultsData?.find(r => r.entry_id === entry.id);
+
+        // Calculate ranking points for this entry
+        const rankingPoints = calculateEntryPoints(entry.id, entry.bjcp_category_id, rankings, rankingGroups);
 
         return {
           ...entry,
@@ -121,7 +207,10 @@
           score: result?.score || '',
           placement: result?.placement || '',
           judge_notes: result?.judge_notes || '',
-          has_results: !!result
+          has_results: !!result,
+          // Ranking points
+          ranking_points: rankingPoints.totalPoints,
+          judge_count: rankingPoints.judgeCount
         };
       });
 
@@ -807,6 +896,7 @@
               <th>Member</th>
               <th>Beer Name</th>
               <th>Category</th>
+              <th>Ranking Points</th>
               <th>Score</th>
               <th>Placement</th>
               <th>Status</th>
@@ -823,6 +913,14 @@
                 </td>
                 <td>{entry.beer_name || '-'}</td>
                 <td><span class="category-badge">{entry.category_display}</span></td>
+                <td>
+                  <span style="font-weight: 600; color: {entry.ranking_points > 0 ? '#059669' : '#666'};">
+                    {entry.ranking_points} {entry.ranking_points === 1 ? 'pt' : 'pts'}
+                  </span>
+                  {#if entry.judge_count > 0}
+                    <br><small style="color: #666;">{entry.judge_count} judge{entry.judge_count === 1 ? '' : 's'}</small>
+                  {/if}
+                </td>
                 <td>
                   <input
                     type="number"
@@ -888,6 +986,15 @@
               <div><strong>{entry.member_name}</strong></div>
               <div>{entry.beer_name || 'No beer name'}</div>
               <span class="category-badge">{entry.category_display}</span>
+              <div style="margin-top: 0.5rem;">
+                <span style="font-size: 0.875rem; color: #666;">Ranking Points: </span>
+                <span style="font-weight: 600; color: {entry.ranking_points > 0 ? '#059669' : '#666'};">
+                  {entry.ranking_points} {entry.ranking_points === 1 ? 'pt' : 'pts'}
+                </span>
+                {#if entry.judge_count > 0}
+                  <span style="font-size: 0.875rem; color: #666;"> ({entry.judge_count} judge{entry.judge_count === 1 ? '' : 's'})</span>
+                {/if}
+              </div>
             </div>
             <div class="results-inputs">
               <div>
