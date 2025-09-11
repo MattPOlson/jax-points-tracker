@@ -712,6 +712,156 @@
     }
   }
 
+  /* Mobile Card Styles */
+  .results-cards {
+    display: none;
+  }
+
+  .result-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-left: 4px solid #ff3e00;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .entry-info {
+    flex: 1;
+  }
+
+  .entry-number {
+    font-size: 0.875rem;
+    color: #666;
+    font-weight: 500;
+  }
+
+  .beer-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0.25rem 0;
+  }
+
+  .member-name {
+    font-size: 0.875rem;
+    color: #666;
+    margin: 0;
+  }
+
+  .ranking-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+
+  .placement-badge-mobile {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .placement-badge-mobile.placement-1 {
+    background: linear-gradient(135deg, #ffd700, #ffed4a);
+    color: #744210;
+  }
+
+  .placement-badge-mobile.placement-2 {
+    background: linear-gradient(135deg, #c0c0c0, #e2e8f0);
+    color: #4a5568;
+  }
+
+  .placement-badge-mobile.placement-3 {
+    background: linear-gradient(135deg, #cd7f32, #d69e2e);
+    color: #744210;
+  }
+
+  .placement-badge-mobile.placement-none {
+    background: #f7fafc;
+    color: #718096;
+    border: 1px solid #e2e8f0;
+  }
+
+  .card-details {
+    border-top: 1px solid #f1f5f9;
+    padding-top: 1rem;
+  }
+
+  .detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .detail-item {
+    text-align: center;
+  }
+
+  .detail-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+  }
+
+  .detail-value {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .judge-notes-mobile {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .notes-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .notes-text {
+    font-size: 0.875rem;
+    color: #333;
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  /* Responsive visibility */
+  @media (max-width: 768px) {
+    .desktop-view {
+      display: none;
+    }
+
+    .mobile-view {
+      display: block;
+    }
+  }
+
   @media (max-width: 480px) {
     .container {
       padding: 0.5rem;
@@ -725,10 +875,24 @@
       grid-template-columns: 1fr;
     }
 
-    .results-table {
-      overflow-x: auto;
-      display: block;
-      white-space: nowrap;
+    .result-card {
+      padding: 0.75rem;
+    }
+
+    .detail-row {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+    }
+
+    .detail-label {
+      margin-bottom: 0;
     }
   }
 </style>
@@ -828,7 +992,9 @@
             <div class="category-header">
               <h3 class="category-title">{categoryName}</h3>
             </div>
-            <table class="results-table">
+            
+            <!-- Desktop Table View -->
+            <table class="results-table desktop-view">
               <thead>
                 <tr>
                   <th>Entry</th>
@@ -884,6 +1050,63 @@
                 {/each}
               </tbody>
             </table>
+
+            <!-- Mobile Card View -->
+            <div class="results-cards mobile-view">
+              {#each categoryResults as result}
+                <div class="result-card">
+                  <div class="card-header">
+                    <div class="entry-info">
+                      <span class="entry-number">#{result.entry_number}</span>
+                      <h4 class="beer-name">{result.beer_name}</h4>
+                      <p class="member-name">{result.member_name}</p>
+                    </div>
+                    <div class="ranking-info">
+                      {#if result.calculated_placement}
+                        <div class="placement-badge-mobile {getPlacementDisplay(result.calculated_placement).class}">
+                          <span class="medal">{getPlacementDisplay(result.calculated_placement).medal}</span>
+                          <span class="placement-text">{getPlacementDisplay(result.calculated_placement).text}</span>
+                        </div>
+                      {:else}
+                        <div class="placement-badge-mobile placement-none">No Placement</div>
+                      {/if}
+                    </div>
+                  </div>
+                  
+                  <div class="card-details">
+                    <div class="detail-row">
+                      <div class="detail-item">
+                        <span class="detail-label">Points</span>
+                        <span class="detail-value" style="color: {result.ranking_points > 0 ? '#059669' : '#666'}; font-weight: 600;">
+                          {result.ranking_points} {result.ranking_points === 1 ? 'pt' : 'pts'}
+                        </span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Score</span>
+                        <span class="detail-value">
+                          {#if result.score}
+                            {result.score}/50
+                          {:else}
+                            -/50
+                          {/if}
+                        </span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Judges</span>
+                        <span class="detail-value">{result.judge_count}</span>
+                      </div>
+                    </div>
+                    
+                    {#if result.judge_notes}
+                      <div class="judge-notes-mobile">
+                        <span class="notes-label">Judge Notes</span>
+                        <p class="notes-text">{result.judge_notes}</p>
+                      </div>
+                    {/if}
+                  </div>
+                </div>
+              {/each}
+            </div>
           </div>
         {/each}
       {/if}
