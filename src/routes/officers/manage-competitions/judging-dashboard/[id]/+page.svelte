@@ -757,6 +757,150 @@
     100% { transform: rotate(360deg); }
   }
 
+  /* Mobile Cards */
+  .mobile-cards {
+    display: none;
+  }
+
+  .mobile-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #ff3e00;
+  }
+
+  .mobile-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .mobile-card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+
+  .mobile-card-subtitle {
+    font-size: 0.875rem;
+    color: #666;
+    margin: 0.25rem 0 0;
+  }
+
+  .mobile-card-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .mobile-card-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 6px;
+  }
+
+  .mobile-detail-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-detail-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .mobile-detail-value {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .mobile-progress {
+    margin-top: 1rem;
+  }
+
+  .mobile-progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #374151;
+  }
+
+  .mobile-progress-bar {
+    background: #e5e7eb;
+    border-radius: 8px;
+    height: 8px;
+    overflow: hidden;
+  }
+
+  .mobile-progress-fill {
+    background: linear-gradient(90deg, #ff3e00, #059669);
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.3s ease;
+  }
+
+  .mobile-ranking-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    border: 1px solid #e5e7eb;
+  }
+
+  .mobile-ranking-position {
+    font-size: 1.5rem;
+    font-weight: 600;
+    min-width: 2rem;
+    text-align: center;
+  }
+
+  .mobile-ranking-entry {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mobile-ranking-entry-number {
+    font-weight: 600;
+    color: #ff3e00;
+    font-size: 1.1rem;
+  }
+
+  .mobile-ranking-beer-name {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+  }
+
+  .mobile-ranking-points {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #059669;
+    text-align: right;
+    min-width: fit-content;
+  }
+
   /* Mobile responsiveness */
   @media (max-width: 768px) {
     .dashboard-container {
@@ -788,6 +932,42 @@
     .tab-btn {
       flex: 1;
       text-align: center;
+    }
+
+    .data-table {
+      display: none;
+    }
+
+    .mobile-cards {
+      display: block;
+    }
+
+    .mobile-card-details {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .mobile-card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Ensure tables are hidden on mobile */
+  @media (min-width: 769px) {
+    .mobile-cards {
+      display: none;
+    }
+    
+    .data-table {
+      display: table;
     }
   }
 </style>
@@ -975,6 +1155,45 @@
               {/each}
             </tbody>
           </table>
+
+          <!-- Mobile Cards for Judges -->
+          <div class="mobile-cards">
+            {#each judges as judge}
+              {@const progress = getJudgeProgress(judge.judge_id)}
+              <div class="mobile-card">
+                <div class="mobile-card-header">
+                  <div>
+                    <h3 class="mobile-card-title">{judge.judge?.name}</h3>
+                    <div class="mobile-card-subtitle">{judge.judge?.email}</div>
+                  </div>
+                  <div class="mobile-card-badge" style="background: #e5e7eb; color: #374151;">
+                    {judge.judge_role.replace('_', ' ')}
+                  </div>
+                </div>
+                
+                <div class="mobile-card-details">
+                  <div class="mobile-detail-item">
+                    <span class="mobile-detail-label">Assigned</span>
+                    <span class="mobile-detail-value">{formatDate(judge.assigned_at)}</span>
+                  </div>
+                  <div class="mobile-detail-item">
+                    <span class="mobile-detail-label">Completed</span>
+                    <span class="mobile-detail-value">{progress.completed} / {progress.total}</span>
+                  </div>
+                </div>
+
+                <div class="mobile-progress">
+                  <div class="mobile-progress-label">
+                    <span>Progress</span>
+                    <span>{progress.percentage}%</span>
+                  </div>
+                  <div class="mobile-progress-bar">
+                    <div class="mobile-progress-fill" style="width: {progress.percentage}%"></div>
+                  </div>
+                </div>
+              </div>
+            {/each}
+          </div>
         </div>
 
       {:else if selectedView === 'entries'}
@@ -1034,6 +1253,65 @@
               {/each}
             </tbody>
           </table>
+
+          <!-- Mobile Cards for Entries -->
+          <div class="mobile-cards">
+            {#each entries as entry}
+              {@const scores = getEntryScores(entry.id)}
+              <div class="mobile-card">
+                <div class="mobile-card-header">
+                  <div>
+                    <h3 class="mobile-card-title">#{entry.entry_number}</h3>
+                    <div class="mobile-card-subtitle">{entry.beer_name || 'No name'}</div>
+                  </div>
+                  <div class="mobile-card-badge" style="background: {scores.count === judges.length ? '#dcfce7' : scores.count > 0 ? '#fef3c7' : '#fee2e2'}; color: {scores.count === judges.length ? '#059669' : scores.count > 0 ? '#f59e0b' : '#dc2626'};">
+                    {scores.count === judges.length ? 'Complete' : scores.count > 0 ? 'Partial' : 'Pending'}
+                  </div>
+                </div>
+                
+                <div class="mobile-card-details">
+                  <div class="mobile-detail-item">
+                    <span class="mobile-detail-label">Brewer</span>
+                    <span class="mobile-detail-value">{entry.members?.name}</span>
+                  </div>
+                  <div class="mobile-detail-item">
+                    <span class="mobile-detail-label">Category</span>
+                    <span class="mobile-detail-value">
+                      {#if entry.bjcp_categories}
+                        {entry.bjcp_categories.category_number}{entry.bjcp_categories.subcategory_letter || ''}
+                      {:else}
+                        Unknown
+                      {/if}
+                    </span>
+                  </div>
+                  <div class="mobile-detail-item">
+                    <span class="mobile-detail-label">Judges</span>
+                    <span class="mobile-detail-value">{scores.count} / {judges.length}</span>
+                  </div>
+                  <div class="mobile-detail-item">
+                    <span class="mobile-detail-label">Score</span>
+                    <span class="mobile-detail-value">
+                      {#if scores.count > 0}
+                        <span style="background: {getScoreColor(scores.average)}; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem;">
+                          {scores.average}/50
+                        </span>
+                      {:else}
+                        <span style="color: #666;">Not scored</span>
+                      {/if}
+                    </span>
+                  </div>
+                </div>
+
+                {#if entry.bjcp_categories?.category_name}
+                  <div style="margin-top: 0.5rem; padding: 0.5rem; background: #f3f4f6; border-radius: 4px;">
+                    <div style="font-size: 0.875rem; color: #666;">
+                      {entry.bjcp_categories.category_name}
+                    </div>
+                  </div>
+                {/if}
+              </div>
+            {/each}
+          </div>
         </div>
 
       {:else if selectedView === 'rankings'}
@@ -1270,6 +1548,156 @@
               </div>
             {/each}
           {/if}
+
+          <!-- Mobile Rankings -->
+          <div class="mobile-cards">
+            {#if competition?.category_system === 'custom' && rankingGroups.length > 0}
+              <!-- Custom Ranking Groups Mobile -->
+              {#each rankingGroups as group}
+                {@const groupRankings = getGroupRankings(group.id)}
+                <div class="mobile-card">
+                  <div class="mobile-card-header">
+                    <div>
+                      <h3 class="mobile-card-title">{group.group_name}</h3>
+                      {#if group.group_description}
+                        <div class="mobile-card-subtitle">{group.group_description}</div>
+                      {/if}
+                    </div>
+                    <div class="mobile-card-badge" style="background: #e5e7eb; color: #374151;">
+                      {getGroupEntryCount(group)} entries
+                    </div>
+                  </div>
+
+                  {#if groupRankings.length === 0}
+                    <div style="padding: 1rem; text-align: center; color: #666; font-style: italic;">
+                      No rankings submitted yet
+                    </div>
+                  {:else}
+                    {#if groupRankings.length > 1 && hasMultipleJudges(groupRankings)}
+                      <div style="background: #dcfce7; border: 1px solid #22c55e; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; font-size: 0.875rem; color: #166534;">
+                        ✅ Multi-Judge Point Compilation - {new Set(groupRankings.map(r => r.judge_id)).size} judges
+                      </div>
+                    {/if}
+
+                    <div style="margin-top: 1rem;">
+                      {#if hasMultipleJudges(groupRankings)}
+                        {#each getUniqueEntriesFromRankings(groupRankings)
+                          .map(entry => ({ ...entry, summary: getEntryPointsSummary(entry.id, entry.bjcp_category_id, group.id) }))
+                          .sort((a, b) => b.summary.totalPoints - a.summary.totalPoints) as entry, index}
+                          {@const placement = index + 1 === 1 ? '1st' : index + 1 === 2 ? '2nd' : index + 1 === 3 ? '3rd' : index + 1 <= 5 ? 'HM' : '-'}
+                          <div class="mobile-ranking-item">
+                            <div class="mobile-ranking-position">
+                              {index + 1 === 1 ? '🥇' : index + 1 === 2 ? '🥈' : index + 1 === 3 ? '🥉' : `${index + 1}.`}
+                            </div>
+                            <div class="mobile-ranking-entry">
+                              <div class="mobile-ranking-entry-number">#{entry.entry_number}</div>
+                              <div class="mobile-ranking-beer-name">{entry.beer_name || 'No name'}</div>
+                              <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
+                                {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'} • {placement}
+                              </div>
+                            </div>
+                            <div class="mobile-ranking-points">
+                              {entry.summary.totalPoints} {entry.summary.totalPoints === 1 ? 'pt' : 'pts'}
+                            </div>
+                          </div>
+                        {/each}
+                      {:else}
+                        {#each groupRankings as ranking}
+                          {@const entryPoints = getPointsForRanking(ranking.rank_position)}
+                          <div class="mobile-ranking-item">
+                            <div class="mobile-ranking-position">
+                              {ranking.rank_position === 1 ? '🥇' : ranking.rank_position === 2 ? '🥈' : ranking.rank_position === 3 ? '🥉' : `${ranking.rank_position}.`}
+                            </div>
+                            <div class="mobile-ranking-entry">
+                              <div class="mobile-ranking-entry-number">#{ranking.entry?.entry_number}</div>
+                              <div class="mobile-ranking-beer-name">{ranking.entry?.beer_name || 'No name'}</div>
+                              <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
+                                {ranking.judge?.name}{#if ranking.ranking_notes} • {ranking.ranking_notes}{/if}
+                              </div>
+                            </div>
+                            <div class="mobile-ranking-points">
+                              {entryPoints} {entryPoints === 1 ? 'pt' : 'pts'}
+                            </div>
+                          </div>
+                        {/each}
+                      {/if}
+                    </div>
+                  {/if}
+                </div>
+              {/each}
+            {:else}
+              <!-- Individual Categories Mobile -->
+              {#each categories as category}
+                {@const categoryRankings = getCategoryRankings(category.id)}
+                <div class="mobile-card">
+                  <div class="mobile-card-header">
+                    <div>
+                      <h3 class="mobile-card-title">{category.name}</h3>
+                    </div>
+                    <div class="mobile-card-badge" style="background: #e5e7eb; color: #374151;">
+                      {category.entryCount} entries
+                    </div>
+                  </div>
+
+                  {#if categoryRankings.length === 0}
+                    <div style="padding: 1rem; text-align: center; color: #666; font-style: italic;">
+                      No rankings submitted yet
+                    </div>
+                  {:else}
+                    {#if categoryRankings.length > 1 && hasMultipleJudges(categoryRankings)}
+                      <div style="background: #dcfce7; border: 1px solid #22c55e; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; font-size: 0.875rem; color: #166534;">
+                        ✅ Multi-Judge Point Compilation - {new Set(categoryRankings.map(r => r.judge_id)).size} judges
+                      </div>
+                    {/if}
+
+                    <div style="margin-top: 1rem;">
+                      {#if hasMultipleJudges(categoryRankings)}
+                        {#each getUniqueEntriesFromRankings(categoryRankings)
+                          .map(entry => ({ ...entry, summary: getEntryPointsSummary(entry.id, category.id, null) }))
+                          .sort((a, b) => b.summary.totalPoints - a.summary.totalPoints) as entry, index}
+                          {@const placement = index + 1 === 1 ? '1st' : index + 1 === 2 ? '2nd' : index + 1 === 3 ? '3rd' : index + 1 <= 5 ? 'HM' : '-'}
+                          <div class="mobile-ranking-item">
+                            <div class="mobile-ranking-position">
+                              {index + 1 === 1 ? '🥇' : index + 1 === 2 ? '🥈' : index + 1 === 3 ? '🥉' : `${index + 1}.`}
+                            </div>
+                            <div class="mobile-ranking-entry">
+                              <div class="mobile-ranking-entry-number">#{entry.entry_number}</div>
+                              <div class="mobile-ranking-beer-name">{entry.beer_name || 'No name'}</div>
+                              <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
+                                {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'} • {placement}
+                              </div>
+                            </div>
+                            <div class="mobile-ranking-points">
+                              {entry.summary.totalPoints} {entry.summary.totalPoints === 1 ? 'pt' : 'pts'}
+                            </div>
+                          </div>
+                        {/each}
+                      {:else}
+                        {#each categoryRankings as ranking}
+                          {@const entryPoints = getPointsForRanking(ranking.rank_position)}
+                          <div class="mobile-ranking-item">
+                            <div class="mobile-ranking-position">
+                              {ranking.rank_position === 1 ? '🥇' : ranking.rank_position === 2 ? '🥈' : ranking.rank_position === 3 ? '🥉' : `${ranking.rank_position}.`}
+                            </div>
+                            <div class="mobile-ranking-entry">
+                              <div class="mobile-ranking-entry-number">#{ranking.entry?.entry_number}</div>
+                              <div class="mobile-ranking-beer-name">{ranking.entry?.beer_name || 'No name'}</div>
+                              <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
+                                {ranking.judge?.name}{#if ranking.ranking_notes} • {ranking.ranking_notes}{/if}
+                              </div>
+                            </div>
+                            <div class="mobile-ranking-points">
+                              {entryPoints} {entryPoints === 1 ? 'pt' : 'pts'}
+                            </div>
+                          </div>
+                        {/each}
+                      {/if}
+                    </div>
+                  {/if}
+                </div>
+              {/each}
+            {/if}
+          </div>
         </div>
       {/if}
     </div>
