@@ -438,21 +438,25 @@
   .hero {
     text-align: center;
     margin-bottom: 3rem;
+    padding: 3rem 1rem;
   }
 
   .hero h1 {
     color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 4rem;
+    font-size: 3.5rem;
     font-weight: 100;
-    margin: 0 0 0.25em;
-    line-height: 1.1;
+    text-transform: uppercase;
+    margin: 0 0 1rem 0;
+    letter-spacing: 3px;
   }
 
-  .hero .subtitle {
+  .hero p {
     font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
+    color: #666;
+    margin: 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .competition-selector {
@@ -683,6 +687,10 @@
   @media (max-width: 768px) {
     .hero h1 {
       font-size: 2.5rem;
+      letter-spacing: 2px;
+    }
+    .hero {
+      padding: 2rem 1rem;
     }
 
     .competition-grid {
@@ -901,7 +909,7 @@
   <!-- Hero Section -->
   <div class="hero">
     <h1>Competition Results</h1>
-    <p class="subtitle">View published competition results and standings</p>
+    <p>View published competition results and standings</p>
   </div>
 
   <!-- Controls -->

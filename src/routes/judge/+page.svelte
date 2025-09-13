@@ -113,24 +113,26 @@
 
   .hero {
     text-align: center;
-    margin-bottom: 2rem;
-    padding: 2rem 1rem;
-    background: linear-gradient(135deg, #ff3e00 0%, #e63600 100%);
-    color: white;
-    border-radius: 12px;
+    margin-bottom: 3rem;
+    padding: 3rem 1rem;
   }
 
   .hero h1 {
-    font-size: 2.5rem;
+    color: #ff3e00;
+    font-size: 3.5rem;
     font-weight: 100;
-    margin: 0 0 0.5rem;
     text-transform: uppercase;
+    margin: 0 0 1rem 0;
+    letter-spacing: 3px;
   }
 
   .hero p {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+    color: #666;
     margin: 0;
-    opacity: 0.9;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .loading, .error-state, .empty-state {
@@ -338,7 +340,11 @@
   /* Mobile optimizations */
   @media (max-width: 768px) {
     .hero h1 {
-      font-size: 2rem;
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+    }
+    .hero {
+      padding: 2rem 1rem;
     }
     
     .competition-details {
@@ -356,12 +362,8 @@
       padding: 0.5rem;
     }
     
-    .hero {
-      padding: 1.5rem 1rem;
-    }
-    
     .hero h1 {
-      font-size: 1.75rem;
+      font-size: 2rem;
     }
     
     .competition-card {
