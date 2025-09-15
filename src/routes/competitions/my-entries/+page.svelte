@@ -1977,5 +1977,4 @@
     opacity: 0.5;
     display: block;
   }
-}
 </style>
