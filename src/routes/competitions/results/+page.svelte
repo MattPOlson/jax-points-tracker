@@ -448,8 +448,14 @@
         .select(`
           *,
           judge:members!competition_judging_sessions_judge_id_fkey(id, name),
-          entry:competition_entries(id, entry_number, beer_name, member_id, bjcp_category_id),
-          category:bjcp_categories(id, category_name, category_number, subcategory_letter, subcategory_name)
+          entry:competition_entries(
+            id, 
+            entry_number, 
+            beer_name, 
+            member_id, 
+            bjcp_category_id,
+            category:bjcp_categories(id, category_name, category_number, subcategory_letter, subcategory_name)
+          )
         `)
         .eq('entry_id', entryId)
         .eq('competition_id', selectedCompetition.id);
@@ -463,7 +469,7 @@
 
       selectedScoresheet = {
         entry: sessions[0].entry,
-        category: sessions[0].category,
+        category: sessions[0].entry?.category,
         sessions: sessions.map(session => ({
           id: session.id,
           judge: session.judge,
