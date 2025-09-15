@@ -25,6 +25,7 @@
     categoriesByNumber,
     loadCompetitionData,
   } from "$lib/stores/bjcpCategoryStore.js";
+  import { supabase } from "$lib/supabaseClient.js";
 
   // =============================================
   // Component Lifecycle
@@ -44,6 +45,14 @@
   };
   let saving = false;
   let saveError = null;
+
+  // =============================================
+  // Scoresheet Modal State
+  // =============================================
+  let showScoresheetModal = false;
+  let selectedScoresheet = null;
+  let loadingScoresheet = false;
+  let scoresheetError = null;
 
   // =============================================
   // Competition Filter State
@@ -358,6 +367,123 @@
       printWindow.print();
       printWindow.close();
     }, 250);
+  }
+
+  // =============================================
+  // Scoresheet Functions
+  // =============================================
+  
+  // Load scoresheet data for user's own entry (with security check)
+  async function loadScoresheetData(entry) {
+    loadingScoresheet = true;
+    scoresheetError = null;
+    selectedScoresheet = null;
+
+    try {
+      console.log('Loading scoresheet for my entry:', entry.id);
+      
+      // Security check: ensure the entry belongs to the current user
+      if (entry.member_id !== $userProfile?.id) {
+        throw new Error('You can only view scoresheets for your own entries.');
+      }
+      
+      // Get judging sessions for this entry
+      const { data: sessions, error: sessionsError } = await supabase
+        .from('competition_judging_sessions')
+        .select(`
+          *,
+          judge:members!competition_judging_sessions_judge_id_fkey(id, name),
+          entry:competition_entries!inner(
+            id, 
+            entry_number, 
+            beer_name, 
+            member_id, 
+            bjcp_category_id,
+            category:bjcp_categories(id, category_name, category_number, subcategory_letter, subcategory_name)
+          )
+        `)
+        .eq('entry_id', entry.id)
+        .eq('competition_id', entry.competition_id)
+        .eq('entry.member_id', $userProfile.id); // Additional security check
+
+      if (sessionsError) throw sessionsError;
+
+      if (!sessions || sessions.length === 0) {
+        scoresheetError = 'No scoresheets found for this entry. Results may not be available yet.';
+        showScoresheetModal = true;
+        return;
+      }
+
+      selectedScoresheet = {
+        entry: {
+          id: entry.id,
+          entry_number: entry.entry_number,
+          beer_name: entry.beer_name,
+          member_id: entry.member_id
+        },
+        competition: entry.competition,
+        category: sessions[0].entry?.category,
+        sessions: sessions.map(session => ({
+          id: session.id,
+          judge: session.judge,
+          total_score: session.total_score,
+          judge_notes: session.judge_notes,
+          scoresheet_data: session.scoresheet_data,
+          judged_at: session.judged_at,
+          // Simple scoresheet data (fallback)
+          aroma_score: session.aroma_score,
+          appearance_score: session.appearance_score,
+          flavor_score: session.flavor_score,
+          mouthfeel_score: session.mouthfeel_score,
+          overall_score: session.overall_score
+        }))
+      };
+
+      showScoresheetModal = true;
+
+    } catch (err) {
+      console.error('Error loading scoresheet:', err);
+      scoresheetError = err.message || 'Failed to load scoresheet data';
+      showScoresheetModal = true;
+    } finally {
+      loadingScoresheet = false;
+    }
+  }
+
+  // Close scoresheet modal
+  function closeScoresheetModal() {
+    showScoresheetModal = false;
+    selectedScoresheet = null;
+    scoresheetError = null;
+  }
+
+  // Format date for display
+  function formatDate(dateString) {
+    if (!dateString) return 'Never';
+    try {
+      // Handle space-separated datetime format
+      let isoString = dateString;
+      if (dateString.includes(' ') && !dateString.includes('T')) {
+        isoString = dateString.replace(' ', 'T');
+        if (!isoString.includes('+') && !isoString.includes('Z')) {
+          isoString += 'Z';
+        }
+      }
+
+      const date = new Date(isoString);
+      if (isNaN(date.getTime())) {
+        return 'Invalid Date';
+      }
+
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long', 
+        day: 'numeric'
+      });
+    } catch (error) {
+      return 'Invalid Date';
+    }
   }
 </script>
 
@@ -714,6 +840,21 @@
                           </button>
                         {/if}
 
+                        <!-- View Scoresheet Button (for past competitions) -->
+                        {#if !canEditEntry(entry)}
+                          <button
+                            on:click={() => loadScoresheetData(entry)}
+                            class="scoresheet-button"
+                            disabled={loadingScoresheet}
+                          >
+                            {#if loadingScoresheet}
+                              🔄 Loading...
+                            {:else}
+                              📋 View Scoresheet
+                            {/if}
+                          </button>
+                        {/if}
+
                         <!-- Deadline Warning -->
                         {#if entry.can_edit && entry.days_until_deadline <= 7}
                           <div class="deadline-warning">
@@ -752,6 +893,211 @@
           🗑️ Delete Entry
         </button>
       </div>
+    </div>
+  </div>
+{/if}
+
+<!-- Scoresheet Modal -->
+{#if showScoresheetModal}
+  <div class="modal-overlay" on:click={closeScoresheetModal}>
+    <div class="modal-content scoresheet-modal" on:click|stopPropagation>
+      <div class="modal-header">
+        <h2>📋 Scoresheet Details</h2>
+        <button class="close-button" on:click={closeScoresheetModal}>✕</button>
+      </div>
+
+      {#if loadingScoresheet}
+        <div class="modal-body">
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading scoresheet...</p>
+          </div>
+        </div>
+      {:else if scoresheetError}
+        <div class="modal-body">
+          <div class="error-state">
+            <p class="error-message">{scoresheetError}</p>
+          </div>
+        </div>
+      {:else if selectedScoresheet}
+        <div class="modal-body scoresheet-body">
+          <!-- Entry Information -->
+          <div class="entry-info-header">
+            <h3>Entry #{selectedScoresheet.entry.entry_number}: {selectedScoresheet.entry.beer_name}</h3>
+            <p class="competition-info">Competition: {selectedScoresheet.competition.name}</p>
+            {#if selectedScoresheet.category}
+              <p class="category-info">
+                {selectedScoresheet.category.category_number}{selectedScoresheet.category.subcategory_letter} - {selectedScoresheet.category.category_name}
+                {#if selectedScoresheet.category.subcategory_name}
+                  ({selectedScoresheet.category.subcategory_name})
+                {/if}
+              </p>
+            {/if}
+          </div>
+
+          <!-- Judge Sessions -->
+          {#if selectedScoresheet.sessions && selectedScoresheet.sessions.length > 0}
+            {#each selectedScoresheet.sessions as session, index}
+              <div class="judge-session">
+                <div class="session-header">
+                  <h4>Judge: {session.judge.name}</h4>
+                  <div class="session-meta">
+                    <span class="total-score">Total Score: {session.total_score || 'N/A'}/50</span>
+                    {#if session.judged_at}
+                      <span class="judged-date">
+                        Judged: {formatDate(session.judged_at)}
+                      </span>
+                    {/if}
+                  </div>
+                </div>
+
+                <!-- BJCP Scoresheet Data (if available) -->
+                {#if session.scoresheet_data}
+                  <div class="bjcp-scoresheet">
+                    <h5>📊 BJCP Scoresheet</h5>
+                    
+                    <!-- Score Breakdown -->
+                    <div class="score-grid">
+                      {#if session.scoresheet_data.aroma_score}
+                        <div class="score-item">
+                          <span class="score-label">Aroma</span>
+                          <span class="score-value">{session.scoresheet_data.aroma_score}/12</span>
+                        </div>
+                      {/if}
+                      {#if session.scoresheet_data.appearance_score}
+                        <div class="score-item">
+                          <span class="score-label">Appearance</span>
+                          <span class="score-value">{session.scoresheet_data.appearance_score}/3</span>
+                        </div>
+                      {/if}
+                      {#if session.scoresheet_data.flavor_score}
+                        <div class="score-item">
+                          <span class="score-label">Flavor</span>
+                          <span class="score-value">{session.scoresheet_data.flavor_score}/20</span>
+                        </div>
+                      {/if}
+                      {#if session.scoresheet_data.mouthfeel_score}
+                        <div class="score-item">
+                          <span class="score-label">Mouthfeel</span>
+                          <span class="score-value">{session.scoresheet_data.mouthfeel_score}/5</span>
+                        </div>
+                      {/if}
+                      {#if session.scoresheet_data.overall_score}
+                        <div class="score-item">
+                          <span class="score-label">Overall</span>
+                          <span class="score-value">{session.scoresheet_data.overall_score}/10</span>
+                        </div>
+                      {/if}
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="comments-section">
+                      {#if session.scoresheet_data.aroma_comments}
+                        <div class="comment-item">
+                          <h6>Aroma</h6>
+                          <p>{session.scoresheet_data.aroma_comments}</p>
+                        </div>
+                      {/if}
+                      {#if session.scoresheet_data.appearance_comments}
+                        <div class="comment-item">
+                          <h6>Appearance</h6>
+                          <p>{session.scoresheet_data.appearance_comments}</p>
+                        </div>
+                      {/if}
+                      {#if session.scoresheet_data.flavor_comments}
+                        <div class="comment-item">
+                          <h6>Flavor</h6>
+                          <p>{session.scoresheet_data.flavor_comments}</p>
+                        </div>
+                      {/if}
+                      {#if session.scoresheet_data.mouthfeel_comments}
+                        <div class="comment-item">
+                          <h6>Mouthfeel</h6>
+                          <p>{session.scoresheet_data.mouthfeel_comments}</p>
+                        </div>
+                      {/if}
+                      {#if session.scoresheet_data.overall_comments}
+                        <div class="comment-item">
+                          <h6>Overall Impression</h6>
+                          <p>{session.scoresheet_data.overall_comments}</p>
+                        </div>
+                      {/if}
+                    </div>
+
+                    <!-- Descriptors (if any are selected) -->
+                    {#if session.scoresheet_data.descriptors}
+                      {@const selectedDescriptors = Object.entries(session.scoresheet_data.descriptors).filter(([key, value]) => value)}
+                      {#if selectedDescriptors.length > 0}
+                        <div class="descriptors-section">
+                          <h6>Descriptors</h6>
+                          <div class="descriptor-tags">
+                            {#each selectedDescriptors as [descriptor, _]}
+                              <span class="descriptor-tag">{descriptor.replace('_', ' ')}</span>
+                            {/each}
+                          </div>
+                        </div>
+                      {/if}
+                    {/if}
+                  </div>
+                {:else}
+                  <!-- Simple scoresheet fallback -->
+                  <div class="simple-scoresheet">
+                    <h5>📝 Basic Scoresheet</h5>
+                    <div class="score-grid">
+                      {#if session.aroma_score}
+                        <div class="score-item">
+                          <span class="score-label">Aroma</span>
+                          <span class="score-value">{session.aroma_score}/12</span>
+                        </div>
+                      {/if}
+                      {#if session.appearance_score}
+                        <div class="score-item">
+                          <span class="score-label">Appearance</span>
+                          <span class="score-value">{session.appearance_score}/3</span>
+                        </div>
+                      {/if}
+                      {#if session.flavor_score}
+                        <div class="score-item">
+                          <span class="score-label">Flavor</span>
+                          <span class="score-value">{session.flavor_score}/20</span>
+                        </div>
+                      {/if}
+                      {#if session.mouthfeel_score}
+                        <div class="score-item">
+                          <span class="score-label">Mouthfeel</span>
+                          <span class="score-value">{session.mouthfeel_score}/5</span>
+                        </div>
+                      {/if}
+                      {#if session.overall_score}
+                        <div class="score-item">
+                          <span class="score-label">Overall</span>
+                          <span class="score-value">{session.overall_score}/10</span>
+                        </div>
+                      {/if}
+                    </div>
+                  </div>
+                {/if}
+
+                <!-- Judge Notes -->
+                {#if session.judge_notes}
+                  <div class="judge-notes-section">
+                    <h6>Judge Notes</h6>
+                    <p class="judge-notes-text">{session.judge_notes}</p>
+                  </div>
+                {/if}
+              </div>
+
+              {#if index < selectedScoresheet.sessions.length - 1}
+                <hr class="session-divider">
+              {/if}
+            {/each}
+          {:else}
+            <div class="no-scoresheets">
+              <p>No detailed scoresheets available for this entry.</p>
+            </div>
+          {/if}
+        </div>
+      {/if}
     </div>
   </div>
 {/if}
@@ -1419,5 +1765,217 @@
     .edit-form {
       padding: 1rem;
     }
+
+    .scoresheet-modal {
+      width: 98%;
+      margin: 1rem;
+      max-height: 95vh;
+    }
+
+    .score-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .descriptor-tags {
+      justify-content: center;
+    }
   }
+
+  /* Scoresheet Modal Styles */
+  .scoresheet-modal {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    max-width: 800px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .scoresheet-modal h3 {
+    color: #ff3e00;
+    margin: 0 0 1.5rem 0;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-right: 3rem;
+  }
+
+  .close-scoresheet {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  .close-scoresheet:hover {
+    background: #f3f4f6;
+    color: #333;
+  }
+
+  .scoresheet-button {
+    background: #3b82f6;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .scoresheet-button:hover:not(:disabled) {
+    background: #2563eb;
+  }
+
+  .scoresheet-button:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+  }
+
+  /* Scoresheet Content */
+  .scoresheet-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .scoresheet-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 6px;
+    border-left: 4px solid #ff3e00;
+  }
+
+  .scoresheet-section h4 {
+    color: #ff3e00;
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .score-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+  }
+
+  .score-item .label {
+    font-weight: 600;
+    color: #374151;
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .score-item .value {
+    font-size: 1.2rem;
+    color: #ff3e00;
+    font-weight: 700;
+  }
+
+  .total-score {
+    background: #ff3e00;
+    color: white;
+    padding: 1rem;
+    border-radius: 6px;
+    text-align: center;
+    margin: 1rem 0;
+  }
+
+  .total-score .label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 0.25rem;
+    display: block;
+  }
+
+  .total-score .value {
+    font-size: 2rem;
+    font-weight: 700;
+  }
+
+  .comment-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 1rem;
+  }
+
+  .comment-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .comment-item .label {
+    font-weight: 600;
+    color: #374151;
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .comment-item .text {
+    color: #6b7280;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+
+  .descriptor-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .descriptor-tag {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .no-scoresheet {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+    background: #f9fafb;
+    border-radius: 6px;
+    border: 2px dashed #d1d5db;
+  }
+
+  .no-scoresheet .icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+    display: block;
+  }
+}
 </style>
