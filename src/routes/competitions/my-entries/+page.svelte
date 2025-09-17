@@ -55,9 +55,13 @@
   let scoresheetError = null;
 
   // =============================================
-  // Competition Filter State
+  // Filter State
   // =============================================
   let selectedCompetitionId = "all"; // Default to show all competitions
+  let selectedCategory = "all"; // Filter by BJCP category
+  let selectedAwardFilter = "all"; // Filter by awards: all, medal-winners, specific placements
+  let selectedStatusFilter = "all"; // Filter by active/past: all, active, past
+  let selectedPaymentFilter = "all"; // Filter by payment: all, paid, pending
   
   // =============================================
   // Reactive Variables
@@ -80,7 +84,7 @@
   }
 
   // =============================================
-  // Competition Filtering Logic
+  // Filtering Logic
   // =============================================
 
   // Get unique competitions from entries for dropdown
@@ -97,10 +101,84 @@
     return acc;
   }, []).sort((a, b) => new Date(b.entry_deadline) - new Date(a.entry_deadline));
 
-  // Filter entries by selected competition
-  $: filteredEntries = selectedCompetitionId === "all" 
-    ? $myEntries 
-    : $myEntries.filter(entry => entry.competition.id === selectedCompetitionId);
+  // Get unique categories from entries for dropdown
+  $: availableCategories = $myEntries.reduce((acc, entry) => {
+    if (entry.bjcp_category) {
+      const catNum = entry.bjcp_category.category_number;
+      const catName = entry.bjcp_category.category_name;
+      const key = `${catNum} - ${catName}`;
+      if (!acc.find(c => c.key === key)) {
+        acc.push({
+          key,
+          number: catNum,
+          name: catName
+        });
+      }
+    }
+    return acc;
+  }, []).sort((a, b) => parseInt(a.number) - parseInt(b.number));
+
+  // Apply all filters
+  $: filteredEntries = $myEntries.filter(entry => {
+    // Competition filter
+    if (selectedCompetitionId !== "all" && entry.competition.id !== selectedCompetitionId) {
+      return false;
+    }
+
+    // Category filter
+    if (selectedCategory !== "all" && entry.bjcp_category) {
+      const entryCategory = `${entry.bjcp_category.category_number} - ${entry.bjcp_category.category_name}`;
+      if (entryCategory !== selectedCategory) {
+        return false;
+      }
+    }
+
+    // Award filter
+    if (selectedAwardFilter !== "all") {
+      if (selectedAwardFilter === "medal-winners") {
+        // Only entries with 1st, 2nd, 3rd place, or HM
+        if (!entry.result || !['1', '2', '3', 'HM'].includes(entry.result.placement)) {
+          return false;
+        }
+      } else if (selectedAwardFilter === "1st-place") {
+        if (!entry.result || entry.result.placement !== '1') {
+          return false;
+        }
+      } else if (selectedAwardFilter === "2nd-place") {
+        if (!entry.result || entry.result.placement !== '2') {
+          return false;
+        }
+      } else if (selectedAwardFilter === "3rd-place") {
+        if (!entry.result || entry.result.placement !== '3') {
+          return false;
+        }
+      } else if (selectedAwardFilter === "honorable-mention") {
+        if (!entry.result || entry.result.placement !== 'HM') {
+          return false;
+        }
+      }
+    }
+
+    // Status filter (active vs past competitions)
+    if (selectedStatusFilter !== "all") {
+      if (selectedStatusFilter === "active" && !entry.can_edit) {
+        return false;
+      } else if (selectedStatusFilter === "past" && entry.can_edit) {
+        return false;
+      }
+    }
+
+    // Payment filter
+    if (selectedPaymentFilter !== "all") {
+      if (selectedPaymentFilter === "paid" && !entry.entry_fee_paid) {
+        return false;
+      } else if (selectedPaymentFilter === "pending" && entry.entry_fee_paid) {
+        return false;
+      }
+    }
+
+    return true;
+  });
 
   // Group filtered entries by competition (same logic as original entriesByCompetition)
   $: filteredEntriesByCompetition = filteredEntries.reduce((acc, entry) => {
@@ -504,25 +582,116 @@
     <p>Manage your beer competition submissions</p>
   </section>
 
-  <!-- Competition Filter -->
-  {#if $isLoaded && availableCompetitions.length > 1}
-    <div class="filter-section">
-      <div class="filter-container">
-        <label for="competition-filter" class="filter-label">
-          Filter by Competition:
-        </label>
-        <select 
-          id="competition-filter"
-          bind:value={selectedCompetitionId}
-          class="competition-select"
+  <!-- Filters Section -->
+  {#if $isLoaded && $myEntries.length > 0}
+    <div class="filters-section">
+      <div class="filters-header">
+        <h3>🔍 Filter Entries</h3>
+        <button
+          class="clear-filters-button"
+          on:click={() => {
+            selectedCompetitionId = 'all';
+            selectedCategory = 'all';
+            selectedAwardFilter = 'all';
+            selectedStatusFilter = 'all';
+            selectedPaymentFilter = 'all';
+          }}
+          disabled={selectedCompetitionId === 'all' && selectedCategory === 'all' && selectedAwardFilter === 'all' && selectedStatusFilter === 'all' && selectedPaymentFilter === 'all'}
         >
-          <option value="all">All Competitions ({$myEntries.length})</option>
-          {#each availableCompetitions as competition}
-            <option value={competition.id}>
-              {competition.name} ({filteredEntries.filter(e => e.competition.id === competition.id).length})
-            </option>
-          {/each}
-        </select>
+          ✨ Clear All Filters
+        </button>
+      </div>
+
+      <div class="filters-grid">
+        <!-- Competition Filter -->
+        {#if availableCompetitions.length > 1}
+          <div class="filter-group">
+            <label for="competition-filter" class="filter-label">Competition</label>
+            <select
+              id="competition-filter"
+              bind:value={selectedCompetitionId}
+              class="filter-select"
+            >
+              <option value="all">All Competitions ({$myEntries.length})</option>
+              {#each availableCompetitions as competition}
+                <option value={competition.id}>
+                  {competition.name}
+                </option>
+              {/each}
+            </select>
+          </div>
+        {/if}
+
+        <!-- Category Filter -->
+        {#if availableCategories.length > 1}
+          <div class="filter-group">
+            <label for="category-filter" class="filter-label">BJCP Category</label>
+            <select
+              id="category-filter"
+              bind:value={selectedCategory}
+              class="filter-select"
+            >
+              <option value="all">All Categories</option>
+              {#each availableCategories as category}
+                <option value={category.key}>
+                  {category.key}
+                </option>
+              {/each}
+            </select>
+          </div>
+        {/if}
+
+        <!-- Award Filter -->
+        <div class="filter-group">
+          <label for="award-filter" class="filter-label">Awards</label>
+          <select
+            id="award-filter"
+            bind:value={selectedAwardFilter}
+            class="filter-select"
+          >
+            <option value="all">All Entries</option>
+            <option value="medal-winners">🏅 Medal Winners Only</option>
+            <option value="1st-place">🥇 1st Place</option>
+            <option value="2nd-place">🥈 2nd Place</option>
+            <option value="3rd-place">🥉 3rd Place</option>
+            <option value="honorable-mention">🏅 Honorable Mention</option>
+          </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="filter-group">
+          <label for="status-filter" class="filter-label">Competition Status</label>
+          <select
+            id="status-filter"
+            bind:value={selectedStatusFilter}
+            class="filter-select"
+          >
+            <option value="all">All</option>
+            <option value="active">🟢 Active (Can Edit)</option>
+            <option value="past">🔴 Past (Closed)</option>
+          </select>
+        </div>
+
+        <!-- Payment Filter -->
+        <div class="filter-group">
+          <label for="payment-filter" class="filter-label">Payment Status</label>
+          <select
+            id="payment-filter"
+            bind:value={selectedPaymentFilter}
+            class="filter-select"
+          >
+            <option value="all">All</option>
+            <option value="paid">✅ Paid</option>
+            <option value="pending">⏳ Pending Payment</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Filter Results Summary -->
+      <div class="filter-results">
+        <span class="results-text">
+          Showing {filteredEntries.length} of {$myEntries.length} entries
+        </span>
       </div>
     </div>
   {/if}
@@ -587,7 +756,7 @@
     </div>
 
     <!-- No Entries State -->
-    {#if filteredEntries.length === 0 && selectedCompetitionId === "all"}
+    {#if $myEntries.length === 0}
       <div class="empty-state">
         <h2>📝 No Entries Yet</h2>
         <p>You haven't submitted any competition entries.</p>
@@ -599,17 +768,31 @@
         </button>
       </div>
 
-    <!-- No Entries for Selected Competition -->
-    {:else if filteredEntries.length === 0 && selectedCompetitionId !== "all"}
+    <!-- No Entries Match Filters -->
+    {:else if filteredEntries.length === 0}
       <div class="empty-state">
-        <h2>🔍 No Entries Found</h2>
-        <p>No entries found for the selected competition.</p>
-        <button
-          on:click={() => selectedCompetitionId = "all"}
-          class="secondary-button"
-        >
-          📋 Show All Entries
-        </button>
+        <h2>🔍 No Entries Match Filters</h2>
+        <p>No entries found matching your current filter selection.</p>
+        <div class="empty-state-actions">
+          <button
+            on:click={() => {
+              selectedCompetitionId = 'all';
+              selectedCategory = 'all';
+              selectedAwardFilter = 'all';
+              selectedStatusFilter = 'all';
+              selectedPaymentFilter = 'all';
+            }}
+            class="secondary-button"
+          >
+            ✨ Clear All Filters
+          </button>
+          <button
+            on:click={() => goto("/competitions/submit-entry")}
+            class="primary-button"
+          >
+            ➕ Submit New Entry
+          </button>
+        </div>
       </div>
 
       <!-- Entries List -->
@@ -1135,45 +1318,104 @@
     margin: 0;
   }
 
-  /* Competition Filter */
-  .filter-section {
-    margin-bottom: 2rem;
-  }
-
-  .filter-container {
+  /* Filters Section */
+  .filters-section {
     background: white;
-    padding: 1.5rem;
-    border-radius: 6px;
+    border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-left: 4px solid #ff3e00;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+
+  .filters-header {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-bottom: 1px solid #dee2e6;
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 1rem;
     flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .filters-header h3 {
+    color: #ff3e00;
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .clear-filters-button {
+    background: #6b7280;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+
+  .clear-filters-button:hover:not(:disabled) {
+    background: #4b5563;
+  }
+
+  .clear-filters-button:disabled {
+    background: #d1d5db;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+
+  .filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .filter-label {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    color: #333;
+    color: #374151;
     margin: 0;
   }
 
-  .competition-select {
+  .filter-select {
     padding: 0.75rem 1rem;
-    border: 1px solid #ddd;
+    border: 1px solid #d1d5db;
     border-radius: 6px;
-    font-size: 1rem;
+    font-size: 0.9rem;
     background: white;
     color: #333;
-    min-width: 250px;
     cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
 
-  .competition-select:focus {
+  .filter-select:focus {
     outline: none;
     border-color: #ff3e00;
     box-shadow: 0 0 0 3px rgba(255, 62, 0, 0.1);
+  }
+
+  .filter-results {
+    background: #f8f9fa;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #dee2e6;
+  }
+
+  .results-text {
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 500;
   }
 
   /* Loading and Error States */
@@ -1311,6 +1553,14 @@
   .empty-state h2 {
     color: #ff3e00;
     margin-bottom: 1rem;
+  }
+
+  .empty-state-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
   }
 
   /* Competition Groups */
@@ -1679,15 +1929,19 @@
       font-size: 2rem;
     }
 
-    .filter-container {
+    .filters-header {
       flex-direction: column;
       align-items: flex-start;
-      gap: 0.75rem;
+      gap: 1rem;
     }
 
-    .competition-select {
-      width: 100%;
-      min-width: unset;
+    .filters-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .empty-state-actions {
+      flex-direction: column;
     }
 
     .stats-grid {
