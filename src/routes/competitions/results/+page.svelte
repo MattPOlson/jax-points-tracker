@@ -144,10 +144,10 @@
     try {
       console.log('Loading results for competition:', competition.name);
 
-      // Get competition results with entry details
+      // Get competition results with entry details (excluding judge notes for privacy)
       const { data: resultsData, error: resultsError } = await supabase
         .from('competition_results')
-        .select('*')
+        .select('id, competition_id, entry_id, score, placement, ranking_points, created_at, updated_at')
         .eq('competition_id', competition.id);
 
       if (resultsError) throw resultsError;
@@ -618,12 +618,6 @@
     color: #ff3e00;
   }
 
-  .judge-notes {
-    font-style: italic;
-    color: #666;
-    max-width: 300px;
-    line-height: 1.4;
-  }
 
   .controls {
     display: flex;
@@ -710,9 +704,6 @@
       padding: 0.75rem 0.5rem;
     }
 
-    .judge-notes {
-      max-width: 200px;
-    }
 
     .controls {
       flex-direction: column;
@@ -836,28 +827,6 @@
     color: #333;
   }
 
-  .judge-notes-mobile {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #f1f5f9;
-  }
-
-  .notes-label {
-    display: block;
-    font-size: 0.75rem;
-    color: #666;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
-  }
-
-  .notes-text {
-    font-size: 0.875rem;
-    color: #333;
-    line-height: 1.4;
-    margin: 0;
-  }
 
   /* Responsive visibility */
   @media (max-width: 768px) {
@@ -1012,7 +981,6 @@
                   <th>Ranking Points</th>
                   <th>Score</th>
                   <th>Placement</th>
-                  <th>Judge Notes</th>
                 </tr>
               </thead>
               <tbody>
@@ -1046,13 +1014,6 @@
                         </span>
                       {:else}
                         <span class="placement-badge placement-none">No Placement</span>
-                      {/if}
-                    </td>
-                    <td>
-                      {#if result.judge_notes}
-                        <div class="judge-notes">{result.judge_notes}</div>
-                      {:else}
-                        <span style="color: #999;">No notes</span>
                       {/if}
                     </td>
                   </tr>
@@ -1105,13 +1066,6 @@
                         <span class="detail-value">{result.judge_count}</span>
                       </div>
                     </div>
-                    
-                    {#if result.judge_notes}
-                      <div class="judge-notes-mobile">
-                        <span class="notes-label">Judge Notes</span>
-                        <p class="notes-text">{result.judge_notes}</p>
-                      </div>
-                    {/if}
                   </div>
                 </div>
               {/each}
