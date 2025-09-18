@@ -900,14 +900,6 @@
                             </span>
                           </div>
 
-                          {#if entry.result?.judge_notes}
-                            <div class="info-row">
-                              <span class="label">Judge Notes:</span>
-                              <span class="value"
-                                >{entry.result.judge_notes}</span
-                              >
-                            </div>
-                          {/if}
                         {/if}
                       </div>
 
