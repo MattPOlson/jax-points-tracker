@@ -136,6 +136,10 @@ class CompetitionJudgingStore {
 
   // Start judging session for a judge
   async startJudgingSession(competitionId, judgeId) {
+    // CRITICAL FIX: Always clear the session store when starting a new session
+    // This prevents judge session data leakage between different users
+    this.endSession();
+
     judgingSessionStore.update(store => ({ ...store, loading: true, error: null }));
 
     try {
@@ -165,7 +169,7 @@ class CompetitionJudgingStore {
       const now = new Date();
       const deadline = new Date(competition.entry_deadline);
       const judgingDate = new Date(competition.judging_date);
-      
+
       if (now < deadline) {
         throw new Error('Competition entry deadline has not passed yet');
       }
@@ -183,7 +187,7 @@ class CompetitionJudgingStore {
 
       if (entriesError) throw entriesError;
 
-      // Load existing judging data for this judge
+      // Load existing judging data for this specific judge ONLY
       const { data: existingJudging, error: judgingError } = await supabase
         .from('competition_judging_sessions')
         .select('*')
@@ -191,7 +195,7 @@ class CompetitionJudgingStore {
         .eq('judge_id', judgeId);
 
       if (judgingError) {
-        console.warn('No existing judging sessions found');
+        console.warn('Error loading existing judging sessions:', judgingError);
       }
 
       // Merge judging data with entries

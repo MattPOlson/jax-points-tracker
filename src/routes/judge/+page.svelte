@@ -16,6 +16,12 @@
   let error = null;
 
   onMount(() => {
+    // CRITICAL FIX: Clear any existing sessions that don't belong to current user
+    if ($activeSession.sessionActive && $activeSession.judgeId && $userProfile && $activeSession.judgeId !== $userProfile.id) {
+      console.warn('Clearing session that belongs to different user');
+      competitionJudgingStore.endSession();
+    }
+
     loadJudgeData();
   });
 

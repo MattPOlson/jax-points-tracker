@@ -45,11 +45,18 @@
     }
 
     try {
+      // CRITICAL FIX: Always validate that the current session belongs to the current user
+      // This prevents judges from seeing other judges' sessions
+      if ($isJudging && $activeSession.judgeId !== $userProfile.id) {
+        console.warn('Session mismatch detected - clearing session for security');
+        competitionJudgingStore.endSession();
+      }
+
       // Start or resume judging session
-      if (!$isJudging || $activeSession.activeCompetition?.id !== competitionId) {
+      if (!$isJudging || $activeSession.activeCompetition?.id !== competitionId || $activeSession.judgeId !== $userProfile.id) {
         await competitionJudgingStore.startJudgingSession(competitionId, $userProfile.id);
       }
-      
+
       // Load data for current entry
       loadCurrentEntryData();
     } catch (err) {
