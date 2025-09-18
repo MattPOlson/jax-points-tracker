@@ -147,7 +147,7 @@
       // Get competition results with entry details (excluding judge notes for privacy)
       const { data: resultsData, error: resultsError } = await supabase
         .from('competition_results')
-        .select('id, competition_id, entry_id, score, placement, ranking_points, created_at, updated_at')
+        .select('id, competition_id, entry_id, score, placement, created_at, updated_at')
         .eq('competition_id', competition.id);
 
       if (resultsError) throw resultsError;
