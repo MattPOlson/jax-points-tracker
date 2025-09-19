@@ -717,7 +717,7 @@
                 <span class="deadline">
                   Deadline: {formatDeadline(compGroup.entries[0])}
                 </span>
-                {#if compGroup.competition.active}
+                {#if compGroup.entries.some(entry => entry.can_edit)}
                   <span class="status active">🟢 Active</span>
                 {:else}
                   <span class="status closed">🔴 Closed</span>
