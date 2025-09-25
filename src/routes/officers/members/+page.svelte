@@ -37,6 +37,7 @@
   let memberDetails = null;
   let loadingDetails = false;
   let isUpdatingMember = false;
+  let unsubscribeVisibility = null;
 
   // Role options for promotion/demotion
   const roleOptions = [

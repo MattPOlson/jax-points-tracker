@@ -935,6 +935,125 @@ function printLabels() {
     100% { transform: rotate(360deg); }
   }
 
+  /* Mobile Entry Cards */
+  .entries-cards {
+    display: none;
+  }
+
+  .entry-card {
+    background: white;
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #ff3e00;
+  }
+
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .entry-info h4 {
+    margin: 0;
+    color: #ff3e00;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .entry-info .beer-name {
+    color: #333;
+    font-size: 1rem;
+    margin: 0.25rem 0 0;
+  }
+
+  .entry-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .entry-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f9f9f9;
+    border-radius: 4px;
+  }
+
+  .detail-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .detail-group .label {
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+  }
+
+  .detail-group .value {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .member-info {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f0f9ff;
+    border-radius: 4px;
+    border: 1px solid #bfdbfe;
+  }
+
+  .member-info h5 {
+    margin: 0 0 0.5rem;
+    color: #1d4ed8;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .member-info .name {
+    font-weight: 600;
+    color: #333;
+  }
+
+  .member-info .email {
+    color: #666;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+
+  .payment-status-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    margin-top: 1rem;
+  }
+
+  .category-mobile {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    background: #e5e7eb;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
   /* Mobile styles */
   @media (max-width: 768px) {
     .hero h1 {
@@ -951,15 +1070,44 @@ function printLabels() {
     }
 
     .entries-table {
-      overflow-x: auto;
+      display: none;
     }
 
-    table {
-      min-width: 800px;
+    .entries-cards {
+      display: block;
     }
 
     .info-grid {
       grid-template-columns: 1fr;
+    }
+
+    .entry-details {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .entry-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .entry-actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+
+  /* Ensure table is hidden on mobile */
+  @media (min-width: 769px) {
+    .entries-cards {
+      display: none;
+    }
+    
+    .entries-table {
+      display: block;
     }
   }
 </style>
@@ -1139,6 +1287,65 @@ function printLabels() {
             {/each}
           </tbody>
         </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="entries-cards">
+        {#each filteredEntries as entry}
+          <div class="entry-card">
+            <!-- Header with entry number and actions -->
+            <div class="entry-header">
+              <div class="entry-info">
+                <h4>#{entry.entry_number}</h4>
+                <div class="beer-name">{entry.beer_name || 'No name provided'}</div>
+              </div>
+              <div class="entry-actions">
+                <input 
+                  type="checkbox"
+                  checked={selectedEntries.has(entry.id)}
+                  on:change={() => toggleSelection(entry.id)}
+                />
+              </div>
+            </div>
+
+            <!-- Entry details grid -->
+            <div class="entry-details">
+              <div class="detail-group">
+                <span class="label">Category</span>
+                <div class="value">
+                  <span class="category-mobile">
+                    {entry.bjcp_category?.category_number || ''}{entry.bjcp_category?.subcategory_letter || ''}
+                  </span>
+                  {#if entry.bjcp_category?.category_name}
+                    <br><small style="color: #666; font-size: 0.8rem;">{entry.bjcp_category.category_name}</small>
+                  {/if}
+                </div>
+              </div>
+              <div class="detail-group">
+                <span class="label">Submitted</span>
+                <span class="value">{formatDate(entry.submitted_at)}</span>
+              </div>
+            </div>
+
+            <!-- Member information -->
+            <div class="member-info">
+              <h5>Brewer Information</h5>
+              <div class="name">{entry.members?.name}</div>
+              <div class="email">{entry.members?.email}</div>
+            </div>
+
+            <!-- Payment status with toggle -->
+            <div class="payment-status-mobile">
+              <div class="payment-toggle">
+                <div 
+                  class="toggle-switch {entry.is_paid ? 'active' : ''}"
+                  on:click={() => updatePaymentStatus(entry.id, !entry.is_paid)}
+                ></div>
+                <span>{entry.is_paid ? 'Paid' : 'Unpaid'}</span>
+              </div>
+            </div>
+          </div>
+        {/each}
       </div>
     {/if}
   {/if}

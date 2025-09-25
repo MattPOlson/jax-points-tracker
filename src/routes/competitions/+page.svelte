@@ -4,6 +4,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
   import { userProfile } from '$lib/stores/userProfile.js';
+  import { supabase } from '$lib/supabaseClient.js';
   import { 
     competitions,
     activeCompetitions,
@@ -29,6 +30,7 @@
   // Component State
   // =============================================
   let userEntriesLoaded = false;
+  let hasJudgeAssignments = false;
 
   // =============================================
   // Lifecycle
@@ -42,6 +44,9 @@
       if ($userProfile?.id) {
         await loadMyEntries();
         userEntriesLoaded = true;
+        
+        // Check for judge assignments
+        await checkJudgeAssignments($userProfile.id);
       }
     } catch (err) {
       console.error('Failed to load competition data:', err);
@@ -60,6 +65,23 @@
     goto(path);
   }
 
+  async function checkJudgeAssignments(userId) {
+    try {
+      const { data, error } = await supabase
+        .from('competition_judges')
+        .select('id')
+        .eq('judge_id', userId)
+        .eq('active', true)
+        .limit(1);
+      
+      if (error) throw error;
+      hasJudgeAssignments = data && data.length > 0;
+    } catch (err) {
+      console.error('Failed to check judge assignments:', err);
+      hasJudgeAssignments = false;
+    }
+  }
+
   function getCompetitionStatus(competition) {
     const daysLeft = getDaysUntilDeadline(competition);
     if (daysLeft > 7) {
@@ -69,6 +91,11 @@
     } else {
       return { text: 'Entries closed', class: 'status-closed' };
     }
+  }
+
+  // Reactive statement to check judge assignments when user profile changes
+  $: if ($userProfile?.id && !hasJudgeAssignments) {
+    checkJudgeAssignments($userProfile.id);
   }
 </script>
 
@@ -122,6 +149,18 @@
         </div>
         <div class="card-arrow">→</div>
       </div>
+
+      <!-- Judge Portal Card (only show if user has judge assignments) -->
+      {#if $userProfile && hasJudgeAssignments}
+        <div class="action-card judge-card" on:click={() => navigateTo('/judge')}>
+          <div class="card-icon">⚖️</div>
+          <div class="card-content">
+            <h3>Judge Portal</h3>
+            <p>Access your assigned competitions for judging</p>
+          </div>
+          <div class="card-arrow">→</div>
+        </div>
+      {/if}
 
     </div>
   </section>
@@ -311,6 +350,15 @@
   .action-card.officer {
     border-left-color: #2563eb;
     background: linear-gradient(135deg, #fff 0%, #f6f8ff 100%);
+  }
+
+  .action-card.judge-card {
+    border-left-color: #059669;
+    background: linear-gradient(135deg, #fff 0%, #f0fdf4 100%);
+  }
+
+  .action-card.judge-card:hover {
+    box-shadow: 0 4px 20px rgba(5, 150, 105, 0.2);
   }
 
   .card-icon {

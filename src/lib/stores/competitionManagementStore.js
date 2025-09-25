@@ -204,13 +204,37 @@ export async function loadCompetitionEntries(competitionId) {
 // =============================================
 
 export async function createCompetition(competitionData) {
+    // Extract ranking groups data before inserting competition
+    const { ranking_groups, ...competitionInfo } = competitionData;
+    
     const { data, error: insertError } = await supabase
         .from('competitions')
-        .insert([competitionData])
+        .insert([competitionInfo])
         .select()
         .single();
 
     if (insertError) throw insertError;
+    
+    // If custom category system with ranking groups, create them
+    if (competitionData.category_system === 'custom' && ranking_groups && ranking_groups.length > 0) {
+        const rankingGroupsData = ranking_groups.map((group, index) => ({
+            competition_id: data.id,
+            group_name: group.name,
+            group_description: group.description || null,
+            bjcp_category_ids: group.categories,
+            group_order: index + 1
+        }));
+        
+        const { error: groupsError } = await supabase
+            .from('competition_ranking_groups')
+            .insert(rankingGroupsData);
+            
+        if (groupsError) {
+            console.error('Error creating ranking groups:', groupsError);
+            // Don't throw error here as competition was created successfully
+        }
+    }
+    
     await loadCompetitions(true);
     return data;
 }

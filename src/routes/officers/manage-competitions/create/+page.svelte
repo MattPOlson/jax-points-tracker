@@ -4,6 +4,9 @@
   import { goto } from '$app/navigation';
   import { userProfile } from '$lib/stores/userProfile';
   import { competitionManagementStore } from '$lib/stores/competitionManagementStore';
+  import { bjcpCategories, categoriesByNumber, loadBjcpCategories } from '$lib/stores/bjcpCategoryStore';
+  import CategorySelector from '$lib/components/CategorySelector.svelte';
+  import RankingGroupManager from '$lib/components/RankingGroupManager.svelte';
   
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -21,18 +24,27 @@
   let maxEntriesPerMember = 5; // Default max 5 entries
   let isActive = true;
   let hideJudgingDate = false; // Whether to keep judging date private
+  let competitionType = 'regular'; // 'regular', 'intraclub', or 'sanctioned'
+  
+  // Category system settings
+  let categorySystem = 'default'; // 'default' or 'custom'
+  let selectedCategories = []; // Array of selected category IDs for custom system
+  let rankingGroups = []; // Array of ranking groups for custom system
   
   let isSubmitting = false;
   let validationErrors = {};
 
   // Set default dates (deadline = 2 weeks from now, judging = 3 weeks from now)
-  onMount(() => {
+  onMount(async () => {
     const today = new Date();
     const twoWeeks = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
     const threeWeeks = new Date(today.getTime() + 21 * 24 * 60 * 60 * 1000);
     
     entryDeadline = formatDateForInput(twoWeeks);
     judgingDate = formatDateForInput(threeWeeks);
+    
+    // Load BJCP categories for category selection
+    await loadBjcpCategories();
     
     setupEventHandlers();
   });
@@ -120,7 +132,11 @@
       entry_fee: entryFee,
       max_entries_per_member: maxEntriesPerMember,
       active: isActive,
-      hide_judging_date: hideJudgingDate
+      hide_judging_date: hideJudgingDate,
+      competition_type: competitionType,
+      category_system: categorySystem,
+      category_restrictions: categorySystem === 'custom' ? selectedCategories : null,
+      ranking_groups: categorySystem === 'custom' ? rankingGroups : []
     };
     
     try {
@@ -384,6 +400,66 @@
     .btn {
       width: 100%;
     }
+    
+    .custom-category-section {
+      padding: 1rem;
+    }
+  }
+  
+  /* Radio Group Styles */
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .radio-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .radio-option:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+  }
+  
+  .radio-option input[type="radio"] {
+    margin: 0;
+    margin-top: 0.125rem;
+  }
+  
+  .radio-label {
+    flex: 1;
+  }
+  
+  .radio-label strong {
+    display: block;
+    color: #374151;
+    margin-bottom: 0.25rem;
+  }
+  
+  .radio-description {
+    color: #6b7280;
+    font-size: 0.9rem;
+  }
+  
+  .radio-option:has(input:checked) {
+    border-color: #ff3e00;
+    background: #fff5f5;
+  }
+  
+  .custom-category-section {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
   }
 </style>
 
@@ -430,6 +506,56 @@
           <div class="error-message">{validationErrors.description}</div>
         {/if}
         <div class="help-text">Provide any additional details about the competition</div>
+      </div>
+
+      <div class="form-group">
+        <label>Competition Type</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input
+              type="radio"
+              bind:group={competitionType}
+              value="regular"
+              disabled={isSubmitting}
+            />
+            <span class="radio-label">
+              <strong>Regular Competition</strong>
+              <div class="radio-description">
+                Open to all members and guests, standard judging process
+              </div>
+            </span>
+          </label>
+
+          <label class="radio-option">
+            <input
+              type="radio"
+              bind:group={competitionType}
+              value="intraclub"
+              disabled={isSubmitting}
+            />
+            <span class="radio-label">
+              <strong>Intraclub Competition</strong>
+              <div class="radio-description">
+                Club members only, simplified judging for meetings
+              </div>
+            </span>
+          </label>
+
+          <label class="radio-option">
+            <input
+              type="radio"
+              bind:group={competitionType}
+              value="sanctioned"
+              disabled={isSubmitting}
+            />
+            <span class="radio-label">
+              <strong>Sanctioned Competition</strong>
+              <div class="radio-description">
+                Official BJCP sanctioned competition with certified judges
+              </div>
+            </span>
+          </label>
+        </div>
       </div>
 
       <!-- Dates -->
@@ -536,6 +662,66 @@
           <div class="help-text">Maximum entries allowed per member</div>
         </div>
       </div>
+
+      <!-- Category System -->
+      <div class="section-title">Category System</div>
+      
+      <div class="form-group">
+        <label>Ranking System</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input
+              type="radio"
+              bind:group={categorySystem}
+              value="default"
+              disabled={isSubmitting}
+            />
+            <span class="radio-label">
+              <strong>Default BJCP System</strong>
+              <div class="radio-description">
+                Allow all BJCP categories, rank each category individually
+              </div>
+            </span>
+          </label>
+          
+          <label class="radio-option">
+            <input
+              type="radio"
+              bind:group={categorySystem}
+              value="custom"
+              disabled={isSubmitting}
+            />
+            <span class="radio-label">
+              <strong>Custom Category Selection</strong>
+              <div class="radio-description">
+                Select specific categories and create custom ranking groups
+              </div>
+            </span>
+          </label>
+        </div>
+      </div>
+      
+      {#if categorySystem === 'custom'}
+        <div class="custom-category-section">
+          <CategorySelector
+            bind:selectedCategories
+            on:change={() => {
+              // Reset ranking groups when categories change
+              rankingGroups = [];
+            }}
+          />
+          
+          {#if selectedCategories.length > 0}
+            <div style="margin-top: 1.5rem;">
+              <RankingGroupManager
+                bind:rankingGroups
+                {selectedCategories}
+                on:change={() => {}}
+              />
+            </div>
+          {/if}
+        </div>
+      {/if}
 
       <!-- Status -->
       <div class="section-title">Status</div>

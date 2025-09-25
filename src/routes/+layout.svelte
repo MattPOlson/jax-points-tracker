@@ -156,6 +156,7 @@
     </svg>
   </a>
 
+
   {#if $user}
     <button on:click={handleLogout} class="nav-button logout-btn" title="Logout" aria-label="Logout">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -231,6 +232,7 @@
     background: #fef2f2;
     color: #dc2626;
   }
+
 
   .user-info {
     display: flex;

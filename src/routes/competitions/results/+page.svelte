@@ -29,6 +29,64 @@
     // Cleanup handled by setupEventHandlers return
   });
 
+  // Helper functions for ranking points calculation
+  function getPointsForRanking(rankPosition) {
+    // Point system: 1st=3pts, 2nd=2pts, 3rd=1pt, others=0pts
+    switch (rankPosition) {
+      case 1: return 3;
+      case 2: return 2;
+      case 3: return 1;
+      default: return 0;
+    }
+  }
+
+  function calculateEntryPoints(entryId, categoryId, rankings, rankingGroups) {
+    // Get all rankings for this entry from all judges
+    let entryRankings = [];
+    
+    // Check if entry belongs to a custom ranking group
+    let groupId = null;
+    for (const group of rankingGroups) {
+      let categoryIds;
+      try {
+        categoryIds = Array.isArray(group.bjcp_category_ids) 
+          ? group.bjcp_category_ids 
+          : JSON.parse(group.bjcp_category_ids);
+      } catch (e) {
+        console.warn('Failed to parse bjcp_category_ids for group:', group.id);
+        continue;
+      }
+      
+      if (categoryIds.includes(categoryId)) {
+        groupId = group.id;
+        break;
+      }
+    }
+    
+    if (groupId) {
+      // For custom ranking groups
+      entryRankings = rankings.filter(r => 
+        r.entry_id === entryId && r.ranking_group_id === groupId
+      );
+    } else {
+      // For individual categories
+      entryRankings = rankings.filter(r => 
+        r.entry_id === entryId && r.bjcp_category_id === categoryId
+      );
+    }
+
+    // Calculate total points from all judges
+    const totalPoints = entryRankings.reduce((sum, ranking) => {
+      return sum + getPointsForRanking(ranking.rank_position);
+    }, 0);
+
+    return {
+      totalPoints,
+      judgeCount: entryRankings.length,
+      rankings: entryRankings
+    };
+  }
+
   // Load competitions with published results
   async function loadPublishedCompetitions() {
     isLoading = true;
@@ -86,13 +144,11 @@
     try {
       console.log('Loading results for competition:', competition.name);
 
-      // Get competition results with entry details
+      // Get competition results with entry details (excluding judge notes for privacy)
       const { data: resultsData, error: resultsError } = await supabase
         .from('competition_results')
-        .select('*')
-        .eq('competition_id', competition.id)
-        .order('placement', { ascending: true, nullsLast: true })
-        .order('score', { ascending: false });
+        .select('id, competition_id, entry_id, score, placement, created_at, updated_at')
+        .eq('competition_id', competition.id);
 
       if (resultsError) throw resultsError;
 
@@ -124,22 +180,74 @@
         .select('id, category_name, category_number, subcategory_letter, subcategory_name')
         .in('id', categoryIds);
 
+      // Load ranking groups if using custom system
+      let rankingGroups = [];
+      if (competition.category_system === 'custom') {
+        const { data: groupsData, error: groupsError } = await supabase
+          .from('competition_ranking_groups')
+          .select('*')
+          .eq('competition_id', competition.id)
+          .order('group_order');
+
+        if (!groupsError) {
+          rankingGroups = groupsData || [];
+        }
+      }
+
+      // Load rankings data for points calculation
+      const { data: rankingsData, error: rankingsError } = await supabase
+        .from('competition_rankings')
+        .select(`
+          *,
+          entry:competition_entries!inner(id, entry_number, beer_name),
+          judge:members!competition_rankings_judge_id_fkey(id, name),
+          category:bjcp_categories(category_name, category_number, subcategory_letter),
+          ranking_group:competition_ranking_groups(id, group_name, group_description)
+        `)
+        .eq('competition_id', competition.id)
+        .order('bjcp_category_id')
+        .order('rank_position');
+
+      const rankings = rankingsData || [];
+
       // Combine all data
       results = resultsData.map(result => {
         const entry = entriesData.find(e => e.id === result.entry_id);
         const member = membersData?.find(m => m.id === entry?.member_id);
         const category = categoriesData?.find(c => c.id === entry?.bjcp_category_id);
 
+        const categoryDisplay = category 
+          ? `${category.category_number}${category.subcategory_letter || ''} - ${category.category_name}`
+          : 'Unknown Category';
+
+        // Find ranking group for this entry's category
+        let rankingGroupName = null;
+        if (rankingGroups.length > 0 && entry?.bjcp_category_id) {
+          const group = rankingGroups.find(g => 
+            g.bjcp_category_ids.includes(entry.bjcp_category_id)
+          );
+          rankingGroupName = group?.group_name || null;
+        }
+
+        // Calculate ranking points for this entry
+        const rankingPoints = entry?.bjcp_category_id 
+          ? calculateEntryPoints(entry.id, entry.bjcp_category_id, rankings, rankingGroups)
+          : { totalPoints: 0, judgeCount: 0, rankings: [] };
+
         return {
           ...result,
           entry_number: entry?.entry_number || 'N/A',
           beer_name: entry?.beer_name || 'Unknown Beer',
           member_name: member?.name || 'Unknown Member',
-          category_display: category 
-            ? `${category.category_number}${category.subcategory_letter || ''} - ${category.category_name}`
-            : 'Unknown Category',
+          category_display: categoryDisplay,
+          ranking_group_name: rankingGroupName,
+          // Use ranking group for display if available, otherwise use individual category
+          display_group: rankingGroupName || categoryDisplay,
           category_number: category?.category_number || '',
-          subcategory_letter: category?.subcategory_letter || ''
+          subcategory_letter: category?.subcategory_letter || '',
+          // Ranking points
+          ranking_points: rankingPoints.totalPoints,
+          judge_count: rankingPoints.judgeCount
         };
       });
 
@@ -169,20 +277,111 @@
     }
   }
 
-  // Group results by category
-  $: resultsByCategory = results.reduce((acc, result) => {
-    const categoryKey = result.category_display;
-    if (!acc[categoryKey]) {
-      acc[categoryKey] = [];
-    }
-    acc[categoryKey].push(result);
-    return acc;
-  }, {});
+  // Calculate placement based on ranking points within each category/group, with score fallback
+  function calculateRankingBasedPlacement(results) {
+    const resultsByGroup = results.reduce((acc, result) => {
+      const groupKey = result.display_group;
+      if (!acc[groupKey]) {
+        acc[groupKey] = [];
+      }
+      acc[groupKey].push(result);
+      return acc;
+    }, {});
 
-  // Get awards summary
+    // Process each group
+    Object.keys(resultsByGroup).forEach(groupKey => {
+      const groupResults = resultsByGroup[groupKey];
+      
+      // Check if any entries in this group have ranking points
+      const hasRankingPoints = groupResults.some(result => result.ranking_points > 0);
+
+      if (hasRankingPoints) {
+        // Use ranking points system
+        groupResults.sort((a, b) => {
+          if (b.ranking_points !== a.ranking_points) {
+            return b.ranking_points - a.ranking_points;
+          }
+          // Tiebreaker: use score
+          return (b.score || 0) - (a.score || 0);
+        });
+
+        // Assign placement based on ranking points position
+        let currentRank = 1;
+        let previousPoints = null;
+
+        groupResults.forEach((result, index) => {
+          if (previousPoints !== null && result.ranking_points < previousPoints) {
+            currentRank = index + 1;
+          }
+
+          // Only assign placement if there are ranking points
+          if (result.ranking_points > 0) {
+            if (currentRank === 1) {
+              result.calculated_placement = '1';
+            } else if (currentRank === 2) {
+              result.calculated_placement = '2';
+            } else if (currentRank === 3) {
+              result.calculated_placement = '3';
+            } else if (currentRank <= 6) { // Top 6 get honorable mention
+              result.calculated_placement = 'HM';
+            } else {
+              result.calculated_placement = '';
+            }
+          } else {
+            result.calculated_placement = '';
+          }
+
+          previousPoints = result.ranking_points;
+        });
+      } else {
+        // Fallback to score-based system when no ranking points exist
+        groupResults.sort((a, b) => {
+          return (b.score || 0) - (a.score || 0);
+        });
+
+        // Assign placement based on score position
+        let currentRank = 1;
+        let previousScore = null;
+
+        groupResults.forEach((result, index) => {
+          const currentScore = result.score || 0;
+          
+          if (previousScore !== null && currentScore < previousScore) {
+            currentRank = index + 1;
+          }
+
+          // Assign placement based on score (only for entries with scores > 0)
+          if (currentScore > 0) {
+            if (currentRank === 1) {
+              result.calculated_placement = '1';
+            } else if (currentRank === 2) {
+              result.calculated_placement = '2';
+            } else if (currentRank === 3) {
+              result.calculated_placement = '3';
+            } else if (currentRank <= 6) { // Top 6 get honorable mention
+              result.calculated_placement = 'HM';
+            } else {
+              result.calculated_placement = '';
+            }
+          } else {
+            result.calculated_placement = '';
+          }
+
+          previousScore = currentScore;
+        });
+      }
+    });
+
+    return resultsByGroup;
+  }
+
+  // Group results by category or ranking group and calculate ranking-based placements
+  $: resultsByCategory = calculateRankingBasedPlacement(results);
+
+  // Get awards summary based on calculated placements
   $: awardsSummary = {
     totalEntries: results.length,
-    placedEntries: results.filter(r => r.placement && r.placement !== '').length,
+    placedEntries: results.filter(r => r.calculated_placement && r.calculated_placement !== '').length,
     categories: Object.keys(resultsByCategory).length,
     averageScore: results.length > 0 
       ? Math.round((results.reduce((sum, r) => sum + (r.score || 0), 0) / results.length) * 10) / 10
@@ -239,21 +438,25 @@
   .hero {
     text-align: center;
     margin-bottom: 3rem;
+    padding: 3rem 1rem;
   }
 
   .hero h1 {
     color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 4rem;
+    font-size: 3.5rem;
     font-weight: 100;
-    margin: 0 0 0.25em;
-    line-height: 1.1;
+    text-transform: uppercase;
+    margin: 0 0 1rem 0;
+    letter-spacing: 3px;
   }
 
-  .hero .subtitle {
+  .hero p {
     font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
+    color: #666;
+    margin: 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .competition-selector {
@@ -415,12 +618,6 @@
     color: #ff3e00;
   }
 
-  .judge-notes {
-    font-style: italic;
-    color: #666;
-    max-width: 300px;
-    line-height: 1.4;
-  }
 
   .controls {
     display: flex;
@@ -484,6 +681,10 @@
   @media (max-width: 768px) {
     .hero h1 {
       font-size: 2.5rem;
+      letter-spacing: 2px;
+    }
+    .hero {
+      padding: 2rem 1rem;
     }
 
     .competition-grid {
@@ -503,13 +704,138 @@
       padding: 0.75rem 0.5rem;
     }
 
-    .judge-notes {
-      max-width: 200px;
-    }
 
     .controls {
       flex-direction: column;
       align-items: stretch;
+    }
+  }
+
+  /* Mobile Card Styles */
+  .results-cards {
+    display: none;
+  }
+
+  .result-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-left: 4px solid #ff3e00;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .entry-info {
+    flex: 1;
+  }
+
+  .entry-number {
+    font-size: 0.875rem;
+    color: #666;
+    font-weight: 500;
+  }
+
+  .beer-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0.25rem 0;
+  }
+
+  .member-name {
+    font-size: 0.875rem;
+    color: #666;
+    margin: 0;
+  }
+
+  .ranking-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+
+  .placement-badge-mobile {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .placement-badge-mobile.placement-1 {
+    background: linear-gradient(135deg, #ffd700, #ffed4a);
+    color: #744210;
+  }
+
+  .placement-badge-mobile.placement-2 {
+    background: linear-gradient(135deg, #c0c0c0, #e2e8f0);
+    color: #4a5568;
+  }
+
+  .placement-badge-mobile.placement-3 {
+    background: linear-gradient(135deg, #cd7f32, #d69e2e);
+    color: #744210;
+  }
+
+  .placement-badge-mobile.placement-none {
+    background: #f7fafc;
+    color: #718096;
+    border: 1px solid #e2e8f0;
+  }
+
+  .card-details {
+    border-top: 1px solid #f1f5f9;
+    padding-top: 1rem;
+  }
+
+  .detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .detail-item {
+    text-align: center;
+  }
+
+  .detail-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+  }
+
+  .detail-value {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+
+  /* Responsive visibility */
+  @media (max-width: 768px) {
+    .desktop-view {
+      display: none;
+    }
+
+    .mobile-view {
+      display: block;
     }
   }
 
@@ -526,19 +852,34 @@
       grid-template-columns: 1fr;
     }
 
-    .results-table {
-      overflow-x: auto;
-      display: block;
-      white-space: nowrap;
+    .result-card {
+      padding: 0.75rem;
+    }
+
+    .detail-row {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+    }
+
+    .detail-label {
+      margin-bottom: 0;
     }
   }
+
 </style>
 
 <div class="container">
   <!-- Hero Section -->
   <div class="hero">
     <h1>Competition Results</h1>
-    <p class="subtitle">View published competition results and standings</p>
+    <p>View published competition results and standings</p>
   </div>
 
   <!-- Controls -->
@@ -629,15 +970,17 @@
             <div class="category-header">
               <h3 class="category-title">{categoryName}</h3>
             </div>
-            <table class="results-table">
+            
+            <!-- Desktop Table View -->
+            <table class="results-table desktop-view">
               <thead>
                 <tr>
                   <th>Entry</th>
                   <th>Member</th>
                   <th>Beer Name</th>
+                  <th>Ranking Points</th>
                   <th>Score</th>
                   <th>Placement</th>
-                  <th>Judge Notes</th>
                 </tr>
               </thead>
               <tbody>
@@ -649,6 +992,14 @@
                     <td>{result.member_name}</td>
                     <td>{result.beer_name}</td>
                     <td>
+                      <span style="font-weight: 600; color: {result.ranking_points > 0 ? '#059669' : '#666'};">
+                        {result.ranking_points} {result.ranking_points === 1 ? 'pt' : 'pts'}
+                      </span>
+                      {#if result.judge_count > 0}
+                        <br><small style="color: #666;">{result.judge_count} judge{result.judge_count === 1 ? '' : 's'}</small>
+                      {/if}
+                    </td>
+                    <td>
                       {#if result.score}
                         <span class="score-badge">{result.score}/50</span>
                       {:else}
@@ -656,29 +1007,73 @@
                       {/if}
                     </td>
                     <td>
-                      {#if result.placement}
-                        <span class="placement-badge {getPlacementDisplay(result.placement).class}">
-                          <span>{getPlacementDisplay(result.placement).medal}</span>
-                          <span>{getPlacementDisplay(result.placement).text}</span>
+                      {#if result.calculated_placement}
+                        <span class="placement-badge {getPlacementDisplay(result.calculated_placement).class}">
+                          <span>{getPlacementDisplay(result.calculated_placement).medal}</span>
+                          <span>{getPlacementDisplay(result.calculated_placement).text}</span>
                         </span>
                       {:else}
                         <span class="placement-badge placement-none">No Placement</span>
-                      {/if}
-                    </td>
-                    <td>
-                      {#if result.judge_notes}
-                        <div class="judge-notes">{result.judge_notes}</div>
-                      {:else}
-                        <span style="color: #999;">No notes</span>
                       {/if}
                     </td>
                   </tr>
                 {/each}
               </tbody>
             </table>
+
+            <!-- Mobile Card View -->
+            <div class="results-cards mobile-view">
+              {#each categoryResults as result}
+                <div class="result-card">
+                  <div class="card-header">
+                    <div class="entry-info">
+                      <span class="entry-number">#{result.entry_number}</span>
+                      <h4 class="beer-name">{result.beer_name}</h4>
+                      <p class="member-name">{result.member_name}</p>
+                    </div>
+                    <div class="ranking-info">
+                      {#if result.calculated_placement}
+                        <div class="placement-badge-mobile {getPlacementDisplay(result.calculated_placement).class}">
+                          <span class="medal">{getPlacementDisplay(result.calculated_placement).medal}</span>
+                          <span class="placement-text">{getPlacementDisplay(result.calculated_placement).text}</span>
+                        </div>
+                      {:else}
+                        <div class="placement-badge-mobile placement-none">No Placement</div>
+                      {/if}
+                    </div>
+                  </div>
+                  
+                  <div class="card-details">
+                    <div class="detail-row">
+                      <div class="detail-item">
+                        <span class="detail-label">Points</span>
+                        <span class="detail-value" style="color: {result.ranking_points > 0 ? '#059669' : '#666'}; font-weight: 600;">
+                          {result.ranking_points} {result.ranking_points === 1 ? 'pt' : 'pts'}
+                        </span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Score</span>
+                        <span class="detail-value">
+                          {#if result.score}
+                            {result.score}/50
+                          {:else}
+                            -/50
+                          {/if}
+                        </span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Judges</span>
+                        <span class="detail-value">{result.judge_count}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {/each}
+            </div>
           </div>
         {/each}
       {/if}
     {/if}
   {/if}
 </div>
+
