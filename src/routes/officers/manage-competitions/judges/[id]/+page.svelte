@@ -119,15 +119,46 @@
 
     try {
       await competitionJudgingStore.removeJudge(assignmentId);
-      
+
       // Refresh available judges
       await loadData();
-      
+
       showToast('Judge removed successfully', 'success');
 
     } catch (err) {
       console.error('Error removing judge:', err);
       alert('Failed to remove judge');
+    }
+  }
+
+  async function assignAllMembers() {
+    if (!confirm(`Are you sure you want to assign all ${availableJudges.length} available members as club judges for this intraclub competition?`)) {
+      return;
+    }
+
+    try {
+      isSaving = true;
+
+      // Assign all available judges
+      for (const member of availableJudges) {
+        await competitionJudgingStore.assignJudge(competitionId, {
+          judge_id: member.id,
+          judge_role: JUDGE_ROLES.CLUB_JUDGE,
+          assignment_notes: 'Auto-assigned for intraclub competition',
+          assigned_by: $userProfile.id
+        });
+      }
+
+      // Refresh the data
+      await loadData();
+
+      showToast(`Successfully assigned ${availableJudges.length} judges`, 'success');
+
+    } catch (err) {
+      console.error('Error assigning all judges:', err);
+      alert('Failed to assign all judges');
+    } finally {
+      isSaving = false;
     }
   }
 
@@ -436,13 +467,22 @@
 
     <!-- Controls -->
     <div class="controls">
-      <button 
-        class="btn btn-success" 
+      <button
+        class="btn btn-success"
         on:click={() => showAddForm = !showAddForm}
         disabled={availableJudges.length === 0}
       >
         {showAddForm ? 'Cancel' : 'Add Judge'}
       </button>
+      {#if competition.competition_type === 'intraclub' && availableJudges.length > 0}
+        <button
+          class="btn btn-primary"
+          on:click={assignAllMembers}
+          disabled={isSaving}
+        >
+          {isSaving ? 'Assigning...' : `Assign All Members (${availableJudges.length})`}
+        </button>
+      {/if}
       <button class="btn btn-secondary" on:click={() => goto('/officers/manage-competitions')}>
         Back to Competitions
       </button>

@@ -24,6 +24,7 @@
   let maxEntriesPerMember = 5; // Default max 5 entries
   let isActive = true;
   let hideJudgingDate = false; // Whether to keep judging date private
+  let competitionType = 'regular'; // 'regular', 'intraclub', or 'sanctioned'
   
   // Category system settings
   let categorySystem = 'default'; // 'default' or 'custom'
@@ -132,6 +133,7 @@
       max_entries_per_member: maxEntriesPerMember,
       active: isActive,
       hide_judging_date: hideJudgingDate,
+      competition_type: competitionType,
       category_system: categorySystem,
       category_restrictions: categorySystem === 'custom' ? selectedCategories : null,
       ranking_groups: categorySystem === 'custom' ? rankingGroups : []
@@ -504,6 +506,56 @@
           <div class="error-message">{validationErrors.description}</div>
         {/if}
         <div class="help-text">Provide any additional details about the competition</div>
+      </div>
+
+      <div class="form-group">
+        <label>Competition Type</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input
+              type="radio"
+              bind:group={competitionType}
+              value="regular"
+              disabled={isSubmitting}
+            />
+            <span class="radio-label">
+              <strong>Regular Competition</strong>
+              <div class="radio-description">
+                Open to all members and guests, standard judging process
+              </div>
+            </span>
+          </label>
+
+          <label class="radio-option">
+            <input
+              type="radio"
+              bind:group={competitionType}
+              value="intraclub"
+              disabled={isSubmitting}
+            />
+            <span class="radio-label">
+              <strong>Intraclub Competition</strong>
+              <div class="radio-description">
+                Club members only, simplified judging for meetings
+              </div>
+            </span>
+          </label>
+
+          <label class="radio-option">
+            <input
+              type="radio"
+              bind:group={competitionType}
+              value="sanctioned"
+              disabled={isSubmitting}
+            />
+            <span class="radio-label">
+              <strong>Sanctioned Competition</strong>
+              <div class="radio-description">
+                Official BJCP sanctioned competition with certified judges
+              </div>
+            </span>
+          </label>
+        </div>
       </div>
 
       <!-- Dates -->
