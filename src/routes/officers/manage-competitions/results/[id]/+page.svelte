@@ -28,6 +28,30 @@
   // Results tracking
   let resultsData = new Map();
 
+  // Check if current user is Comp Director for displaying brewer names
+  $: isCompDirector = $userProfile?.role === 'competition_director';
+
+  // Helper function to get brewer name display
+  function getBrewerNameDisplay(brewerName) {
+    if (isCompDirector) {
+      return brewerName || 'Unknown';
+    }
+    return 'Hidden'; // Hidden for non-Comp Directors
+  }
+
+  // Helper function to get brewer email display
+  function getBrewerEmailDisplay(brewerEmail) {
+    if (isCompDirector) {
+      return brewerEmail || '';
+    }
+    return 'Hidden'; // Hidden for non-Comp Directors
+  }
+
+  // Helper function to get CSS class for brewer name
+  function getBrewerNameClass() {
+    return isCompDirector ? '' : 'brewer-name-hidden';
+  }
+
   // Helper functions for ranking points calculation
   function getPointsForRanking(rankPosition) {
     // Point system: 1st=3pts, 2nd=2pts, 3rd=1pt, others=0pts
@@ -238,12 +262,18 @@
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(entry => 
+      const currentUserProfile = $userProfile;
+      const isCompDirector = currentUserProfile?.role === 'competition_director';
+
+      filtered = filtered.filter(entry =>
         entry.entry_number?.toLowerCase().includes(query) ||
         entry.beer_name?.toLowerCase().includes(query) ||
-        entry.member_name?.toLowerCase().includes(query) ||
-        entry.member_email?.toLowerCase().includes(query) ||
-        entry.category_display?.toLowerCase().includes(query)
+        entry.category_display?.toLowerCase().includes(query) ||
+        // Only allow member name/email search for Competition Directors
+        (isCompDirector && (
+          entry.member_name?.toLowerCase().includes(query) ||
+          entry.member_email?.toLowerCase().includes(query)
+        ))
       );
     }
     
@@ -795,6 +825,13 @@
       font-size: 2rem;
     }
   }
+
+  /* Brewer name privacy styles */
+  .brewer-name-hidden {
+    color: #999;
+    font-style: italic;
+    font-weight: normal;
+  }
 </style>
 
 <div class="container">
@@ -842,7 +879,7 @@
       <input
         type="text"
         class="search-input"
-        placeholder="Search by entry number, member, or beer name..."
+        placeholder={isCompDirector ? "Search by entry number, member, or beer name..." : "Search by entry number or beer name..."}
         bind:value={searchQuery}
       />
       <select class="filter-select" bind:value={categoryFilter}>
@@ -908,8 +945,8 @@
               <tr>
                 <td><span class="entry-number">{entry.entry_number}</span></td>
                 <td>
-                  <div>{entry.member_name}</div>
-                  <small>{entry.member_email}</small>
+                  <div class="{getBrewerNameClass()}">{getBrewerNameDisplay(entry.member_name)}</div>
+                  <small class="{getBrewerNameClass()}">{getBrewerEmailDisplay(entry.member_email)}</small>
                 </td>
                 <td>{entry.beer_name || '-'}</td>
                 <td><span class="category-badge">{entry.category_display}</span></td>
@@ -983,7 +1020,7 @@
               </span>
             </div>
             <div style="margin-bottom: 1rem;">
-              <div><strong>{entry.member_name}</strong></div>
+              <div class="{getBrewerNameClass()}"><strong>{getBrewerNameDisplay(entry.member_name)}</strong></div>
               <div>{entry.beer_name || 'No beer name'}</div>
               <span class="category-badge">{entry.category_display}</span>
               <div style="margin-top: 0.5rem;">
