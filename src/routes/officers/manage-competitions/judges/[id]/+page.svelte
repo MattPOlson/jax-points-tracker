@@ -25,6 +25,7 @@
   let availableJudges = [];
   let isLoading = true;
   let isSaving = false;
+  let isRefreshing = false;
   let showAddForm = false;
 
   // Form data for adding judges
@@ -159,6 +160,32 @@
       alert('Failed to assign all judges');
     } finally {
       isSaving = false;
+    }
+  }
+
+  async function refreshJudges() {
+    try {
+      isRefreshing = true;
+
+      // Reload available judges (all members)
+      const { data: membersData, error: membersError } = await supabase
+        .from('members')
+        .select('id, name, email, phone')
+        .order('name');
+
+      if (membersError) throw membersError;
+
+      // Filter out already assigned judges
+      const assignedJudgeIds = new Set($judgeList.map(j => j.judge_id));
+      availableJudges = membersData.filter(member => !assignedJudgeIds.has(member.id));
+
+      showToast(`Refreshed judges list - ${availableJudges.length} available`, 'success');
+
+    } catch (err) {
+      console.error('Error refreshing judges:', err);
+      alert('Failed to refresh judges list');
+    } finally {
+      isRefreshing = false;
     }
   }
 
@@ -483,6 +510,14 @@
           {isSaving ? 'Assigning...' : `Assign All Members (${availableJudges.length})`}
         </button>
       {/if}
+      <button
+        class="btn btn-secondary"
+        on:click={refreshJudges}
+        disabled={isRefreshing}
+        title="Refresh the list of available judges"
+      >
+        {isRefreshing ? 'Refreshing...' : 'Refresh Judges'}
+      </button>
       <button class="btn btn-secondary" on:click={() => goto('/officers/manage-competitions')}>
         Back to Competitions
       </button>
