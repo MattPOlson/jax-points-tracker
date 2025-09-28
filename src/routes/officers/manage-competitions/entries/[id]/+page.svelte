@@ -7,10 +7,22 @@
   import { supabase } from '$lib/supabaseClient';
 
   let showAccessDeniedModal = false;
+  let isAuthorized = false;
 
   // Check Competition Director status - only Comp Directors can access entries
-  $: if ($userProfile && $userProfile.role !== 'competition_director') {
-    showAccessDeniedModal = true;
+  $: if ($userProfile) {
+    if ($userProfile.role === 'competition_director') {
+      isAuthorized = true;
+      showAccessDeniedModal = false;
+    } else {
+      isAuthorized = false;
+      showAccessDeniedModal = true;
+    }
+  }
+
+  // Load data when authorization status changes
+  $: if (isAuthorized && competitionId && !competition) {
+    loadCompetitionAndEntries();
   }
 
   // Get competition ID from URL
@@ -27,7 +39,6 @@
   let selectAll = false;
 
   onMount(() => {
-    loadCompetitionAndEntries();
     setupEventHandlers();
   });
 
@@ -1189,6 +1200,7 @@ function printLabels() {
   </div>
 {/if}
 
+{#if isAuthorized}
 <div class="container">
   <!-- Hero Section -->
   <div class="hero">
@@ -1427,3 +1439,4 @@ function printLabels() {
     {/if}
   {/if}
 </div>
+{/if}
