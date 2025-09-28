@@ -199,6 +199,21 @@
   }
 
   // Export members data
+  // Handle Competition Director toggle
+  async function handleCompDirectorToggle(member) {
+    if (!isOfficer) return;
+
+    const isCurrentlyCompDirector = member.is_comp_director || false;
+    const newStatus = !isCurrentlyCompDirector;
+
+    try {
+      await memberManagementStore.toggleCompDirector(member.id, newStatus);
+      // Success message will be shown by the store's success handling
+    } catch (err) {
+      alert(`Failed to ${newStatus ? 'add' : 'remove'} Competition Director role: ${err.message}`);
+    }
+  }
+
   async function exportData() {
     try {
       const data = await memberManagementStore.exportMembersData();
@@ -363,6 +378,7 @@
                 <tr>
                   <th>Member</th>
                   <th>Role</th>
+                  <th>Comp Director</th>
                   <th>Points</th>
                   <th>Activity</th>
                   <th>Joined</th>
@@ -387,6 +403,23 @@
                       <span class="role-badge {member.role}">
                         {member.role_display}
                       </span>
+                    </td>
+                    <td>
+                      {#if isOfficer}
+                        <label class="comp-director-toggle">
+                          <input
+                            type="checkbox"
+                            checked={member.is_comp_director || false}
+                            on:change={() => handleCompDirectorToggle(member)}
+                            disabled={$isLoading}
+                          />
+                          <span class="toggle-slider"></span>
+                        </label>
+                      {:else}
+                        <span class="comp-director-status">
+                          {member.is_comp_director ? 'Yes' : 'No'}
+                        </span>
+                      {/if}
                     </td>
                     <td>
                       <div class="points-info">
@@ -1744,5 +1777,67 @@
     .card-stats {
       grid-template-columns: repeat(4, 1fr);
     }
+  }
+
+  /* Competition Director Toggle Styles */
+  .comp-director-toggle {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+  }
+
+  .comp-director-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 12px;
+  }
+
+  .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+  }
+
+  .comp-director-toggle input:checked + .toggle-slider {
+    background-color: #ff3e00;
+  }
+
+  .comp-director-toggle input:disabled + .toggle-slider {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .comp-director-toggle input:checked + .toggle-slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }
+
+  .comp-director-status {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    color: #666;
   }
 </style>
