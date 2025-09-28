@@ -35,7 +35,7 @@
   };
 
   // Check if current user is Comp Director for displaying brewer names
-  $: isCompDirector = $userProfile?.is_comp_director === true;
+  $: isCompDirector = $userProfile?.role === 'competition_director';
 
   // Helper function to get brewer name display
   function getBrewerNameDisplay(brewerName) {

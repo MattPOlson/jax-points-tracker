@@ -7,7 +7,7 @@
   import { supabase } from '$lib/supabaseClient';
   
   // Check Competition Director status - only Comp Directors can access entries
-  $: if ($userProfile && !$userProfile.is_comp_director) {
+  $: if ($userProfile && $userProfile.role !== 'competition_director') {
     goto('/officers/manage-competitions');
   }
 

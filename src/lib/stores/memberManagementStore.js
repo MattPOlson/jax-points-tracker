@@ -249,47 +249,6 @@ export const memberManagementStore = {
     }
   },
 
-  // Toggle Competition Director status for a member
-  async toggleCompDirector(memberId, isCompDirector) {
-    const currentUser = get(userProfile);
-
-    // Check permissions - only officers can manage Comp Director role
-    if (!currentUser || !currentUser.is_officer) {
-      throw new Error('Only officers can manage Competition Director role');
-    }
-
-    isLoading.set(true);
-    error.set(null);
-
-    try {
-      console.log(`🔄 ${isCompDirector ? 'Adding' : 'Removing'} Competition Director role for member ${memberId}...`);
-
-      const { data, error: updateError } = await supabase
-        .from('members')
-        .update({ is_comp_director: isCompDirector })
-        .eq('id', memberId)
-        .select();
-
-      if (updateError) {
-        throw updateError;
-      }
-
-      console.log(`✅ Competition Director status ${isCompDirector ? 'granted' : 'removed'} successfully`);
-
-      // Refresh the members list
-      await this.loadMembers(true);
-
-      return data;
-
-    } catch (err) {
-      console.error('❌ Error updating Competition Director status:', err);
-      error.set(err.message || 'Failed to update Competition Director status');
-      throw err;
-    } finally {
-      isLoading.set(false);
-    }
-  },
-
   // Get member details with recent activity
   async getMemberDetails(memberId) {
     isLoading.set(true);
