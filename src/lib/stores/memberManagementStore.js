@@ -222,13 +222,20 @@ export const memberManagementStore = {
     
     try {
       console.log(`🔄 Updating member ${memberId} role to ${newRole}...`);
-      
+
+      // Determine if the new role should have officer status
+      const officerRoles = ['officer', 'competition_director', 'vice_president', 'president'];
+      const isOfficer = officerRoles.includes(newRole);
+
       const { data, error: updateError } = await supabase
         .from('members')
-        .update({ role: newRole })
+        .update({
+          role: newRole,
+          is_officer: isOfficer
+        })
         .eq('id', memberId)
         .select();
-      
+
       if (updateError) {
         throw updateError;
       }

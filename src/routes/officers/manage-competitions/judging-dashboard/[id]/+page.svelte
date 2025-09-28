@@ -34,6 +34,22 @@
     completionPercentage: 0
   };
 
+  // Check if current user is Comp Director for displaying brewer names
+  $: isCompDirector = $userProfile?.role === 'competition_director';
+
+  // Helper function to get brewer name display
+  function getBrewerNameDisplay(brewerName) {
+    if (isCompDirector) {
+      return brewerName || 'Unknown';
+    }
+    return 'Hidden'; // Hidden for non-Comp Directors
+  }
+
+  // Helper function to get CSS class for brewer name
+  function getBrewerNameClass() {
+    return isCompDirector ? '' : 'brewer-name-hidden';
+  }
+
   onMount(() => {
     loadDashboardData();
   });
@@ -970,6 +986,16 @@
       display: table;
     }
   }
+
+  /* Hidden brewer name styling for non-Comp Directors */
+  .brewer-name-hidden {
+    color: #9ca3af;
+    font-style: italic;
+    background: #f3f4f6;
+    padding: 0.125rem 0.375rem;
+    border-radius: 3px;
+    font-size: 0.875rem;
+  }
 </style>
 
 <div class="dashboard-container">
@@ -1222,7 +1248,7 @@
                       <div style="font-size: 0.875rem;">{entry.beer_name || 'No name'}</div>
                     </div>
                   </td>
-                  <td>{entry.members?.name}</td>
+                  <td><span class="{getBrewerNameClass()}">{getBrewerNameDisplay(entry.members?.name)}</span></td>
                   <td>
                     {#if entry.bjcp_categories}
                       {entry.bjcp_categories.category_number}{entry.bjcp_categories.subcategory_letter || ''} - {entry.bjcp_categories.category_name}
@@ -1272,7 +1298,7 @@
                 <div class="mobile-card-details">
                   <div class="mobile-detail-item">
                     <span class="mobile-detail-label">Brewer</span>
-                    <span class="mobile-detail-value">{entry.members?.name}</span>
+                    <span class="mobile-detail-value {getBrewerNameClass()}">{getBrewerNameDisplay(entry.members?.name)}</span>
                   </div>
                   <div class="mobile-detail-item">
                     <span class="mobile-detail-label">Category</span>

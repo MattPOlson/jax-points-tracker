@@ -43,9 +43,22 @@
   const roleOptions = [
     { value: 'member', label: 'Member', description: 'Standard member privileges' },
     { value: 'officer', label: 'Officer', description: 'Can approve submissions and access officer tools' },
+    { value: 'competition_director', label: 'Competition Director', description: 'Can manage competition entries and see brewer names' },
     { value: 'vice_president', label: 'Vice President', description: 'Can manage officers and access all tools' },
     { value: 'president', label: 'President', description: 'Full administrative access' }
   ];
+
+  // Helper function to format role display
+  function formatRoleDisplay(role) {
+    const roleMap = {
+      'member': 'Member',
+      'officer': 'Officer',
+      'competition_director': 'Competition Director',
+      'vice_president': 'Vice President',
+      'president': 'President'
+    };
+    return roleMap[role] || 'Unknown';
+  }
 
   // Reactive variables for UI state
   $: isOfficer = $userProfile?.is_officer || false;
@@ -315,6 +328,7 @@
             <option value="all">All Roles</option>
             <option value="president">Presidents</option>
             <option value="vice_president">Vice Presidents</option>
+            <option value="competition_director">Competition Directors</option>
             <option value="officer">Officers</option>
             <option value="member">Members</option>
           </select>
@@ -385,7 +399,7 @@
                     </td>
                     <td>
                       <span class="role-badge {member.role}">
-                        {member.role_display}
+                        {formatRoleDisplay(member.role)}
                       </span>
                     </td>
                     <td>
@@ -441,7 +455,7 @@
                     </div>
                   </div>
                   <span class="role-badge {member.role}">
-                    {member.role_display}
+                    {formatRoleDisplay(member.role)}
                   </span>
                 </div>
                 
@@ -508,7 +522,7 @@
             <h3>{selectedMember.name}</h3>
             <p>{selectedMember.email}</p>
             <span class="role-badge {selectedMember.role}">
-              {selectedMember.role_display}
+              {formatRoleDisplay(selectedMember.role)}
             </span>
           </div>
         </div>
@@ -587,7 +601,7 @@
           </div>
           <div class="member-info">
             <div class="member-name">{memberToEdit.name}</div>
-            <div class="current-role">Currently: {memberToEdit.role_display}</div>
+            <div class="current-role">Currently: {formatRoleDisplay(memberToEdit.role)}</div>
           </div>
         </div>
         <div class="edit-form">
@@ -660,7 +674,7 @@
           </div>
           <div class="member-info">
             <div class="member-name">{memberToPromote.name}</div>
-            <div class="current-role">Current: {memberToPromote.role_display}</div>
+            <div class="current-role">Current: {formatRoleDisplay(memberToPromote.role)}</div>
           </div>
         </div>
 
@@ -1103,6 +1117,12 @@
     background: #fff7ed;
     color: #ea580c;
     border-color: #fed7aa;
+  }
+
+  .role-badge.competition_director {
+    background: #fef3c7;
+    color: #d97706;
+    border-color: #fde68a;
   }
 
   .role-badge.member {

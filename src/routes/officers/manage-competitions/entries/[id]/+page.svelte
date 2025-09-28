@@ -5,10 +5,24 @@
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
-  
-  // Check officer status
-  $: if ($userProfile && !$userProfile.is_officer) {
-    goto('/');
+
+  let showAccessDeniedModal = false;
+  let isAuthorized = false;
+
+  // Check Competition Director status - only Comp Directors can access entries
+  $: if ($userProfile) {
+    if ($userProfile.role === 'competition_director') {
+      isAuthorized = true;
+      showAccessDeniedModal = false;
+    } else {
+      isAuthorized = false;
+      showAccessDeniedModal = true;
+    }
+  }
+
+  // Load data when authorization status changes
+  $: if (isAuthorized && competitionId && !competition) {
+    loadCompetitionAndEntries();
   }
 
   // Get competition ID from URL
@@ -25,7 +39,6 @@
   let selectAll = false;
 
   onMount(() => {
-    loadCompetitionAndEntries();
     setupEventHandlers();
   });
 
@@ -423,6 +436,12 @@ function printLabels() {
 
   // Navigate back
   function navigateBack() {
+    goto('/officers/manage-competitions');
+  }
+
+  // Handle access denied modal
+  function handleAccessDenied() {
+    showAccessDeniedModal = false;
     goto('/officers/manage-competitions');
   }
 
@@ -1105,13 +1124,83 @@ function printLabels() {
     .entries-cards {
       display: none;
     }
-    
+
     .entries-table {
       display: block;
     }
   }
+
+  /* Modal styles */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .modal {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    text-align: center;
+  }
+
+  .modal h2 {
+    color: #ff3e00;
+    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
+  }
+
+  .modal p {
+    color: #333;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+
+  .modal-button {
+    background: #ff3e00;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .modal-button:hover {
+    background: #e63600;
+  }
 </style>
 
+<!-- Access Denied Modal -->
+{#if showAccessDeniedModal}
+  <div class="modal-overlay">
+    <div class="modal">
+      <h2>🔒 Access Restricted</h2>
+      <p>
+        Only Competition Directors can access competition entries. This restriction helps maintain the integrity of competitions by ensuring that brewer information remains confidential until after judging is complete.
+      </p>
+      <p>
+        If you need access to this page, please contact an administrator to have your role updated to Competition Director.
+      </p>
+      <button class="modal-button" on:click={handleAccessDenied}>
+        Return to Competitions
+      </button>
+    </div>
+  </div>
+{/if}
+
+{#if isAuthorized}
 <div class="container">
   <!-- Hero Section -->
   <div class="hero">
@@ -1350,3 +1439,4 @@ function printLabels() {
     {/if}
   {/if}
 </div>
+{/if}
