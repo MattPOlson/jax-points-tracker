@@ -6,9 +6,9 @@
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
   
-  // Check officer status
-  $: if ($userProfile && !$userProfile.is_officer) {
-    goto('/');
+  // Check Competition Director status - only Comp Directors can access entries
+  $: if ($userProfile && !$userProfile.is_comp_director) {
+    goto('/officers/manage-competitions');
   }
 
   // Get competition ID from URL
