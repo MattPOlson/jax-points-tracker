@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Copy package files first for better caching
 COPY package*.json ./
-RUN npm ci --only=production --silent
+RUN npm ci --silent
 
 # Copy source code and build
 COPY . .
@@ -18,6 +18,9 @@ ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 
 # Build for production
 RUN npm run build
+
+# Clean up dev dependencies after build
+RUN npm ci --only=production --silent && npm cache clean --force
 
 # Production stage
 FROM node:18-alpine AS runner
