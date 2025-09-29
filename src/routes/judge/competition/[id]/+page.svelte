@@ -29,6 +29,17 @@
   let showScoreBreakdown = false;
   let autoSaveTimeout = null;
 
+  // Check if current user is Comp Director for displaying beer names
+  $: isCompDirector = $userProfile?.role === 'competition_director';
+
+  // Helper function to get beer name display
+  function getBeerNameDisplay(beerName) {
+    if (isCompDirector) {
+      return beerName || 'No name provided';
+    }
+    return 'Hidden'; // Hidden for non-Comp Directors
+  }
+
   // Score maximums for validation
   const scoreMaximums = {
     aroma_score: 12,
@@ -788,7 +799,7 @@
           <div class="entry-details">
             <div class="detail-item">
               <span class="detail-label">Beer Name</span>
-              <span class="detail-value">{$currentEntry.beer_name || 'No name provided'}</span>
+              <span class="detail-value">{getBeerNameDisplay($currentEntry.beer_name)}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Category</span>

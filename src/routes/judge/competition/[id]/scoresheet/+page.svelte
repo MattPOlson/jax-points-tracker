@@ -18,6 +18,17 @@
   let autoSaveTimeout = null;
   let currentEntryId = null; // Track current entry to prevent unnecessary reloading
 
+  // Check if current user is Comp Director for displaying beer names
+  $: isCompDirector = $userProfile?.role === 'competition_director';
+
+  // Helper function to get beer name display
+  function getBeerNameDisplay(beerName) {
+    if (isCompDirector) {
+      return beerName || 'No name provided';
+    }
+    return 'Hidden'; // Hidden for non-Comp Directors
+  }
+
   // BJCP Score Sheet Data Structure
   let scoresheetData = {
     // Scoring fields
@@ -681,7 +692,7 @@
         </div>
         <div class="info-group">
           <span class="info-label">Beer Name</span>
-          <span class="info-value">{$currentEntry.beer_name || 'No name provided'}</span>
+          <span class="info-value">{getBeerNameDisplay($currentEntry.beer_name)}</span>
         </div>
         <div class="info-group">
           <span class="info-label">Subcategory</span>

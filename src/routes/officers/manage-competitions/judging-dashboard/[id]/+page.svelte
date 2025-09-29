@@ -50,6 +50,14 @@
     return isCompDirector ? '' : 'brewer-name-hidden';
   }
 
+  // Helper function to get beer name display
+  function getBeerNameDisplay(beerName) {
+    if (isCompDirector) {
+      return beerName || 'Unknown Beer';
+    }
+    return 'Hidden'; // Hidden for non-Comp Directors
+  }
+
   onMount(() => {
     loadDashboardData();
   });
@@ -1245,7 +1253,7 @@
                   <td>
                     <div>
                       <div style="font-weight: 600; color: #ff3e00;">#{entry.entry_number}</div>
-                      <div style="font-size: 0.875rem;">{entry.beer_name || 'No name'}</div>
+                      <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(entry.beer_name)}</div>
                     </div>
                   </td>
                   <td><span class="{getBrewerNameClass()}">{getBrewerNameDisplay(entry.members?.name)}</span></td>
@@ -1288,7 +1296,7 @@
                 <div class="mobile-card-header">
                   <div>
                     <h3 class="mobile-card-title">#{entry.entry_number}</h3>
-                    <div class="mobile-card-subtitle">{entry.beer_name || 'No name'}</div>
+                    <div class="mobile-card-subtitle {getBrewerNameClass()}">{getBeerNameDisplay(entry.beer_name)}</div>
                   </div>
                   <div class="mobile-card-badge" style="background: {scores.count === judges.length ? '#dcfce7' : scores.count > 0 ? '#fef3c7' : '#fee2e2'}; color: {scores.count === judges.length ? '#059669' : scores.count > 0 ? '#f59e0b' : '#dc2626'};">
                     {scores.count === judges.length ? 'Complete' : scores.count > 0 ? 'Partial' : 'Pending'}
@@ -1400,7 +1408,7 @@
                             <td>
                               <div>
                                 <div style="font-weight: 600; color: #ff3e00;">#{entry.entry_number}</div>
-                                <div style="font-size: 0.875rem;">{entry.beer_name || 'No name'}</div>
+                                <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(entry.beer_name)}</div>
                               </div>
                             </td>
                             <td>
@@ -1446,7 +1454,7 @@
                             <td>
                               <div>
                                 <div style="font-weight: 600; color: #ff3e00;">#{ranking.entry?.entry_number}</div>
-                                <div style="font-size: 0.875rem;">{ranking.entry?.beer_name || 'No name'}</div>
+                                <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
                               </div>
                             </td>
                             <td>
@@ -1509,7 +1517,7 @@
                             <td>
                               <div>
                                 <div style="font-weight: 600; color: #ff3e00;">#{entry.entry_number}</div>
-                                <div style="font-size: 0.875rem;">{entry.beer_name || 'No name'}</div>
+                                <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(entry.beer_name)}</div>
                               </div>
                             </td>
                             <td>
@@ -1555,7 +1563,7 @@
                             <td>
                               <div>
                                 <div style="font-weight: 600; color: #ff3e00;">#{ranking.entry?.entry_number}</div>
-                                <div style="font-size: 0.875rem;">{ranking.entry?.beer_name || 'No name'}</div>
+                                <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
                               </div>
                             </td>
                             <td>
@@ -1617,7 +1625,7 @@
                             </div>
                             <div class="mobile-ranking-entry">
                               <div class="mobile-ranking-entry-number">#{entry.entry_number}</div>
-                              <div class="mobile-ranking-beer-name">{entry.beer_name || 'No name'}</div>
+                              <div class="mobile-ranking-beer-name {getBrewerNameClass()}">{getBeerNameDisplay(entry.beer_name)}</div>
                               <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
                                 {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'} • {placement}
                               </div>
@@ -1636,7 +1644,7 @@
                             </div>
                             <div class="mobile-ranking-entry">
                               <div class="mobile-ranking-entry-number">#{ranking.entry?.entry_number}</div>
-                              <div class="mobile-ranking-beer-name">{ranking.entry?.beer_name || 'No name'}</div>
+                              <div class="mobile-ranking-beer-name {getBrewerNameClass()}">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
                               <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
                                 {ranking.judge?.name}{#if ranking.ranking_notes} • {ranking.ranking_notes}{/if}
                               </div>
@@ -1688,7 +1696,7 @@
                             </div>
                             <div class="mobile-ranking-entry">
                               <div class="mobile-ranking-entry-number">#{entry.entry_number}</div>
-                              <div class="mobile-ranking-beer-name">{entry.beer_name || 'No name'}</div>
+                              <div class="mobile-ranking-beer-name {getBrewerNameClass()}">{getBeerNameDisplay(entry.beer_name)}</div>
                               <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
                                 {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'} • {placement}
                               </div>
@@ -1707,7 +1715,7 @@
                             </div>
                             <div class="mobile-ranking-entry">
                               <div class="mobile-ranking-entry-number">#{ranking.entry?.entry_number}</div>
-                              <div class="mobile-ranking-beer-name">{ranking.entry?.beer_name || 'No name'}</div>
+                              <div class="mobile-ranking-beer-name {getBrewerNameClass()}">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
                               <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
                                 {ranking.judge?.name}{#if ranking.ranking_notes} • {ranking.ranking_notes}{/if}
                               </div>
