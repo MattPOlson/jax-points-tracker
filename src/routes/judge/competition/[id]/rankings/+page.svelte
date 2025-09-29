@@ -21,6 +21,19 @@
   let isLoading = true;
   let isSaving = false;
   let error = null;
+  let competitionType = null;
+  let validationErrors = [];
+
+  // Check if current user is Comp Director for displaying beer names
+  $: isCompDirector = $userProfile?.role === 'competition_director';
+
+  // Helper function to get beer name display
+  function getBeerNameDisplay(beerName) {
+    if (isCompDirector) {
+      return beerName || 'No name provided';
+    }
+    return 'Hidden'; // Hidden for non-Comp Directors
+  }
 
   onMount(async () => {
     if (!$userProfile) {
@@ -47,14 +60,17 @@
     error = null;
 
     try {
-      // First check if competition has custom ranking groups
+      // First load competition data including type
       const { data: competitionData, error: compError } = await supabase
         .from('competitions')
-        .select('category_system')
+        .select('category_system, competition_type')
         .eq('id', competitionId)
         .single();
 
       if (compError) throw compError;
+
+      // Store competition type for validation
+      competitionType = competitionData.competition_type;
 
       if (competitionData.category_system === 'custom') {
         // Load custom ranking groups
@@ -155,7 +171,7 @@
         const { data: groupEntriesData, error: entriesError } = await supabase
           .from('competition_entries')
           .select(`
-            id, entry_number, beer_name, beer_notes, bjcp_category_id,
+            id, entry_number, beer_name, beer_notes, bjcp_category_id, member_id,
             members!competition_entries_member_id_fkey(name),
             bjcp_categories!competition_entries_bjcp_category_id_fkey(
               category_number, subcategory_letter, subcategory_name, category_name
@@ -172,7 +188,7 @@
         const { data: singleCategoryData, error: entriesError } = await supabase
           .from('competition_entries')
           .select(`
-            id, entry_number, beer_name, beer_notes, bjcp_category_id,
+            id, entry_number, beer_name, beer_notes, bjcp_category_id, member_id,
             members!competition_entries_member_id_fkey(name),
             bjcp_categories!competition_entries_bjcp_category_id_fkey(
               category_number, subcategory_letter, subcategory_name, category_name
@@ -312,8 +328,43 @@
     moveRanking(index, index + 1);
   }
 
+  function validateIntraclubSelfRanking() {
+    validationErrors = [];
+
+    // Only validate for intraclub competitions
+    if (competitionType !== 'intraclub') {
+      return true;
+    }
+
+    // Check if user is ranking their own entries in top 3 positions
+    const top3Rankings = rankings.filter(r => r.rank_position <= 3);
+    const ownEntryViolations = top3Rankings.filter(r =>
+      r.entry && r.entry.member_id === $userProfile.id
+    );
+
+    if (ownEntryViolations.length > 0) {
+      ownEntryViolations.forEach(violation => {
+        validationErrors.push({
+          type: 'self_ranking',
+          message: `You cannot rank your own entry (#${violation.entry.entry_number}) in position ${violation.rank_position} during intraclub competitions.`,
+          entryId: violation.entry_id,
+          position: violation.rank_position
+        });
+      });
+      return false;
+    }
+
+    return true;
+  }
+
   async function saveRankings() {
     if (!selectedCategory || rankings.length === 0) return;
+
+    // Validate rankings before saving
+    if (!validateIntraclubSelfRanking()) {
+      showToast('Cannot save: You cannot rank your own entries in positions 1-3 during intraclub competitions', 'error');
+      return;
+    }
 
     isSaving = true;
     try {
@@ -380,6 +431,22 @@
     if (score >= 30) return '#eab308'; // Good
     if (score >= 21) return '#f59e0b'; // Fair
     return '#dc2626'; // Poor
+  }
+
+  function isOwnEntry(entry) {
+    return entry && entry.member_id === $userProfile?.id;
+  }
+
+  function getEntryValidationClass(ranking) {
+    if (competitionType === 'intraclub' && isOwnEntry(ranking.entry) && ranking.rank_position <= 3) {
+      return 'invalid-own-entry';
+    }
+    return '';
+  }
+
+  // Reactive validation check
+  $: if (rankings.length > 0) {
+    validateIntraclubSelfRanking();
   }
 
   function showToast(message, type = 'info') {
@@ -564,6 +631,23 @@
     background: #f9fafb;
     border-radius: 8px;
     border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+  }
+
+  .ranking-item.own-entry {
+    background: #eff6ff;
+    border-color: #3b82f6;
+  }
+
+  .ranking-item.invalid-own-entry {
+    background: #fef2f2;
+    border-color: #ef4444;
+    animation: pulse-error 2s ease-in-out;
+  }
+
+  @keyframes pulse-error {
+    0%, 100% { border-color: #ef4444; }
+    50% { border-color: #dc2626; }
   }
 
   .rank-position {
@@ -638,6 +722,39 @@
   .rank-btn:disabled {
     opacity: 0.3;
     cursor: not-allowed;
+  }
+
+  .validation-warning {
+    background: #fef3cd;
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .validation-warning h4 {
+    margin: 0 0 0.5rem;
+    color: #92400e;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .validation-error {
+    font-size: 0.875rem;
+    color: #92400e;
+    margin: 0.25rem 0;
+  }
+
+  .own-entry-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: #3b82f6;
+    background: #dbeafe;
+    padding: 0.125rem 0.5rem;
+    border-radius: 12px;
+    font-weight: 500;
   }
 
   .loading, .error-state, .empty-state {
@@ -761,6 +878,24 @@
           </button>
         </div>
 
+        {#if validationErrors.length > 0}
+          <div class="validation-warning">
+            <h4>⚠️ Ranking Restrictions</h4>
+            {#each validationErrors as error}
+              <div class="validation-error">{error.message}</div>
+            {/each}
+          </div>
+        {/if}
+
+        {#if competitionType === 'intraclub'}
+          <div class="validation-warning" style="background: #f0f9ff; border-color: #3b82f6;">
+            <h4>ℹ️ Intraclub Competition Rules</h4>
+            <div style="color: #1e40af; font-size: 0.875rem;">
+              You cannot rank your own entries in positions 1-3. Your entries are marked with a blue indicator.
+            </div>
+          </div>
+        {/if}
+
         {#if rankings.length === 0}
           <div class="empty-state">
             <h3>No Scored Entries</h3>
@@ -772,16 +907,21 @@
         {:else}
           <div class="rankings-list">
             {#each rankings as ranking, index}
-              <div class="ranking-item">
+              <div class="ranking-item {isOwnEntry(ranking.entry) ? 'own-entry' : ''} {getEntryValidationClass(ranking)}">
                 <div class="rank-position">
                   {getRankIcon(ranking.rank_position)}
                 </div>
 
                 <div class="entry-info">
-                  <div class="entry-number">Entry #{ranking.entry.entry_number}</div>
+                  <div class="entry-number">
+                    Entry #{ranking.entry.entry_number}
+                    {#if isOwnEntry(ranking.entry)}
+                      <span class="own-entry-indicator">👤 Your Entry</span>
+                    {/if}
+                  </div>
                   <div class="entry-details">
                     <div class="detail-text">
-                      <strong>{ranking.entry.beer_name || 'No name'}</strong>
+                      <strong>{getBeerNameDisplay(ranking.entry.beer_name)}</strong>
                     </div>
                     {#if selectedCategory?.isCustomGroup}
                       <div class="detail-text">
