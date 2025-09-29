@@ -52,6 +52,14 @@
     return isCompDirector ? '' : 'brewer-name-hidden';
   }
 
+  // Helper function to get beer name display
+  function getBeerNameDisplay(beerName) {
+    if (isCompDirector) {
+      return beerName || 'Unknown Beer';
+    }
+    return 'Hidden'; // Hidden for non-Comp Directors
+  }
+
   // Helper functions for ranking points calculation
   function getPointsForRanking(rankPosition) {
     // Point system: 1st=3pts, 2nd=2pts, 3rd=1pt, others=0pts
@@ -267,12 +275,12 @@
 
       filtered = filtered.filter(entry =>
         entry.entry_number?.toLowerCase().includes(query) ||
-        entry.beer_name?.toLowerCase().includes(query) ||
         entry.category_display?.toLowerCase().includes(query) ||
-        // Only allow member name/email search for Competition Directors
+        // Only allow member name/email/beer name search for Competition Directors
         (isCompDirector && (
           entry.member_name?.toLowerCase().includes(query) ||
-          entry.member_email?.toLowerCase().includes(query)
+          entry.member_email?.toLowerCase().includes(query) ||
+          entry.beer_name?.toLowerCase().includes(query)
         ))
       );
     }
@@ -879,7 +887,7 @@
       <input
         type="text"
         class="search-input"
-        placeholder={isCompDirector ? "Search by entry number, member, or beer name..." : "Search by entry number or beer name..."}
+        placeholder={isCompDirector ? "Search by entry number, member, or beer name..." : "Search by entry number or category..."}
         bind:value={searchQuery}
       />
       <select class="filter-select" bind:value={categoryFilter}>
@@ -948,7 +956,7 @@
                   <div class="{getBrewerNameClass()}">{getBrewerNameDisplay(entry.member_name)}</div>
                   <small class="{getBrewerNameClass()}">{getBrewerEmailDisplay(entry.member_email)}</small>
                 </td>
-                <td>{entry.beer_name || '-'}</td>
+                <td class="{getBrewerNameClass()}">{getBeerNameDisplay(entry.beer_name)}</td>
                 <td><span class="category-badge">{entry.category_display}</span></td>
                 <td>
                   <span style="font-weight: 600; color: {entry.ranking_points > 0 ? '#059669' : '#666'};">
@@ -1021,7 +1029,7 @@
             </div>
             <div style="margin-bottom: 1rem;">
               <div class="{getBrewerNameClass()}"><strong>{getBrewerNameDisplay(entry.member_name)}</strong></div>
-              <div>{entry.beer_name || 'No beer name'}</div>
+              <div class="{getBrewerNameClass()}">{getBeerNameDisplay(entry.beer_name)}</div>
               <span class="category-badge">{entry.category_display}</span>
               <div style="margin-top: 0.5rem;">
                 <span style="font-size: 0.875rem; color: #666;">Ranking Points: </span>
