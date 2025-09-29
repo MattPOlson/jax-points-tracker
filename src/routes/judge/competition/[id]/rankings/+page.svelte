@@ -24,6 +24,17 @@
   let competitionType = null;
   let validationErrors = [];
 
+  // Check if current user is Comp Director for displaying beer names
+  $: isCompDirector = $userProfile?.role === 'competition_director';
+
+  // Helper function to get beer name display
+  function getBeerNameDisplay(beerName) {
+    if (isCompDirector) {
+      return beerName || 'No name provided';
+    }
+    return 'Hidden'; // Hidden for non-Comp Directors
+  }
+
   onMount(async () => {
     if (!$userProfile) {
       goto('/auth');
@@ -910,7 +921,7 @@
                   </div>
                   <div class="entry-details">
                     <div class="detail-text">
-                      <strong>{ranking.entry.beer_name || 'No name'}</strong>
+                      <strong>{getBeerNameDisplay(ranking.entry.beer_name)}</strong>
                     </div>
                     {#if selectedCategory?.isCustomGroup}
                       <div class="detail-text">
