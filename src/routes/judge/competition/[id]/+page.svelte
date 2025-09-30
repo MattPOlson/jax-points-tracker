@@ -165,12 +165,7 @@
   }
 
   async function saveProgress() {
-    if (!$currentEntry) {
-      console.log('saveProgress: No current entry');
-      return;
-    }
-
-    console.log('saveProgress: Starting save for entry', $currentEntry.id);
+    if (!$currentEntry) return;
 
     try {
       const dataToSave = {
@@ -187,9 +182,7 @@
         }
       });
 
-      console.log('saveProgress: Calling store.saveJudgingResults...');
       await competitionJudgingStore.saveJudgingResults($currentEntry.id, dataToSave);
-      console.log('saveProgress: Save completed successfully');
       showToast('Progress saved', 'success');
     } catch (err) {
       console.error('Error auto-saving:', err);
@@ -207,12 +200,7 @@
   }
 
   async function navigateToNext() {
-    if (!$currentEntry || isSaving) {
-      console.log('Navigation blocked:', { hasEntry: !!$currentEntry, isSaving });
-      return;
-    }
-
-    console.log('Starting navigation to next entry...');
+    if (!$currentEntry || isSaving) return;
 
     // Cancel any pending autosave and save immediately before navigating
     if (autoSaveTimeout) {
@@ -221,15 +209,12 @@
 
     isSaving = true;
     try {
-      console.log('Saving progress before navigation...');
       await saveProgress();
-      console.log('Progress saved successfully');
 
       const entries = $activeSession.assignedEntries;
       const nextIndex = currentEntryIndex + 1;
 
       if (nextIndex < entries.length) {
-        console.log('Navigating to entry', nextIndex);
         currentEntryIndex = nextIndex;
         competitionJudgingStore.setCurrentEntry(nextIndex);
         loadCurrentEntryData();
@@ -239,7 +224,6 @@
       // Don't navigate if save failed
     } finally {
       isSaving = false;
-      console.log('Navigation complete, isSaving reset');
     }
   }
 
