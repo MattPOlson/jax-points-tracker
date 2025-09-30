@@ -835,6 +835,11 @@
     border-radius: 6px;
   }
 
+  /* Entries view has 5 items, so special grid */
+  #entries .mobile-card-details {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .mobile-detail-item {
     display: flex;
     flex-direction: column;
@@ -1241,6 +1246,7 @@
                 <th>Entry</th>
                 <th>Brewer</th>
                 <th>Category</th>
+                <th>Style</th>
                 <th>Judges</th>
                 <th>Average Score</th>
                 <th>Status</th>
@@ -1259,9 +1265,21 @@
                   <td><span class="{getBrewerNameClass()}">{getBrewerNameDisplay(entry.members?.name)}</span></td>
                   <td>
                     {#if entry.bjcp_categories}
-                      {entry.bjcp_categories.category_number}{entry.bjcp_categories.subcategory_letter || ''} - {entry.bjcp_categories.category_name}
+                      {entry.bjcp_categories.category_number} {entry.bjcp_categories.category_name}
                     {:else}
-                      Unknown
+                      -
+                    {/if}
+                  </td>
+                  <td>
+                    {#if entry.bjcp_categories}
+                      <span style="background: #f3f4f6; color: #374151; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem; font-weight: 600;">
+                        {entry.bjcp_categories.category_number}{entry.bjcp_categories.subcategory_letter || ''}
+                      </span>
+                      {#if entry.bjcp_categories.subcategory_name}
+                        <br><small style="color: #666;">{entry.bjcp_categories.subcategory_name}</small>
+                      {/if}
+                    {:else}
+                      -
                     {/if}
                   </td>
                   <td>{scores.count} / {judges.length}</td>
@@ -1302,7 +1320,7 @@
                     {scores.count === judges.length ? 'Complete' : scores.count > 0 ? 'Partial' : 'Pending'}
                   </div>
                 </div>
-                
+
                 <div class="mobile-card-details">
                   <div class="mobile-detail-item">
                     <span class="mobile-detail-label">Brewer</span>
@@ -1312,9 +1330,24 @@
                     <span class="mobile-detail-label">Category</span>
                     <span class="mobile-detail-value">
                       {#if entry.bjcp_categories}
-                        {entry.bjcp_categories.category_number}{entry.bjcp_categories.subcategory_letter || ''}
+                        {entry.bjcp_categories.category_number} {entry.bjcp_categories.category_name}
                       {:else}
-                        Unknown
+                        -
+                      {/if}
+                    </span>
+                  </div>
+                  <div class="mobile-detail-item">
+                    <span class="mobile-detail-label">Style</span>
+                    <span class="mobile-detail-value">
+                      {#if entry.bjcp_categories}
+                        <span style="background: #f3f4f6; color: #374151; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem; font-weight: 600;">
+                          {entry.bjcp_categories.category_number}{entry.bjcp_categories.subcategory_letter || ''}
+                        </span>
+                        {#if entry.bjcp_categories.subcategory_name}
+                          <br><small style="color: #666; font-size: 0.8rem;">{entry.bjcp_categories.subcategory_name}</small>
+                        {/if}
+                      {:else}
+                        -
                       {/if}
                     </span>
                   </div>
@@ -1335,14 +1368,6 @@
                     </span>
                   </div>
                 </div>
-
-                {#if entry.bjcp_categories?.category_name}
-                  <div style="margin-top: 0.5rem; padding: 0.5rem; background: #f3f4f6; border-radius: 4px;">
-                    <div style="font-size: 0.875rem; color: #666;">
-                      {entry.bjcp_categories.category_name}
-                    </div>
-                  </div>
-                {/if}
               </div>
             {/each}
           </div>
