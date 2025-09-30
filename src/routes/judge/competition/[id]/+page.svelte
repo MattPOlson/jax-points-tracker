@@ -165,7 +165,7 @@
   }
 
   async function saveProgress() {
-    if (!$currentEntry || isSaving) return;
+    if (!$currentEntry) return;
 
     try {
       const dataToSave = {
@@ -187,6 +187,7 @@
     } catch (err) {
       console.error('Error auto-saving:', err);
       showToast('Failed to save progress', 'error');
+      throw err; // Re-throw to prevent navigation on save failure
     }
   }
 
@@ -218,6 +219,9 @@
         competitionJudgingStore.setCurrentEntry(nextIndex);
         loadCurrentEntryData();
       }
+    } catch (err) {
+      console.error('Failed to save before navigation:', err);
+      // Don't navigate if save failed
     } finally {
       isSaving = false;
     }
@@ -240,6 +244,9 @@
         competitionJudgingStore.setCurrentEntry(currentEntryIndex);
         loadCurrentEntryData();
       }
+    } catch (err) {
+      console.error('Failed to save before navigation:', err);
+      // Don't navigate if save failed
     } finally {
       isSaving = false;
     }
@@ -260,6 +267,9 @@
       currentEntryIndex = index;
       competitionJudgingStore.setCurrentEntry(index);
       loadCurrentEntryData();
+    } catch (err) {
+      console.error('Failed to save before navigation:', err);
+      // Don't navigate if save failed
     } finally {
       isSaving = false;
     }
