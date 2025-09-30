@@ -804,12 +804,12 @@
             <div class="detail-item">
               <span class="detail-label">Category</span>
               <span class="detail-value">
-                {$currentEntry.category?.category_number || ''}{$currentEntry.category?.subcategory_letter || ''} - {$currentEntry.category?.category_name || 'Unknown'}
+                {$currentEntry.category?.category_number || ''} - {$currentEntry.category?.category_name || 'Unknown'}
               </span>
             </div>
             <div class="detail-item">
-              <span class="detail-label">Subcategory</span>
-              <span class="detail-value">{$currentEntry.category?.subcategory_name || 'N/A'}</span>
+              <span class="detail-label">Style</span>
+              <span class="detail-value">{$currentEntry.category?.category_number || ''}{$currentEntry.category?.subcategory_letter || ''} - {$currentEntry.category?.subcategory_name || 'N/A'}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Entry Notes</span>
