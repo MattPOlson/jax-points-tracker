@@ -60,15 +60,21 @@
   // Reactive Variables
   // =============================================
 
+  let previousMainCategory = "";
+
   // Get available subcategories for editing
   $: availableSubcategories = editForm.main_category
     ? $categoriesByNumber[editForm.main_category]?.subcategories || []
     : [];
 
-  // Reset subcategory when main category changes
-  $: if (editForm.main_category) {
+  // Reset subcategory when main category changes (but not during initialization)
+  $: if (editForm.main_category && editForm.main_category !== previousMainCategory && previousMainCategory !== "") {
     editForm.subcategory = "";
     editForm.bjcp_category_id = "";
+    previousMainCategory = editForm.main_category;
+  } else if (editForm.main_category && previousMainCategory === "") {
+    // First time setting, just track it
+    previousMainCategory = editForm.main_category;
   }
 
   // Set bjcp_category_id when subcategory is selected
@@ -243,6 +249,7 @@
       main_category: "",
       subcategory: "",
     };
+    previousMainCategory = "";
     saveError = null;
   }
 

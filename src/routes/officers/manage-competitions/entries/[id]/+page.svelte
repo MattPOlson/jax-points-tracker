@@ -999,7 +999,7 @@ function printLabels() {
 
   .entry-details {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 1rem;
     margin-bottom: 1.5rem;
     padding: 1rem;
@@ -1322,6 +1322,9 @@ function printLabels() {
                   <span class="sort-indicator">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                 {/if}
               </th>
+              <th>
+                Style
+              </th>
               <th on:click={() => handleSort('paid')}>
                 Paid
                 {#if sortColumn === 'paid'}
@@ -1355,11 +1358,18 @@ function printLabels() {
                 </td>
                 <td>{entry.beer_name || '-'}</td>
                 <td>
+                  {#if entry.bjcp_category}
+                    {entry.bjcp_category.category_number} {entry.bjcp_category.category_name}
+                  {:else}
+                    -
+                  {/if}
+                </td>
+                <td>
                   <span class="category-badge">
                     {entry.bjcp_category?.category_number || ''}{entry.bjcp_category?.subcategory_letter || ''}
                   </span>
-                  {#if entry.bjcp_category?.category_name}
-                    <br><small>{entry.bjcp_category.category_name}</small>
+                  {#if entry.bjcp_category?.subcategory_name}
+                    <br><small>{entry.bjcp_category.subcategory_name}</small>
                   {/if}
                 </td>
                 <td>
@@ -1402,11 +1412,21 @@ function printLabels() {
               <div class="detail-group">
                 <span class="label">Category</span>
                 <div class="value">
+                  {#if entry.bjcp_category}
+                    {entry.bjcp_category.category_number} {entry.bjcp_category.category_name}
+                  {:else}
+                    -
+                  {/if}
+                </div>
+              </div>
+              <div class="detail-group">
+                <span class="label">Style</span>
+                <div class="value">
                   <span class="category-mobile">
                     {entry.bjcp_category?.category_number || ''}{entry.bjcp_category?.subcategory_letter || ''}
                   </span>
-                  {#if entry.bjcp_category?.category_name}
-                    <br><small style="color: #666; font-size: 0.8rem;">{entry.bjcp_category.category_name}</small>
+                  {#if entry.bjcp_category?.subcategory_name}
+                    <br><small style="color: #666; font-size: 0.8rem;">{entry.bjcp_category.subcategory_name}</small>
                   {/if}
                 </div>
               </div>

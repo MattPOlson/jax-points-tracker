@@ -687,7 +687,7 @@
         <div class="info-group">
           <span class="info-label">Category</span>
           <span class="info-value">
-            {$currentEntry.category?.category_number || ''}{$currentEntry.category?.subcategory_letter || ''} - {$currentEntry.category?.category_name || 'Unknown'}
+            {$currentEntry.category?.category_number || ''} - {$currentEntry.category?.category_name || 'Unknown'}
           </span>
         </div>
         <div class="info-group">
@@ -695,8 +695,8 @@
           <span class="info-value">{getBeerNameDisplay($currentEntry.beer_name)}</span>
         </div>
         <div class="info-group">
-          <span class="info-label">Subcategory</span>
-          <span class="info-value">{$currentEntry.category?.subcategory_name || 'N/A'}</span>
+          <span class="info-label">Style</span>
+          <span class="info-value">{$currentEntry.category?.subcategory_letter || ''} - {$currentEntry.category?.subcategory_name || 'N/A'}</span>
         </div>
       </div>
 

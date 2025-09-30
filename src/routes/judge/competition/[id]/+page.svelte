@@ -165,7 +165,7 @@
   }
 
   async function saveProgress() {
-    if (!$currentEntry || isSaving) return;
+    if (!$currentEntry) return;
 
     try {
       const dataToSave = {
@@ -187,56 +187,92 @@
     } catch (err) {
       console.error('Error auto-saving:', err);
       showToast('Failed to save progress', 'error');
+      throw err; // Re-throw to prevent navigation on save failure
     }
   }
 
   async function saveAndNext() {
-    if (!$currentEntry) return;
-
-    isSaving = true;
-    try {
-      await saveProgress();
-      navigateToNext();
-    } finally {
-      isSaving = false;
-    }
+    await navigateToNext();
   }
 
   async function saveAndPrevious() {
-    if (!$currentEntry) return;
+    await navigateToPrevious();
+  }
+
+  async function navigateToNext() {
+    if (!$currentEntry || isSaving) return;
+
+    // Cancel any pending autosave and save immediately before navigating
+    if (autoSaveTimeout) {
+      clearTimeout(autoSaveTimeout);
+    }
 
     isSaving = true;
     try {
       await saveProgress();
-      navigateToPrevious();
+
+      const entries = $activeSession.assignedEntries;
+      const nextIndex = currentEntryIndex + 1;
+
+      if (nextIndex < entries.length) {
+        currentEntryIndex = nextIndex;
+        competitionJudgingStore.setCurrentEntry(nextIndex);
+        loadCurrentEntryData();
+      }
+    } catch (err) {
+      console.error('Failed to save before navigation:', err);
+      // Don't navigate if save failed
     } finally {
       isSaving = false;
     }
   }
 
-  function navigateToNext() {
-    const entries = $activeSession.assignedEntries;
-    const nextIndex = currentEntryIndex + 1;
-    
-    if (nextIndex < entries.length) {
-      currentEntryIndex = nextIndex;
-      competitionJudgingStore.setCurrentEntry(nextIndex);
-      loadCurrentEntryData();
+  async function navigateToPrevious() {
+    if (!$currentEntry || isSaving) return;
+
+    // Cancel any pending autosave and save immediately before navigating
+    if (autoSaveTimeout) {
+      clearTimeout(autoSaveTimeout);
+    }
+
+    isSaving = true;
+    try {
+      await saveProgress();
+
+      if (currentEntryIndex > 0) {
+        currentEntryIndex = currentEntryIndex - 1;
+        competitionJudgingStore.setCurrentEntry(currentEntryIndex);
+        loadCurrentEntryData();
+      }
+    } catch (err) {
+      console.error('Failed to save before navigation:', err);
+      // Don't navigate if save failed
+    } finally {
+      isSaving = false;
     }
   }
 
-  function navigateToPrevious() {
-    if (currentEntryIndex > 0) {
-      currentEntryIndex = currentEntryIndex - 1;
-      competitionJudgingStore.setCurrentEntry(currentEntryIndex);
-      loadCurrentEntryData();
-    }
-  }
+  async function navigateToEntry(index) {
+    if (!$currentEntry || isSaving) return;
 
-  function navigateToEntry(index) {
-    currentEntryIndex = index;
-    competitionJudgingStore.setCurrentEntry(index);
-    loadCurrentEntryData();
+    // Cancel any pending autosave and save immediately before navigating
+    if (autoSaveTimeout) {
+      clearTimeout(autoSaveTimeout);
+    }
+
+    isSaving = true;
+    try {
+      await saveProgress();
+
+      currentEntryIndex = index;
+      competitionJudgingStore.setCurrentEntry(index);
+      loadCurrentEntryData();
+    } catch (err) {
+      console.error('Failed to save before navigation:', err);
+      // Don't navigate if save failed
+    } finally {
+      isSaving = false;
+    }
   }
 
   function getScoreColor(score) {
@@ -781,9 +817,10 @@
     <!-- Entry Navigation -->
     <div class="entry-nav">
       {#each $activeSession.assignedEntries as entry, index}
-        <button 
+        <button
           class="entry-nav-item {index === currentEntryIndex ? 'active' : entry.hasBeenJudged ? 'judged' : 'pending'}"
           on:click={() => navigateToEntry(index)}
+          disabled={isSaving}
         >
           {entry.entry_number}
         </button>
@@ -804,12 +841,12 @@
             <div class="detail-item">
               <span class="detail-label">Category</span>
               <span class="detail-value">
-                {$currentEntry.category?.category_number || ''}{$currentEntry.category?.subcategory_letter || ''} - {$currentEntry.category?.category_name || 'Unknown'}
+                {$currentEntry.category?.category_number || ''} - {$currentEntry.category?.category_name || 'Unknown'}
               </span>
             </div>
             <div class="detail-item">
-              <span class="detail-label">Subcategory</span>
-              <span class="detail-value">{$currentEntry.category?.subcategory_name || 'N/A'}</span>
+              <span class="detail-label">Style</span>
+              <span class="detail-value">{$currentEntry.category?.category_number || ''}{$currentEntry.category?.subcategory_letter || ''} - {$currentEntry.category?.subcategory_name || 'N/A'}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Entry Notes</span>
