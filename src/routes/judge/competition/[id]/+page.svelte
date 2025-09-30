@@ -191,68 +191,78 @@
   }
 
   async function saveAndNext() {
-    if (!$currentEntry) return;
-
-    isSaving = true;
-    try {
-      await navigateToNext();
-    } finally {
-      isSaving = false;
-    }
+    await navigateToNext();
   }
 
   async function saveAndPrevious() {
-    if (!$currentEntry) return;
-
-    isSaving = true;
-    try {
-      await navigateToPrevious();
-    } finally {
-      isSaving = false;
-    }
+    await navigateToPrevious();
   }
 
   async function navigateToNext() {
+    if (!$currentEntry || isSaving) return;
+
     // Cancel any pending autosave and save immediately before navigating
     if (autoSaveTimeout) {
       clearTimeout(autoSaveTimeout);
     }
-    await saveProgress();
 
-    const entries = $activeSession.assignedEntries;
-    const nextIndex = currentEntryIndex + 1;
+    isSaving = true;
+    try {
+      await saveProgress();
 
-    if (nextIndex < entries.length) {
-      currentEntryIndex = nextIndex;
-      competitionJudgingStore.setCurrentEntry(nextIndex);
-      loadCurrentEntryData();
+      const entries = $activeSession.assignedEntries;
+      const nextIndex = currentEntryIndex + 1;
+
+      if (nextIndex < entries.length) {
+        currentEntryIndex = nextIndex;
+        competitionJudgingStore.setCurrentEntry(nextIndex);
+        loadCurrentEntryData();
+      }
+    } finally {
+      isSaving = false;
     }
   }
 
   async function navigateToPrevious() {
+    if (!$currentEntry || isSaving) return;
+
     // Cancel any pending autosave and save immediately before navigating
     if (autoSaveTimeout) {
       clearTimeout(autoSaveTimeout);
     }
-    await saveProgress();
 
-    if (currentEntryIndex > 0) {
-      currentEntryIndex = currentEntryIndex - 1;
-      competitionJudgingStore.setCurrentEntry(currentEntryIndex);
-      loadCurrentEntryData();
+    isSaving = true;
+    try {
+      await saveProgress();
+
+      if (currentEntryIndex > 0) {
+        currentEntryIndex = currentEntryIndex - 1;
+        competitionJudgingStore.setCurrentEntry(currentEntryIndex);
+        loadCurrentEntryData();
+      }
+    } finally {
+      isSaving = false;
     }
   }
 
   async function navigateToEntry(index) {
+    if (!$currentEntry || isSaving) return;
+
     // Cancel any pending autosave and save immediately before navigating
     if (autoSaveTimeout) {
       clearTimeout(autoSaveTimeout);
     }
-    await saveProgress();
 
-    currentEntryIndex = index;
-    competitionJudgingStore.setCurrentEntry(index);
-    loadCurrentEntryData();
+    isSaving = true;
+    try {
+      await saveProgress();
+
+      currentEntryIndex = index;
+      competitionJudgingStore.setCurrentEntry(index);
+      loadCurrentEntryData();
+    } finally {
+      isSaving = false;
+    }
   }
 
   function getScoreColor(score) {
