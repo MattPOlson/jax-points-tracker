@@ -165,7 +165,12 @@
   }
 
   async function saveProgress() {
-    if (!$currentEntry) return;
+    if (!$currentEntry) {
+      console.log('saveProgress: No current entry');
+      return;
+    }
+
+    console.log('saveProgress: Starting save for entry', $currentEntry.id);
 
     try {
       const dataToSave = {
@@ -182,7 +187,9 @@
         }
       });
 
+      console.log('saveProgress: Calling store.saveJudgingResults...');
       await competitionJudgingStore.saveJudgingResults($currentEntry.id, dataToSave);
+      console.log('saveProgress: Save completed successfully');
       showToast('Progress saved', 'success');
     } catch (err) {
       console.error('Error auto-saving:', err);
@@ -200,7 +207,12 @@
   }
 
   async function navigateToNext() {
-    if (!$currentEntry || isSaving) return;
+    if (!$currentEntry || isSaving) {
+      console.log('Navigation blocked:', { hasEntry: !!$currentEntry, isSaving });
+      return;
+    }
+
+    console.log('Starting navigation to next entry...');
 
     // Cancel any pending autosave and save immediately before navigating
     if (autoSaveTimeout) {
@@ -209,12 +221,15 @@
 
     isSaving = true;
     try {
+      console.log('Saving progress before navigation...');
       await saveProgress();
+      console.log('Progress saved successfully');
 
       const entries = $activeSession.assignedEntries;
       const nextIndex = currentEntryIndex + 1;
 
       if (nextIndex < entries.length) {
+        console.log('Navigating to entry', nextIndex);
         currentEntryIndex = nextIndex;
         competitionJudgingStore.setCurrentEntry(nextIndex);
         loadCurrentEntryData();
@@ -224,6 +239,7 @@
       // Don't navigate if save failed
     } finally {
       isSaving = false;
+      console.log('Navigation complete, isSaving reset');
     }
   }
 
@@ -817,9 +833,10 @@
     <!-- Entry Navigation -->
     <div class="entry-nav">
       {#each $activeSession.assignedEntries as entry, index}
-        <button 
+        <button
           class="entry-nav-item {index === currentEntryIndex ? 'active' : entry.hasBeenJudged ? 'judged' : 'pending'}"
           on:click={() => navigateToEntry(index)}
+          disabled={isSaving}
         >
           {entry.entry_number}
         </button>
