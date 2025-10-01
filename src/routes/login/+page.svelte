@@ -6,6 +6,7 @@
   import { goto } from '$app/navigation';
   import { user } from '$lib/stores/user';
   import { page } from '$app/stores';
+  import { Hero, Container, LoadingSpinner } from '$lib/components/ui';
 
  // import { isLoaded as categoriesLoaded } from '$lib/stores/categoryStore';
  // import { isLoaded as approvalsLoaded } from '$lib/stores/approvalsStore';
@@ -109,19 +110,20 @@
 </script>
 
 {#if splash}
-  <div class="splash-screen">
-    <div class="splash-content">
-      <div class="spinner"></div>
-      <p>Loading your dashboard...</p>
+  <Container>
+    <LoadingSpinner message="Loading your dashboard..." />
+    <p style="text-align: center; color: var(--color-text-secondary); margin-top: var(--space-4);">
       <small>This may take a few moments</small>
-    </div>
-  </div>
+    </p>
+  </Container>
 {:else if !$user}
   <div class="login-container" class:mobile={isMobile}>
-    <div class="login-header">
-      <h1>🍻 JAX Members Portal</h1>
-      <p>{isMobile ? 'Sign in to continue' : 'Have Fun Brew Better Beer!'}</p>
-    </div>
+    <Hero
+      title="JAX Members Portal"
+      subtitle={isMobile ? 'Sign in to continue' : 'Have Fun Brew Better Beer!'}
+      icon="🍻"
+      center={true}
+    />
     
     <div class="auth-wrapper" class:mobile={isMobile}>
       <Auth
@@ -166,28 +168,8 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: #f8fafc; /* Match your app's light background */
-    padding: 2rem;
-  }
-
-  .login-header {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-
-  .login-header h1 {
-    color: #ff3e00; /* Match your main h1 color */
-    text-transform: uppercase;
-    font-size: 3rem;
-    font-weight: 100;
-    margin-bottom: 0.5rem;
-    line-height: 1.1;
-  }
-
-  .login-header p {
-    font-size: 1.1rem;
-    color: #333; /* Match your subtitle color */
-    margin: 0;
+    background: var(--color-bg-secondary);
+    padding: var(--space-8);
   }
 
   .auth-wrapper {
@@ -206,70 +188,13 @@
   }
 
   .login-container.mobile {
-    padding: 1rem;
-  }
-
-  .login-container.mobile .login-header h1 {
-    font-size: 2.5rem;
-  }
-
-  .login-container.mobile .login-header p {
-    font-size: 1rem;
-  }
-
-  .splash-screen {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #f8fafc; /* Match your app's background */
-  }
-
-  .splash-content {
-    text-align: center;
-    color: #333;
-  }
-
-  .splash-content p {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 1rem 0 0.5rem 0;
-    color: #ff3e00; /* Match your brand color */
-  }
-
-  .splash-content small {
-    font-size: 1rem;
-    opacity: 0.7;
-    color: #666;
-  }
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(255, 62, 0, 0.2); /* Use your brand color */
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    padding: var(--space-4);
   }
 
   /* Responsive design to match your main page breakpoints */
   @media (max-width: 480px) {
     .login-container {
-      padding: 1rem;
-    }
-
-    .login-header h1 {
-      font-size: 2.5rem; /* Match your main page mobile h1 size */
-    }
-
-    .login-header p {
-      font-size: 0.9rem;
+      padding: var(--space-4);
     }
 
     .auth-wrapper {
@@ -279,15 +204,7 @@
 
   @media (min-width: 640px) {
     .login-container {
-      padding: 3rem 2rem;
-    }
-
-    .login-header h1 {
-      font-size: 4rem; /* Match your main page desktop h1 size */
-    }
-
-    .login-header p {
-      font-size: 1.125rem;
+      padding: var(--space-12) var(--space-8);
     }
 
     .auth-wrapper {
