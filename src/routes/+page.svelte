@@ -117,7 +117,7 @@
       <h2>Quick Actions</h2>
       <div class="nav-links">
         {#each visibleNavItems as item}
-          <a href={item.href} class="nav-card" class:competition-card={item.isCompetition}>
+          <a href={item.href} class="nav-card">
             <span class="nav-icon">{item.icon}</span>
             <div class="nav-content">
               <span class="nav-label">{item.label}</span>
@@ -135,7 +135,7 @@
         {/each}
 
         {#each visibleOfficerItems as item}
-          <a href={item.href} class="nav-card officer-card">
+          <a href={item.href} class="nav-card">
             <span class="nav-icon">{item.icon}</span>
             <div class="nav-content">
               <span class="nav-label">{item.label}</span>
@@ -200,9 +200,9 @@
     display: flex;
     align-items: center;
     text-decoration: none;
-    background-color: var(--color-bg-primary);
+    background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-brand-primary-light) 100%);
     color: var(--color-text-primary);
-    border: 1px solid var(--color-border-primary);
+    border: 2px solid var(--color-brand-primary);
     padding: var(--space-4);
     border-radius: var(--radius-md);
     transition: all var(--transition-base);
@@ -210,30 +210,10 @@
   }
 
   .nav-card:hover {
-    background-color: var(--color-info);
+    background-color: var(--color-brand-primary);
     color: var(--color-text-inverse);
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
-    border-color: var(--color-info);
-  }
-
-  .competition-card {
-    border-color: var(--color-brand-primary);
-    background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-brand-primary-light) 100%);
-  }
-
-  .competition-card:hover {
-    background-color: var(--color-brand-primary);
-    border-color: var(--color-brand-primary);
-  }
-
-  .officer-card {
-    border-color: var(--color-brand-primary);
-    background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-brand-primary-light) 100%);
-  }
-
-  .officer-card:hover {
-    background-color: var(--color-brand-primary);
     border-color: var(--color-brand-primary);
   }
 
