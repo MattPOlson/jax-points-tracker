@@ -10,6 +10,7 @@
     loading,
   } from "$lib/stores/mySubmissionsStore.js";
   import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
+  import { Hero, Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
 
   let submissions = [];
   let message = "";
@@ -145,24 +146,19 @@
   });
 </script>
 
-<main>
-  <div class="hero-section">
-    <h1>📋 My Submissions</h1>
-    <p class="subtitle">Track your brewing achievements and points</p>
-  </div>
+<Container size="lg">
+  <Hero title="My Submissions" subtitle="Track your brewing achievements and points" icon="📋" center={true} />
 
   {#if $loading}
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading your submissions...</p>
-    </div>
+    <LoadingSpinner message="Loading your submissions..." />
   {:else if !currentUserId}
-    <div class="empty-state">
-      <div class="empty-icon">🔒</div>
-      <h3>Authentication Required</h3>
-      <p>Please log in to view your submissions.</p>
-      <a href="/login" class="login-button">Sign In</a>
-    </div>
+    <EmptyState
+      icon="🔒"
+      title="Authentication Required"
+      message="Please log in to view your submissions."
+      actionLabel="Sign In"
+      actionHref="/login"
+    />
   {:else}
     <!-- Stats Overview -->
     {#if !$loading && $storeAll && $storeAll.length > 0}
@@ -211,9 +207,12 @@
 
     <!-- Filter Controls -->
     <div class="controls-section">
-      <button on:click={toggleView} class="filter-button {showAll ? 'active' : ''}">
+      <Button
+        variant={showAll ? 'primary' : 'secondary'}
+        on:click={toggleView}
+      >
         {showAll ? "📋 Show All" : "⏳ Pending Only"}
-      </button>
+      </Button>
       
       <div class="view-info">
         <span class="count-display">
@@ -351,60 +350,9 @@
       </div>
     {/if}
   {/if}
-</main>
+</Container>
 
 <style>
-  /* Base styles */
-  main {
-    margin: 0 auto;
-    padding: 1rem;
-    width: 90%;
-    max-width: 1200px;
-    text-align: center;
-  }
-
-  .hero-section {
-    margin-bottom: 3rem;
-  }
-
-  h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 3.5rem;
-    font-weight: 100;
-    margin: 0 0 0.25em;
-    line-height: 1.1;
-  }
-
-  .subtitle {
-    font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
-    margin-bottom: 2rem;
-  }
-
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    padding: 3rem;
-    color: #666;
-  }
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(255, 62, 0, 0.2);
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
 
   /* Stats Section */
   .stats-section {
@@ -457,36 +405,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
-    padding: 1rem;
+    margin-bottom: var(--space-8);
+    padding: var(--space-4);
     background: white;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .filter-button {
-    background-color: #6b7280;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .filter-button:hover {
-    background-color: #4b5563;
-    transform: translateY(-1px);
-  }
-
-  .filter-button.active {
-    background-color: #ff3e00;
-  }
-
-  .filter-button.active:hover {
-    background-color: #e63600;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
   }
 
   .count-display {
@@ -675,70 +598,57 @@
     font-style: italic;
   }
 
-  /* Empty State */
+  /* Empty State - minimal styles, EmptyState component handles most */
   .empty-state {
     background: white;
-    border-radius: 6px;
-    padding: 3rem 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-md);
+    padding: var(--space-12) var(--space-8);
+    box-shadow: var(--shadow-md);
     text-align: center;
   }
 
   .empty-icon {
     font-size: 4rem;
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-4);
   }
 
   .empty-state h3 {
-    color: #333;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-4);
     text-transform: none;
   }
 
   .empty-state p {
-    color: #666;
-    margin-bottom: 2rem;
-    font-size: 1.1rem;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-8);
+    font-size: var(--font-size-lg);
   }
 
-  .login-button,
   .submit-button,
   .toggle-button {
-    background-color: #ff3e00;
+    background-color: var(--color-brand-primary);
     color: white;
     text-decoration: none;
     border: none;
-    border-radius: 6px;
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
-    font-weight: 500;
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-8);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
     cursor: pointer;
     display: inline-block;
-    transition: all 0.2s ease;
+    transition: all var(--transition-base);
   }
 
-  .login-button:hover,
   .submit-button:hover,
   .toggle-button:hover {
-    background-color: #e63600;
+    background-color: var(--color-brand-primary-hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 62, 0, 0.3);
+    box-shadow: var(--shadow-lg);
   }
 
   /* Mobile Responsive */
   @media (max-width: 768px) {
-    main {
-      padding: 4.5rem 1rem 1rem;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-    }
-
-    .subtitle {
-      font-size: 1rem;
-    }
 
     .stats-grid {
       grid-template-columns: repeat(2, 1fr);
@@ -771,9 +681,6 @@
       display: block;
     }
 
-    .empty-state {
-      padding: 2rem 1rem;
-    }
   }
 
   @media (max-width: 480px) {

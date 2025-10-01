@@ -19,6 +19,7 @@
   } from "$lib/stores/userProfile";
   import { get } from "svelte/store";
   import { page } from "$app/stores";
+  import { Hero, Container, LoadingSpinner, EmptyState, Button, FormSelect, FormTextarea } from '$lib/components/ui';
 
   // Form state
   let selectedCategory = "";
@@ -329,19 +330,15 @@
   });
 </script>
 
-<main>
-  <h2>Submit Points</h2>
+<Container size="sm">
+  <Hero title="Submit Points" center={true} />
 
   {#if $isLoading || $isLoadingProfile}
-    <div class="loading">
-      <p>Loading data...</p>
-      <small>
-        {#if $isLoading}Loading categories...{/if}
-        {#if $isLoadingProfile}Loading user profile...{/if}
-      </small>
-      <button on:click={() => loadData(true)} class="retry-btn">
+    <LoadingSpinner message="Loading data..." />
+    <div style="text-align: center; margin-top: var(--space-4);">
+      <Button variant="success" on:click={() => loadData(true)}>
         Force Refresh
-      </button>
+      </Button>
     </div>
   {:else if $categories.length > 0}
     <form on:submit|preventDefault={handleSubmit}>
@@ -475,38 +472,27 @@
         </label>
       {/if}
 
-      <button
+      <Button
         type="submit"
+        variant="primary"
         disabled={!canSubmit}
-        class:submitting={isSubmitting}
+        fullWidth
       >
         {isSubmitting ? "Submitting..." : "Submit Points"}
-      </button>
+      </Button>
     </form>
   {:else}
-    <div class="error">
-      <p>Failed to load categories. Please refresh the page.</p>
-      <button on:click={() => loadData(true)}>Retry</button>
-    </div>
+    <EmptyState
+      icon="⚠️"
+      title="Failed to Load"
+      message="Failed to load categories. Please refresh the page."
+      actionLabel="Retry"
+      on:action={() => loadData(true)}
+    />
   {/if}
-</main>
+</Container>
 
 <style>
-  main {
-    margin: 0 auto;
-    padding: 1rem;
-    width: 90%;
-    max-width: 600px;
-    text-align: center;
-  }
-
-  h2 {
-    text-transform: uppercase;
-    color: #ff3e00;
-    font-size: 2rem;
-    font-weight: 100;
-    margin: 2rem 0 1rem;
-  }
 
   form {
     display: flex;
@@ -552,61 +538,6 @@
     color: #1e293b;
   }
 
-  button {
-    padding: 0.75rem 1.5rem;
-    background-color: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    margin-top: 1rem;
-  }
-
-  button:hover:not(:disabled) {
-    background-color: #1d4ed8;
-  }
-
-  button:disabled {
-    background-color: #cbd5e1;
-    cursor: not-allowed;
-  }
-
-  button.submitting {
-    background-color: #64748b;
-  }
-
-  .loading,
-  .error {
-    padding: 2rem;
-    text-align: center;
-  }
-
-  .loading .retry-btn {
-    background-color: #059669;
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-  }
-
-  .loading .retry-btn:hover {
-    background-color: #047857;
-  }
-
-  .error {
-    color: #dc2626;
-  }
-
-  .error button {
-    background-color: #dc2626;
-    margin-top: 1rem;
-  }
-
-  .error button:hover {
-    background-color: #b91c1c;
-  }
 
   textarea {
     padding: 0.5rem;
