@@ -12,6 +12,7 @@
   } from "$lib/stores/approvalsStore.js";
   import { page } from "$app/stores";
   import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
+  import { Hero, Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
 
   let message = "";
   let showApprovalModal = false;
@@ -171,31 +172,27 @@
   }
 </script>
 
-<main>
-  <div class="hero-section">
-    <h1>✅ Review Submissions</h1>
-    <p class="subtitle">Approve or reject member point submissions</p>
-  </div>
+<Container size="lg">
+  <Hero title="Review Submissions" subtitle="Approve or reject member point submissions" icon="✅" center={true} />
 
   {#if $loading}
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading submissions...</p>
-    </div>
+    <LoadingSpinner message="Loading submissions..." />
   {:else if !$user}
-    <div class="empty-state">
-      <div class="empty-icon">🔒</div>
-      <h3>Authentication Required</h3>
-      <p>Please log in to access the approvals system.</p>
-      <a href="/login" class="login-button">Sign In</a>
-    </div>
+    <EmptyState
+      icon="🔒"
+      title="Authentication Required"
+      message="Please log in to access the approvals system."
+      actionLabel="Sign In"
+      actionHref="/login"
+    />
   {:else if !$userProfile?.is_officer}
-    <div class="empty-state">
-      <div class="empty-icon">⚠️</div>
-      <h3>Access Restricted</h3>
-      <p>Officer privileges are required to review submissions.</p>
-      <a href="/officers" class="back-button">Back to Officer Tools</a>
-    </div>
+    <EmptyState
+      icon="⚠️"
+      title="Access Restricted"
+      message="Officer privileges are required to review submissions."
+      actionLabel="Back to Officer Tools"
+      actionHref="/officers"
+    />
   {:else if submissions.length > 0}
     <div class="submissions-container">
       <!-- Summary Stats -->
@@ -326,14 +323,15 @@
       </div>
     </div>
   {:else}
-    <div class="empty-state">
-      <div class="empty-icon">🎉</div>
-      <h3>All Caught Up!</h3>
-      <p>No pending submissions to review at this time.</p>
-      <button on:click={() => loadApprovals(true)} class="refresh-button">
+    <EmptyState
+      icon="🎉"
+      title="All Caught Up!"
+      message="No pending submissions to review at this time."
+    >
+      <Button variant="secondary" on:click={() => loadApprovals(true)}>
         🔄 Refresh
-      </button>
-    </div>
+      </Button>
+    </EmptyState>
   {/if}
 
   {#if message}
@@ -486,64 +484,9 @@
       </div>
     </div>
   {/if}
-</main>
+</Container>
 
 <style>
-  /* Base styles */
-  main {
-    margin: 0 auto;
-    padding: 1rem;
-    width: 90%;
-    max-width: 1200px;
-    text-align: center;
-  }
-
-  .hero-section {
-    margin-bottom: 3rem;
-  }
-
-  h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 3.5rem;
-    font-weight: 100;
-    margin: 0 0 0.25em;
-    line-height: 1.1;
-  }
-
-  .subtitle {
-    font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
-    margin-bottom: 2rem;
-  }
-
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    padding: 3rem;
-    color: #666;
-  }
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(255, 62, 0, 0.2);
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
 
   /* Summary Card */
   .summary-card {
@@ -778,56 +721,6 @@
     font-size: 0.9rem;
   }
 
-  /* Empty State */
-  .empty-state {
-    background: white;
-    border-radius: 6px;
-    padding: 3rem 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-
-  .empty-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-  }
-
-  .empty-state h3 {
-    color: #333;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    text-transform: none;
-  }
-
-  .empty-state p {
-    color: #666;
-    margin-bottom: 2rem;
-    font-size: 1.1rem;
-  }
-
-  .login-button,
-  .back-button,
-  .refresh-button {
-    background-color: #ff3e00;
-    color: white;
-    text-decoration: none;
-    border: none;
-    border-radius: 6px;
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-block;
-    transition: all 0.2s ease;
-  }
-
-  .login-button:hover,
-  .back-button:hover,
-  .refresh-button:hover {
-    background-color: #e63600;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 62, 0, 0.3);
-  }
 
   /* Message Banner */
   .message-banner {
@@ -1036,17 +929,6 @@
 
   /* Mobile Responsive */
   @media (max-width: 768px) {
-    main {
-      padding: 4.5rem 1rem 1rem;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-    }
-
-    .subtitle {
-      font-size: 1rem;
-    }
 
     .summary-card {
       padding: 1rem;
@@ -1096,10 +978,6 @@
 
     .modal-actions {
       flex-direction: column-reverse;
-    }
-
-    .empty-state {
-      padding: 2rem 1rem;
     }
   }
 

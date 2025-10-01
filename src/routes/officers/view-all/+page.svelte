@@ -9,6 +9,7 @@
   } from "$lib/stores/viewAllStore.js";
   import { page } from "$app/stores";
   import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
+  import { Hero, Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
 
   let submissions = [];
   let filtered = [];
@@ -202,31 +203,27 @@
   }
 </script>
 
-<main>
-  <div class="hero-section">
-    <h1>📊 View All Points</h1>
-    <p class="subtitle">Browse and filter all member submissions</p>
-  </div>
+<Container size="xl">
+  <Hero title="View All Points" subtitle="Browse and filter all member submissions" icon="📊" center={true} />
 
   {#if $loading}
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading all submissions...</p>
-    </div>
+    <LoadingSpinner message="Loading all submissions..." />
   {:else if !$user}
-    <div class="empty-state">
-      <div class="empty-icon">🔒</div>
-      <h3>Authentication Required</h3>
-      <p>Please log in to view all submissions.</p>
-      <a href="/login" class="login-button">Sign In</a>
-    </div>
+    <EmptyState
+      icon="🔒"
+      title="Authentication Required"
+      message="Please log in to view all submissions."
+      actionLabel="Sign In"
+      actionHref="/login"
+    />
   {:else if !$userProfile?.is_officer}
-    <div class="empty-state">
-      <div class="empty-icon">⚠️</div>
-      <h3>Access Restricted</h3>
-      <p>Officer privileges are required to view all submissions.</p>
-      <a href="/officers" class="back-button">Back to Officer Tools</a>
-    </div>
+    <EmptyState
+      icon="⚠️"
+      title="Access Restricted"
+      message="Officer privileges are required to view all submissions."
+      actionLabel="Back to Officer Tools"
+      actionHref="/officers"
+    />
   {:else}
     <!-- Filter Controls -->
     <div class="controls-section">
@@ -508,74 +505,20 @@
         {/each}
       </div>
     {:else}
-      <div class="empty-state">
-        <div class="empty-icon">🔍</div>
-        <h3>No Results Found</h3>
-        <p>No submissions match your current filters.</p>
-        <button on:click={clearFilters} class="clear-button">
+      <EmptyState
+        icon="🔍"
+        title="No Results Found"
+        message="No submissions match your current filters."
+      >
+        <Button variant="secondary" on:click={clearFilters}>
           Clear Filters
-        </button>
-      </div>
+        </Button>
+      </EmptyState>
     {/if}
   {/if}
-</main>
+</Container>
 
 <style>
-  /* Base styles */
-  main {
-    margin: 0 auto;
-    padding: 1rem;
-    width: 90%;
-    max-width: 1400px;
-    text-align: center;
-  }
-
-  .hero-section {
-    margin-bottom: 3rem;
-  }
-
-  h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 3.5rem;
-    font-weight: 100;
-    margin: 0 0 0.25em;
-    line-height: 1.1;
-  }
-
-  .subtitle {
-    font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
-    margin-bottom: 2rem;
-  }
-
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    padding: 3rem;
-    color: #666;
-  }
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(255, 62, 0, 0.2);
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
 
   /* Controls Section */
   .controls-section {
@@ -941,66 +884,9 @@
     font-style: italic;
   }
 
-  /* Empty State */
-  .empty-state {
-    background: white;
-    border-radius: 6px;
-    padding: 3rem 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-
-  .empty-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-  }
-
-  .empty-state h3 {
-    color: #333;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    text-transform: none;
-  }
-
-  .empty-state p {
-    color: #666;
-    margin-bottom: 2rem;
-    font-size: 1.1rem;
-  }
-
-  .login-button,
-  .back-button {
-    background-color: #ff3e00;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
-    font-weight: 500;
-    display: inline-block;
-    transition: all 0.2s ease;
-  }
-
-  .login-button:hover,
-  .back-button:hover {
-    background-color: #e63600;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 62, 0, 0.3);
-  }
 
   /* Mobile Responsive */
   @media (max-width: 768px) {
-    main {
-      padding: 4.5rem 1rem 1rem;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-    }
-
-    .subtitle {
-      font-size: 1rem;
-    }
 
     .controls-header {
       flex-direction: column;
@@ -1052,10 +938,6 @@
 
     .card-row .value {
       text-align: left;
-    }
-
-    .empty-state {
-      padding: 2rem 1rem;
     }
   }
 
