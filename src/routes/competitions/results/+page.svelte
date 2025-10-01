@@ -4,6 +4,7 @@
   import { goto } from '$app/navigation';
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
+  import { Hero, Container, LoadingSpinner, EmptyState, Button, Badge } from '$lib/components/ui';
   
   let competitions = [];
   let selectedCompetition = null;
@@ -429,36 +430,6 @@
 </script>
 
 <style>
-  .container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  .hero {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding: 3rem 1rem;
-  }
-
-  .hero h1 {
-    color: #ff3e00;
-    font-size: 3.5rem;
-    font-weight: 100;
-    text-transform: uppercase;
-    margin: 0 0 1rem 0;
-    letter-spacing: 3px;
-  }
-
-  .hero p {
-    font-size: 1.2rem;
-    color: #666;
-    margin: 0;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
   .competition-selector {
     background: white;
     padding: 1.5rem;
@@ -627,48 +598,6 @@
     align-items: center;
   }
 
-  .btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-block;
-  }
-
-  .btn-secondary {
-    background: #6b7280;
-    color: white;
-  }
-
-  .btn-secondary:hover {
-    background: #4b5563;
-  }
-
-  .loading, .empty-state {
-    text-align: center;
-    padding: 3rem;
-    color: #666;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
   .error {
     background: #fee2e2;
     color: #dc2626;
@@ -679,13 +608,6 @@
 
   /* Mobile styles */
   @media (max-width: 768px) {
-    .hero h1 {
-      font-size: 2.5rem;
-      letter-spacing: 2px;
-    }
-    .hero {
-      padding: 2rem 1rem;
-    }
 
     .competition-grid {
       grid-template-columns: 1fr;
@@ -875,18 +797,14 @@
 
 </style>
 
-<div class="container">
-  <!-- Hero Section -->
-  <div class="hero">
-    <h1>Competition Results</h1>
-    <p>View published competition results and standings</p>
-  </div>
+<Container size="xl">
+  <Hero title="Competition Results" subtitle="View published competition results and standings" icon="🏅" center={true} />
 
   <!-- Controls -->
   <div class="controls">
-    <button class="btn btn-secondary" on:click={navigateToCompetitions}>
-      Back to Competitions
-    </button>
+    <Button variant="secondary" on:click={navigateToCompetitions}>
+      ← Back to Competitions
+    </Button>
   </div>
 
   <!-- Error State -->
@@ -898,17 +816,13 @@
 
   <!-- Loading State -->
   {#if isLoading}
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>Loading competition results...</p>
-    </div>
+    <LoadingSpinner message="Loading competition results..." />
   {:else if competitions.length === 0}
-    <!-- No Published Results -->
-    <div class="empty-state">
-      <h3>No Results Published</h3>
-      <p>There are currently no competition results available to view.</p>
-      <p>Check back after competitions have been judged and results published.</p>
-    </div>
+    <EmptyState
+      icon="📅"
+      title="No Results Published"
+      message="There are currently no competition results available to view. Check back after competitions have been judged and results published."
+    />
   {:else}
     <!-- Competition Selector -->
     <div class="competition-selector">
@@ -1075,5 +989,5 @@
       {/if}
     {/if}
   {/if}
-</div>
+</Container>
 
