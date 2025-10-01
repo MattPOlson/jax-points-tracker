@@ -3,6 +3,7 @@
   import { supabase } from '$lib/supabaseClient';
   import { userProfile } from '$lib/stores/userProfile';
   import toast from 'svelte-french-toast';
+  import { Hero, Container, LoadingSpinner, EmptyState, Button, FormInput } from '$lib/components/ui';
 
   // Local copies of profile fields for editing
   let profile = null;
@@ -165,17 +166,11 @@
   });
 </script>
 
-<main>
-  <div class="hero-section">
-    <h1>👤 My Profile</h1>
-    <p class="subtitle">Manage your account information</p>
-  </div>
+<Container size="md">
+  <Hero title="My Profile" subtitle="Manage your account information" icon="👤" center={true} />
 
   {#if loading}
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading your profile...</p>
-    </div>
+    <LoadingSpinner message="Loading your profile..." />
   {:else if profile}
     <div class="profile-container">
       <!-- Profile Header -->
@@ -196,38 +191,31 @@
       <div class="form-section">
         <h3>✏️ Edit Information</h3>
         <div class="form-grid">
-          <div class="input-group">
-            <label for="name">
-              <span class="label-text">Full Name *</span>
-              <input 
-                id="name"
-                type="text" 
-                bind:value={editedName} 
-                placeholder="Enter your full name"
-                disabled={isUpdating}
-              />
-            </label>
-          </div>
+          <FormInput
+            id="name"
+            label="Full Name"
+            type="text"
+            bind:value={editedName}
+            placeholder="Enter your full name"
+            disabled={isUpdating}
+            required
+          />
 
-          <div class="input-group">
-            <label for="phone">
-              <span class="label-text">Phone Number</span>
-              <input 
-                id="phone"
-                type="tel" 
-                bind:value={editedPhone} 
-                placeholder="(555) 123-4567"
-                disabled={isUpdating}
-              />
-            </label>
-          </div>
+          <FormInput
+            id="phone"
+            label="Phone Number"
+            type="tel"
+            bind:value={editedPhone}
+            placeholder="(555) 123-4567"
+            disabled={isUpdating}
+          />
         </div>
 
         {#if isDirty}
           <div class="form-actions">
-            <button 
-              on:click={updateProfile} 
-              class="save-button"
+            <Button
+              on:click={updateProfile}
+              variant="primary"
               disabled={isUpdating}
             >
               {#if isUpdating}
@@ -236,14 +224,14 @@
               {:else}
                 💾 Save Changes
               {/if}
-            </button>
-            <button 
-              on:click={resetChanges} 
-              class="reset-button"
+            </Button>
+            <Button
+              on:click={resetChanges}
+              variant="secondary"
               disabled={isUpdating}
             >
               ↶ Reset
-            </button>
+            </Button>
           </div>
         {/if}
       </div>
@@ -289,67 +277,17 @@
       </div>
     </div>
   {:else}
-    <div class="empty-state">
-      <div class="empty-icon">🔒</div>
-      <h3>Not Logged In</h3>
-      <p>Please log in to view your profile information.</p>
-      <a href="/login" class="login-button">Sign In</a>
-    </div>
+    <EmptyState
+      icon="🔒"
+      title="Not Logged In"
+      message="Please log in to view your profile information."
+      actionLabel="Sign In"
+      actionHref="/login"
+    />
   {/if}
-</main>
+</Container>
 
 <style>
-  /* Base styles */
-  main {
-    margin: 0 auto;
-    padding: 1rem;
-    width: 90%;
-    max-width: 800px;
-    text-align: center;
-  }
-
-  .hero-section {
-    margin-bottom: 3rem;
-  }
-
-  h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 3.5rem;
-    font-weight: 100;
-    margin: 0 0 0.25em;
-    line-height: 1.1;
-  }
-
-  .subtitle {
-    font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
-    margin-bottom: 2rem;
-  }
-
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    padding: 3rem;
-    color: #666;
-  }
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(255, 62, 0, 0.2);
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
 
   .profile-container {
     display: flex;
@@ -426,98 +364,14 @@
 
   .form-grid {
     display: grid;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-
-  .input-group {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .label-text {
-    font-weight: 500;
-    color: #333;
-    margin-bottom: 0.5rem;
-    display: block;
-  }
-
-  input[type="text"],
-  input[type="tel"] {
-    padding: 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 1rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  input[type="text"]:focus,
-  input[type="tel"]:focus {
-    outline: none;
-    border-color: #ff3e00;
-    box-shadow: 0 0 0 1px #ff3e00;
-  }
-
-  input:disabled {
-    background-color: #f9fafb;
-    color: #6b7280;
-    cursor: not-allowed;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
   }
 
   .form-actions {
     display: flex;
-    gap: 1rem;
+    gap: var(--space-4);
     justify-content: flex-start;
-  }
-
-  .save-button {
-    background-color: #ff3e00;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .save-button:hover:not(:disabled) {
-    background-color: #e63600;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(255, 62, 0, 0.3);
-  }
-
-  .save-button:disabled {
-    background-color: #cbd5e1;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .reset-button {
-    background-color: #6b7280;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .reset-button:hover:not(:disabled) {
-    background-color: #4b5563;
-  }
-
-  .reset-button:disabled {
-    background-color: #d1d5db;
-    cursor: not-allowed;
   }
 
   .button-spinner {
@@ -589,64 +443,9 @@
     color: #059669;
   }
 
-  /* Empty State */
-  .empty-state {
-    background: white;
-    border-radius: 6px;
-    padding: 3rem 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-
-  .empty-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-  }
-
-  .empty-state h3 {
-    color: #333;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    text-transform: none;
-  }
-
-  .empty-state p {
-    color: #666;
-    margin-bottom: 2rem;
-    font-size: 1.1rem;
-  }
-
-  .login-button {
-    background-color: #ff3e00;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
-    font-weight: 500;
-    display: inline-block;
-    transition: all 0.2s ease;
-  }
-
-  .login-button:hover {
-    background-color: #e63600;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 62, 0, 0.3);
-  }
 
   /* Mobile Responsive */
   @media (max-width: 768px) {
-    main {
-      padding: 4.5rem 1rem 1rem;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-    }
-
-    .subtitle {
-      font-size: 1rem;
-    }
 
     .profile-header {
       flex-direction: column;
@@ -677,10 +476,6 @@
       flex-direction: column;
       align-items: flex-start;
       gap: 0.25rem;
-    }
-
-    .empty-state {
-      padding: 2rem 1rem;
     }
   }
 
