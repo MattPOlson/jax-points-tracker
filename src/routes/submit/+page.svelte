@@ -331,7 +331,7 @@
 </script>
 
 <Container size="sm">
-  <Hero title="Submit Points" center={true} />
+  <Hero title="Submit Points" icon="📝" center={true} />
 
   {#if $isLoading || $isLoadingProfile}
     <LoadingSpinner message="Loading data..." />
