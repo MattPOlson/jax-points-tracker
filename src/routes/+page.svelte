@@ -9,6 +9,7 @@
   import { loadMyEntries, entryStats } from '$lib/stores/myCompetitionEntriesStore';
   import { page } from '$app/stores';
   import { version } from '$lib/version.js';
+  import { Hero, Card, Button, Badge, Container } from '$lib/components/ui';
 
   $: isLoggedIn = $authUser !== null;
   $: isOfficer = $userProfile?.is_officer === true;
@@ -74,241 +75,171 @@
   });
 </script>
 
-<main>
-  <div class="hero-section">
-    <h1>🍻 JAX Member Portal</h1>
-    <p class="subtitle">Have Fun Brew Better Beer!</p>
-    
-    {#if isLoggedIn && $userProfile}
-      <div class="welcome-message">
-        <p>Welcome back, <strong>{$userProfile.name || 'Brewer'}</strong>!</p>
-        {#if $userProfile.points}
-          <p class="points-display">Your current points: <span class="points-value">{$userProfile.points}</span></p>
-        {/if}
-      </div>
-    {:else if isLoggedIn}
-      <div class="welcome-message">
-        <p>Welcome back, Brewer!</p>
-      </div>
-    {:else}
-      <div class="welcome-message">
-        <p>Sign in to track your brewing achievements and compete with fellow brewers!</p>
-        <a href="/login" class="cta-button">Get Started</a>
-      </div>
-    {/if}
-  </div>
+<Container size="sm">
+  <main>
+    <Hero
+      title="JAX Member Portal"
+      subtitle="Have Fun Brew Better Beer!"
+      icon="🍻"
+      center={true}
+    />
 
-  <div class="nav-section">
-    <h2>Quick Actions</h2>
-    <div class="nav-links">
-      {#each visibleNavItems as item}
-        <a href={item.href} class="nav-button" class:competition-button={item.isCompetition}>
-          <span class="nav-icon">{item.icon}</span>
-          <div class="nav-content">
-            <span class="nav-label">{item.label}</span>
-            <span class="nav-description">{item.description}</span>
-            {#if item.isCompetition && isLoggedIn && competitionStatus}
-              <div class="competition-status">
-                <span class="status-text">{competitionStatus.text}</span>
-                {#if competitionStatus.badge}
-                  <span class="status-badge">{competitionStatus.badge}</span>
-                {/if}
-              </div>
-            {/if}
-          </div>
-        </a>
-      {/each}
-      
-      {#each visibleOfficerItems as item}
-        <a href={item.href} class="nav-button officer-button">
-          <span class="nav-icon">{item.icon}</span>
-          <div class="nav-content">
-            <span class="nav-label">{item.label}</span>
-            <span class="nav-description">{item.description}</span>
-          </div>
-        </a>
-      {/each}
+    {#if isLoggedIn && $userProfile}
+      <Card accent accentColor="primary">
+        <div class="welcome-content">
+          <p>Welcome back, <strong>{$userProfile.name || 'Brewer'}</strong>!</p>
+          {#if $userProfile.points}
+            <p class="points-display">
+              Your current points:
+              <span class="points-value">{$userProfile.points}</span>
+            </p>
+          {/if}
+        </div>
+      </Card>
+    {:else if isLoggedIn}
+      <Card accent accentColor="primary">
+        <div class="welcome-content">
+          <p>Welcome back, Brewer!</p>
+        </div>
+      </Card>
+    {:else}
+      <Card accent accentColor="primary">
+        <div class="welcome-content">
+          <p>Sign in to track your brewing achievements and compete with fellow brewers!</p>
+          <Button variant="primary" size="lg" on:click={() => window.location.href = '/login'}>
+            Get Started
+          </Button>
+        </div>
+      </Card>
+    {/if}
+
+    <div class="nav-section">
+      <h2>Quick Actions</h2>
+      <div class="nav-links">
+        {#each visibleNavItems as item}
+          <a href={item.href} class="nav-card" class:competition-card={item.isCompetition}>
+            <span class="nav-icon">{item.icon}</span>
+            <div class="nav-content">
+              <span class="nav-label">{item.label}</span>
+              <span class="nav-description">{item.description}</span>
+              {#if item.isCompetition && isLoggedIn && competitionStatus}
+                <div class="competition-status">
+                  <span class="status-text">{competitionStatus.text}</span>
+                  {#if competitionStatus.badge}
+                    <Badge variant="primary" size="sm">{competitionStatus.badge}</Badge>
+                  {/if}
+                </div>
+              {/if}
+            </div>
+          </a>
+        {/each}
+
+        {#each visibleOfficerItems as item}
+          <a href={item.href} class="nav-card officer-card">
+            <span class="nav-icon">{item.icon}</span>
+            <div class="nav-content">
+              <span class="nav-label">{item.label}</span>
+              <span class="nav-description">{item.description}</span>
+            </div>
+          </a>
+        {/each}
+      </div>
     </div>
-  </div>
-</main>
+  </main>
+</Container>
 
 <style>
-  /* Base styles */
   main {
-    margin: 0 auto;
-    padding: 1rem;
-    width: 90%;
-    max-width: 600px;
-    text-align: center;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
     justify-content: center;
-  }
-
-  .hero-section {
-    margin-bottom: 3rem;
-  }
-
-  h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 4rem;
-    font-weight: 100;
-    margin: 0 0 0.25em;
-    line-height: 1.1;
+    padding: var(--space-4) 0;
     text-align: center;
-    word-wrap: keep-all;
-    overflow-wrap: normal;
   }
 
-  .subtitle {
-    margin-bottom: 2rem;
-    font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
+  .welcome-content {
+    text-align: center;
   }
 
-  .welcome-message {
-    background: white;
-    border-radius: 6px;
-    padding: 1.5rem;
-    margin: 1.5rem 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
-  }
-
-  .welcome-message p {
-    margin: 0.5rem 0;
-    color: #333;
+  .welcome-content p {
+    margin: var(--space-2) 0;
+    color: var(--color-text-primary);
   }
 
   .points-display {
-    font-size: 1.1rem;
-    margin-top: 1rem !important;
+    font-size: var(--font-size-lg);
+    margin-top: var(--space-4) !important;
   }
 
   .points-value {
-    color: #ff3e00;
-    font-weight: 700;
+    color: var(--color-brand-primary);
+    font-weight: var(--font-weight-bold);
     font-size: 1.3em;
   }
 
-  .cta-button {
-    display: inline-block;
-    margin-top: 1rem;
-    padding: 0.75rem 2rem;
-    background-color: #ff3e00;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-  }
-
-  .cta-button:hover {
-    background-color: #e63600;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 62, 0, 0.3);
+  .nav-section {
+    margin-top: var(--space-12);
   }
 
   .nav-section h2 {
-    color: #333;
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    text-transform: none;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--space-6);
   }
 
   .nav-links {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: var(--space-4);
     align-items: stretch;
   }
 
-  .nav-button {
+  .nav-card {
     display: flex;
     align-items: center;
     text-decoration: none;
-    background-color: white;
-    color: #333;
-    border: 1px solid #e5e7eb;
-    padding: 1rem;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border-primary);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-sm);
   }
 
-  .nav-button:hover {
-    background-color: #2563eb;
-    color: white;
+  .nav-card:hover {
+    background-color: var(--color-info);
+    color: var(--color-text-inverse);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-    border-color: #2563eb;
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-info);
   }
 
-  /* Competition button styling */
-  .competition-button {
-    border-color: #ff3e00;
-    background: linear-gradient(135deg, #fff 0%, #fff8f6 100%);
+  .competition-card {
+    border-color: var(--color-brand-primary);
+    background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-brand-primary-light) 100%);
   }
 
-  .competition-button:hover {
-    background-color: #ff3e00;
-    border-color: #ff3e00;
-    box-shadow: 0 4px 12px rgba(255, 62, 0, 0.3);
+  .competition-card:hover {
+    background-color: var(--color-brand-primary);
+    border-color: var(--color-brand-primary);
   }
 
-  .competition-status {
-    margin-top: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
+  .officer-card {
+    border-color: var(--color-brand-primary);
+    background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-brand-primary-light) 100%);
   }
 
-  .status-text {
-    font-size: 0.75rem;
-    color: #666;
-    font-weight: 500;
-  }
-
-  .competition-button:hover .status-text {
-    color: rgba(255, 255, 255, 0.9);
-  }
-
-  .status-badge {
-    display: inline-block;
-    background: #ff3e00;
-    color: white;
-    padding: 0.2rem 0.5rem;
-    border-radius: 10px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .competition-button:hover .status-badge {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-  }
-
-  .officer-button {
-    border-color: #ff3e00;
-    background: linear-gradient(135deg, #fff 0%, #fef7f0 100%);
-  }
-
-  .officer-button:hover {
-    background-color: #ff3e00;
-    border-color: #ff3e00;
-    box-shadow: 0 4px 12px rgba(255, 62, 0, 0.3);
+  .officer-card:hover {
+    background-color: var(--color-brand-primary);
+    border-color: var(--color-brand-primary);
   }
 
   .nav-icon {
-    font-size: 1.5rem;
-    margin-right: 1rem;
+    font-size: var(--font-size-2xl);
+    margin-right: var(--space-4);
     min-width: 2rem;
   }
 
@@ -321,121 +252,95 @@
   }
 
   .nav-label {
-    font-weight: 500;
-    font-size: 1rem;
-    margin-bottom: 0.25rem;
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-base);
+    margin-bottom: var(--space-1);
   }
 
   .nav-description {
-    font-size: 0.85rem;
+    font-size: var(--font-size-sm);
     opacity: 0.7;
-    transition: opacity 0.2s ease;
+    transition: opacity var(--transition-base);
   }
 
-  .nav-button:hover .nav-description {
+  .nav-card:hover .nav-description {
     opacity: 0.9;
+  }
+
+  .competition-status {
+    margin-top: var(--space-2);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .status-text {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .nav-card:hover .status-text {
+    color: rgba(255, 255, 255, 0.9);
   }
 
   /* Mobile styles */
   @media (max-width: 480px) {
     main {
-      padding: 4.5rem 1rem 1rem;
+      padding: var(--space-16) var(--space-4) var(--space-4);
       justify-content: flex-start;
     }
 
-    h1 {
-      font-size: 2.5rem;
-    }
-
-    .subtitle {
-      font-size: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .welcome-message {
-      padding: 1rem;
-      margin: 1rem 0;
-    }
-
     .nav-section h2 {
-      font-size: 1.25rem;
-      margin-bottom: 1rem;
+      font-size: var(--font-size-xl);
+      margin-bottom: var(--space-4);
     }
 
     .nav-links {
-      gap: 0.75rem;
+      gap: var(--space-3);
     }
 
-    .nav-button {
-      padding: 0.875rem;
+    .nav-card {
+      padding: var(--space-3);
     }
 
     .nav-icon {
-      font-size: 1.25rem;
-      margin-right: 0.75rem;
+      font-size: var(--font-size-xl);
+      margin-right: var(--space-3);
       min-width: 1.75rem;
     }
 
     .nav-label {
-      font-size: 0.95rem;
+      font-size: var(--font-size-sm);
     }
 
     .nav-description {
-      font-size: 0.8rem;
-    }
-
-    .competition-status {
-      align-items: flex-start;
-    }
-
-    .status-text {
-      font-size: 0.7rem;
-    }
-
-    .status-badge {
-      font-size: 0.65rem;
-      padding: 0.15rem 0.4rem;
+      font-size: var(--font-size-xs);
     }
   }
 
   /* Desktop styles */
   @media (min-width: 640px) {
-    main {
-      width: 75%;
-      max-width: 800px;
-    }
-
-    h1 {
-      font-size: 4rem;
-    }
-
-    .subtitle {
-      font-size: 1.25rem;
-    }
-
-    .welcome-message {
-      padding: 2rem;
-    }
-
     .nav-links {
       flex-direction: row;
       justify-content: center;
       flex-wrap: wrap;
-      gap: 1.5rem;
+      gap: var(--space-6);
     }
 
-    .nav-button {
+    .nav-card {
       flex-direction: column;
       text-align: center;
-      padding: 1.5rem;
+      padding: var(--space-6);
       min-width: 200px;
       max-width: 250px;
     }
 
     .nav-icon {
-      font-size: 2rem;
+      font-size: var(--font-size-4xl);
       margin-right: 0;
-      margin-bottom: 0.5rem;
+      margin-bottom: var(--space-2);
       min-width: auto;
     }
 
@@ -445,28 +350,27 @@
     }
 
     .nav-label {
-      font-size: 1.1rem;
+      font-size: var(--font-size-lg);
     }
 
     .nav-description {
-      font-size: 0.9rem;
+      font-size: var(--font-size-base);
     }
 
     .competition-status {
       align-items: center;
-      margin-top: 0.75rem;
-    }
-
-    .status-text {
-      font-size: 0.8rem;
-    }
-
-    .status-badge {
-      font-size: 0.75rem;
+      margin-top: var(--space-3);
     }
   }
-  
+
+  .version-footer {
+    text-align: center;
+    padding: var(--space-4);
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-xs);
+  }
 </style>
+
 <footer class="version-footer">
   <small>{version.display}</small>
 </footer>
