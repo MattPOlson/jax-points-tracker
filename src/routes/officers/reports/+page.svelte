@@ -2,6 +2,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
+  import { Container, Button } from '$lib/components/ui';
 
   let pageTitle = 'Coming Soon';
   let featureName = 'This Feature';
@@ -30,10 +31,10 @@
   }
 </script>
 
-<main>
+<Container size="md">
   <div class="coming-soon-container">
     <div class="construction-icon">🚧</div>
-    
+
     <div class="hero-section">
       <h1>{pageTitle}</h1>
       <p class="subtitle">Coming Soon</p>
@@ -93,9 +94,9 @@
       </div>
 
       <div class="action-section">
-        <button on:click={goBackToOfficers} class="back-button">
+        <Button variant="primary" on:click={goBackToOfficers}>
           ← Back to Officer Tools
-        </button>
+        </Button>
         
         <div class="contact-info">
           <p>Have suggestions or questions about this feature?</p>
@@ -104,20 +105,9 @@
       </div>
     </div>
   </div>
-</main>
+</Container>
 
 <style>
-  main {
-    margin: 0 auto;
-    padding: 1rem;
-    width: 90%;
-    max-width: 800px;
-    text-align: center;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
 
   .coming-soon-container {
     display: flex;
@@ -256,24 +246,6 @@
     gap: 1.5rem;
   }
 
-  .back-button {
-    background-color: #ff3e00;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.875rem 2rem;
-    font-size: 1.1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(255, 62, 0, 0.2);
-  }
-
-  .back-button:hover {
-    background-color: #e63600;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 62, 0, 0.3);
-  }
 
   .contact-info {
     background: #f8fafc;
@@ -295,11 +267,6 @@
 
   /* Mobile styles */
   @media (max-width: 480px) {
-    main {
-      padding: 4.5rem 1rem 1rem;
-      justify-content: flex-start;
-    }
-
     .construction-icon {
       font-size: 3rem;
     }
@@ -350,11 +317,6 @@
       font-size: 0.9rem;
     }
 
-    .back-button {
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-    }
-
     .contact-info {
       padding: 1rem;
     }
@@ -362,10 +324,6 @@
 
   /* Desktop styles */
   @media (min-width: 640px) {
-    main {
-      max-width: 900px;
-    }
-
     .hero-section h1 {
       font-size: 4rem;
     }

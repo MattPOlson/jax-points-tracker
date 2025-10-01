@@ -14,6 +14,7 @@
     activityFilter,
     canManageOfficers
   } from '$lib/stores/memberManagementStore';
+  import { Hero, Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
 
   // Removed tab switching reload - causes issues with Supabase tab switching
   function setupEventHandlers() {
@@ -262,33 +263,28 @@
   import { supabase } from '../../../lib/supabaseClient';
 </script>
 
-<main>
+<Container size="xl">
   {#if !isOfficer}
-    <div class="empty-state">
-      <div class="empty-icon">🔒</div>
-      <h3>Access Denied</h3>
-      <p>You need officer privileges to access this page.</p>
-    </div>
+    <EmptyState
+      icon="🔒"
+      title="Access Denied"
+      message="You need officer privileges to access this page."
+    />
   {:else}
-    <div class="hero-section">
-      <h1>👥 MANAGE MEMBERS</h1>
-      <p class="subtitle">View and manage club members, their roles, activity, and point standings</p>
-    </div>
+    <Hero title="Manage Members" subtitle="View and manage club members, their roles, activity, and point standings" icon="👥" center={true} />
 
     {#if $isLoading && $members.length === 0}
-      <div class="loading-state">
-        <div class="spinner"></div>
-        <p>Loading members...</p>
-      </div>
+      <LoadingSpinner message="Loading members..." />
     {:else if $error}
-      <div class="error-state">
-        <div class="error-icon">❌</div>
-        <h3>Error loading members</h3>
-        <p>{$error}</p>
-        <button on:click={() => memberManagementStore.refresh()} class="retry-button">
+      <EmptyState
+        icon="❌"
+        title="Error loading members"
+        message={$error}
+      >
+        <Button variant="secondary" on:click={() => memberManagementStore.refresh()}>
           🔄 Try Again
-        </button>
-      </div>
+        </Button>
+      </EmptyState>
     {:else}
       <!-- Statistics Cards -->
       <div class="stats-grid">
@@ -353,20 +349,21 @@
       </div>
 
       {#if $filteredMembers.length === 0 && $members.length > 0}
-        <div class="empty-state">
-          <div class="empty-icon">🔍</div>
-          <h3>No members found</h3>
-          <p>Try adjusting your search or filter criteria</p>
-          <button on:click={() => memberManagementStore.resetFilters()} class="clear-filters-button">
+        <EmptyState
+          icon="🔍"
+          title="No members found"
+          message="Try adjusting your search or filter criteria"
+        >
+          <Button variant="secondary" on:click={() => memberManagementStore.resetFilters()}>
             Clear Filters
-          </button>
-        </div>
+          </Button>
+        </EmptyState>
       {:else if $members.length === 0}
-        <div class="empty-state">
-          <div class="empty-icon">👥</div>
-          <h3>No members yet</h3>
-          <p>Members will appear here once they join the club</p>
-        </div>
+        <EmptyState
+          icon="👥"
+          title="No members yet"
+          message="Members will appear here once they join the club"
+        />
       {:else}
         <!-- Members List -->
         <div class="members-container">
@@ -500,7 +497,7 @@
       {/if}
     {/if}
   {/if}
-</main>
+</Container>
 
 <!-- Member Details Modal -->
 {#if showMemberModal && selectedMember}
@@ -723,102 +720,6 @@
 {/if}
 
 <style>
-  /* Base styles matching the profile page */
-  main {
-    margin: 0 auto;
-    padding: 1rem;
-    width: 90%;
-    max-width: 1200px;
-    text-align: center;
-  }
-
-  .hero-section {
-    margin-bottom: 3rem;
-  }
-
-  h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 3.5rem;
-    font-weight: 100;
-    margin: 0 0 0.25em;
-    line-height: 1.1;
-  }
-
-  .subtitle {
-    font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
-    margin-bottom: 2rem;
-  }
-
-  /* Loading and Error States */
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    padding: 3rem;
-    color: #666;
-  }
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(255, 62, 0, 0.2);
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-  .error-state {
-    background: white;
-    border-radius: 6px;
-    padding: 3rem 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-
-  .error-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-  }
-
-  .error-state h3 {
-    color: #333;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    text-transform: none;
-  }
-
-  .error-state p {
-    color: #666;
-    margin-bottom: 2rem;
-    font-size: 1.1rem;
-  }
-
-  .retry-button {
-    background-color: #ff3e00;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .retry-button:hover {
-    background-color: #e63600;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(255, 62, 0, 0.3);
-  }
 
   /* Statistics Cards */
   .stats-grid {
@@ -972,50 +873,6 @@
     background: #1d4ed8;
   }
 
-  /* Empty State */
-  .empty-state {
-    background: white;
-    border-radius: 6px;
-    padding: 3rem 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-
-  .empty-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-  }
-
-  .empty-state h3 {
-    color: #333;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    text-transform: none;
-  }
-
-  .empty-state p {
-    color: #666;
-    margin-bottom: 2rem;
-    font-size: 1.1rem;
-  }
-
-  .clear-filters-button {
-    background-color: #ff3e00;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .clear-filters-button:hover {
-    background-color: #e63600;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(255, 62, 0, 0.3);
-  }
 
   /* Members Container */
   .members-container {
@@ -1689,17 +1546,6 @@
 
   /* Mobile Responsive */
   @media (max-width: 768px) {
-    main {
-      padding: 4.5rem 1rem 1rem;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-    }
-
-    .subtitle {
-      font-size: 1rem;
-    }
 
     .desktop-table {
       display: none;
