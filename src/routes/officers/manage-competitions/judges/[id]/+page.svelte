@@ -4,14 +4,19 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
-  import { 
-    competitionJudgingStore, 
-    judgeList, 
-    isLoadingJudges, 
+  import {
+    competitionJudgingStore,
+    judgeList,
+    isLoadingJudges,
     judgeError,
-    JUDGE_ROLES 
+    JUDGE_ROLES
   } from '$lib/stores/competitionJudgingStore';
   import { supabase } from '$lib/supabaseClient';
+  import Hero from "$lib/components/ui/Hero.svelte";
+  import Container from "$lib/components/ui/Container.svelte";
+  import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
+  import EmptyState from "$lib/components/ui/EmptyState.svelte";
+  import Button from "$lib/components/ui/Button.svelte";
 
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -241,24 +246,6 @@
 </script>
 
 <style>
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  .hero {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-
-  .hero h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 3rem;
-    font-weight: 100;
-    margin: 0 0 0.25em;
-  }
 
   .competition-info {
     background: white;
@@ -295,44 +282,6 @@
     flex-wrap: wrap;
   }
 
-  .btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-block;
-  }
-
-  .btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .btn-primary {
-    background: #ff3e00;
-    color: white;
-  }
-
-  .btn-primary:hover:not(:disabled) {
-    background: #e63600;
-  }
-
-  .btn-secondary {
-    background: #6b7280;
-    color: white;
-  }
-
-  .btn-success {
-    background: #059669;
-    color: white;
-  }
-
-  .btn-success:hover:not(:disabled) {
-    background: #047857;
-  }
 
   .judges-section {
     background: white;
@@ -415,39 +364,8 @@
     flex-wrap: wrap;
   }
 
-  .empty-state {
-    text-align: center;
-    padding: 2rem;
-    color: #666;
-  }
-
-  .loading {
-    text-align: center;
-    padding: 3rem;
-    color: #666;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
 
   @media (max-width: 768px) {
-    .hero h1 {
-      font-size: 2rem;
-    }
-
     .controls {
       flex-direction: column;
       align-items: stretch;
@@ -469,17 +387,11 @@
   }
 </style>
 
-<div class="container">
-  <div class="hero">
-    <h1>Manage Judges</h1>
-    <p>Assign judges to competition</p>
-  </div>
+<Container size="lg">
+  <Hero title="Manage Judges" subtitle="Assign judges to competition" icon="👩‍⚖️" center={true} />
 
   {#if isLoading}
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>Loading competition data...</p>
-    </div>
+    <LoadingSpinner message="Loading competition data..." />
   {:else if competition}
     <!-- Competition Info -->
     <div class="competition-info">
@@ -494,33 +406,33 @@
 
     <!-- Controls -->
     <div class="controls">
-      <button
-        class="btn btn-success"
+      <Button
+        variant="success"
         on:click={() => showAddForm = !showAddForm}
         disabled={availableJudges.length === 0}
       >
         {showAddForm ? 'Cancel' : 'Add Judge'}
-      </button>
+      </Button>
       {#if competition.competition_type === 'intraclub' && availableJudges.length > 0}
-        <button
-          class="btn btn-primary"
+        <Button
+          variant="primary"
           on:click={assignAllMembers}
           disabled={isSaving}
         >
           {isSaving ? 'Assigning...' : `Assign All Members (${availableJudges.length})`}
-        </button>
+        </Button>
       {/if}
-      <button
-        class="btn btn-secondary"
+      <Button
+        variant="secondary"
         on:click={refreshJudges}
         disabled={isRefreshing}
         title="Refresh the list of available judges"
       >
         {isRefreshing ? 'Refreshing...' : 'Refresh Judges'}
-      </button>
-      <button class="btn btn-secondary" on:click={() => goto('/officers/manage-competitions')}>
+      </Button>
+      <Button variant="secondary" on:click={() => goto('/officers/manage-competitions')}>
         Back to Competitions
-      </button>
+      </Button>
     </div>
 
     <!-- Judges Section -->
@@ -530,15 +442,13 @@
       </div>
 
       {#if $isLoadingJudges}
-        <div class="loading">
-          <div class="spinner"></div>
-          <p>Loading judges...</p>
-        </div>
+        <LoadingSpinner message="Loading judges..." />
       {:else if $judgeList.length === 0}
-        <div class="empty-state">
-          <h4>No judges assigned yet</h4>
-          <p>Add judges to start the judging process</p>
-        </div>
+        <EmptyState
+          icon="👩‍⚖️"
+          title="No judges assigned yet"
+          message="Add judges to start the judging process"
+        />
       {:else}
         <div class="judges-list">
           {#each $judgeList as judgeAssignment}
@@ -610,20 +520,20 @@
             </div>
 
             <div class="form-actions">
-              <button 
-                class="btn btn-success" 
+              <Button
+                variant="success"
                 on:click={addJudge}
                 disabled={isSaving || !newJudgeForm.judge_id}
               >
                 {isSaving ? 'Adding...' : 'Add Judge'}
-              </button>
-              <button 
-                class="btn btn-secondary"
+              </Button>
+              <Button
+                variant="secondary"
                 on:click={() => showAddForm = false}
                 disabled={isSaving}
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           {/if}
         </div>
@@ -636,4 +546,4 @@
       </div>
     {/if}
   {/if}
-</div>
+</Container>

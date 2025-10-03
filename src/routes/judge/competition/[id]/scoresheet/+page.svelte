@@ -4,12 +4,15 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
-  import { 
-    competitionJudgingStore, 
+  import {
+    competitionJudgingStore,
     activeSession,
     isJudging,
     currentEntry
   } from '$lib/stores/competitionJudgingStore';
+  import Container from '$lib/components/ui/Container.svelte';
+  import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
+  import Button from '$lib/components/ui/Button.svelte';
 
   // Get competition ID from URL
   $: competitionId = $page.params.id;
@@ -370,13 +373,6 @@
 </script>
 
 <style>
-  .scoresheet-container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 1rem;
-    background: #f8fafc;
-    min-height: 100vh;
-  }
 
   .scoresheet {
     background: white;
@@ -630,9 +626,6 @@
 
   /* Mobile responsiveness */
   @media (max-width: 768px) {
-    .scoresheet-container {
-      padding: 0.5rem;
-    }
 
     .scoresheet {
       padding: 1rem;
@@ -656,11 +649,9 @@
   }
 </style>
 
-<div class="scoresheet-container">
+<Container size="lg">
   {#if !$isJudging || !$currentEntry}
-    <div style="text-align: center; padding: 3rem;">
-      <h2>Loading scoresheet...</h2>
-    </div>
+    <LoadingSpinner message="Loading scoresheet..." />
   {:else}
     <!-- Progress Indicator -->
     <div class="progress-indicator">
@@ -949,36 +940,36 @@
 
     <!-- Navigation -->
     <div class="navigation">
-      <button 
-        class="nav-btn nav-btn-secondary"
+      <Button
+        variant="secondary"
         on:click={navigateToPrevious}
         disabled={currentEntryIndex === 0}
       >
         ⬅️ Previous Entry
-      </button>
+      </Button>
 
-      <button 
-        class="nav-btn nav-btn-secondary"
+      <Button
+        variant="secondary"
         on:click={() => goto(`/judge/competition/${competitionId}`)}
       >
         📝 Simple View
-      </button>
+      </Button>
 
       {#if currentEntryIndex < $activeSession.assignedEntries.length - 1}
-        <button 
-          class="nav-btn nav-btn-primary"
+        <Button
+          variant="primary"
           on:click={navigateToNext}
         >
           Next Entry ➡️
-        </button>
+        </Button>
       {:else}
-        <button 
-          class="nav-btn nav-btn-primary"
+        <Button
+          variant="primary"
           on:click={finishJudging}
         >
           🏁 Finish Judging
-        </button>
+        </Button>
       {/if}
     </div>
   {/if}
-</div>
+</Container>

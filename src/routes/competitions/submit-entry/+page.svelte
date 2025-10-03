@@ -2,9 +2,9 @@
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
   import { userProfile } from '$lib/stores/userProfile.js';
-  import { 
-    bjcpCategories, 
-    competitions, 
+  import {
+    bjcpCategories,
+    competitions,
     activeCompetitions,
     mainCategories,
     categoriesByNumber,
@@ -17,6 +17,11 @@
     error
   } from '$lib/stores/bjcpCategoryStore.js';
   import { supabase } from '$lib/supabaseClient';
+  import Hero from "$lib/components/ui/Hero.svelte";
+  import Container from "$lib/components/ui/Container.svelte";
+  import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
+  import EmptyState from "$lib/components/ui/EmptyState.svelte";
+  import Button from "$lib/components/ui/Button.svelte";
 
   // =============================================
   // Tab Switching Fix (CRITICAL)
@@ -208,40 +213,39 @@
   <title>Submit Competition Entry | JAX Members Portal</title>
 </svelte:head>
 
-<div class="container">
-  <!-- Hero Section -->
-  <section class="hero">
-    <h1>🏆 SUBMIT COMPETITION ENTRY</h1>
-    <p>Enter your beer into a JAX club competition</p>
-  </section>
+<Container size="md">
+  <Hero
+    title="SUBMIT COMPETITION ENTRY"
+    subtitle="Enter your beer into a JAX club competition"
+    icon="🏆"
+    center={true}
+  />
 
   <!-- Loading State -->
   {#if $isLoading && !$isLoaded}
-    <div class="loading-container">
-      <div class="loading-spinner"></div>
-      <p>Loading competition data...</p>
-    </div>
-  
+    <LoadingSpinner message="Loading competition data..." />
+
   <!-- Error State -->
   {:else if $error}
     <div class="error-container">
       <h2>❌ Error Loading Data</h2>
       <p>{$error}</p>
-      <button on:click={() => loadCompetitionData(true)} class="retry-button">
+      <Button on:click={() => loadCompetitionData(true)} variant="primary">
         🔄 Retry
-      </button>
+      </Button>
     </div>
 
   <!-- No Active Competitions -->
   {:else if $isLoaded && $activeCompetitions.length === 0}
-    <div class="empty-state">
-      <h2>📅 No Active Competitions</h2>
-      <p>There are currently no competitions accepting entries.</p>
-      <p>Check back later or contact an officer for more information.</p>
-      <button on:click={() => goto('/competitions')} class="nav-button">
+    <EmptyState
+      icon="📅"
+      title="No Active Competitions"
+      message="There are currently no competitions accepting entries. Check back later or contact an officer for more information."
+    >
+      <Button on:click={() => goto('/competitions')} variant="primary">
         📋 View All Competitions
-      </button>
-    </div>
+      </Button>
+    </EmptyState>
 
   <!-- Main Form -->
   {:else if $isLoaded}
@@ -385,18 +389,18 @@
 
         <!-- Form Actions -->
         <div class="form-actions">
-          <button 
-            type="button" 
+          <Button
+            type="button"
             on:click={resetForm}
-            class="reset-button"
+            variant="secondary"
             disabled={submitting || submitSuccess}
           >
             🔄 Reset Form
-          </button>
-          
-          <button 
-            type="submit" 
-            class="submit-button"
+          </Button>
+
+          <Button
+            type="submit"
+            variant="primary"
             disabled={!canSubmit || submitSuccess}
           >
             {#if submitting}
@@ -406,7 +410,7 @@
             {:else}
               🍺 Submit Entry
             {/if}
-          </button>
+          </Button>
         </div>
 
         <!-- Form Help -->
@@ -423,74 +427,16 @@
       </form>
     </div>
   {/if}
-</div>
+</Container>
 
 <style>
-  .container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  .hero {
-    text-align: center;
-    margin-bottom: 2rem;
-    padding: 2rem 1rem;
-  }
-
-  .hero h1 {
-    color: #ff3e00;
-    font-size: 2.5rem;
-    font-weight: 100;
-    text-transform: uppercase;
-    margin: 0 0 0.5rem 0;
-    letter-spacing: 2px;
-  }
-
-  .hero p {
-    font-size: 1.1rem;
-    color: #666;
-    margin: 0;
-  }
-
-  .loading-container, .error-container, .empty-state {
+  .error-container {
     text-align: center;
     padding: 3rem 2rem;
     background: white;
     border-radius: 6px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     border-left: 4px solid #ff3e00;
-  }
-
-  .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 1rem auto;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-  .retry-button, .nav-button {
-    background: #ff3e00;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
-    margin-top: 1rem;
-    transition: background 0.2s;
-  }
-
-  .retry-button:hover, .nav-button:hover {
-    background: #e63600;
   }
 
   .form-container {
@@ -641,43 +587,6 @@
     margin-top: 2rem;
   }
 
-  .reset-button {
-    background: #6b7280;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background 0.2s;
-  }
-
-  .reset-button:hover:not(:disabled) {
-    background: #4b5563;
-  }
-
-  .submit-button {
-    background: #ff3e00;
-    color: white;
-    border: none;
-    padding: 0.75rem 2rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 600;
-    transition: background 0.2s;
-  }
-
-  .submit-button:hover:not(:disabled) {
-    background: #e63600;
-  }
-
-  .submit-button:disabled,
-  .reset-button:disabled {
-    background: #d1d5db;
-    cursor: not-allowed;
-  }
-
   .form-help {
     margin-top: 2rem;
     padding-top: 2rem;
@@ -701,13 +610,6 @@
   }
 
   @media (max-width: 768px) {
-    .container {
-      padding: 0.5rem;
-    }
-
-    .hero h1 {
-      font-size: 2rem;
-    }
 
     .form-container {
       padding: 1.5rem;
@@ -729,15 +631,11 @@
   }
 
   @media (max-width: 480px) {
-    .hero h1 {
-      font-size: 1.75rem;
-    }
-
     .form-container {
       padding: 1rem;
     }
 
-    .loading-container, .error-container, .empty-state {
+    .error-container {
       padding: 2rem 1rem;
     }
   }

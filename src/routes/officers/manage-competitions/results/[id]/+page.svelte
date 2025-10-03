@@ -5,6 +5,11 @@
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
+  import Hero from "$lib/components/ui/Hero.svelte";
+  import Container from "$lib/components/ui/Container.svelte";
+  import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
+  import EmptyState from "$lib/components/ui/EmptyState.svelte";
+  import Button from "$lib/components/ui/Button.svelte";
   
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -498,31 +503,6 @@
 </script>
 
 <style>
-  .container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  .hero {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
-
-  .hero h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 4rem;
-    font-weight: 100;
-    margin: 0 0 0.25em;
-    line-height: 1.1;
-  }
-
-  .hero .subtitle {
-    font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
-  }
 
   .competition-info {
     background: white;
@@ -612,48 +592,6 @@
     min-width: 150px;
   }
 
-  .btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-block;
-  }
-
-  .btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .btn-primary {
-    background: #ff3e00;
-    color: white;
-  }
-
-  .btn-primary:hover:not(:disabled) {
-    background: #e63600;
-  }
-
-  .btn-secondary {
-    background: #6b7280;
-    color: white;
-  }
-
-  .btn-secondary:hover:not(:disabled) {
-    background: #4b5563;
-  }
-
-  .btn-success {
-    background: #059669;
-    color: white;
-  }
-
-  .btn-success:hover:not(:disabled) {
-    background: #047857;
-  }
 
   .results-table {
     background: white;
@@ -742,27 +680,6 @@
     margin-left: 0.5rem;
   }
 
-  .loading, .empty-state {
-    text-align: center;
-    padding: 3rem;
-    color: #666;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
 
   /* Entry cards for mobile */
   .entry-cards {
@@ -794,10 +711,6 @@
 
   /* Mobile responsiveness */
   @media (max-width: 768px) {
-    .hero h1 {
-      font-size: 2.5rem;
-    }
-
     .controls {
       flex-direction: column;
       align-items: stretch;
@@ -825,13 +738,6 @@
   }
 
   @media (max-width: 480px) {
-    .container {
-      padding: 0.5rem;
-    }
-
-    .hero h1 {
-      font-size: 2rem;
-    }
   }
 
   /* Brewer name privacy styles */
@@ -842,18 +748,11 @@
   }
 </style>
 
-<div class="container">
-  <!-- Hero Section -->
-  <div class="hero">
-    <h1>Enter Results</h1>
-    <p class="subtitle">Record judging scores and placements</p>
-  </div>
+<Container size="xl">
+  <Hero title="Enter Results" subtitle="Record judging scores and placements" icon="🏆" center={true} />
 
   {#if isLoading}
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>Loading competition entries...</p>
-    </div>
+    <LoadingSpinner message="Loading competition entries..." />
   {:else if competition}
     <!-- Competition Info -->
     <div class="competition-info">
@@ -901,36 +800,31 @@
         <option value="pending">Results Pending</option>
         <option value="complete">Results Complete</option>
       </select>
-      <button 
-        class="btn btn-success" 
+      <Button
+        variant="success"
         on:click={saveAllResults}
         disabled={isSaving || unsavedChanges.size === 0}
       >
         {isSaving ? 'Saving...' : `Save All Results ${unsavedChanges.size > 0 ? `(${unsavedChanges.size})` : ''}`}
-      </button>
-      <button 
-        class="btn btn-primary" 
+      </Button>
+      <Button
+        variant="primary"
         on:click={publishResults}
         disabled={isSaving || competition.results_published}
       >
         {competition.results_published ? 'Results Published' : 'Publish Results'}
-      </button>
-      <button class="btn btn-secondary" on:click={() => goto('/officers/manage-competitions')}>
+      </Button>
+      <Button variant="secondary" on:click={() => goto('/officers/manage-competitions')}>
         Back
-      </button>
+      </Button>
     </div>
 
     {#if filteredEntries.length === 0}
-      <div class="empty-state">
-        <h3>No entries found</h3>
-        <p>
-          {#if searchQuery || categoryFilter !== 'all' || statusFilter !== 'all'}
-            Try adjusting your search or filters
-          {:else}
-            No entries have been submitted yet
-          {/if}
-        </p>
-      </div>
+      <EmptyState
+        icon="🏆"
+        title="No entries found"
+        message={searchQuery || categoryFilter !== 'all' || statusFilter !== 'all' ? 'Try adjusting your search or filters' : 'No entries have been submitted yet'}
+      />
     {:else}
       <!-- Desktop Table View -->
       <div class="results-table">
@@ -1093,4 +987,4 @@
       </div>
     {/if}
   {/if}
-</div>
+</Container>

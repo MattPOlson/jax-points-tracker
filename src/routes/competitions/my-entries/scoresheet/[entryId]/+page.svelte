@@ -5,6 +5,10 @@
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
+  import Hero from "$lib/components/ui/Hero.svelte";
+  import Container from "$lib/components/ui/Container.svelte";
+  import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
+  import Button from "$lib/components/ui/Button.svelte";
 
   // Get entry ID from URL
   $: entryId = $page.params.entryId;
@@ -145,31 +149,6 @@
 </svelte:head>
 
 <style>
-  .container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 1rem;
-    min-height: 100vh;
-    background: #f8fafc;
-  }
-
-  .header {
-    background: white;
-    border-radius: 12px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-
-  .header h1 {
-    color: #ff3e00;
-    font-size: 2.5rem;
-    font-weight: 100;
-    margin: 0 0 1rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-  }
 
   .entry-info {
     background: white;
@@ -339,50 +318,10 @@
     margin-bottom: 2rem;
   }
 
-  .btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .btn-secondary {
-    background: #6b7280;
-    color: white;
-  }
-
-  .btn-secondary:hover {
-    background: #4b5563;
-    transform: translateY(-1px);
-  }
-
   .loading, .error-state, .empty-state {
     text-align: center;
     padding: 3rem 1rem;
     color: #666;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
   }
 
   .error {
@@ -395,13 +334,6 @@
 
   /* Mobile optimizations */
   @media (max-width: 768px) {
-    .container {
-      padding: 0.5rem;
-    }
-
-    .header h1 {
-      font-size: 2rem;
-    }
 
     .session-header {
       flex-direction: column;
@@ -436,25 +368,23 @@
   }
 </style>
 
-<div class="container">
-  <!-- Header -->
-  <div class="header">
-    <h1>📋 Scoresheet Details</h1>
-  </div>
+<Container size="lg">
+  <Hero
+    title="SCORESHEET DETAILS"
+    icon="📋"
+    center={true}
+  />
 
   <!-- Controls -->
   <div class="controls">
-    <button class="btn btn-secondary" on:click={goBack}>
+    <Button variant="secondary" on:click={goBack}>
       ← Back to My Entries
-    </button>
+    </Button>
   </div>
 
   <!-- Loading State -->
   {#if isLoading}
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>Loading scoresheet details...</p>
-    </div>
+    <LoadingSpinner message="Loading scoresheet details..." />
   <!-- Error State -->
   {:else if error}
     <div class="error">
@@ -574,4 +504,4 @@
       <p>The scoresheet for this entry could not be loaded.</p>
     </div>
   {/if}
-</div>
+</Container>

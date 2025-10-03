@@ -5,6 +5,11 @@
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
+  import Hero from "$lib/components/ui/Hero.svelte";
+  import Container from "$lib/components/ui/Container.svelte";
+  import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
+  import EmptyState from "$lib/components/ui/EmptyState.svelte";
+  import Button from "$lib/components/ui/Button.svelte";
 
   let showAccessDeniedModal = false;
   let isAuthorized = false;
@@ -701,39 +706,6 @@ function printLabels() {
 </script>
 
 <style>
-  .container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  .hero {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
-
-  .hero h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 4rem;
-    font-weight: 100;
-    margin: 0 0 0.25em;
-    line-height: 1.1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-  }
-
-  .hero h1 .emoji {
-    font-size: 1em;
-  }
-
-  .hero .subtitle {
-    font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
-  }
 
   .competition-info {
     background: white;
@@ -789,37 +761,6 @@ function printLabels() {
     font-size: 1rem;
   }
 
-  .btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .btn-primary {
-    background: #ff3e00;
-    color: white;
-  }
-
-  .btn-primary:hover {
-    background: #e63600;
-  }
-
-  .btn-primary:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-  }
-
-  .btn-secondary {
-    background: #6b7280;
-    color: white;
-  }
-
-  .btn-secondary:hover {
-    background: #4b5563;
-  }
 
   .selected-count {
     padding: 0.5rem 1rem;
@@ -928,31 +869,6 @@ function printLabels() {
     transform: translateX(24px);
   }
 
-  .empty-state {
-    text-align: center;
-    padding: 3rem;
-    color: #666;
-  }
-
-  .loading {
-    text-align: center;
-    padding: 3rem;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
 
   /* Mobile Entry Cards */
   .entries-cards {
@@ -1201,18 +1117,11 @@ function printLabels() {
 {/if}
 
 {#if isAuthorized}
-<div class="container">
-  <!-- Hero Section -->
-  <div class="hero">
-    <h1><span class="emoji">📋</span> Competition Entries</h1>
-    <p class="subtitle">Manage entries and print labels</p>
-  </div>
+<Container size="xl">
+  <Hero title="Competition Entries" subtitle="Manage entries and print labels" icon="📋" center={true} />
 
   {#if isLoading}
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>Loading entries...</p>
-    </div>
+    <LoadingSpinner message="Loading entries..." />
   {:else if competition}
     <!-- Competition Info -->
     <div class="competition-info">
@@ -1248,43 +1157,38 @@ function printLabels() {
       {#if selectedEntries.size > 0}
         <span class="selected-count">{selectedEntries.size} selected</span>
       {/if}
-      <button 
-        class="btn btn-primary"
+      <Button
+        variant="primary"
         on:click={printLabels}
         disabled={filteredEntries.length === 0}
       >
         🖨️ Print Labels {selectedEntries.size > 0 ? `(${selectedEntries.size})` : '(All)'}
-      </button>
-      <button 
-        class="btn btn-success"
+      </Button>
+      <Button
+        variant="success"
         on:click={exportToCSV}
         disabled={filteredEntries.length === 0}
       >
         📊 Export CSV {selectedEntries.size > 0 ? `(${selectedEntries.size})` : '(All)'}
-      </button>
-      <button 
-        class="btn btn-info"
+      </Button>
+      <Button
+        variant="info"
         on:click={printJudgingSheets}
         disabled={filteredEntries.length === 0}
       >
         📝 Print Judging Sheets {selectedEntries.size > 0 ? `(${selectedEntries.size})` : '(All)'}
-      </button>
-      <button class="btn btn-secondary" on:click={navigateBack}>
+      </Button>
+      <Button variant="secondary" on:click={navigateBack}>
         ← Back
-      </button>
+      </Button>
     </div>
 
     {#if filteredEntries.length === 0}
-      <div class="empty-state">
-        <h3>No entries found</h3>
-        <p>
-          {#if searchQuery}
-            Try adjusting your search
-          {:else}
-            No entries have been submitted yet
-          {/if}
-        </p>
-      </div>
+      <EmptyState
+        icon="📋"
+        title="No entries found"
+        message={searchQuery ? 'Try adjusting your search' : 'No entries have been submitted yet'}
+      />
     {:else}
       <!-- Entries Table -->
       <div class="entries-table">
@@ -1458,5 +1362,5 @@ function printLabels() {
       </div>
     {/if}
   {/if}
-</div>
+</Container>
 {/if}

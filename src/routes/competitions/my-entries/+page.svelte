@@ -26,6 +26,11 @@
     loadCompetitionData,
   } from "$lib/stores/bjcpCategoryStore.js";
   import { supabase } from "$lib/supabaseClient.js";
+  import Hero from "$lib/components/ui/Hero.svelte";
+  import Container from "$lib/components/ui/Container.svelte";
+  import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
+  import EmptyState from "$lib/components/ui/EmptyState.svelte";
+  import Button from "$lib/components/ui/Button.svelte";
 
   // =============================================
   // Component Lifecycle
@@ -492,12 +497,13 @@
 <!-- =============================================
      Main Content
      ============================================= -->
-<div class="container">
-  <!-- Hero Section -->
-  <section class="hero">
-    <h1>🍺 MY COMPETITION ENTRIES</h1>
-    <p>Manage your beer competition submissions</p>
-  </section>
+<Container size="lg">
+  <Hero
+    title="MY COMPETITION ENTRIES"
+    subtitle="Manage your beer competition submissions"
+    icon="🍺"
+    center={true}
+  />
 
   <!-- Filters Section -->
   {#if $isLoaded && $myEntries.length > 0}
@@ -615,19 +621,16 @@
 
   <!-- Loading State -->
   {#if $isLoading && !$isLoaded}
-    <div class="loading-container">
-      <div class="loading-spinner"></div>
-      <p>Loading your entries...</p>
-    </div>
+    <LoadingSpinner message="Loading your entries..." />
 
     <!-- Error State -->
   {:else if $error}
     <div class="error-container">
       <h2>❌ Error Loading Entries</h2>
       <p>{$error}</p>
-      <button on:click={() => loadMyEntries(true)} class="retry-button">
+      <Button on:click={() => loadMyEntries(true)} variant="primary">
         🔄 Retry
-      </button>
+      </Button>
     </div>
 
     <!-- Loaded State -->
@@ -654,44 +657,48 @@
 
     <!-- Action Buttons -->
     <div class="action-buttons">
-      <button
+      <Button
         on:click={() => goto("/competitions/submit-entry")}
-        class="primary-button"
+        variant="primary"
       >
         ➕ Submit New Entry
-      </button>
-      <button 
+      </Button>
+      <Button
         on:click={printEntries}
-        class="primary-button"
+        variant="primary"
         disabled={filteredEntries.length === 0}
       >
         🖨️ Print Entry Labels
-      </button>
-      <button on:click={() => loadMyEntries(true)} class="secondary-button">
+      </Button>
+      <Button on:click={() => loadMyEntries(true)} variant="secondary">
         🔄 Refresh
-      </button>
+      </Button>
     </div>
 
     <!-- No Entries State -->
     {#if $myEntries.length === 0}
-      <div class="empty-state">
-        <h2>📝 No Entries Yet</h2>
-        <p>You haven't submitted any competition entries.</p>
-        <button
+      <EmptyState
+        icon="📝"
+        title="No Entries Yet"
+        message="You haven't submitted any competition entries."
+      >
+        <Button
           on:click={() => goto("/competitions/submit-entry")}
-          class="primary-button"
+          variant="primary"
         >
           🍺 Submit Your First Entry
-        </button>
-      </div>
+        </Button>
+      </EmptyState>
 
     <!-- No Entries Match Filters -->
     {:else if filteredEntries.length === 0}
-      <div class="empty-state">
-        <h2>🔍 No Entries Match Filters</h2>
-        <p>No entries found matching your current filter selection.</p>
+      <EmptyState
+        icon="🔍"
+        title="No Entries Match Filters"
+        message="No entries found matching your current filter selection."
+      >
         <div class="empty-state-actions">
-          <button
+          <Button
             on:click={() => {
               selectedCompetitionId = 'all';
               selectedCategory = 'all';
@@ -699,18 +706,18 @@
               selectedStatusFilter = 'all';
               selectedPaymentFilter = 'all';
             }}
-            class="secondary-button"
+            variant="secondary"
           >
             ✨ Clear All Filters
-          </button>
-          <button
+          </Button>
+          <Button
             on:click={() => goto("/competitions/submit-entry")}
-            class="primary-button"
+            variant="primary"
           >
             ➕ Submit New Entry
-          </button>
+          </Button>
         </div>
-      </div>
+      </EmptyState>
 
       <!-- Entries List -->
     {:else}
@@ -837,18 +844,18 @@
 
                         <!-- Edit Actions -->
                         <div class="edit-actions">
-                          <button
+                          <Button
                             type="button"
                             on:click={cancelEdit}
-                            class="cancel-button"
+                            variant="secondary"
                             disabled={saving}
                           >
                             ❌ Cancel
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             type="button"
                             on:click={saveEdit}
-                            class="save-button"
+                            variant="primary"
                             disabled={saving ||
                               !editForm.beer_name.trim() ||
                               !editForm.bjcp_category_id}
@@ -858,7 +865,7 @@
                             {:else}
                               ✅ Save Changes
                             {/if}
-                          </button>
+                          </Button>
                         </div>
                       </div>
 
@@ -914,22 +921,22 @@
                       <div class="entry-actions">
                         <!-- Edit Button -->
                         {#if canEditEntry(entry)}
-                          <button
+                          <Button
                             on:click={() => startEdit(entry)}
-                            class="edit-button"
+                            variant="primary"
                           >
                             ✏️ Edit
-                          </button>
+                          </Button>
                         {/if}
 
                         <!-- Delete Button -->
                         {#if canEditEntry(entry)}
-                          <button
+                          <Button
                             on:click={() => confirmDelete(entry)}
-                            class="delete-button"
+                            variant="secondary"
                           >
                             🗑️ Delete
-                          </button>
+                          </Button>
                         {/if}
 
                         <!-- View Scoresheet Button (for past competitions) -->
@@ -962,7 +969,7 @@
       </div>
     {/if}
   {/if}
-</div>
+</Container>
 
 <!-- Delete Confirmation Modal -->
 {#if showDeleteConfirm}
@@ -973,12 +980,12 @@
       <p><strong>This action cannot be undone.</strong></p>
 
       <div class="modal-actions">
-        <button on:click={cancelDelete} class="cancel-button">
+        <Button on:click={cancelDelete} variant="secondary">
           ❌ Cancel
-        </button>
-        <button on:click={confirmDeleteEntry} class="delete-button">
+        </Button>
+        <Button on:click={confirmDeleteEntry} variant="primary">
           🗑️ Delete Entry
-        </button>
+        </Button>
       </div>
     </div>
   </div>
@@ -989,34 +996,6 @@
      Styles
      ============================================= -->
 <style>
-  /* Container and Layout */
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  /* Hero Section */
-  .hero {
-    text-align: center;
-    margin-bottom: 2rem;
-    padding: 2rem 1rem;
-  }
-
-  .hero h1 {
-    color: #ff3e00;
-    font-size: 2.5rem;
-    font-weight: 100;
-    text-transform: uppercase;
-    margin: 0 0 0.5rem 0;
-    letter-spacing: 2px;
-  }
-
-  .hero p {
-    font-size: 1.1rem;
-    color: #666;
-    margin: 0;
-  }
 
   /* Filters Section */
   .filters-section {
@@ -1119,7 +1098,6 @@
   }
 
   /* Loading and Error States */
-  .loading-container,
   .error-container {
     text-align: center;
     padding: 3rem 2rem;
@@ -1127,41 +1105,6 @@
     border-radius: 6px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-left: 4px solid #ff3e00;
-  }
-
-  .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 1rem auto;
-  }
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-
-  .retry-button {
-    background: #ff3e00;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
-    margin-top: 1rem;
-    transition: background 0.2s;
-  }
-
-  .retry-button:hover {
-    background: #e63600;
   }
 
   /* Statistics Grid */
@@ -1201,58 +1144,6 @@
     gap: 1rem;
     margin-bottom: 2rem;
     justify-content: flex-end;
-  }
-
-  .primary-button {
-    background: #ff3e00;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 600;
-    transition: background 0.2s;
-  }
-
-  .primary-button:hover:not(:disabled) {
-    background: #e63600;
-  }
-
-  .primary-button:disabled {
-    background: #d1d5db;
-    color: #9ca3af;
-    cursor: not-allowed;
-  }
-
-  .secondary-button {
-    background: #6b7280;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background 0.2s;
-  }
-
-  .secondary-button:hover {
-    background: #4b5563;
-  }
-
-  /* Empty State */
-  .empty-state {
-    text-align: center;
-    padding: 3rem 2rem;
-    background: white;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
-  }
-
-  .empty-state h2 {
-    color: #ff3e00;
-    margin-bottom: 1rem;
   }
 
   .empty-state-actions {
@@ -1496,35 +1387,6 @@
     flex-wrap: wrap;
   }
 
-  .edit-button {
-    background: #2563eb;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background 0.2s;
-  }
-
-  .edit-button:hover {
-    background: #1d4ed8;
-  }
-
-  .delete-button {
-    background: #dc2626;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background 0.2s;
-  }
-
-  .delete-button:hover {
-    background: #b91c1c;
-  }
 
   .deadline-warning {
     background: #fef3c7;
@@ -1541,42 +1403,6 @@
     gap: 1rem;
     justify-content: flex-end;
     margin-top: 1rem;
-  }
-
-  .cancel-button {
-    background: #6b7280;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background 0.2s;
-  }
-
-  .cancel-button:hover:not(:disabled) {
-    background: #4b5563;
-  }
-
-  .save-button {
-    background: #059669;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background 0.2s;
-  }
-
-  .save-button:hover:not(:disabled) {
-    background: #047857;
-  }
-
-  .save-button:disabled,
-  .cancel-button:disabled {
-    background: #d1d5db;
-    cursor: not-allowed;
   }
 
   /* Modal */
@@ -1621,13 +1447,6 @@
 
   /* Mobile Responsiveness */
   @media (max-width: 768px) {
-    .container {
-      padding: 0.5rem;
-    }
-
-    .hero h1 {
-      font-size: 2rem;
-    }
 
     .filters-header {
       flex-direction: column;
@@ -1696,10 +1515,6 @@
   }
 
   @media (max-width: 480px) {
-    .hero h1 {
-      font-size: 1.75rem;
-    }
-
     .stats-grid {
       grid-template-columns: 1fr;
     }
