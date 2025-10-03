@@ -69,13 +69,13 @@
   /* Responsive padding */
   @media (max-width: 640px) {
     .container:not(.container-no-padding) {
-      padding: 4.5rem var(--space-4) 0;
+      padding: 5.5rem var(--space-4) 0;
     }
   }
 
   @media (max-width: 480px) {
     .container:not(.container-no-padding) {
-      padding: 4rem var(--space-4) 0;
+      padding: 5rem var(--space-4) 0;
     }
   }
 </style>
