@@ -25,7 +25,7 @@
 <style>
   .container {
     width: 100%;
-    padding: 0 var(--space-4);
+    padding: 5rem var(--space-4) 0;
   }
 
   .container-center {
@@ -34,7 +34,8 @@
   }
 
   .container-no-padding {
-    padding: 0;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .container-xs {
@@ -68,7 +69,13 @@
   /* Responsive padding */
   @media (max-width: 640px) {
     .container:not(.container-no-padding) {
-      padding: 0 var(--space-4);
+      padding: 4.5rem var(--space-4) 0;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .container:not(.container-no-padding) {
+      padding: 4rem var(--space-4) 0;
     }
   }
 </style>
