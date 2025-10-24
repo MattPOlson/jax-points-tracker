@@ -4,12 +4,15 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
-  import { 
-    competitionJudgingStore, 
+  import {
+    competitionJudgingStore,
     activeSession,
     isJudging,
     currentEntry
   } from '$lib/stores/competitionJudgingStore';
+  import Container from '$lib/components/ui/Container.svelte';
+  import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
+  import Button from '$lib/components/ui/Button.svelte';
 
   // Get competition ID from URL
   $: competitionId = $page.params.id;
@@ -333,13 +336,6 @@
 </script>
 
 <style>
-  .judging-container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 1rem;
-    min-height: 100vh;
-    background: #f8fafc;
-  }
 
   /* Header */
   .header {
@@ -786,17 +782,15 @@
   }
 </style>
 
-<div class="judging-container">
+<Container size="lg">
   {#if !$isJudging}
-    <div style="text-align: center; padding: 3rem;">
-      <h2>Starting judging session...</h2>
-    </div>
+    <LoadingSpinner message="Starting judging session..." />
   {:else if !$currentEntry}
     <div style="text-align: center; padding: 3rem;">
       <h2>No entries to judge</h2>
-      <button class="nav-btn nav-btn-secondary" on:click={() => goto('/judge')}>
+      <Button variant="secondary" on:click={() => goto('/judge')}>
         Back to Judge Portal
-      </button>
+      </Button>
     </div>
   {:else}
     <!-- Header -->
@@ -986,22 +980,22 @@
 
         <!-- Navigation Buttons -->
         <div class="nav-buttons">
-          <button 
-            class="nav-btn nav-btn-secondary"
+          <Button
+            variant="secondary"
             on:click={saveAndPrevious}
             disabled={currentEntryIndex === 0 || isSaving}
           >
             ⬅️ Previous Entry
-          </button>
+          </Button>
 
-          <a 
+          <a
             href="/judge/competition/{competitionId}/scoresheet"
             class="nav-btn nav-btn-secondary nav-btn-link"
           >
             📋 BJCP Scoresheet
           </a>
 
-          <a 
+          <a
             href="/judge/competition/{competitionId}/rankings"
             class="nav-btn nav-btn-secondary nav-btn-link"
           >
@@ -1009,15 +1003,15 @@
           </a>
 
           {#if currentEntryIndex < $activeSession.assignedEntries.length - 1}
-            <button 
-              class="nav-btn nav-btn-primary"
+            <Button
+              variant="primary"
               on:click={saveAndNext}
               disabled={isSaving}
             >
               Next Entry ➡️
-            </button>
+            </Button>
           {:else}
-            <button 
+            <button
               class="nav-btn nav-btn-finish"
               on:click={finishJudging}
               disabled={isSaving}
@@ -1029,4 +1023,4 @@
       </div>
     </div>
   {/if}
-</div>
+</Container>

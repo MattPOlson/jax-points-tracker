@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { page } from '$app/stores';
   import { leaderboard, message, loadLeaderboard, loading } from '$lib/stores/leaderboardStore.js';
+  import { Hero, Container, LoadingSpinner, EmptyState, Badge } from '$lib/components/ui';
 
   let cleanupFunctions = [];
 
@@ -62,17 +63,11 @@
   }
 </script>
 
-<main>
-  <div class="hero-section">
-    <h1>🏆 Leaderboard</h1>
-    <p class="subtitle">Top Brewers in the JAX Community</p>
-  </div>
+<Container size="lg">
+  <Hero title="Leaderboard" subtitle="Top Brewers in the JAX Community" icon="🏆" center={true} />
 
   {#if $loading}
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading leaderboard...</p>
-    </div>
+    <LoadingSpinner message="Loading leaderboard..." />
   {:else if $leaderboard.length > 0}
     <div class="leaderboard-container">
       <!-- Top 3 Podium (Desktop) -->
@@ -144,11 +139,11 @@
                   <td class="points-cell">{entry.points.toLocaleString()}</td>
                   <td class="badge-cell">
                     {#if index === 0}
-                      <span class="badge champion-badge">Champion</span>
+                      <Badge variant="warning">Champion</Badge>
                     {:else if index < 3}
-                      <span class="badge podium-badge">Top 3</span>
+                      <Badge variant="info">Top 3</Badge>
                     {:else if index < 10}
-                      <span class="badge top-badge">Top 10</span>
+                      <Badge variant="success">Top 10</Badge>
                     {/if}
                   </td>
                 </tr>
@@ -169,11 +164,11 @@
                   {/if}
                 </div>
                 {#if index === 0}
-                  <span class="badge champion-badge">Champion</span>
+                  <Badge variant="warning" size="sm">Champion</Badge>
                 {:else if index < 3}
-                  <span class="badge podium-badge">Top 3</span>
+                  <Badge variant="info" size="sm">Top 3</Badge>
                 {:else if index < 10}
-                  <span class="badge top-badge">Top 10</span>
+                  <Badge variant="success" size="sm">Top 10</Badge>
                 {/if}
               </div>
               <div class="card-body">
@@ -186,78 +181,25 @@
       </div>
     </div>
   {:else if $message}
-    <div class="empty-state">
-      <div class="empty-icon">📊</div>
-      <h3>No Data Available</h3>
-      <p>{$message}</p>
-      <button on:click={() => loadData(true)} class="retry-button">
-        Try Again
-      </button>
-    </div>
+    <EmptyState
+      icon="📊"
+      title="No Data Available"
+      message={$message}
+      actionLabel="Try Again"
+      on:action={() => loadData(true)}
+    />
   {:else}
-    <div class="empty-state">
-      <div class="empty-icon">🏆</div>
-      <h3>Leaderboard Coming Soon</h3>
-      <p>No leaderboard data available yet. Start brewing and submitting points!</p>
-      <button on:click={() => loadData(true)} class="retry-button">
-        Refresh
-      </button>
-    </div>
+    <EmptyState
+      icon="🏆"
+      title="Leaderboard Coming Soon"
+      message="No leaderboard data available yet. Start brewing and submitting points!"
+      actionLabel="Refresh"
+      on:action={() => loadData(true)}
+    />
   {/if}
-</main>
+</Container>
 
 <style>
-  /* Base styles */
-  main {
-    margin: 0 auto;
-    padding: 1rem;
-    width: 90%;
-    max-width: 1000px;
-    text-align: center;
-  }
-
-  .hero-section {
-    margin-bottom: 3rem;
-  }
-
-  h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 3.5rem;
-    font-weight: 100;
-    margin: 0 0 0.25em;
-    line-height: 1.1;
-  }
-
-  .subtitle {
-    font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
-    margin-bottom: 2rem;
-  }
-
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    padding: 3rem;
-    color: #666;
-  }
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(255, 62, 0, 0.2);
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
 
   .leaderboard-container {
     display: flex;
@@ -440,28 +382,6 @@
     font-size: 1.1rem;
   }
 
-  .badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-
-  .champion-badge {
-    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-    color: #d97706;
-  }
-
-  .podium-badge {
-    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-    color: #3730a3;
-  }
-
-  .top-badge {
-    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-    color: #166534;
-  }
 
   /* Mobile Cards */
   .mobile-cards {
@@ -527,64 +447,9 @@
     font-size: 1.2rem;
   }
 
-  /* Empty State */
-  .empty-state {
-    background: white;
-    border-radius: 6px;
-    padding: 3rem 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-
-  .empty-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-  }
-
-  .empty-state h3 {
-    color: #333;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    text-transform: none;
-  }
-
-  .empty-state p {
-    color: #666;
-    margin-bottom: 2rem;
-    font-size: 1.1rem;
-  }
-
-  .retry-button {
-    background-color: #ff3e00;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .retry-button:hover {
-    background-color: #e63600;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 62, 0, 0.3);
-  }
 
   /* Mobile Responsive */
   @media (max-width: 768px) {
-    main {
-      padding: 4.5rem 1rem 1rem;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-    }
-
-    .subtitle {
-      font-size: 1rem;
-    }
 
     .podium {
       display: none; /* Hide podium on mobile */
@@ -609,14 +474,6 @@
 
     .podium-card .points {
       font-size: 1rem;
-    }
-
-    .empty-state {
-      padding: 2rem 1rem;
-    }
-
-    .empty-icon {
-      font-size: 3rem;
     }
   }
 

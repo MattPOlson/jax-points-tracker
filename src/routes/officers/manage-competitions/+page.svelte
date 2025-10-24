@@ -4,6 +4,11 @@
   import { goto } from '$app/navigation';
   import { userProfile } from '$lib/stores/userProfile';
   import { competitionManagementStore, competitions, isLoading, error, stats } from '$lib/stores/competitionManagementStore';
+  import Hero from "$lib/components/ui/Hero.svelte";
+  import Container from "$lib/components/ui/Container.svelte";
+  import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
+  import EmptyState from "$lib/components/ui/EmptyState.svelte";
+  import Button from "$lib/components/ui/Button.svelte";
   
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -243,39 +248,6 @@
 </script>
 
 <style>
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  .hero {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
-
-  .hero h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 4rem;
-    font-weight: 100;
-    margin: 0 0 0.25em;
-    line-height: 1.1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-  }
-
-  .hero h1 .emoji {
-    font-size: 1em;
-  }
-
-  .hero .subtitle {
-    font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
-  }
 
   .stats-grid {
     display: grid;
@@ -329,32 +301,6 @@
     background: white;
   }
 
-  .btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .btn-primary {
-    background: #ff3e00;
-    color: white;
-  }
-
-  .btn-primary:hover {
-    background: #e63600;
-  }
-
-  .btn-secondary {
-    background: #2563eb;
-    color: white;
-  }
-
-  .btn-secondary:hover {
-    background: #1d4ed8;
-  }
 
   .competitions-table {
     background: white;
@@ -463,36 +409,6 @@
     color: white;
   }
 
-  .empty-state {
-    text-align: center;
-    padding: 3rem;
-    color: #666;
-  }
-
-  .empty-state h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .loading {
-    text-align: center;
-    padding: 3rem;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
 
   .error {
     background: #fee2e2;
@@ -778,13 +694,6 @@
 
   /* Mobile styles */
   @media (max-width: 768px) {
-    .hero h1 {
-      font-size: 2.5rem;
-    }
-
-    .hero .subtitle {
-      font-size: 1rem;
-    }
 
     .stats-grid {
       grid-template-columns: repeat(2, 1fr);
@@ -809,16 +718,8 @@
   }
 
   @media (max-width: 480px) {
-    .hero h1 {
-      font-size: 2rem;
-    }
-
     .stats-grid {
       grid-template-columns: 1fr;
-    }
-
-    .container {
-      padding: 0.5rem;
     }
 
     .competition-details {
@@ -838,12 +739,8 @@
   }
 </style>
 
-<div class="container">
-  <!-- Hero Section -->
-  <div class="hero">
-    <h1><span class="emoji">🏆</span> Manage Competitions</h1>
-    <p class="subtitle">Create and manage brewing competitions</p>
-  </div>
+<Container size="lg">
+  <Hero title="Manage Competitions" subtitle="Create and manage brewing competitions" icon="🏆" center={true} />
 
   <!-- Statistics -->
   {#if !$isLoading}
@@ -881,12 +778,12 @@
       <option value="upcoming">Upcoming</option>
       <option value="past">Past/Closed</option>
     </select>
-    <button class="btn btn-secondary" on:click={forceRefresh}>
+    <Button variant="secondary" on:click={forceRefresh}>
       🔄 Refresh
-    </button>
-    <button class="btn btn-primary" on:click={navigateToCreate}>
+    </Button>
+    <Button variant="primary" on:click={navigateToCreate}>
       ➕ Create Competition
-    </button>
+    </Button>
   </div>
 
   <!-- Error State -->
@@ -898,27 +795,20 @@
 
   <!-- Loading State -->
   {#if $isLoading}
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>Loading competitions...</p>
-    </div>
+    <LoadingSpinner message="Loading competitions..." />
   {:else if filteredCompetitions.length === 0}
     <!-- Empty State -->
-    <div class="empty-state">
-      <h3>No competitions found</h3>
-      <p>
-        {#if searchQuery || filterStatus !== 'all'}
-          Try adjusting your search or filters
-        {:else}
-          Create your first competition to get started
-        {/if}
-      </p>
+    <EmptyState
+      icon="🏆"
+      title="No competitions found"
+      message={searchQuery || filterStatus !== 'all' ? 'Try adjusting your search or filters' : 'Create your first competition to get started'}
+    >
       {#if filterStatus === 'all' && !searchQuery}
-        <button class="btn btn-primary" on:click={navigateToCreate}>
+        <Button variant="primary" on:click={navigateToCreate}>
           Create First Competition
-        </button>
+        </Button>
       {/if}
-    </div>
+    </EmptyState>
   {:else}
     <!-- Desktop Table View -->
     <div class="competitions-table">
@@ -1122,7 +1012,7 @@
       {/each}
     </div>
   {/if}
-</div>
+</Container>
 
 <!-- Delete Confirmation Modal -->
 {#if showDeleteConfirm && competitionToDelete}

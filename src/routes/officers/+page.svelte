@@ -5,6 +5,7 @@
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { competitionManagementStore } from '$lib/stores/competitionManagementStore';
+  import { Hero, Container, LoadingSpinner, EmptyState, Badge } from '$lib/components/ui';
 
   let isLoading = true;
   let accessDenied = false;
@@ -144,38 +145,34 @@
   }
 </script>
 
-<main>
+<Container size="lg">
   {#if isLoading}
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Verifying permissions...</p>
-    </div>
+    <LoadingSpinner message="Verifying permissions..." />
   {:else if !$user}
-    <div class="auth-required">
-      <div class="error-icon">🔒</div>
-      <h2>Authentication Required</h2>
-      <p>Please log in to access officer tools.</p>
-      <a href="/login" class="cta-button">Sign In</a>
-    </div>
+    <EmptyState
+      icon="🔒"
+      title="Authentication Required"
+      message="Please log in to access officer tools."
+      actionLabel="Sign In"
+      actionHref="/login"
+    />
   {:else if accessDenied}
-    <div class="access-denied">
-      <div class="error-icon">⚠️</div>
-      <h2>Access Restricted</h2>
-      <p>You are not authorized to view this page. Officer privileges are required.</p>
-      <a href="/" class="cta-button">Return Home</a>
-    </div>
+    <EmptyState
+      icon="⚠️"
+      title="Access Restricted"
+      message="You are not authorized to view this page. Officer privileges are required."
+      actionLabel="Return Home"
+      actionHref="/"
+    />
   {:else}
-    <div class="hero-section">
-      <h1>🍺 Officer Tools 🍺</h1>
-      <p class="subtitle">Administrative Dashboard</p>
-      
-      {#if $userProfile?.name}
-        <div class="welcome-message">
-          <p>Welcome, Officer <strong>{$userProfile.name}</strong>!</p>
-          <p class="access-level">You have administrative privileges</p>
-        </div>
-      {/if}
-    </div>
+    <Hero title="Officer Tools" subtitle="Administrative Dashboard" icon="🍺" center={true} />
+
+    {#if $userProfile?.name}
+      <div class="welcome-message">
+        <p>Welcome, Officer <strong>{$userProfile.name}</strong>!</p>
+        <p class="access-level">You have administrative privileges</p>
+      </div>
+    {/if}
 
     <div class="tools-section">
       <h2>Administrative Tools</h2>
@@ -188,8 +185,8 @@
               <p class="tool-description">{tool.description}</p>
               {#if tool.label === 'Manage Competitions' && !$competitionManagementStore.isLoading}
                 <div class="tool-stats">
-                  <span class="stat-badge">{activeCompetitions} Active</span>
-                  <span class="stat-badge">{totalCompetitionEntries} Entries</span>
+                  <Badge size="sm">{activeCompetitions} Active</Badge>
+                  <Badge size="sm">{totalCompetitionEntries} Entries</Badge>
                 </div>
               {/if}
             </div>
@@ -270,93 +267,9 @@
       </div>
     </div>
   {/if}
-</main>
+</Container>
 
 <style>
-  /* Base styles */
-  main {
-    margin: 0 auto;
-    padding: 1rem;
-    width: 90%;
-    max-width: 900px;
-    text-align: center;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    color: #666;
-  }
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(255, 62, 0, 0.2);
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-  .auth-required,
-  .access-denied {
-    background: white;
-    border-radius: 6px;
-    padding: 3rem 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #dc2626;
-  }
-
-  .error-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-  }
-
-  .auth-required h2,
-  .access-denied h2 {
-    color: #dc2626;
-    font-size: 1.75rem;
-    margin-bottom: 1rem;
-    text-transform: none;
-  }
-
-  .auth-required p,
-  .access-denied p {
-    color: #666;
-    margin-bottom: 2rem;
-    font-size: 1.1rem;
-  }
-
-  .hero-section {
-    margin-bottom: 3rem;
-  }
-
-  h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 3.5rem;
-    font-weight: 100;
-    margin: 0 0 0.25em;
-    line-height: 1.1;
-  }
-
-  .subtitle {
-    font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
-    margin-bottom: 2rem;
-  }
-
   .welcome-message {
     background: linear-gradient(135deg, #fff 0%, #fef7f0 100%);
     border: 1px solid #ff3e00;
@@ -487,15 +400,6 @@
     margin-top: 0.5rem;
   }
 
-  .stat-badge {
-    background: rgba(255, 62, 0, 0.1);
-    color: #ff3e00;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
-
   .tool-arrow {
     font-size: 1.5rem;
     color: #ccc;
@@ -562,39 +466,8 @@
     animation: spin 1s linear infinite;
   }
 
-  .cta-button {
-    display: inline-block;
-    margin-top: 1rem;
-    padding: 0.75rem 2rem;
-    background-color: #ff3e00;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-  }
-
-  .cta-button:hover {
-    background-color: #e63600;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 62, 0, 0.3);
-  }
-
   /* Mobile styles */
   @media (max-width: 480px) {
-    main {
-      padding: 4.5rem 1rem 1rem;
-      justify-content: flex-start;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-    }
-
-    .subtitle {
-      font-size: 1rem;
-    }
-
     .welcome-message {
       padding: 1rem;
       margin: 1rem 0;
@@ -656,10 +529,6 @@
   }
 
   @media (min-width: 1024px) {
-    main {
-      max-width: 1200px;
-    }
-
     .tools-grid {
       grid-template-columns: repeat(2, 1fr);
       gap: 2rem;

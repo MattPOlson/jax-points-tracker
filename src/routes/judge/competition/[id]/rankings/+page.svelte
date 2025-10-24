@@ -4,12 +4,15 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
-  import { 
-    competitionJudgingStore, 
+  import {
+    competitionJudgingStore,
     activeSession,
     isJudging
   } from '$lib/stores/competitionJudgingStore';
   import { supabase } from '$lib/supabaseClient';
+  import Container from '$lib/components/ui/Container.svelte';
+  import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
+  import Button from '$lib/components/ui/Button.svelte';
 
   // Get competition ID from URL
   $: competitionId = $page.params.id;
@@ -471,13 +474,6 @@
 </script>
 
 <style>
-  .rankings-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 1rem;
-    min-height: 100vh;
-    background: #f8fafc;
-  }
 
   /* Header */
   .header {
@@ -757,33 +753,14 @@
     font-weight: 500;
   }
 
-  .loading, .error-state, .empty-state {
+  .error-state, .empty-state {
     text-align: center;
     padding: 3rem;
     color: #666;
   }
 
-  .spinner {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
   /* Mobile optimizations */
   @media (max-width: 768px) {
-    .rankings-container {
-      padding: 0.5rem;
-    }
 
     .nav-buttons {
       flex-wrap: wrap;
@@ -810,7 +787,7 @@
   }
 </style>
 
-<div class="rankings-container">
+<Container size="xl">
   <!-- Header -->
   <div class="header">
     <h1>🏆 Category Rankings</h1>
@@ -819,19 +796,16 @@
 
   <!-- Navigation -->
   <div class="nav-buttons">
-    <a href="/judge/competition/{competitionId}" class="nav-btn">
+    <Button variant="secondary" on:click={() => goto(`/judge/competition/${competitionId}`)}>
       ⬅️ Back to Judging
-    </a>
-    <a href="/judge" class="nav-btn">
+    </Button>
+    <Button variant="secondary" on:click={() => goto('/judge')}>
       🏠 Judge Portal
-    </a>
+    </Button>
   </div>
 
   {#if isLoading}
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>Loading categories and rankings...</p>
-    </div>
+    <LoadingSpinner message="Loading categories and rankings..." />
   {:else if error}
     <div class="error-state">
       <h3>Error Loading Data</h3>
@@ -968,4 +942,4 @@
       </div>
     {/if}
   {/if}
-</div>
+</Container>

@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competition Scoring System - Interactive Test Script</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff3e00, #e63600);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #4caf50;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-weight: 600;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header:hover {
+            background: #e9ecef;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ff3e00;
+        }
+
+        .section-progress {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .section-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .section-content.expanded {
+            display: block;
+        }
+
+        .subsection {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 6px;
+            border-left: 4px solid #ff3e00;
+        }
+
+        .subsection h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .objective {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .steps, .expected-results {
+            margin-bottom: 20px;
+        }
+
+        .steps h4, .expected-results h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .step-item, .result-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.2s ease;
+        }
+
+        .step-item:hover, .result-item:hover {
+            background: rgba(255, 62, 0, 0.05);
+        }
+
+        .step-checkbox, .result-checkbox {
+            margin-right: 12px;
+            margin-top: 2px;
+            transform: scale(1.2);
+            accent-color: #ff3e00;
+        }
+
+        .step-text, .result-text {
+            flex: 1;
+        }
+
+        .completed {
+            background: rgba(76, 175, 80, 0.1);
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            min-width: 200px;
+        }
+
+        .controls h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .controls button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #ff3e00;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #e63600;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .checklist {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .checklist-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #ff3e00;
+        }
+
+        .checklist-section h4 {
+            margin-bottom: 15px;
+            color: #ff3e00;
+        }
+
+        .notes {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .notes h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .notes ul {
+            margin-left: 20px;
+        }
+
+        .notes li {
+            margin-bottom: 8px;
+            color: #856404;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                position: static;
+                margin-bottom: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .checklist {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .expand-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍺 Competition Scoring System</h1>
+            <p>Comprehensive Manual Test Script</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="overallProgress"></div>
+            </div>
+            <div class="progress-text" id="progressText">0% Complete (0 of 0 tasks)</div>
+        </div>
+
+        <div class="controls">
+            <h3>🛠️ Controls</h3>
+            <button class="btn-primary" onclick="expandAll()">📖 Expand All</button>
+            <button class="btn-secondary" onclick="collapseAll()">📑 Collapse All</button>
+            <button class="btn-success" onclick="saveProgress()">💾 Save Progress</button>
+            <button class="btn-secondary" onclick="loadProgress()">📂 Load Progress</button>
+            <button class="btn-secondary" onclick="resetProgress()">🔄 Reset All</button>
+        </div>
+
+        <div class="content">
+            <!-- Prerequisites Section -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span class="section-title">📋 Prerequisites</span>
+                    <span class="expand-icon">🔽</span>
+                </div>
+                <div class="section-content">
+                    <div class="subsection">
+                        <div class="expected-results">
+                            <h4>✅ Required Setup:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="prerequisites">
+                                <span class="result-text">Application running at http://localhost:5173</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="prerequisites">
+                                <span class="result-text">Admin/Officer account access</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="prerequisites">
+                                <span class="result-text">Judge account access</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="prerequisites">
+                                <span class="result-text">Regular member account access</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="prerequisites">
+                                <span class="result-text">Sample competition data loaded (if needed)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 1: Competition Setup & Entry Submission -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span class="section-title">🏗️ Section 1: Competition Setup & Entry Submission</span>
+                    <span class="section-progress" data-section="section1">0/3 Complete</span>
+                    <span class="expand-icon">🔽</span>
+                </div>
+                <div class="section-content">
+                    <!-- 1.1 Competition Creation -->
+                    <div class="subsection">
+                        <h3>1.1 Competition Creation (Officer Account)</h3>
+                        <div class="objective"><strong>Objective:</strong> Create a new competition for judging</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section1">
+                                <span class="step-text">Log in as Officer/Admin user</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section1">
+                                <span class="step-text">Navigate to <code>/officers/manage-competitions</code></span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section1">
+                                <span class="step-text">Click "Create New Competition"</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section1">
+                                <span class="step-text">Fill competition form: Name: "Test Homebrew Competition 2024", Description: "Annual club competition", Entry Deadline: 7 days from today, Judging Date: 10 days from today, Results Published: Unchecked, Active: Checked</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section1">
+                                <span class="step-text">Click "Create Competition"</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section1">
+                                <span class="result-text">Competition created successfully</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section1">
+                                <span class="result-text">Redirected to competition management page</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section1">
+                                <span class="result-text">New competition appears in active competitions list</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 1.2 Entry Submission -->
+                    <div class="subsection">
+                        <h3>1.2 Entry Submission (Member Account)</h3>
+                        <div class="objective"><strong>Objective:</strong> Submit beer entries for judging</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section1">
+                                <span class="step-text">Log out and log in as regular Member user</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section1">
+                                <span class="step-text">Navigate to <code>/competitions/submit-entry</code></span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section1">
+                                <span class="step-text">Submit Entry #1: Competition: "Test Homebrew Competition 2024", Beer Name: "Hoppy Pale Ale", BJCP Category: 18A - Blonde Ale, Beer Notes: "Late hopped with Citra"</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section1">
+                                <span class="step-text">Submit Entry #2: Competition: "Test Homebrew Competition 2024", Beer Name: "Dark Porter", BJCP Category: 20A - American Porter, Beer Notes: "Roasted malt character"</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section1">
+                                <span class="step-text">Submit Entry #3: Competition: "Test Homebrew Competition 2024", Beer Name: "Belgian Wit", BJCP Category: 24A - Witbier, Beer Notes: "Traditional spicing"</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section1">
+                                <span class="result-text">Each entry submitted successfully</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section1">
+                                <span class="result-text">Unique entry numbers generated (5-digit format)</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section1">
+                                <span class="result-text">Entries appear in "My Entries" page</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section1">
+                                <span class="result-text">Payment status shows "Pending"</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 1.3 Verify Entries -->
+                    <div class="subsection">
+                        <h3>1.3 Verify Entries (Officer Account)</h3>
+                        <div class="objective"><strong>Objective:</strong> Confirm entries are visible to officers</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section1">
+                                <span class="step-text">Log out and log in as Officer user</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section1">
+                                <span class="step-text">Navigate to <code>/officers/manage-competitions/entries/[competition-id]</code></span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section1">
+                                <span class="step-text">Verify all submitted entries are listed</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section1">
+                                <span class="step-text">Check entry details, categories, and payment status</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section1">
+                                <span class="result-text">All 3 entries visible</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section1">
+                                <span class="result-text">Entry numbers displayed correctly</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section1">
+                                <span class="result-text">Categories assigned properly</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section1">
+                                <span class="result-text">Member information shown</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Judge Assignment & Setup -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span class="section-title">👨‍⚖️ Section 2: Judge Assignment & Setup</span>
+                    <span class="section-progress" data-section="section2">0/2 Complete</span>
+                    <span class="expand-icon">🔽</span>
+                </div>
+                <div class="section-content">
+                    <!-- 2.1 Judge Assignment -->
+                    <div class="subsection">
+                        <h3>2.1 Judge Assignment (Officer Account)</h3>
+                        <div class="objective"><strong>Objective:</strong> Assign judges to the competition</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section2">
+                                <span class="step-text">Stay logged in as Officer</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section2">
+                                <span class="step-text">Navigate to <code>/officers/manage-competitions/judges/[competition-id]</code></span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section2">
+                                <span class="step-text">Click "Add Judge"</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section2">
+                                <span class="step-text">Assign Judge #1: Select a user with judging permissions, Role: BJCP Judge, Categories: Assign multiple categories including 18A, 20A, 24A</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section2">
+                                <span class="step-text">Assign Judge #2 (if available): Select another judge user, Role: Club Judge, Categories: Assign overlapping categories</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section2">
+                                <span class="result-text">Judges assigned successfully</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section2">
+                                <span class="result-text">Categories distributed appropriately</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section2">
+                                <span class="result-text">Judge assignment visible in dashboard</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2.2 Judging Dashboard Setup -->
+                    <div class="subsection">
+                        <h3>2.2 Judging Dashboard Setup (Officer Account)</h3>
+                        <div class="objective"><strong>Objective:</strong> Configure judging sessions and flight assignments</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section2">
+                                <span class="step-text">Navigate to <code>/officers/manage-competitions/judging-dashboard/[competition-id]</code></span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section2">
+                                <span class="step-text">Review judging dashboard layout</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section2">
+                                <span class="step-text">Verify entries are organized by category</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section2">
+                                <span class="step-text">Check judge assignments per category</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section2">
+                                <span class="step-text">Create judging flights if needed: Group entries by category, Assign judges to flights, Set judging schedule</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section2">
+                                <span class="result-text">Dashboard shows all entries organized by category</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section2">
+                                <span class="result-text">Judge assignments visible</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section2">
+                                <span class="result-text">Flights can be created and managed</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section2">
+                                <span class="result-text">Judging workflow ready to begin</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Judging Process -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span class="section-title">📝 Section 3: Judging Process</span>
+                    <span class="section-progress" data-section="section3">0/3 Complete</span>
+                    <span class="expand-icon">🔽</span>
+                </div>
+                <div class="section-content">
+                    <!-- 3.1 Judge Login & Assignment Verification -->
+                    <div class="subsection">
+                        <h3>3.1 Judge Login & Assignment Verification</h3>
+                        <div class="objective"><strong>Objective:</strong> Verify judges can access their assignments</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section3">
+                                <span class="step-text">Log out and log in as Judge user</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section3">
+                                <span class="step-text">Navigate to <code>/judge</code></span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section3">
+                                <span class="step-text">Verify assigned competitions appear</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section3">
+                                <span class="step-text">Click on "Test Homebrew Competition 2024"</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section3">
+                                <span class="step-text">Review assigned entries and categories</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section3">
+                                <span class="result-text">Judge dashboard shows assigned competitions</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section3">
+                                <span class="result-text">Competition details accessible</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section3">
+                                <span class="result-text">Assigned entries visible by category</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section3">
+                                <span class="result-text">Entry numbers properly masked/blurred (if configured)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3.2 Entry Judging - Scoresheet Completion -->
+                    <div class="subsection">
+                        <h3>3.2 Entry Judging - Scoresheet Completion</h3>
+                        <div class="objective"><strong>Objective:</strong> Complete BJCP scoresheets for entries</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section3">
+                                <span class="step-text">From judge competition page, select first entry to judge</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section3">
+                                <span class="step-text">Navigate to scoresheet page <code>/judge/competition/[id]/scoresheet</code></span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section3">
+                                <span class="step-text">Complete BJCP Scoresheet for "Hoppy Pale Ale": Aroma: 10/12, Appearance: 3/3, Flavor: 16/20, Mouthfeel: 4/5, Overall: 8/10, Total: 41/50, with detailed comments and descriptors</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section3">
+                                <span class="step-text">Judge second entry "Dark Porter": Aroma: 11/12, Appearance: 3/3, Flavor: 18/20, Mouthfeel: 5/5, Overall: 9/10, Total: 46/50, with detailed comments</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section3">
+                                <span class="step-text">Judge third entry "Belgian Wit": Aroma: 9/12, Appearance: 2/3, Flavor: 14/20, Mouthfeel: 3/5, Overall: 6/10, Total: 34/50, with detailed comments</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section3">
+                                <span class="result-text">Scoresheet form accepts all inputs correctly</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section3">
+                                <span class="result-text">Total scores calculate automatically</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section3">
+                                <span class="result-text">Descriptors can be selected/deselected</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section3">
+                                <span class="result-text">Comments save properly</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section3">
+                                <span class="result-text">Submissions successful for all entries</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section3">
+                                <span class="result-text">Judged entries marked as complete</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3.3 Ranking Entries -->
+                    <div class="subsection">
+                        <h3>3.3 Ranking Entries (Judge Account)</h3>
+                        <div class="objective"><strong>Objective:</strong> Rank entries within categories for final placement</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section3">
+                                <span class="step-text">Navigate to <code>/judge/competition/[id]/rankings</code></span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section3">
+                                <span class="step-text">Review all judged entries by category</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section3">
+                                <span class="step-text">Rank categories by drag and drop: Confirm Dark Porter (46pts) ranks 1st, Hoppy Pale Ale (41pts) ranks 2nd, Belgian Wit (34pts) ranks 3rd</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section3">
+                                <span class="step-text">Submit final rankings</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section3">
+                                <span class="result-text">All judged entries appear in ranking interface</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section3">
+                                <span class="result-text">Entries can be reordered by drag-and-drop</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section3">
+                                <span class="result-text">Rankings save correctly</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section3">
+                                <span class="result-text">Higher scores generally rank higher</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Results Processing & Publication -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span class="section-title">🏆 Section 4: Results Processing & Publication</span>
+                    <span class="section-progress" data-section="section4">0/2 Complete</span>
+                    <span class="expand-icon">🔽</span>
+                </div>
+                <div class="section-content">
+                    <!-- 4.1 Results Review -->
+                    <div class="subsection">
+                        <h3>4.1 Results Review (Officer Account)</h3>
+                        <div class="objective"><strong>Objective:</strong> Review judging results before publication</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section4">
+                                <span class="step-text">Log out and log in as Officer user</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section4">
+                                <span class="step-text">Navigate to <code>/officers/manage-competitions/results/[competition-id]</code></span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section4">
+                                <span class="step-text">Review judging results: Check all entries have been judged, Verify scores and rankings, Review judge comments, Check for incomplete judging</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section4">
+                                <span class="step-text">Validate scoring accuracy: Dark Porter 1st (46/50), Hoppy Pale Ale 2nd (41/50), Belgian Wit 3rd (34/50)</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section4">
+                                <span class="result-text">All entries show completed judging</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section4">
+                                <span class="result-text">Scores and rankings display correctly</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section4">
+                                <span class="result-text">Judge comments visible</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section4">
+                                <span class="result-text">Results ready for publication</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4.2 Results Publication -->
+                    <div class="subsection">
+                        <h3>4.2 Results Publication (Officer Account)</h3>
+                        <div class="objective"><strong>Objective:</strong> Publish competition results</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section4">
+                                <span class="step-text">From results management page, click "Publish Results"</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section4">
+                                <span class="step-text">Confirm publication dialog</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section4">
+                                <span class="step-text">Verify competition status updates to "Results Published"</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section4">
+                                <span class="step-text">Check that results are now publicly visible</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section4">
+                                <span class="result-text">Results publication successful</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section4">
+                                <span class="result-text">Competition marked as "Results Published"</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section4">
+                                <span class="result-text">Public results page accessible</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 5: Public Results & Member Experience -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span class="section-title">🌐 Section 5: Public Results & Member Experience</span>
+                    <span class="section-progress" data-section="section5">0/2 Complete</span>
+                    <span class="expand-icon">🔽</span>
+                </div>
+                <div class="section-content">
+                    <!-- 5.1 Public Results Viewing -->
+                    <div class="subsection">
+                        <h3>5.1 Public Results Viewing</h3>
+                        <div class="objective"><strong>Objective:</strong> Verify public can view published results</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section5">
+                                <span class="step-text">Log out completely (or use incognito browser)</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section5">
+                                <span class="step-text">Navigate to <code>/competitions/results</code></span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section5">
+                                <span class="step-text">Select "Test Homebrew Competition 2024"</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section5">
+                                <span class="step-text">Review published results: Check all categories display, Verify entry rankings, Confirm scores visible, Check award placements (1st, 2nd, 3rd, HM)</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section5">
+                                <span class="result-text">Results page loads without authentication</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section5">
+                                <span class="result-text">All categories and entries displayed</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section5">
+                                <span class="result-text">Rankings show correctly</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section5">
+                                <span class="result-text">Award medals/badges display properly</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5.2 Member Results Access -->
+                    <div class="subsection">
+                        <h3>5.2 Member Results Access</h3>
+                        <div class="objective"><strong>Objective:</strong> Verify members can view their own detailed results</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section5">
+                                <span class="step-text">Log in as the Member who submitted entries</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section5">
+                                <span class="step-text">Navigate to <code>/competitions/my-entries</code></span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section5">
+                                <span class="step-text">Verify entries show results: Dark Porter: 🥇 1st, Hoppy Pale Ale: 🥈 2nd, Belgian Wit: 🥉 3rd</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section5">
+                                <span class="step-text">Click "View Scoresheet" on each entry</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section5">
+                                <span class="step-text">Review detailed scoresheet data: Check all judge scores display, Verify comments visible, Confirm descriptors show correctly</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section5">
+                                <span class="result-text">All entries show appropriate award placement</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section5">
+                                <span class="result-text">Scoresheet details accessible</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section5">
+                                <span class="result-text">Judge feedback visible and complete</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section5">
+                                <span class="result-text">Scores match judging input</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 6: Filter System Validation -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span class="section-title">🔍 Section 6: Filter System Validation</span>
+                    <span class="section-progress" data-section="section6">0/1 Complete</span>
+                    <span class="expand-icon">🔽</span>
+                </div>
+                <div class="section-content">
+                    <!-- 6.1 My Entries Filtering -->
+                    <div class="subsection">
+                        <h3>6.1 My Entries Filtering (Member Account)</h3>
+                        <div class="objective"><strong>Objective:</strong> Test the new filtering system on my-entries page</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section6">
+                                <span class="step-text">Stay logged in as Member user</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section6">
+                                <span class="step-text">Navigate to <code>/competitions/my-entries</code></span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section6">
+                                <span class="step-text">Test Competition Filter: Select specific competition, verify filtering, select "All Competitions"</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section6">
+                                <span class="step-text">Test Category Filter: Select "20 - American Porter", verify only Dark Porter shows, test other categories</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section6">
+                                <span class="step-text">Test Award Filter: Select "🏅 Medal Winners Only", "🥇 1st Place", "🥈 2nd Place" - verify correct filtering</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section6">
+                                <span class="step-text">Test Status Filter: Select "🔴 Past (Closed)", verify entries show</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section6">
+                                <span class="step-text">Test Clear All Filters: Set multiple filters, click "✨ Clear All Filters", verify reset</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section6">
+                                <span class="result-text">All filters work independently and in combination</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section6">
+                                <span class="result-text">Results count updates correctly</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section6">
+                                <span class="result-text">Clear filters resets all selections</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section6">
+                                <span class="result-text">Empty states show when no matches found</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 7: Edge Cases & Error Handling -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span class="section-title">⚠️ Section 7: Edge Cases & Error Handling</span>
+                    <span class="section-progress" data-section="section7">0/3 Complete</span>
+                    <span class="expand-icon">🔽</span>
+                </div>
+                <div class="section-content">
+                    <!-- 7.1 Incomplete Judging Scenarios -->
+                    <div class="subsection">
+                        <h3>7.1 Incomplete Judging Scenarios</h3>
+                        <div class="objective"><strong>Objective:</strong> Test handling of incomplete judging</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section7">
+                                <span class="step-text">Create a second test competition with entries</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section7">
+                                <span class="step-text">Assign judges but leave some entries un-judged</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section7">
+                                <span class="step-text">Attempt to publish results with incomplete judging</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section7">
+                                <span class="step-text">Verify appropriate warnings/errors</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section7">
+                                <span class="result-text">System prevents publishing incomplete results</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section7">
+                                <span class="result-text">Clear feedback on what needs completion</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section7">
+                                <span class="result-text">Officer can identify un-judged entries</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7.2 Data Validation Testing -->
+                    <div class="subsection">
+                        <h3>7.2 Data Validation Testing</h3>
+                        <div class="objective"><strong>Objective:</strong> Test form validation and data integrity</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section7">
+                                <span class="step-text">Try submitting scoresheets with: Missing required fields, Invalid score values (negative, over maximum), Empty comments where required</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section7">
+                                <span class="step-text">Test entry submission with: Invalid BJCP categories, Missing required fields, Duplicate entries (if prevented)</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section7">
+                                <span class="result-text">Appropriate validation errors shown</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section7">
+                                <span class="result-text">Invalid data rejected</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section7">
+                                <span class="result-text">User-friendly error messages</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7.3 Permission Testing -->
+                    <div class="subsection">
+                        <h3>7.3 Permission Testing</h3>
+                        <div class="objective"><strong>Objective:</strong> Verify role-based access controls</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section7">
+                                <span class="step-text">Try accessing officer pages as member user</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section7">
+                                <span class="step-text">Try accessing other members' scoresheets</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section7">
+                                <span class="step-text">Try modifying results as non-officer</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section7">
+                                <span class="step-text">Test judge access to non-assigned competitions</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section7">
+                                <span class="result-text">Unauthorized access properly blocked</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section7">
+                                <span class="result-text">Appropriate error messages shown</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section7">
+                                <span class="result-text">Users redirected to appropriate pages</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 8: Performance & Usability -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span class="section-title">📱 Section 8: Performance & Usability</span>
+                    <span class="section-progress" data-section="section8">0/2 Complete</span>
+                    <span class="expand-icon">🔽</span>
+                </div>
+                <div class="section-content">
+                    <!-- 8.1 Mobile Responsiveness -->
+                    <div class="subsection">
+                        <h3>8.1 Mobile Responsiveness</h3>
+                        <div class="objective"><strong>Objective:</strong> Test mobile experience</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section8">
+                                <span class="step-text">Test all key pages on mobile viewport: Competition submission, Judge scoresheet, Results viewing, My entries with filters</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section8">
+                                <span class="step-text">Verify touch interactions work</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section8">
+                                <span class="step-text">Check responsive layout breaks</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section8">
+                                <span class="result-text">All pages responsive on mobile</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section8">
+                                <span class="result-text">Touch interactions functional</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section8">
+                                <span class="result-text">Content readable and accessible</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 8.2 Print Functionality -->
+                    <div class="subsection">
+                        <h3>8.2 Print Functionality</h3>
+                        <div class="objective"><strong>Objective:</strong> Test printing features</div>
+
+                        <div class="steps">
+                            <h4>📝 Steps:</h4>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section8">
+                                <span class="step-text">From my-entries page, click "Print Entry Labels"</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section8">
+                                <span class="step-text">Verify print preview shows: 3 labels per entry (for 3 bottles), Correct entry information, Proper formatting for labels</span>
+                            </div>
+                            <div class="step-item">
+                                <input type="checkbox" class="step-checkbox" data-group="section8">
+                                <span class="step-text">Test printing scoresheets (if available)</span>
+                            </div>
+                        </div>
+
+                        <div class="expected-results">
+                            <h4>✅ Expected Results:</h4>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section8">
+                                <span class="result-text">Print preview loads correctly</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section8">
+                                <span class="result-text">Labels format appropriately</span>
+                            </div>
+                            <div class="result-item">
+                                <input type="checkbox" class="result-checkbox" data-group="section8">
+                                <span class="result-text">All required information included</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Final Checklist -->
+            <div class="checklist">
+                <div class="checklist-section">
+                    <h4>🏗️ Core Functionality</h4>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Competition creation and management</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Entry submission and tracking</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Judge assignment and workflow</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">BJCP scoresheet completion</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Entry ranking and placement</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Results publication and viewing</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Member access to personal results</span>
+                    </div>
+                </div>
+
+                <div class="checklist-section">
+                    <h4>🔍 Filter System</h4>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Competition filtering</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Category filtering</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Award/medal filtering</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Status filtering (active/past)</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Payment filtering</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Clear all filters functionality</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Results count accuracy</span>
+                    </div>
+                </div>
+
+                <div class="checklist-section">
+                    <h4>👥 User Experience</h4>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Role-based access control</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Mobile responsiveness</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Error handling and validation</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Print functionality</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Performance under load</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Data integrity maintenance</span>
+                    </div>
+                </div>
+
+                <div class="checklist-section">
+                    <h4>🔒 Security & Data</h4>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Authentication and authorization</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Data privacy (judge anonymity)</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Input validation and sanitization</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Secure scoresheet access</span>
+                    </div>
+                    <div class="result-item">
+                        <input type="checkbox" class="result-checkbox" data-group="final">
+                        <span class="result-text">Proper error messaging</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="notes">
+                <h3>📝 Testing Notes</h3>
+                <ul>
+                    <li><strong>Estimated Time:</strong> 3-4 hours for complete validation</li>
+                    <li><strong>Test Data:</strong> Use realistic data volumes (10+ entries when possible)</li>
+                    <li><strong>Concurrency:</strong> Test multiple judges scoring simultaneously if possible</li>
+                    <li><strong>Browser Testing:</strong> Verify data persistence across browser sessions</li>
+                    <li><strong>Categories:</strong> Test with various BJCP categories and styles</li>
+                    <li><strong>Calculations:</strong> Validate scoring calculations and ranking logic</li>
+                </ul>
+
+                <h3>🐛 Issue Reporting</h3>
+                <p>When reporting issues found during testing, include:</p>
+                <ul>
+                    <li><strong>Page/Component:</strong> Specify exact page URL</li>
+                    <li><strong>User Role:</strong> Which account type you were using</li>
+                    <li><strong>Steps to Reproduce:</strong> Exact sequence of actions</li>
+                    <li><strong>Expected vs Actual Behavior:</strong> What should vs did happen</li>
+                    <li><strong>Environment:</strong> Browser, device, and screen size details</li>
+                    <li><strong>Screenshots:</strong> Visual evidence if applicable</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Progress tracking
+        let totalTasks = 0;
+        let completedTasks = 0;
+
+        // Initialize progress tracking
+        function initializeProgress() {
+            updateProgressCounters();
+            updateSectionProgress();
+            loadProgress(); // Load saved progress on page load
+        }
+
+        // Toggle section expansion
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.expand-icon');
+
+            content.classList.toggle('expanded');
+            header.parentElement.classList.toggle('expanded');
+        }
+
+        // Expand all sections
+        function expandAll() {
+            document.querySelectorAll('.section-content').forEach(content => {
+                content.classList.add('expanded');
+                content.parentElement.classList.add('expanded');
+            });
+        }
+
+        // Collapse all sections
+        function collapseAll() {
+            document.querySelectorAll('.section-content').forEach(content => {
+                content.classList.remove('expanded');
+                content.parentElement.classList.remove('expanded');
+            });
+        }
+
+        // Update progress counters
+        function updateProgressCounters() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const checked = document.querySelectorAll('input[type="checkbox"]:checked');
+
+            totalTasks = checkboxes.length;
+            completedTasks = checked.length;
+
+            const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+            document.getElementById('overallProgress').style.width = percentage + '%';
+            document.getElementById('progressText').textContent =
+                `${percentage}% Complete (${completedTasks} of ${totalTasks} tasks)`;
+        }
+
+        // Update section progress
+        function updateSectionProgress() {
+            const sections = ['section1', 'section2', 'section3', 'section4', 'section5', 'section6', 'section7', 'section8'];
+
+            sections.forEach(section => {
+                const sectionCheckboxes = document.querySelectorAll(`input[data-group="${section}"]`);
+                const sectionChecked = document.querySelectorAll(`input[data-group="${section}"]:checked`);
+                const progressElement = document.querySelector(`[data-section="${section}"]`);
+
+                if (progressElement && sectionCheckboxes.length > 0) {
+                    const subsectionCount = getSectionSubsectionCount(section);
+                    const completedSubsections = getCompletedSubsections(section);
+                    progressElement.textContent = `${completedSubsections}/${subsectionCount} Complete`;
+                }
+            });
+        }
+
+        // Get number of subsections in a section
+        function getSectionSubsectionCount(section) {
+            const sectionCounts = {
+                'section1': 3, 'section2': 2, 'section3': 3, 'section4': 2,
+                'section5': 2, 'section6': 1, 'section7': 3, 'section8': 2
+            };
+            return sectionCounts[section] || 0;
+        }
+
+        // Get number of completed subsections
+        function getCompletedSubsections(section) {
+            const sectionElement = document.querySelector(`[data-section="${section}"]`).closest('.section');
+            const subsections = sectionElement.querySelectorAll('.subsection');
+            let completed = 0;
+
+            subsections.forEach(subsection => {
+                const checkboxes = subsection.querySelectorAll('input[type="checkbox"]');
+                const checked = subsection.querySelectorAll('input[type="checkbox"]:checked');
+                if (checkboxes.length > 0 && checked.length === checkboxes.length) {
+                    completed++;
+                }
+            });
+
+            return completed;
+        }
+
+        // Handle checkbox changes
+        function handleCheckboxChange(checkbox) {
+            const parent = checkbox.closest('.step-item, .result-item');
+            if (checkbox.checked) {
+                parent.classList.add('completed');
+            } else {
+                parent.classList.remove('completed');
+            }
+
+            updateProgressCounters();
+            updateSectionProgress();
+        }
+
+        // Save progress to localStorage
+        function saveProgress() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const progress = {};
+
+            checkboxes.forEach((checkbox, index) => {
+                progress[index] = checkbox.checked;
+            });
+
+            localStorage.setItem('competitionTestProgress', JSON.stringify(progress));
+
+            // Show success message
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '✅ Saved!';
+            button.style.background = '#28a745';
+
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.background = '';
+            }, 2000);
+        }
+
+        // Load progress from localStorage
+        function loadProgress() {
+            const saved = localStorage.getItem('competitionTestProgress');
+            if (!saved) return;
+
+            try {
+                const progress = JSON.parse(saved);
+                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+                checkboxes.forEach((checkbox, index) => {
+                    if (progress[index]) {
+                        checkbox.checked = true;
+                        handleCheckboxChange(checkbox);
+                    }
+                });
+
+                updateProgressCounters();
+                updateSectionProgress();
+            } catch (e) {
+                console.error('Failed to load progress:', e);
+            }
+        }
+
+        // Reset all progress
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                    const parent = checkbox.closest('.step-item, .result-item');
+                    parent.classList.remove('completed');
+                });
+
+                localStorage.removeItem('competitionTestProgress');
+                updateProgressCounters();
+                updateSectionProgress();
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeProgress();
+
+            // Add change listeners to all checkboxes
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', () => handleCheckboxChange(checkbox));
+            });
+        });
+    </script>
+</body>
+</html>

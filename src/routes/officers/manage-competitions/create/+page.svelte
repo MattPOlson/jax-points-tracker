@@ -7,6 +7,9 @@
   import { bjcpCategories, categoriesByNumber, loadBjcpCategories } from '$lib/stores/bjcpCategoryStore';
   import CategorySelector from '$lib/components/CategorySelector.svelte';
   import RankingGroupManager from '$lib/components/RankingGroupManager.svelte';
+  import Hero from "$lib/components/ui/Hero.svelte";
+  import Container from "$lib/components/ui/Container.svelte";
+  import Button from "$lib/components/ui/Button.svelte";
   
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -162,39 +165,6 @@
 </script>
 
 <style>
-  .container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  .hero {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
-
-  .hero h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 4rem;
-    font-weight: 100;
-    margin: 0 0 0.25em;
-    line-height: 1.1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-  }
-
-  .hero h1 .emoji {
-    font-size: 1em;
-  }
-
-  .hero .subtitle {
-    font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
-  }
 
   .form-card {
     background: white;
@@ -303,37 +273,6 @@
     border-top: 1px solid #eee;
   }
 
-  .btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .btn-primary {
-    background: #ff3e00;
-    color: white;
-  }
-
-  .btn-primary:hover:not(:disabled) {
-    background: #e63600;
-  }
-
-  .btn-secondary {
-    background: #6b7280;
-    color: white;
-  }
-
-  .btn-secondary:hover:not(:disabled) {
-    background: #4b5563;
-  }
 
   .section-title {
     font-size: 1.25rem;
@@ -346,14 +285,6 @@
 
   /* Mobile styles */
   @media (max-width: 480px) {
-    .hero h1 {
-      font-size: 2.5rem;
-    }
-
-    .hero .subtitle {
-      font-size: 1rem;
-    }
-
     .form-card {
       padding: 1.5rem;
     }
@@ -381,10 +312,6 @@
 
   /* Tablet styles */
   @media (max-width: 768px) {
-    .hero h1 {
-      font-size: 3rem;
-    }
-
     .form-card {
       padding: 1.5rem;
     }
@@ -463,12 +390,8 @@
   }
 </style>
 
-<div class="container">
-  <!-- Hero Section -->
-  <div class="hero">
-    <h1><span class="emoji">🏆</span> Create Competition</h1>
-    <p class="subtitle">Set up a new brewing competition</p>
-  </div>
+<Container size="md">
+  <Hero title="Create Competition" subtitle="Set up a new brewing competition" icon="🏆" center={true} />
 
   <!-- Form Card -->
   <div class="form-card">
@@ -743,22 +666,21 @@
 
       <!-- Form Actions -->
       <div class="form-actions">
-        <button 
-          type="button" 
-          class="btn btn-secondary"
+        <Button
+          variant="secondary"
           on:click={handleCancel}
           disabled={isSubmitting}
         >
           Cancel
-        </button>
-        <button 
-          type="submit" 
-          class="btn btn-primary"
+        </Button>
+        <Button
+          variant="primary"
+          type="submit"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Creating...' : 'Create Competition'}
-        </button>
+        </Button>
       </div>
     </form>
   </div>
-</div>
+</Container>

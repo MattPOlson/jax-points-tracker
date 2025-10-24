@@ -5,6 +5,11 @@
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
+  import Hero from '$lib/components/ui/Hero.svelte';
+  import Container from '$lib/components/ui/Container.svelte';
+  import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
+  import EmptyState from '$lib/components/ui/EmptyState.svelte';
+  import Button from '$lib/components/ui/Button.svelte';
 
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -516,28 +521,6 @@
 </script>
 
 <style>
-  .dashboard-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  /* Header */
-  .header {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-  }
-
-  .header h1 {
-    color: #ff3e00;
-    font-size: 2rem;
-    font-weight: 100;
-    margin: 0 0 0.5rem;
-    text-transform: uppercase;
-  }
 
   .header-info {
     display: grid;
@@ -649,32 +632,6 @@
     cursor: not-allowed;
   }
 
-  .btn-success {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
-    color: white;
-  }
-
-  .btn-success:hover:not(:disabled) {
-    background: linear-gradient(135deg, #047857 0%, #065f46 100%);
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, #ff3e00 0%, #e63600 100%);
-    color: white;
-  }
-
-  .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #e63600 0%, #cc2900 100%);
-  }
-
-  .btn-secondary {
-    background: #6b7280;
-    color: white;
-  }
-
-  .btn-secondary:hover:not(:disabled) {
-    background: #4b5563;
-  }
 
   /* Content Sections */
   .content-section {
@@ -1011,33 +968,32 @@
   }
 </style>
 
-<div class="dashboard-container">
+<Container size="xl">
   {#if isLoading}
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>Loading judging dashboard...</p>
-    </div>
+    <LoadingSpinner message="Loading judging dashboard..." />
   {:else if competition}
     <!-- Header -->
-    <div class="header">
-      <h1>Judging Dashboard</h1>
-      <p>{competition.name}</p>
-      
-      <div class="header-info">
-        <div class="info-item">
-          <span class="info-label">Status</span>
-          <span class="info-value">
-            {competition.results_published ? 'Results Published' : 'Judging In Progress'}
-          </span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Judging Date</span>
-          <span class="info-value">{formatDate(competition.judging_date)}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Last Updated</span>
-          <span class="info-value">{formatDate(competition.updated_at)}</span>
-        </div>
+    <Hero
+      title="Judging Dashboard"
+      subtitle={competition.name}
+      icon="📊"
+      center={false}
+    />
+
+    <div class="header-info">
+      <div class="info-item">
+        <span class="info-label">Status</span>
+        <span class="info-value">
+          {competition.results_published ? 'Results Published' : 'Judging In Progress'}
+        </span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Judging Date</span>
+        <span class="info-value">{formatDate(competition.judging_date)}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Last Updated</span>
+        <span class="info-value">{formatDate(competition.updated_at)}</span>
       </div>
     </div>
 
@@ -1761,4 +1717,4 @@
       {/if}
     </div>
   {/if}
-</div>
+</Container>

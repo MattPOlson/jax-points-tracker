@@ -5,7 +5,7 @@
   import { goto } from '$app/navigation';
   import { userProfile } from '$lib/stores/userProfile.js';
   import { supabase } from '$lib/supabaseClient.js';
-  import { 
+  import {
     competitions,
     activeCompetitions,
     loadCompetitionData,
@@ -15,11 +15,12 @@
     isLoading,
     error
   } from '$lib/stores/bjcpCategoryStore.js';
-  import { 
+  import {
     myEntries,
     entryStats,
-    loadMyEntries 
+    loadMyEntries
   } from '$lib/stores/myCompetitionEntriesStore.js';
+  import { Hero, Container, LoadingSpinner, EmptyState, Button, Badge } from '$lib/components/ui';
 
   // =============================================
   // Tab Switching Fix (CRITICAL) - Commented for now
@@ -103,12 +104,13 @@
   <title>Competitions | JAX Members Portal</title>
 </svelte:head>
 
-<div class="container">
-  <!-- Hero Section -->
-  <section class="hero">
-    <h1>🏆 COMPETITIONS</h1>
-    <p>Submit entries, track your progress, and compete with fellow brewers</p>
-  </section>
+<Container size="lg">
+  <Hero
+    title="Competitions"
+    subtitle="Submit entries, track your progress, and compete with fellow brewers"
+    icon="🏆"
+    center={true}
+  />
 
   <!-- Quick Actions Grid -->
   <section class="quick-actions">
@@ -132,8 +134,8 @@
           <p>View and manage your submissions</p>
           {#if userEntriesLoaded && $entryStats.total > 0}
             <div class="card-stats">
-              <span class="stat-badge">{$entryStats.total} entries</span>
-              <span class="stat-badge active">{$entryStats.active} active</span>
+              <Badge size="sm">{$entryStats.total} entries</Badge>
+              <Badge variant="warning" size="sm">{$entryStats.active} active</Badge>
             </div>
           {/if}
         </div>
@@ -170,25 +172,23 @@
     <h2>🚀 ACTIVE COMPETITIONS</h2>
     
     {#if $isLoading && !$isLoaded}
-      <div class="loading-container">
-        <div class="loading-spinner"></div>
-        <p>Loading competitions...</p>
-      </div>
-    
+      <LoadingSpinner message="Loading competitions..." />
+
     {:else if $error}
-      <div class="error-container">
-        <p>❌ {$error}</p>
-        <button on:click={() => loadCompetitionData(true)} class="retry-button">
-          🔄 Retry
-        </button>
-      </div>
+      <EmptyState
+        icon="❌"
+        title="Error Loading Competitions"
+        message={$error}
+        actionLabel="🔄 Retry"
+        on:action={() => loadCompetitionData(true)}
+      />
 
     {:else if $isLoaded && $activeCompetitions.length === 0}
-      <div class="empty-state">
-        <div class="empty-icon">📅</div>
-        <h3>No Active Competitions</h3>
-        <p>Check back later for new competitions, or contact an officer for more information.</p>
-      </div>
+      <EmptyState
+        icon="📅"
+        title="No Active Competitions"
+        message="Check back later for new competitions, or contact an officer for more information."
+      />
 
     {:else if $isLoaded}
       <div class="competitions-grid">
@@ -273,39 +273,9 @@
       </div>
     </div>
   </section>
-</div>
+</Container>
 
 <style>
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  /* Hero Section */
-  .hero {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding: 3rem 1rem;
-  }
-
-  .hero h1 {
-    color: #ff3e00;
-    font-size: 3.5rem;
-    font-weight: 100;
-    text-transform: uppercase;
-    margin: 0 0 1rem 0;
-    letter-spacing: 3px;
-  }
-
-  .hero p {
-    font-size: 1.2rem;
-    color: #666;
-    margin: 0;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-  }
 
   /* Quick Actions Section */
   .quick-actions {
@@ -393,19 +363,6 @@
     flex-wrap: wrap;
   }
 
-  .stat-badge {
-    background: #f3f4f6;
-    color: #374151;
-    padding: 0.25rem 0.75rem;
-    border-radius: 15px;
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-
-  .stat-badge.active {
-    background: #fef3c7;
-    color: #d97706;
-  }
 
   .card-arrow {
     font-size: 1.5rem;
@@ -549,58 +506,6 @@
     background: #e63600;
   }
 
-  /* Loading and Error States */
-  .loading-container, .error-container, .empty-state {
-    text-align: center;
-    padding: 3rem 2rem;
-    background: white;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    border-left: 4px solid #ff3e00;
-  }
-
-  .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #ff3e00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 1rem auto;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-  .retry-button {
-    background: #ff3e00;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
-    margin-top: 1rem;
-    transition: background 0.2s;
-  }
-
-  .retry-button:hover {
-    background: #e63600;
-  }
-
-  .empty-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-    opacity: 0.6;
-  }
-
-  .empty-state h3 {
-    color: #ff3e00;
-    margin: 0 0 1rem 0;
-    font-size: 1.5rem;
-  }
 
   /* Info Section */
   .info-section {
@@ -659,18 +564,6 @@
 
   /* Mobile Responsiveness */
   @media (max-width: 768px) {
-    .container {
-      padding: 0.5rem;
-    }
-
-    .hero h1 {
-      font-size: 2.5rem;
-      letter-spacing: 2px;
-    }
-
-    .hero {
-      padding: 2rem 1rem;
-    }
 
     .action-cards {
       grid-template-columns: 1fr;
@@ -712,10 +605,6 @@
   }
 
   @media (max-width: 480px) {
-    .hero h1 {
-      font-size: 2rem;
-    }
-
     .action-card {
       padding: 1rem;
     }
