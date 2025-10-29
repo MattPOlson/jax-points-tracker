@@ -211,7 +211,7 @@
       const entryIds = entriesData.map(e => e.id);
       const { data: judgingData, error: judgingError } = await supabase
         .from('competition_judging_sessions')
-        .select('entry_id, total_score, judge_notes')
+        .select('entry_id, total_score, judge_notes, private_notes')
         .eq('competition_id', competitionId)
         .eq('judge_id', $userProfile.id)
         .in('entry_id', entryIds);
@@ -263,6 +263,7 @@
           member_name: entry.members?.name || 'Unknown',
           total_score: judging?.total_score || 0,
           judge_notes: judging?.judge_notes || '',
+          private_notes: judging?.private_notes || '',
           hasScore: !!(judging?.total_score),
           category_display: categoryInfo ? `${categoryInfo.category_number}${categoryInfo.subcategory_letter || ''} - ${categoryInfo.subcategory_name || categoryInfo.category_name}` : 'Unknown Category'
         };
@@ -905,7 +906,7 @@
                   </div>
                   
                   <div class="score-display">
-                    <span 
+                    <span
                       class="score-badge"
                       style="background: {getScoreColor(ranking.entry.total_score)}"
                     >
@@ -915,6 +916,12 @@
                       <span class="detail-text">📝 Has notes</span>
                     {/if}
                   </div>
+
+                  {#if ranking.entry.private_notes}
+                    <div class="detail-text" style="margin-top: 0.5rem; color: #6366f1; font-style: italic;">
+                      💭 {ranking.entry.private_notes}
+                    </div>
+                  {/if}
                 </div>
 
                 <div class="ranking-controls">

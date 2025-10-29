@@ -965,14 +965,14 @@
 
             <div class="notes-item">
               <label class="notes-label" for="private-notes">
-                Private Notes (only visible to judges and officers)
+                Private Notes (only visible to yourself)
               </label>
-              <textarea 
+              <textarea
                 id="private-notes"
                 class="notes-textarea"
                 bind:value={judgingData.private_notes}
                 on:input={handleNotesInput}
-                placeholder="Internal judging notes, comparisons, or other observations..."
+                placeholder="Personal notes for ranking or reminders..."
               ></textarea>
             </div>
           </div>
