@@ -1,6 +1,6 @@
 <!-- Category Ranking Interface -->
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
@@ -26,6 +26,9 @@
   let error = null;
   let competitionType = null;
   let validationErrors = [];
+  let hasUnsavedChanges = false;
+  let autoSaveTimeout = null;
+  let lastSavedRankings = null;
 
   // Check if current user is Comp Director for displaying beer names
   $: isCompDirector = $userProfile?.role === 'competition_director';
@@ -56,7 +59,35 @@
     }
 
     await loadCategories();
+
+    // Add beforeunload warning for unsaved changes
+    window.addEventListener('beforeunload', handleBeforeUnload);
   });
+
+  onDestroy(() => {
+    if (autoSaveTimeout) {
+      clearTimeout(autoSaveTimeout);
+    }
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+  });
+
+  function handleBeforeUnload(e) {
+    if (hasUnsavedChanges) {
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    }
+  }
+
+  async function handleNavigation(path) {
+    if (hasUnsavedChanges) {
+      const confirmLeave = confirm('You have unsaved changes. Do you want to save before leaving?');
+      if (confirmLeave) {
+        await saveRankings();
+      }
+    }
+    goto(path);
+  }
 
   async function loadCategories() {
     isLoading = true;
@@ -211,7 +242,7 @@
       const entryIds = entriesData.map(e => e.id);
       const { data: judgingData, error: judgingError } = await supabase
         .from('competition_judging_sessions')
-        .select('entry_id, total_score, judge_notes')
+        .select('entry_id, total_score, judge_notes, private_notes')
         .eq('competition_id', competitionId)
         .eq('judge_id', $userProfile.id)
         .in('entry_id', entryIds);
@@ -263,6 +294,7 @@
           member_name: entry.members?.name || 'Unknown',
           total_score: judging?.total_score || 0,
           judge_notes: judging?.judge_notes || '',
+          private_notes: judging?.private_notes || '',
           hasScore: !!(judging?.total_score),
           category_display: categoryInfo ? `${categoryInfo.category_number}${categoryInfo.subcategory_letter || ''} - ${categoryInfo.subcategory_name || categoryInfo.category_name}` : 'Unknown Category'
         };
@@ -297,6 +329,10 @@
         }));
       }
 
+      // Store initial state for tracking changes
+      lastSavedRankings = JSON.stringify(rankings.map(r => ({ entry_id: r.entry_id, rank_position: r.rank_position })));
+      hasUnsavedChanges = false;
+
     } catch (err) {
       console.error('Error loading category entries:', err);
       error = err.message;
@@ -304,8 +340,26 @@
   }
 
   async function selectCategory(category) {
+    // Warn if switching categories with unsaved changes
+    if (hasUnsavedChanges) {
+      const confirmSwitch = confirm('You have unsaved changes. Do you want to save before switching categories?');
+      if (confirmSwitch) {
+        await saveRankings();
+      }
+    }
+
     selectedCategory = category;
     await loadCategoryEntries();
+  }
+
+  function scheduleAutoSave() {
+    if (autoSaveTimeout) {
+      clearTimeout(autoSaveTimeout);
+    }
+
+    autoSaveTimeout = setTimeout(() => {
+      saveRankings(true); // Pass true to indicate auto-save
+    }, 3000); // Auto-save after 3 seconds of inactivity
   }
 
   function moveRanking(fromIndex, toIndex) {
@@ -321,6 +375,10 @@
     });
 
     rankings = newRankings;
+
+    // Mark as unsaved and schedule auto-save
+    hasUnsavedChanges = true;
+    scheduleAutoSave();
   }
 
   function moveUp(index) {
@@ -360,12 +418,14 @@
     return true;
   }
 
-  async function saveRankings() {
+  async function saveRankings(isAutoSave = false) {
     if (!selectedCategory || rankings.length === 0) return;
 
     // Validate rankings before saving
     if (!validateIntraclubSelfRanking()) {
-      showToast('Cannot save: You cannot rank your own entries in positions 1-3 during intraclub competitions', 'error');
+      if (!isAutoSave) {
+        showToast('Cannot save: You cannot rank your own entries in positions 1-3 during intraclub competitions', 'error');
+      }
       return;
     }
 
@@ -409,11 +469,17 @@
 
       if (insertError) throw insertError;
 
-      showToast('Rankings saved successfully!', 'success');
+      // Mark as saved
+      lastSavedRankings = JSON.stringify(rankings.map(r => ({ entry_id: r.entry_id, rank_position: r.rank_position })));
+      hasUnsavedChanges = false;
+
+      showToast(isAutoSave ? 'Rankings auto-saved' : 'Rankings saved successfully!', 'success');
 
     } catch (err) {
       console.error('Error saving rankings:', err);
-      showToast('Failed to save rankings', 'error');
+      if (!isAutoSave) {
+        showToast('Failed to save rankings', 'error');
+      }
     } finally {
       isSaving = false;
     }
@@ -753,6 +819,29 @@
     font-weight: 500;
   }
 
+  .unsaved-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #f59e0b;
+    background: #fef3c7;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    border: 1px solid #fbbf24;
+  }
+
+  .save-btn.has-changes {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    animation: pulse-save 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-save {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
   .error-state, .empty-state {
     text-align: center;
     padding: 3rem;
@@ -796,10 +885,10 @@
 
   <!-- Navigation -->
   <div class="nav-buttons">
-    <Button variant="secondary" on:click={() => goto(`/judge/competition/${competitionId}`)}>
+    <Button variant="secondary" on:click={() => handleNavigation(`/judge/competition/${competitionId}`)}>
       ⬅️ Back to Judging
     </Button>
-    <Button variant="secondary" on:click={() => goto('/judge')}>
+    <Button variant="secondary" on:click={() => handleNavigation('/judge')}>
       🏠 Judge Portal
     </Button>
   </div>
@@ -842,13 +931,20 @@
     {#if selectedCategory}
       <div class="rankings-section">
         <div class="rankings-header">
-          <h2>Rankings for {selectedCategory.displayName}</h2>
-          <button 
-            class="save-btn"
-            on:click={saveRankings}
+          <div>
+            <h2>Rankings for {selectedCategory.displayName}</h2>
+            {#if hasUnsavedChanges}
+              <div class="unsaved-indicator">
+                ⚠️ Unsaved changes - Auto-saving in 3 seconds...
+              </div>
+            {/if}
+          </div>
+          <button
+            class="save-btn {hasUnsavedChanges ? 'has-changes' : ''}"
+            on:click={() => saveRankings(false)}
             disabled={isSaving || rankings.length === 0}
           >
-            {isSaving ? 'Saving...' : 'Save Rankings'}
+            {isSaving ? 'Saving...' : hasUnsavedChanges ? '💾 Save Changes Now' : '✓ Rankings Saved'}
           </button>
         </div>
 
@@ -905,7 +1001,7 @@
                   </div>
                   
                   <div class="score-display">
-                    <span 
+                    <span
                       class="score-badge"
                       style="background: {getScoreColor(ranking.entry.total_score)}"
                     >
@@ -915,6 +1011,12 @@
                       <span class="detail-text">📝 Has notes</span>
                     {/if}
                   </div>
+
+                  {#if ranking.entry.private_notes}
+                    <div class="detail-text" style="margin-top: 0.5rem; color: #6366f1; font-style: italic;">
+                      💭 {ranking.entry.private_notes}
+                    </div>
+                  {/if}
                 </div>
 
                 <div class="ranking-controls">
