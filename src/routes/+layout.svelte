@@ -87,7 +87,7 @@
               if (event === 'SIGNED_IN' && u) {
                 await fetchUserProfile(u.id);
                 await checkForApprovals(u.id);
-                if (window.location.pathname === '/login') goto('/');
+                if (window.location.pathname === '/login') goto('/portal');
               }
 
               if (event === 'SIGNED_OUT') {
