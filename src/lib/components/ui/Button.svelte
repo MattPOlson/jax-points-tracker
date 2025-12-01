@@ -35,8 +35,8 @@
     justify-content: center;
     gap: var(--space-2);
     border: none;
-    border-radius: var(--radius-md);
-    font-weight: var(--font-weight-medium);
+    border-radius: var(--radius-button);
+    font-weight: var(--font-weight-semibold);
     text-align: center;
     cursor: pointer;
     transition: all var(--transition-base);
@@ -67,7 +67,7 @@
   }
 
   .btn-lg {
-    padding: var(--space-4) var(--space-8);
+    padding: 1rem 2.5rem;
     font-size: var(--font-size-lg);
   }
 

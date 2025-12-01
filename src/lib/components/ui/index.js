@@ -4,6 +4,8 @@ export { default as Card } from './Card.svelte';
 export { default as Hero } from './Hero.svelte';
 export { default as LoadingSpinner } from './LoadingSpinner.svelte';
 export { default as EmptyState } from './EmptyState.svelte';
+export { default as OverlappingCard } from './OverlappingCard.svelte';
+export { default as ActionCard } from './ActionCard.svelte';
 
 // Form Components
 export { default as FormInput } from './FormInput.svelte';

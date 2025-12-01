@@ -3,7 +3,8 @@
   import { supabase } from '$lib/supabaseClient';
   import { userProfile } from '$lib/stores/userProfile';
   import toast from 'svelte-french-toast';
-  import { Hero, Container, LoadingSpinner, EmptyState, Button, FormInput } from '$lib/components/ui';
+  import { Hero, Container, LoadingSpinner, EmptyState, Button, FormInput, Badge, Card } from '$lib/components/ui';
+  import { Edit, Save, RotateCcw, User as UserIcon, Award, Check, X } from 'lucide-svelte';
 
   // Local copies of profile fields for editing
   let profile = null;
@@ -166,30 +167,42 @@
   });
 </script>
 
+<Hero
+  title="My Profile"
+  subtitle="Manage your account information"
+  backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
+  large={true}
+/>
+
 <Container size="md">
-  <Hero title="My Profile" subtitle="Manage your account information" icon="👤" center={true} />
 
   {#if loading}
     <LoadingSpinner message="Loading your profile..." />
   {:else if profile}
     <div class="profile-container">
       <!-- Profile Header -->
-      <div class="profile-header">
+      <Card class="profile-header">
         <div class="avatar">
-          <span class="avatar-text">{(profile.name || 'U')[0].toUpperCase()}</span>
+          <UserIcon size={40} strokeWidth={2} color="white" />
         </div>
         <div class="header-info">
           <h2>{profile.name || 'Member'}</h2>
           <p class="member-since">Member since {formatDate(profile.join_date)}</p>
           {#if profile.is_officer}
-            <span class="officer-badge">🏅 Officer</span>
+            <Badge variant="warning" class="officer-badge">
+              <Award size={14} strokeWidth={2} />
+              Officer
+            </Badge>
           {/if}
         </div>
-      </div>
+      </Card>
 
       <!-- Editable Fields -->
-      <div class="form-section">
-        <h3>✏️ Edit Information</h3>
+      <Card class="form-section">
+        <h3>
+          <Edit size={20} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.5rem;" />
+          Edit Information
+        </h3>
         <div class="form-grid">
           <FormInput
             id="name"
@@ -222,7 +235,8 @@
                 <span class="button-spinner"></span>
                 Saving...
               {:else}
-                💾 Save Changes
+                <Save size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                Save Changes
               {/if}
             </Button>
             <Button
@@ -230,15 +244,16 @@
               variant="secondary"
               disabled={isUpdating}
             >
-              ↶ Reset
+              <RotateCcw size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              Reset
             </Button>
           </div>
         {/if}
-      </div>
+      </Card>
 
       <!-- Read-Only Information -->
-      <div class="info-section">
-        <h3>📋 Account Details</h3>
+      <Card class="info-section">
+        <h3>Account Details</h3>
         <div class="info-grid">
           <div class="info-item">
             <span class="info-label">Email Address</span>
@@ -263,7 +278,13 @@
           <div class="info-item">
             <span class="info-label">Account Status</span>
             <span class="info-value status-active">
-              {profile.active ? '✅ Active' : '❌ Inactive'}
+              {#if profile.active}
+                <Check size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem; color: var(--color-success);" />
+                Active
+              {:else}
+                <X size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem; color: var(--color-danger);" />
+                Inactive
+              {/if}
             </span>
           </div>
 
@@ -274,11 +295,10 @@
             </div>
           {/if}
         </div>
-      </div>
+      </Card>
     </div>
   {:else}
     <EmptyState
-      icon="🔒"
       title="Not Logged In"
       message="Please log in to view your profile information."
       actionLabel="Sign In"
@@ -292,74 +312,57 @@
   .profile-container {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: var(--space-8);
     text-align: left;
   }
 
   /* Profile Header */
-  .profile-header {
-    background: white;
-    border-radius: 6px;
-    padding: 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+  :global(.profile-header) {
+    border-left: 4px solid var(--color-brand-primary);
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: var(--space-6);
   }
 
   .avatar {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #ff3e00 0%, #e63600 100%);
+    background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-primary-hover) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
-    font-weight: 700;
-    color: white;
     flex-shrink: 0;
   }
 
   .header-info h2 {
-    color: #333;
-    font-size: 1.75rem;
-    font-weight: 600;
-    margin: 0 0 0.5rem 0;
-    text-transform: none;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    margin: 0 0 var(--space-2) 0;
   }
 
   .member-since {
-    color: #666;
-    margin: 0 0 0.5rem 0;
-    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin: 0 0 var(--space-2) 0;
+    font-size: var(--font-size-base);
   }
 
-  .officer-badge {
-    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-    color: #d97706;
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    display: inline-block;
+  :global(.officer-badge) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
   }
 
   /* Form Section */
-  .form-section {
-    background: white;
-    border-radius: 6px;
-    padding: 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-
-  .form-section h3 {
-    color: #333;
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0 0 1.5rem 0;
-    text-transform: none;
+  :global(.form-section) h3,
+  :global(.info-section) h3 {
+    color: var(--color-brand-primary);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    margin: 0 0 var(--space-6) 0;
+    display: flex;
+    align-items: center;
   }
 
   .form-grid {
@@ -383,33 +386,17 @@
     animation: spin 1s linear infinite;
   }
 
-  /* Info Section */
-  .info-section {
-    background: white;
-    border-radius: 6px;
-    padding: 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-
-  .info-section h3 {
-    color: #333;
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0 0 1.5rem 0;
-    text-transform: none;
-  }
-
   .info-grid {
     display: grid;
-    gap: 1rem;
+    gap: var(--space-4);
   }
 
   .info-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #f1f5f9;
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
 
   .info-item:last-child {
@@ -417,30 +404,30 @@
   }
 
   .info-label {
-    font-weight: 500;
-    color: #666;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
   }
 
   .info-value {
-    font-weight: 600;
-    color: #333;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
   }
 
   .points-item {
-    background: linear-gradient(135deg, #fff 0%, #fef7f0 100%);
-    border: 1px solid #ff3e00;
-    border-radius: 6px;
-    padding: 1rem;
-    margin-top: 0.5rem;
+    background: linear-gradient(135deg, var(--color-bg-primary) 0%, #e8f2ff 100%);
+    border: 1px solid var(--color-brand-primary);
+    border-radius: var(--radius-card);
+    padding: var(--space-4);
+    margin-top: var(--space-2);
   }
 
   .points-value {
-    color: #ff3e00;
-    font-size: 1.2rem;
+    color: var(--color-brand-primary);
+    font-size: var(--font-size-xl);
   }
 
   .status-active {
-    color: #059669;
+    color: var(--color-success);
   }
 
 

@@ -13,6 +13,7 @@
   import Container from '$lib/components/ui/Container.svelte';
   import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
   import Button from '$lib/components/ui/Button.svelte';
+  import { ArrowLeft, ArrowRight, Edit3 } from 'lucide-svelte';
 
   // Get competition ID from URL
   $: competitionId = $page.params.id;
@@ -945,14 +946,16 @@
         on:click={navigateToPrevious}
         disabled={currentEntryIndex === 0}
       >
-        ⬅️ Previous Entry
+        <ArrowLeft size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        Previous Entry
       </Button>
 
       <Button
         variant="secondary"
         on:click={() => goto(`/judge/competition/${competitionId}`)}
       >
-        📝 Simple View
+        <Edit3 size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        Simple View
       </Button>
 
       {#if currentEntryIndex < $activeSession.assignedEntries.length - 1}
@@ -960,7 +963,8 @@
           variant="primary"
           on:click={navigateToNext}
         >
-          Next Entry ➡️
+          Next Entry
+          <ArrowRight size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-left: 0.25rem;" />
         </Button>
       {:else}
         <Button

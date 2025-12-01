@@ -1118,7 +1118,12 @@ function printLabels() {
 
 {#if isAuthorized}
 <Container size="xl">
-  <Hero title="Competition Entries" subtitle="Manage entries and print labels" icon="📋" center={true} />
+  <Hero
+    title="Competition Entries"
+    subtitle="Manage entries and print labels"
+    backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
+    large={true}
+  />
 
   {#if isLoading}
     <LoadingSpinner message="Loading entries..." />

@@ -5,6 +5,7 @@
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
   import { Hero, Container, LoadingSpinner, EmptyState, Button, Badge } from '$lib/components/ui';
+  import { Trophy, Medal, Award, ArrowLeft, Calendar } from 'lucide-svelte';
   
   let competitions = [];
   let selectedCompetition = null;
@@ -266,15 +267,15 @@
   function getPlacementDisplay(placement) {
     switch (placement) {
       case '1':
-        return { text: '1st Place', class: 'placement-first', medal: '🥇' };
+        return { text: '1st Place', class: 'placement-first', icon: Trophy };
       case '2':
-        return { text: '2nd Place', class: 'placement-second', medal: '🥈' };
+        return { text: '2nd Place', class: 'placement-second', icon: Medal };
       case '3':
-        return { text: '3rd Place', class: 'placement-third', medal: '🥉' };
+        return { text: '3rd Place', class: 'placement-third', icon: Award };
       case 'HM':
-        return { text: 'Honorable Mention', class: 'placement-hm', medal: '🏅' };
+        return { text: 'Honorable Mention', class: 'placement-hm', icon: Award };
       default:
-        return { text: 'No Placement', class: 'placement-none', medal: '' };
+        return { text: 'No Placement', class: 'placement-none', icon: null };
     }
   }
 
@@ -431,90 +432,90 @@
 
 <style>
   .competition-selector {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
-    margin-bottom: 2rem;
+    background: var(--color-bg-primary);
+    padding: var(--space-6);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid var(--color-brand-primary);
+    margin-bottom: var(--space-8);
   }
 
   .selector-label {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 1rem;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-4);
   }
 
   .competition-select {
     width: 100%;
     max-width: 400px;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1rem;
-    background: white;
-    color: #333;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-button);
+    font-size: var(--font-size-base);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
   }
 
   .competition-select:focus {
     outline: none;
-    border-color: #ff3e00;
-    box-shadow: 0 0 0 3px rgba(255, 62, 0, 0.1);
+    border-color: var(--color-brand-primary);
+    box-shadow: 0 0 0 3px var(--color-brand-primary-light);
   }
 
   .results-summary {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
-    margin-bottom: 2rem;
+    background: var(--color-bg-primary);
+    padding: var(--space-6);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid var(--color-brand-primary);
+    margin-bottom: var(--space-8);
   }
 
   .summary-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+    gap: var(--space-4);
   }
 
   .summary-item {
     text-align: center;
-    padding: 1rem;
-    background: #f9f9f9;
-    border-radius: 6px;
+    padding: var(--space-4);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-card);
   }
 
   .summary-label {
-    font-size: 0.875rem;
-    color: #666;
-    margin-bottom: 0.5rem;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-2);
   }
 
   .summary-value {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #ff3e00;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-brand-primary);
   }
 
   .category-section {
-    background: white;
-    border-radius: 6px;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-card);
     overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--space-8);
   }
 
   .category-header {
-    background: #f5f5f5;
-    padding: 1rem 1.5rem;
-    border-bottom: 2px solid #ddd;
+    background: var(--color-bg-secondary);
+    padding: var(--space-4) var(--space-6);
+    border-bottom: 2px solid var(--color-border-secondary);
   }
 
   .category-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #333;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
     margin: 0;
   }
 
@@ -524,46 +525,46 @@
   }
 
   .results-table th {
-    background: #fafafa;
-    padding: 1rem;
+    background: var(--color-bg-tertiary);
+    padding: var(--space-4);
     text-align: left;
-    font-weight: 600;
-    color: #333;
-    border-bottom: 1px solid #ddd;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-border-secondary);
   }
 
   .results-table td {
-    padding: 1rem;
-    border-bottom: 1px solid #eee;
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--color-border-tertiary);
   }
 
   .results-table tr:hover {
-    background: #f9f9f9;
+    background: var(--color-bg-secondary);
   }
 
   .placement-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0.75rem;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-3);
     border-radius: 12px;
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
   }
 
   .placement-first {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
   }
 
   .placement-second {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-secondary);
   }
 
   .placement-third {
-    background: #fecaca;
-    color: #b91c1c;
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
   }
 
   .placement-hm {
@@ -572,38 +573,38 @@
   }
 
   .placement-none {
-    background: #f9fafb;
-    color: #6b7280;
+    background: var(--color-bg-secondary);
+    color: var(--color-text-secondary);
   }
 
   .score-badge {
     background: #e0f2fe;
     color: #0369a1;
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    font-weight: 600;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-button);
+    font-weight: var(--font-weight-semibold);
   }
 
   .entry-number {
-    font-weight: 600;
-    color: #ff3e00;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-brand-primary);
   }
 
 
   .controls {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
     flex-wrap: wrap;
     align-items: center;
   }
 
   .error {
-    background: #fee2e2;
-    color: #dc2626;
-    padding: 1rem;
-    border-radius: 6px;
-    margin-bottom: 1rem;
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+    padding: var(--space-4);
+    border-radius: var(--radius-card);
+    margin-bottom: var(--space-4);
   }
 
   /* Mobile styles */
@@ -639,19 +640,19 @@
   }
 
   .result-card {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1rem;
-    padding: 1rem;
-    border-left: 4px solid #ff3e00;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--space-4);
+    padding: var(--space-4);
+    border-left: 4px solid var(--color-brand-primary);
   }
 
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-4);
   }
 
   .entry-info {
@@ -659,21 +660,21 @@
   }
 
   .entry-number {
-    font-size: 0.875rem;
-    color: #666;
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
   }
 
   .beer-name {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #333;
-    margin: 0.25rem 0;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin: var(--space-1) 0;
   }
 
   .member-name {
-    font-size: 0.875rem;
-    color: #666;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
     margin: 0;
   }
 
@@ -681,51 +682,51 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
 
   .placement-badge-mobile {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.75rem;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-3);
     border-radius: 12px;
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
     text-align: center;
   }
 
-  .placement-badge-mobile.placement-1 {
-    background: linear-gradient(135deg, #ffd700, #ffed4a);
-    color: #744210;
+  .placement-badge-mobile.placement-first {
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
   }
 
-  .placement-badge-mobile.placement-2 {
-    background: linear-gradient(135deg, #c0c0c0, #e2e8f0);
-    color: #4a5568;
+  .placement-badge-mobile.placement-second {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-secondary);
   }
 
-  .placement-badge-mobile.placement-3 {
-    background: linear-gradient(135deg, #cd7f32, #d69e2e);
-    color: #744210;
+  .placement-badge-mobile.placement-third {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
   }
 
   .placement-badge-mobile.placement-none {
-    background: #f7fafc;
-    color: #718096;
-    border: 1px solid #e2e8f0;
+    background: var(--color-bg-secondary);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-secondary);
   }
 
   .card-details {
-    border-top: 1px solid #f1f5f9;
-    padding-top: 1rem;
+    border-top: 1px solid var(--color-border-tertiary);
+    padding-top: var(--space-4);
   }
 
   .detail-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
   }
 
   .detail-item {
@@ -734,19 +735,19 @@
 
   .detail-label {
     display: block;
-    font-size: 0.75rem;
-    color: #666;
-    font-weight: 500;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 0.25rem;
+    margin-bottom: var(--space-1);
   }
 
   .detail-value {
     display: block;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #333;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
   }
 
 
@@ -798,12 +799,18 @@
 </style>
 
 <Container size="xl">
-  <Hero title="Competition Results" subtitle="View published competition results and standings" icon="🏅" center={true} />
+  <Hero
+    title="Competition Results"
+    subtitle="View published competition results and standings"
+    backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
+    large={true}
+  />
 
   <!-- Controls -->
   <div class="controls">
     <Button variant="secondary" on:click={navigateToCompetitions}>
-      ← Back to Competitions
+      <ArrowLeft size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+      Back to Competitions
     </Button>
   </div>
 
@@ -819,7 +826,6 @@
     <LoadingSpinner message="Loading competition results..." />
   {:else if competitions.length === 0}
     <EmptyState
-      icon="📅"
       title="No Results Published"
       message="There are currently no competition results available to view. Check back after competitions have been judged and results published."
     />
@@ -922,9 +928,12 @@
                     </td>
                     <td>
                       {#if result.calculated_placement}
-                        <span class="placement-badge {getPlacementDisplay(result.calculated_placement).class}">
-                          <span>{getPlacementDisplay(result.calculated_placement).medal}</span>
-                          <span>{getPlacementDisplay(result.calculated_placement).text}</span>
+                        {@const display = getPlacementDisplay(result.calculated_placement)}
+                        <span class="placement-badge {display.class}">
+                          {#if display.icon}
+                            <svelte:component this={display.icon} size={16} strokeWidth={2} />
+                          {/if}
+                          <span>{display.text}</span>
                         </span>
                       {:else}
                         <span class="placement-badge placement-none">No Placement</span>
@@ -947,9 +956,12 @@
                     </div>
                     <div class="ranking-info">
                       {#if result.calculated_placement}
-                        <div class="placement-badge-mobile {getPlacementDisplay(result.calculated_placement).class}">
-                          <span class="medal">{getPlacementDisplay(result.calculated_placement).medal}</span>
-                          <span class="placement-text">{getPlacementDisplay(result.calculated_placement).text}</span>
+                        {@const display = getPlacementDisplay(result.calculated_placement)}
+                        <div class="placement-badge-mobile {display.class}">
+                          {#if display.icon}
+                            <svelte:component this={display.icon} size={16} strokeWidth={2} />
+                          {/if}
+                          <span class="placement-text">{display.text}</span>
                         </div>
                       {:else}
                         <div class="placement-badge-mobile placement-none">No Placement</div>

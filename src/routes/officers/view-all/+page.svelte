@@ -204,7 +204,12 @@
 </script>
 
 <Container size="xl">
-  <Hero title="View All Points" subtitle="Browse and filter all member submissions" icon="📊" center={true} />
+  <Hero
+    title="View All Points"
+    subtitle="Browse and filter all member submissions"
+    backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
+    large={true}
+  />
 
   {#if $loading}
     <LoadingSpinner message="Loading all submissions..." />

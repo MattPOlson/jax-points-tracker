@@ -749,7 +749,12 @@
 </style>
 
 <Container size="xl">
-  <Hero title="Enter Results" subtitle="Record judging scores and placements" icon="🏆" center={true} />
+  <Hero
+    title="Enter Results"
+    subtitle="Record judging scores and placements"
+    backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
+    large={true}
+  />
 
   {#if isLoading}
     <LoadingSpinner message="Loading competition entries..." />

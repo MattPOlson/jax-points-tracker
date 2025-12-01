@@ -13,6 +13,7 @@
   import Container from '$lib/components/ui/Container.svelte';
   import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
   import Button from '$lib/components/ui/Button.svelte';
+  import { Trophy, ArrowLeft, RefreshCw, Save, AlertTriangle, Check, Info, Medal, Award, ArrowUp, ArrowDown, StickyNote, MessageCircle, User } from 'lucide-svelte';
 
   // Get competition ID from URL
   $: competitionId = $page.params.id;
@@ -487,10 +488,10 @@
 
   function getRankIcon(position) {
     switch (position) {
-      case 1: return '🥇';
-      case 2: return '🥈';
-      case 3: return '🥉';
-      default: return `${position}.`;
+      case 1: return { icon: Trophy, text: '1st' };
+      case 2: return { icon: Medal, text: '2nd' };
+      case 3: return { icon: Award, text: '3rd' };
+      default: return { icon: null, text: `${position}.` };
     }
   }
 
@@ -543,130 +544,130 @@
 
   /* Header */
   .header {
-    background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-card);
+    padding: var(--space-6);
+    margin-bottom: var(--space-4);
+    box-shadow: var(--shadow-card);
   }
 
   .header h1 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #333;
-    margin: 0 0 0.5rem;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-2);
   }
 
   .header p {
-    color: #666;
+    color: var(--color-text-secondary);
     margin: 0;
   }
 
   /* Navigation */
   .nav-buttons {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
   }
 
   .nav-btn {
-    padding: 0.75rem 1.5rem;
+    padding: var(--space-3) var(--space-6);
     border: none;
-    border-radius: 8px;
-    background: #6b7280;
+    border-radius: var(--radius-button);
+    background: var(--color-text-tertiary);
     color: white;
     cursor: pointer;
     transition: background 0.2s ease;
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
 
   .nav-btn:hover {
-    background: #4b5563;
+    background: var(--color-text-secondary);
   }
 
   .nav-btn-primary {
-    background: #ff3e00;
+    background: var(--color-brand-primary);
   }
 
   .nav-btn-primary:hover {
-    background: #e63600;
+    background: var(--color-brand-primary-hover);
   }
 
   /* Categories */
   .categories-section {
-    background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-card);
+    padding: var(--space-6);
+    margin-bottom: var(--space-4);
+    box-shadow: var(--shadow-card);
   }
 
   .categories-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1rem;
+    gap: var(--space-4);
   }
 
   .category-card {
-    padding: 1rem;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
+    padding: var(--space-4);
+    border: 2px solid var(--color-border-secondary);
+    border-radius: var(--radius-button);
     cursor: pointer;
     transition: all 0.2s ease;
   }
 
   .category-card:hover {
-    border-color: #ff3e00;
-    background: #fef7f0;
+    border-color: var(--color-brand-primary);
+    background: var(--color-brand-primary-bg);
   }
 
   .category-card.selected {
-    border-color: #ff3e00;
-    background: #fff2ed;
+    border-color: var(--color-brand-primary);
+    background: var(--color-brand-primary-bg);
   }
 
   .category-name {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 0.25rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-1);
   }
 
   .category-stats {
-    font-size: 0.875rem;
-    color: #666;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
   }
 
   /* Rankings */
   .rankings-section {
-    background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-card);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-card);
   }
 
   .rankings-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-6);
   }
 
   .rankings-header h2 {
     margin: 0;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .save-btn {
-    padding: 0.75rem 1.5rem;
+    padding: var(--space-3) var(--space-6);
     border: none;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    border-radius: var(--radius-button);
+    background: linear-gradient(135deg, var(--color-success) 0%, #047857 100%);
     color: white;
     cursor: pointer;
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     transition: all 0.2s ease;
   }
 
@@ -682,17 +683,17 @@
   .rankings-list {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: var(--space-4);
   }
 
   .ranking-item {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    background: #f9fafb;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-button);
+    border: 1px solid var(--color-border-secondary);
     transition: all 0.2s ease;
   }
 
@@ -702,19 +703,19 @@
   }
 
   .ranking-item.invalid-own-entry {
-    background: #fef2f2;
-    border-color: #ef4444;
+    background: var(--color-danger-bg);
+    border-color: var(--color-danger);
     animation: pulse-error 2s ease-in-out;
   }
 
   @keyframes pulse-error {
-    0%, 100% { border-color: #ef4444; }
+    0%, 100% { border-color: var(--color-danger); }
     50% { border-color: #dc2626; }
   }
 
   .rank-position {
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
     min-width: 60px;
     text-align: center;
   }
@@ -725,51 +726,51 @@
   }
 
   .entry-number {
-    font-weight: 600;
-    color: #ff3e00;
-    margin-bottom: 0.25rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-brand-primary);
+    margin-bottom: var(--space-1);
   }
 
   .entry-details {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
-    margin-bottom: 0.25rem;
+    gap: var(--space-1);
+    margin-bottom: var(--space-1);
   }
 
   .detail-text {
-    font-size: 0.875rem;
-    color: #666;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
   }
 
   .score-display {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
   }
 
   .score-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
-    font-size: 0.875rem;
-    font-weight: 600;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-card);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
     color: white;
   }
 
   .ranking-controls {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--space-1);
   }
 
   .rank-btn {
     width: 40px;
     height: 40px;
     border: none;
-    border-radius: 6px;
-    background: #e5e7eb;
-    color: #374151;
+    border-radius: var(--radius-button);
+    background: var(--color-border-secondary);
+    color: var(--color-text-primary);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -778,7 +779,7 @@
   }
 
   .rank-btn:hover:not(:disabled) {
-    background: #d1d5db;
+    background: var(--color-border-primary);
   }
 
   .rank-btn:disabled {
@@ -787,53 +788,53 @@
   }
 
   .validation-warning {
-    background: #fef3cd;
-    border: 1px solid #f59e0b;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
+    background: var(--color-warning-bg);
+    border: 1px solid var(--color-warning);
+    border-radius: var(--radius-button);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
   }
 
   .validation-warning h4 {
-    margin: 0 0 0.5rem;
+    margin: 0 0 var(--space-2);
     color: #92400e;
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
   }
 
   .validation-error {
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     color: #92400e;
-    margin: 0.25rem 0;
+    margin: var(--space-1) 0;
   }
 
   .own-entry-indicator {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    font-size: 0.75rem;
+    gap: var(--space-1);
+    font-size: var(--font-size-xs);
     color: #3b82f6;
     background: #dbeafe;
-    padding: 0.125rem 0.5rem;
-    border-radius: 12px;
-    font-weight: 500;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-card);
+    font-weight: var(--font-weight-medium);
   }
 
   .unsaved-indicator {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: #f59e0b;
-    background: #fef3c7;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    font-weight: 500;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--color-warning);
+    background: var(--color-warning-bg);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-button);
+    font-weight: var(--font-weight-medium);
     border: 1px solid #fbbf24;
   }
 
   .save-btn.has-changes {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: linear-gradient(135deg, var(--color-warning) 0%, #d97706 100%);
     animation: pulse-save 2s ease-in-out infinite;
   }
 
@@ -844,8 +845,8 @@
 
   .error-state, .empty-state {
     text-align: center;
-    padding: 3rem;
-    color: #666;
+    padding: var(--space-12);
+    color: var(--color-text-secondary);
   }
 
   /* Mobile optimizations */
@@ -860,17 +861,17 @@
     }
 
     .entry-details {
-      gap: 0.125rem;
+      gap: var(--space-1);
     }
 
     .ranking-item {
       flex-wrap: wrap;
-      gap: 0.5rem;
+      gap: var(--space-2);
     }
 
     .rankings-header {
       flex-direction: column;
-      gap: 1rem;
+      gap: var(--space-4);
       align-items: stretch;
     }
   }
@@ -879,17 +880,22 @@
 <Container size="xl">
   <!-- Header -->
   <div class="header">
-    <h1>🏆 Category Rankings</h1>
+    <h1>
+      <Trophy size={32} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.5rem;" />
+      Category Rankings
+    </h1>
     <p>Rank entries within each category based on your judging scores</p>
   </div>
 
   <!-- Navigation -->
   <div class="nav-buttons">
     <Button variant="secondary" on:click={() => handleNavigation(`/judge/competition/${competitionId}`)}>
-      ⬅️ Back to Judging
+      <ArrowLeft size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+      Back to Judging
     </Button>
     <Button variant="secondary" on:click={() => handleNavigation('/judge')}>
-      🏠 Judge Portal
+      <ArrowLeft size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+      Judge Portal
     </Button>
   </div>
 
@@ -900,7 +906,8 @@
       <h3>Error Loading Data</h3>
       <p>{error}</p>
       <button class="nav-btn nav-btn-primary" on:click={() => window.location.reload()}>
-        🔄 Retry
+        <RefreshCw size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        Retry
       </button>
     </div>
   {:else if categories.length === 0}
@@ -935,7 +942,8 @@
             <h2>Rankings for {selectedCategory.displayName}</h2>
             {#if hasUnsavedChanges}
               <div class="unsaved-indicator">
-                ⚠️ Unsaved changes - Auto-saving in 3 seconds...
+                <AlertTriangle size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                Unsaved changes - Auto-saving in 3 seconds...
               </div>
             {/if}
           </div>
@@ -944,13 +952,24 @@
             on:click={() => saveRankings(false)}
             disabled={isSaving || rankings.length === 0}
           >
-            {isSaving ? 'Saving...' : hasUnsavedChanges ? '💾 Save Changes Now' : '✓ Rankings Saved'}
+            {#if isSaving}
+              Saving...
+            {:else if hasUnsavedChanges}
+              <Save size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              Save Changes Now
+            {:else}
+              <Check size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              Rankings Saved
+            {/if}
           </button>
         </div>
 
         {#if validationErrors.length > 0}
           <div class="validation-warning">
-            <h4>⚠️ Ranking Restrictions</h4>
+            <h4>
+              <AlertTriangle size={20} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              Ranking Restrictions
+            </h4>
             {#each validationErrors as error}
               <div class="validation-error">{error.message}</div>
             {/each}
@@ -959,7 +978,10 @@
 
         {#if competitionType === 'intraclub'}
           <div class="validation-warning" style="background: #f0f9ff; border-color: #3b82f6;">
-            <h4>ℹ️ Intraclub Competition Rules</h4>
+            <h4>
+              <Info size={20} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              Intraclub Competition Rules
+            </h4>
             <div style="color: #1e40af; font-size: 0.875rem;">
               You cannot rank your own entries in positions 1-3. Your entries are marked with a blue indicator.
             </div>
@@ -971,7 +993,8 @@
             <h3>No Scored Entries</h3>
             <p>You need to score entries in this category before you can rank them.</p>
             <a href="/judge/competition/{competitionId}" class="nav-btn nav-btn-primary">
-              🏆 Start Judging
+              <Trophy size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              Start Judging
             </a>
           </div>
         {:else}
@@ -979,14 +1002,21 @@
             {#each rankings as ranking, index}
               <div class="ranking-item {isOwnEntry(ranking.entry) ? 'own-entry' : ''} {getEntryValidationClass(ranking)}">
                 <div class="rank-position">
-                  {getRankIcon(ranking.rank_position)}
+                  {@const rankDisplay = getRankIcon(ranking.rank_position)}
+                  {#if rankDisplay.icon}
+                    <svelte:component this={rankDisplay.icon} size={24} strokeWidth={2} style="display: inline-block; vertical-align: middle; margin-right: 0.25rem;" />
+                  {/if}
+                  <span>{rankDisplay.text}</span>
                 </div>
 
                 <div class="entry-info">
                   <div class="entry-number">
                     Entry #{ranking.entry.entry_number}
                     {#if isOwnEntry(ranking.entry)}
-                      <span class="own-entry-indicator">👤 Your Entry</span>
+                      <span class="own-entry-indicator">
+                        <User size={12} strokeWidth={2} style="display: inline-block; vertical-align: middle; margin-right: 0.125rem;" />
+                        Your Entry
+                      </span>
                     {/if}
                   </div>
                   <div class="entry-details">
@@ -1008,33 +1038,37 @@
                       {ranking.entry.total_score}/50
                     </span>
                     {#if ranking.entry.judge_notes}
-                      <span class="detail-text">📝 Has notes</span>
+                      <span class="detail-text">
+                        <StickyNote size={14} strokeWidth={2} style="display: inline-block; vertical-align: middle; margin-right: 0.25rem;" />
+                        Has notes
+                      </span>
                     {/if}
                   </div>
 
                   {#if ranking.entry.private_notes}
                     <div class="detail-text" style="margin-top: 0.5rem; color: #6366f1; font-style: italic;">
-                      💭 {ranking.entry.private_notes}
+                      <MessageCircle size={14} strokeWidth={2} style="display: inline-block; vertical-align: middle; margin-right: 0.25rem;" />
+                      {ranking.entry.private_notes}
                     </div>
                   {/if}
                 </div>
 
                 <div class="ranking-controls">
-                  <button 
+                  <button
                     class="rank-btn"
                     on:click={() => moveUp(index)}
                     disabled={index === 0}
                     title="Move up"
                   >
-                    ⬆️
+                    <ArrowUp size={18} strokeWidth={2} />
                   </button>
-                  <button 
+                  <button
                     class="rank-btn"
                     on:click={() => moveDown(index)}
                     disabled={index === rankings.length - 1}
                     title="Move down"
                   >
-                    ⬇️
+                    <ArrowDown size={18} strokeWidth={2} />
                   </button>
                 </div>
               </div>

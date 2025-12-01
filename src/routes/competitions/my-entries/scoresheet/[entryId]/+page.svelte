@@ -9,6 +9,7 @@
   import Container from "$lib/components/ui/Container.svelte";
   import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
   import Button from "$lib/components/ui/Button.svelte";
+  import { ArrowLeft, FileText } from 'lucide-svelte';
 
   // Get entry ID from URL
   $: entryId = $page.params.entryId;
@@ -151,26 +152,26 @@
 <style>
 
   .entry-info {
-    background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-card);
+    padding: var(--space-6);
+    margin-bottom: var(--space-8);
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid var(--color-brand-primary);
   }
 
   .entry-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #333;
-    margin: 0 0 1rem;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-4);
   }
 
   .entry-meta {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
   }
 
   .meta-item {
@@ -179,134 +180,134 @@
   }
 
   .meta-label {
-    font-size: 0.875rem;
-    color: #666;
-    margin-bottom: 0.25rem;
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-1);
+    font-weight: var(--font-weight-medium);
   }
 
   .meta-value {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #333;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
   }
 
   .judge-session {
-    background: white;
-    border-radius: 12px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-card);
+    padding: var(--space-8);
+    margin-bottom: var(--space-8);
+    box-shadow: var(--shadow-card);
   }
 
   .session-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-8);
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: var(--space-4);
   }
 
   .judge-info h2 {
-    color: #333;
-    margin: 0 0 0.5rem;
-    font-size: 1.25rem;
-    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-2);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
   }
 
   .judge-date {
-    font-size: 0.875rem;
-    color: #666;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
   }
 
   .total-score {
-    background: linear-gradient(135deg, #ff3e00 0%, #e63600 100%);
+    background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-primary-hover) 100%);
     color: white;
-    padding: 1rem 1.5rem;
-    border-radius: 12px;
+    padding: var(--space-4) var(--space-6);
+    border-radius: var(--radius-card);
     text-align: center;
     min-width: 120px;
   }
 
   .score-value {
-    font-size: 2rem;
-    font-weight: 100;
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-light);
     margin: 0;
   }
 
   .score-label {
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     opacity: 0.9;
-    margin: 0.25rem 0 0;
+    margin: var(--space-1) 0 0;
   }
 
   .score-description {
-    font-size: 1rem;
-    font-weight: 500;
-    margin: 0.5rem 0 0;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    margin: var(--space-2) 0 0;
   }
 
   .score-breakdown {
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-8);
   }
 
   .breakdown-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 1rem;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-4);
   }
 
   .score-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
+    gap: var(--space-4);
   }
 
   .score-item {
-    background: #f8fafc;
-    padding: 1rem;
-    border-radius: 8px;
+    background: var(--color-bg-secondary);
+    padding: var(--space-4);
+    border-radius: var(--radius-card);
     text-align: center;
-    border: 2px solid #e2e8f0;
+    border: 2px solid var(--color-border-secondary);
   }
 
   .score-item-label {
-    font-size: 0.875rem;
-    color: #666;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-2);
+    font-weight: var(--font-weight-medium);
   }
 
   .score-item-value {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #333;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
   }
 
   .score-item-max {
-    font-size: 0.75rem;
-    color: #999;
-    margin-top: 0.25rem;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    margin-top: var(--space-1);
   }
 
   .judge-notes {
-    background: #f9fafb;
-    border-radius: 8px;
-    padding: 1.5rem;
-    border-left: 4px solid #059669;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-card);
+    padding: var(--space-6);
+    border-left: 4px solid var(--color-success);
   }
 
   .notes-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #333;
-    margin: 0 0 1rem;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-4);
   }
 
   .notes-text {
-    color: #374151;
+    color: var(--color-text-primary);
     line-height: 1.6;
     margin: 0;
     white-space: pre-wrap;
@@ -314,22 +315,22 @@
 
   .controls {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
   }
 
   .loading, .error-state, .empty-state {
     text-align: center;
-    padding: 3rem 1rem;
-    color: #666;
+    padding: var(--space-12) var(--space-4);
+    color: var(--color-text-secondary);
   }
 
   .error {
-    background: #fee2e2;
-    color: #dc2626;
-    padding: 1rem;
-    border-radius: 6px;
-    margin-bottom: 1rem;
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+    padding: var(--space-4);
+    border-radius: var(--radius-card);
+    margin-bottom: var(--space-4);
   }
 
   /* Mobile optimizations */
@@ -370,15 +371,17 @@
 
 <Container size="lg">
   <Hero
-    title="SCORESHEET DETAILS"
-    icon="📋"
-    center={true}
+    title="Scoresheet Details"
+    subtitle="View detailed judge feedback and scores"
+    backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
+    large={true}
   />
 
   <!-- Controls -->
   <div class="controls">
     <Button variant="secondary" on:click={goBack}>
-      ← Back to My Entries
+      <ArrowLeft size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+      Back to My Entries
     </Button>
   </div>
 

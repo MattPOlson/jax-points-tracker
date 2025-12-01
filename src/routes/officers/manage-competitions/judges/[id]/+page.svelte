@@ -388,7 +388,12 @@
 </style>
 
 <Container size="lg">
-  <Hero title="Manage Judges" subtitle="Assign judges to competition" icon="👩‍⚖️" center={true} />
+  <Hero
+    title="Manage Judges"
+    subtitle="Assign judges to competition"
+    backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
+    large={true}
+  />
 
   {#if isLoading}
     <LoadingSpinner message="Loading competition data..." />

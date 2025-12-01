@@ -26,11 +26,8 @@
     loadCompetitionData,
   } from "$lib/stores/bjcpCategoryStore.js";
   import { supabase } from "$lib/supabaseClient.js";
-  import Hero from "$lib/components/ui/Hero.svelte";
-  import Container from "$lib/components/ui/Container.svelte";
-  import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
-  import EmptyState from "$lib/components/ui/EmptyState.svelte";
-  import Button from "$lib/components/ui/Button.svelte";
+  import { Hero, Container, LoadingSpinner, EmptyState, Button, Card, Badge } from '$lib/components/ui';
+  import { Beer, Search, X, Edit, Trash2, Save, Trophy, DollarSign, Calendar, Medal, CheckCircle, Clock, RefreshCw, Plus, Printer, AlertTriangle, Circle, FileText } from 'lucide-svelte';
 
   // =============================================
   // Component Lifecycle
@@ -497,19 +494,23 @@
 <!-- =============================================
      Main Content
      ============================================= -->
+<Hero
+  title="My Competition Entries"
+  subtitle="Manage your beer competition submissions"
+  backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
+  large={true}
+/>
+
 <Container size="lg">
-  <Hero
-    title="MY COMPETITION ENTRIES"
-    subtitle="Manage your beer competition submissions"
-    icon="🍺"
-    center={true}
-  />
 
   <!-- Filters Section -->
   {#if $isLoaded && $myEntries.length > 0}
     <div class="filters-section">
       <div class="filters-header">
-        <h3>🔍 Filter Entries</h3>
+        <h3>
+          <Search size={20} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.5rem;" />
+          Filter Entries
+        </h3>
         <button
           class="clear-filters-button"
           on:click={() => {
@@ -521,7 +522,8 @@
           }}
           disabled={selectedCompetitionId === 'all' && selectedCategory === 'all' && selectedAwardFilter === 'all' && selectedStatusFilter === 'all' && selectedPaymentFilter === 'all'}
         >
-          ✨ Clear All Filters
+          <X size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+          Clear All Filters
         </button>
       </div>
 
@@ -573,11 +575,11 @@
             class="filter-select"
           >
             <option value="all">All Entries</option>
-            <option value="medal-winners">🏅 Medal Winners Only</option>
-            <option value="1st-place">🥇 1st Place</option>
-            <option value="2nd-place">🥈 2nd Place</option>
-            <option value="3rd-place">🥉 3rd Place</option>
-            <option value="honorable-mention">🏅 Honorable Mention</option>
+            <option value="medal-winners">Medal Winners Only</option>
+            <option value="1st-place">1st Place</option>
+            <option value="2nd-place">2nd Place</option>
+            <option value="3rd-place">3rd Place</option>
+            <option value="honorable-mention">Honorable Mention</option>
           </select>
         </div>
 
@@ -590,8 +592,8 @@
             class="filter-select"
           >
             <option value="all">All</option>
-            <option value="active">🟢 Active (Can Edit)</option>
-            <option value="past">🔴 Past (Closed)</option>
+            <option value="active">Active (Can Edit)</option>
+            <option value="past">Past (Closed)</option>
           </select>
         </div>
 
@@ -604,8 +606,8 @@
             class="filter-select"
           >
             <option value="all">All</option>
-            <option value="paid">✅ Paid</option>
-            <option value="pending">⏳ Pending Payment</option>
+            <option value="paid">Paid</option>
+            <option value="pending">Pending Payment</option>
           </select>
         </div>
       </div>
@@ -626,10 +628,14 @@
     <!-- Error State -->
   {:else if $error}
     <div class="error-container">
-      <h2>❌ Error Loading Entries</h2>
+      <h2>
+        <X size={24} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.5rem;" />
+        Error Loading Entries
+      </h2>
       <p>{$error}</p>
       <Button on:click={() => loadMyEntries(true)} variant="primary">
-        🔄 Retry
+        <RefreshCw size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        Retry
       </Button>
     </div>
 
@@ -661,24 +667,26 @@
         on:click={() => goto("/competitions/submit-entry")}
         variant="primary"
       >
-        ➕ Submit New Entry
+        <Plus size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        Submit New Entry
       </Button>
       <Button
         on:click={printEntries}
         variant="primary"
         disabled={filteredEntries.length === 0}
       >
-        🖨️ Print Entry Labels
+        <Printer size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        Print Entry Labels
       </Button>
       <Button on:click={() => loadMyEntries(true)} variant="secondary">
-        🔄 Refresh
+        <RefreshCw size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        Refresh
       </Button>
     </div>
 
     <!-- No Entries State -->
     {#if $myEntries.length === 0}
       <EmptyState
-        icon="📝"
         title="No Entries Yet"
         message="You haven't submitted any competition entries."
       >
@@ -686,14 +694,14 @@
           on:click={() => goto("/competitions/submit-entry")}
           variant="primary"
         >
-          🍺 Submit Your First Entry
+          <Beer size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+          Submit Your First Entry
         </Button>
       </EmptyState>
 
     <!-- No Entries Match Filters -->
     {:else if filteredEntries.length === 0}
       <EmptyState
-        icon="🔍"
         title="No Entries Match Filters"
         message="No entries found matching your current filter selection."
       >
@@ -708,13 +716,15 @@
             }}
             variant="secondary"
           >
-            ✨ Clear All Filters
+            <X size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            Clear All Filters
           </Button>
           <Button
             on:click={() => goto("/competitions/submit-entry")}
             variant="primary"
           >
-            ➕ Submit New Entry
+            <Plus size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            Submit New Entry
           </Button>
         </div>
       </EmptyState>
@@ -729,12 +739,19 @@
               <h2>{compGroup.competition.name}</h2>
               <div class="competition-meta">
                 <span class="deadline">
+                  <Calendar size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
                   Deadline: {formatDeadline(compGroup.entries[0])}
                 </span>
                 {#if compGroup.entries.some(entry => entry.can_edit)}
-                  <span class="status active">🟢 Active</span>
+                  <span class="status active">
+                    <CheckCircle size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                    Active
+                  </span>
                 {:else}
-                  <span class="status closed">🔴 Closed</span>
+                  <span class="status closed">
+                    <X size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                    Closed
+                  </span>
                 {/if}
               </div>
             </div>
@@ -773,7 +790,10 @@
                         <!-- Error Message -->
                         {#if saveError}
                           <div class="error-message">
-                            <p>❌ {saveError}</p>
+                            <p>
+                              <X size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                              {saveError}
+                            </p>
                           </div>
                         {/if}
 
@@ -850,7 +870,8 @@
                             variant="secondary"
                             disabled={saving}
                           >
-                            ❌ Cancel
+                            <X size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                            Cancel
                           </Button>
                           <Button
                             type="button"
@@ -861,9 +882,11 @@
                               !editForm.bjcp_category_id}
                           >
                             {#if saving}
-                              🔄 Saving...
+                              <RefreshCw size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem; animation: spin 1s linear infinite;" />
+                              Saving...
                             {:else}
-                              ✅ Save Changes
+                              <Save size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                              Save Changes
                             {/if}
                           </Button>
                         </div>
@@ -925,7 +948,8 @@
                             on:click={() => startEdit(entry)}
                             variant="primary"
                           >
-                            ✏️ Edit
+                            <Edit size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                            Edit
                           </Button>
                         {/if}
 
@@ -935,7 +959,8 @@
                             on:click={() => confirmDelete(entry)}
                             variant="secondary"
                           >
-                            🗑️ Delete
+                            <Trash2 size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                            Delete
                           </Button>
                         {/if}
 
@@ -945,14 +970,16 @@
                             href="/competitions/my-entries/scoresheet/{entry.id}"
                             class="scoresheet-button"
                           >
-                            📋 View Scoresheet
+                            <FileText size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                            View Scoresheet
                           </a>
                         {/if}
 
                         <!-- Deadline Warning -->
                         {#if entry.can_edit && entry.days_until_deadline <= 7}
                           <div class="deadline-warning">
-                            ⚠️ {entry.days_until_deadline} day{entry.days_until_deadline !==
+                            <AlertTriangle size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                            {entry.days_until_deadline} day{entry.days_until_deadline !==
                             1
                               ? "s"
                               : ""} left to edit
@@ -975,16 +1002,21 @@
 {#if showDeleteConfirm}
   <div class="modal-overlay" on:click={cancelDelete}>
     <div class="modal-content" on:click|stopPropagation>
-      <h2>🗑️ Delete Entry</h2>
+      <h2>
+        <Trash2 size={24} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.5rem;" />
+        Delete Entry
+      </h2>
       <p>Are you sure you want to delete this competition entry?</p>
       <p><strong>This action cannot be undone.</strong></p>
 
       <div class="modal-actions">
         <Button on:click={cancelDelete} variant="secondary">
-          ❌ Cancel
+          <X size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+          Cancel
         </Button>
         <Button on:click={confirmDeleteEntry} variant="primary">
-          🗑️ Delete Entry
+          <Trash2 size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+          Delete Entry
         </Button>
       </div>
     </div>
@@ -999,141 +1031,140 @@
 
   /* Filters Section */
   .filters-section {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
-    margin-bottom: 2rem;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid var(--color-brand-primary);
+    margin-bottom: var(--space-8);
     overflow: hidden;
   }
 
   .filters-header {
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-bottom: 1px solid #dee2e6;
+    background: var(--color-bg-secondary);
+    padding: var(--space-6);
+    border-bottom: 1px solid var(--color-border-secondary);
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: var(--space-4);
   }
 
   .filters-header h3 {
-    color: #ff3e00;
+    color: var(--color-brand-primary);
     margin: 0;
-    font-size: 1.2rem;
-    font-weight: 600;
-    text-transform: uppercase;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
   }
 
   .clear-filters-button {
-    background: #6b7280;
+    background: var(--color-text-secondary);
     color: white;
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-button);
     cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
     transition: background 0.2s;
   }
 
   .clear-filters-button:hover:not(:disabled) {
-    background: #4b5563;
+    background: var(--color-text-primary);
   }
 
   .clear-filters-button:disabled {
-    background: #d1d5db;
-    color: #9ca3af;
+    background: var(--color-border-secondary);
+    color: var(--color-text-tertiary);
     cursor: not-allowed;
   }
 
   .filters-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    padding: 1.5rem;
+    gap: var(--space-4);
+    padding: var(--space-6);
   }
 
   .filter-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
 
   .filter-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #374151;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
     margin: 0;
   }
 
   .filter-select {
-    padding: 0.75rem 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    background: white;
-    color: #333;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-button);
+    font-size: var(--font-size-sm);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
     cursor: pointer;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
 
   .filter-select:focus {
     outline: none;
-    border-color: #ff3e00;
-    box-shadow: 0 0 0 3px rgba(255, 62, 0, 0.1);
+    border-color: var(--color-brand-primary);
+    box-shadow: 0 0 0 3px var(--color-brand-primary-light);
   }
 
   .filter-results {
-    background: #f8f9fa;
-    padding: 1rem 1.5rem;
-    border-top: 1px solid #dee2e6;
+    background: var(--color-bg-secondary);
+    padding: var(--space-4) var(--space-6);
+    border-top: 1px solid var(--color-border-secondary);
   }
 
   .results-text {
-    color: #6b7280;
-    font-size: 0.9rem;
-    font-weight: 500;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
   }
 
   /* Loading and Error States */
   .error-container {
     text-align: center;
-    padding: 3rem 2rem;
-    background: white;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    padding: var(--space-12) var(--space-8);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid var(--color-brand-primary);
   }
 
   /* Statistics Grid */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
   }
 
   .stat-card {
-    background: white;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
-    padding: 1.5rem;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid var(--color-brand-primary);
+    padding: var(--space-6);
     text-align: center;
   }
 
   .stat-number {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #ff3e00;
-    margin-bottom: 0.5rem;
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-brand-primary);
+    margin-bottom: var(--space-2);
   }
 
   .stat-label {
-    font-size: 0.9rem;
-    color: #666;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
     text-transform: uppercase;
     letter-spacing: 1px;
   }
@@ -1141,16 +1172,16 @@
   /* Action Buttons */
   .action-buttons {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
     justify-content: flex-end;
   }
 
   .empty-state-actions {
     display: flex;
-    gap: 1rem;
+    gap: var(--space-4);
     justify-content: center;
-    margin-top: 1.5rem;
+    margin-top: var(--space-6);
     flex-wrap: wrap;
   }
 
@@ -1158,57 +1189,59 @@
   .entries-container {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: var(--space-8);
   }
 
   .competition-group {
-    background: white;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid var(--color-brand-primary);
     overflow: hidden;
   }
 
   .competition-header {
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-bottom: 1px solid #dee2e6;
+    background: var(--color-bg-secondary);
+    padding: var(--space-6);
+    border-bottom: 1px solid var(--color-border-secondary);
   }
 
   .competition-header h2 {
-    color: #ff3e00;
-    margin: 0 0 0.5rem 0;
-    font-size: 1.3rem;
-    text-transform: uppercase;
-    font-weight: 600;
+    color: var(--color-brand-primary);
+    margin: 0 0 var(--space-2) 0;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
   }
 
   .competition-meta {
     display: flex;
-    gap: 1rem;
+    gap: var(--space-4);
     align-items: center;
-    font-size: 0.9rem;
+    font-size: var(--font-size-sm);
   }
 
   .deadline {
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   .status {
-    padding: 0.25rem 0.75rem;
+    padding: var(--space-1) var(--space-3);
     border-radius: 15px;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
   }
 
   .status.active {
-    background: #d1fae5;
-    color: #059669;
+    background: var(--color-success-bg);
+    color: var(--color-success);
   }
 
   .status.closed {
-    background: #fee2e2;
-    color: #dc2626;
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
   }
 
   /* Entries List */
@@ -1218,8 +1251,8 @@
   }
 
   .entry-card {
-    padding: 1.5rem;
-    border-bottom: 1px solid #f3f4f6;
+    padding: var(--space-6);
+    border-bottom: 1px solid var(--color-border-tertiary);
   }
 
   .entry-card:last-child {
@@ -1230,36 +1263,36 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-4);
   }
 
   .entry-header h3 {
-    color: #333;
+    color: var(--color-text-primary);
     margin: 0;
-    font-size: 1.1rem;
+    font-size: var(--font-size-lg);
   }
 
   .entry-meta {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0.25rem;
+    gap: var(--space-1);
   }
 
   .entry-number {
     font-family: monospace;
-    font-size: 0.9rem;
-    color: #666;
-    background: #f3f4f6;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    background: var(--color-bg-tertiary);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-button);
     position: relative;
   }
 
   .entry-number.blurred {
-    background: #fee2e2;
+    background: var(--color-danger-bg);
     color: transparent;
-    text-shadow: 0 0 8px #dc2626;
+    text-shadow: 0 0 8px var(--color-danger);
     cursor: help;
   }
 
@@ -1269,92 +1302,92 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: #dc2626;
+    background: var(--color-danger);
     color: white;
-    padding: 0.2rem 0.4rem;
-    border-radius: 3px;
-    font-size: 0.7rem;
-    font-weight: 600;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-button);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
     white-space: nowrap;
   }
 
   .payment-status {
-    font-size: 0.8rem;
-    padding: 0.25rem 0.5rem;
+    font-size: var(--font-size-xs);
+    padding: var(--space-1) var(--space-2);
     border-radius: 12px;
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
   }
 
   .payment-status.paid {
-    background: #d1fae5;
-    color: #059669;
+    background: var(--color-success-bg);
+    color: var(--color-success);
   }
 
   .payment-status.pending {
-    background: #fef3c7;
-    color: #d97706;
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
   }
 
   /* Entry Details */
   .entry-details {
-    margin-top: 1rem;
+    margin-top: var(--space-4);
   }
 
   .entry-info {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
   }
 
   .info-row {
     display: flex;
-    gap: 1rem;
+    gap: var(--space-4);
   }
 
   .info-row .label {
     min-width: 100px;
-    font-weight: 600;
-    color: #374151;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
   }
 
   .info-row .value {
-    color: #6b7280;
+    color: var(--color-text-secondary);
     flex: 1;
   }
 
   .info-row.results .value.award {
-    font-weight: 600;
-    color: #059669;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-success);
   }
 
   /* Edit Form */
   .edit-form {
-    background: #f8f9fa;
-    border-radius: 6px;
-    padding: 1.5rem;
-    margin-top: 1rem;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-card);
+    padding: var(--space-6);
+    margin-top: var(--space-4);
   }
 
   .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-4);
   }
 
   .form-group label {
     display: block;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #333;
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--space-2);
+    color: var(--color-text-primary);
   }
 
   .form-group input,
   .form-group select,
   .form-group textarea {
     width: 100%;
-    padding: 0.5rem;
-    border: 2px solid #ddd;
-    border-radius: 4px;
-    font-size: 0.9rem;
+    padding: var(--space-2);
+    border: 2px solid var(--color-border-primary);
+    border-radius: var(--radius-button);
+    font-size: var(--font-size-sm);
     box-sizing: border-box;
   }
 
@@ -1362,47 +1395,50 @@
   .form-group select:focus,
   .form-group textarea:focus {
     outline: none;
-    border-color: #ff3e00;
+    border-color: var(--color-brand-primary);
   }
 
   .error-message {
-    background: #fee;
-    border: 1px solid #dc2626;
-    border-radius: 4px;
-    padding: 0.75rem;
-    margin-bottom: 1rem;
+    background: var(--color-danger-bg);
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-button);
+    padding: var(--space-3);
+    margin-bottom: var(--space-4);
   }
 
   .error-message p {
     margin: 0;
-    color: #dc2626;
-    font-size: 0.9rem;
+    color: var(--color-danger);
+    font-size: var(--font-size-sm);
   }
 
   /* Entry Actions */
   .entry-actions {
     display: flex;
-    gap: 0.75rem;
+    gap: var(--space-3);
     align-items: center;
     flex-wrap: wrap;
   }
 
 
   .deadline-warning {
-    background: #fef3c7;
-    color: #d97706;
-    padding: 0.5rem 0.75rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 600;
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-button);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
   }
 
   /* Edit Actions */
   .edit-actions {
     display: flex;
-    gap: 1rem;
+    gap: var(--space-4);
     justify-content: flex-end;
-    margin-top: 1rem;
+    margin-top: var(--space-4);
   }
 
   /* Modal */
@@ -1420,29 +1456,29 @@
   }
 
   .modal-content {
-    background: white;
-    border-radius: 6px;
-    padding: 2rem;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-card);
+    padding: var(--space-8);
     max-width: 400px;
     width: 90%;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   }
 
   .modal-content h2 {
-    color: #dc2626;
-    margin: 0 0 1rem 0;
+    color: var(--color-danger);
+    margin: 0 0 var(--space-4) 0;
   }
 
   .modal-content p {
-    margin: 0.5rem 0;
-    color: #374151;
+    margin: var(--space-2) 0;
+    color: var(--color-text-primary);
   }
 
   .modal-actions {
     display: flex;
-    gap: 1rem;
+    gap: var(--space-4);
     justify-content: flex-end;
-    margin-top: 2rem;
+    margin-top: var(--space-8);
   }
 
   /* Mobile Responsiveness */
@@ -1539,22 +1575,23 @@
 
 
   .scoresheet-button {
-    background: #3b82f6;
+    background: var(--color-brand-primary);
     color: white;
-    padding: 0.5rem 1rem;
+    padding: var(--space-2) var(--space-4);
     border: none;
-    border-radius: 4px;
+    border-radius: var(--radius-button);
     cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 500;
-    display: flex;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--space-2);
     text-decoration: none;
+    transition: background 0.2s;
   }
 
   .scoresheet-button:hover {
-    background: #2563eb;
+    background: var(--color-brand-primary-hover);
     color: white;
     text-decoration: none;
   }

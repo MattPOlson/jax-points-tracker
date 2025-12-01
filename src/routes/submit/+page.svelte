@@ -330,8 +330,14 @@
   });
 </script>
 
+<Hero
+  title="Submit Points"
+  subtitle="Track your brewing achievements"
+  backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
+  large={true}
+/>
+
 <Container size="sm">
-  <Hero title="Submit Points" icon="📝" center={true} />
 
   {#if $isLoading || $isLoadingProfile}
     <LoadingSpinner message="Loading data..." />
@@ -483,7 +489,6 @@
     </form>
   {:else}
     <EmptyState
-      icon="⚠️"
       title="Failed to Load"
       message="Failed to load categories. Please refresh the page."
       actionLabel="Retry"
@@ -497,117 +502,117 @@
   form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: var(--space-4);
   }
 
   label {
     display: flex;
     flex-direction: column;
-    font-weight: 500;
-    color: #333;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
     text-align: left;
   }
 
   select,
   input[type="date"] {
-    padding: 0.5rem;
-    margin-top: 0.25rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: var(--space-3);
+    margin-top: var(--space-1);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-button);
     width: 100%;
     box-sizing: border-box;
-    transition: border-color 0.2s;
+    transition: border-color var(--transition-base);
   }
 
   select:focus,
   input[type="date"]:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: var(--color-brand-primary);
   }
 
   .points-display {
-    background-color: #f8fafc;
-    padding: 1rem;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
+    background-color: var(--color-bg-secondary);
+    padding: var(--space-4);
+    border-radius: var(--radius-card);
+    border: 1px solid var(--color-border-primary);
   }
 
   .points-display p {
     margin: 0;
-    color: #1e293b;
+    color: var(--color-text-primary);
   }
 
 
   textarea {
-    padding: 0.5rem;
-    margin-top: 0.25rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: var(--space-3);
+    margin-top: var(--space-1);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-button);
     width: 100%;
     box-sizing: border-box;
-    transition: border-color 0.2s;
+    transition: border-color var(--transition-base);
     resize: vertical;
     min-height: 80px;
   }
 
   textarea:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: var(--color-brand-primary);
   }
 
   /* NEW: Florida Circuit Radio Button Styling */
   .placement-question {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
 
   .question-label {
-    font-weight: 500;
-    color: #333;
-    margin-bottom: 0.5rem;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-2);
   }
 
   .radio-group {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: var(--space-3);
   }
 
   .radio-option {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    border: 2px solid #e5e7eb;
-    border-radius: 6px;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: 2px solid var(--color-border-primary);
+    border-radius: var(--radius-button);
     cursor: pointer;
-    transition: all 0.2s ease;
-    background: white;
+    transition: all var(--transition-base);
+    background: var(--color-bg-primary);
   }
 
   .radio-option:hover {
-    border-color: #ff3e00;
-    background-color: #fef2f2;
+    border-color: var(--color-brand-primary);
+    background-color: var(--color-brand-primary-light);
   }
 
   .radio-option:has(.radio-input:checked) {
-    border-color: #ff3e00;
-    background-color: #fef2f2;
+    border-color: var(--color-brand-primary);
+    background-color: var(--color-brand-primary-light);
   }
 
   .radio-input {
     width: 20px;
     height: 20px;
-    accent-color: #ff3e00;
+    accent-color: var(--color-brand-primary);
     cursor: pointer;
   }
 
   .radio-text {
-    font-weight: 500;
-    color: #333;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
     cursor: pointer;
     flex-grow: 1;
   }
@@ -629,24 +634,24 @@
   .description-display {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
 
   .form-label {
-    font-weight: 500;
-    color: #333;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
   }
 
   .read-only-field {
-    padding: 0.5rem;
-    margin-top: 0.25rem;
-    font-size: 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
+    padding: var(--space-3);
+    margin-top: var(--space-1);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-button);
     width: 100%;
     box-sizing: border-box;
-    background-color: #f8fafc;
-    color: #6b7280;
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-secondary);
     font-style: italic;
     cursor: not-allowed;
   }

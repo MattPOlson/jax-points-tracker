@@ -13,6 +13,7 @@
   import Container from '$lib/components/ui/Container.svelte';
   import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
   import Button from '$lib/components/ui/Button.svelte';
+  import { ArrowLeft, ArrowRight, FileText, Trophy, Flag } from 'lucide-svelte';
 
   // Get competition ID from URL
   $: competitionId = $page.params.id;
@@ -985,21 +986,24 @@
             on:click={saveAndPrevious}
             disabled={currentEntryIndex === 0 || isSaving}
           >
-            ⬅️ Previous Entry
+            <ArrowLeft size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            Previous Entry
           </Button>
 
           <a
             href="/judge/competition/{competitionId}/scoresheet"
             class="nav-btn nav-btn-secondary nav-btn-link"
           >
-            📋 BJCP Scoresheet
+            <FileText size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            BJCP Scoresheet
           </a>
 
           <a
             href="/judge/competition/{competitionId}/rankings"
             class="nav-btn nav-btn-secondary nav-btn-link"
           >
-            🏆 Rankings
+            <Trophy size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            Rankings
           </a>
 
           {#if currentEntryIndex < $activeSession.assignedEntries.length - 1}
@@ -1008,7 +1012,8 @@
               on:click={saveAndNext}
               disabled={isSaving}
             >
-              Next Entry ➡️
+              Next Entry
+              <ArrowRight size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-left: 0.25rem;" />
             </Button>
           {:else}
             <button
@@ -1016,7 +1021,8 @@
               on:click={finishJudging}
               disabled={isSaving}
             >
-              🏁 Finish Judging
+              <Flag size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              Finish Judging
             </button>
           {/if}
         </div>
