@@ -1000,9 +1000,9 @@
         {:else}
           <div class="rankings-list">
             {#each rankings as ranking, index}
+              {@const rankDisplay = getRankIcon(ranking.rank_position)}
               <div class="ranking-item {isOwnEntry(ranking.entry) ? 'own-entry' : ''} {getEntryValidationClass(ranking)}">
                 <div class="rank-position">
-                  {@const rankDisplay = getRankIcon(ranking.rank_position)}
                   {#if rankDisplay.icon}
                     <svelte:component this={rankDisplay.icon} size={24} strokeWidth={2} style="display: inline-block; vertical-align: middle; margin-right: 0.25rem;" />
                   {/if}
