@@ -118,10 +118,20 @@
   </Container>
 {:else if !$user}
   <div class="login-container" class:mobile={isMobile}>
+    <!-- Header with Logo -->
+    <div class="header-bar">
+      <img src="/JaxLogo.png" alt="JAX Logo" class="jax-logo" />
+      <h1 class="portal-title">JAX MEMBER PORTAL</h1>
+    </div>
+
+    <!-- Hero with Background -->
     <Hero
-      title="JAX Members Portal"
-      subtitle={isMobile ? 'Sign in to continue' : 'Have Fun Brew Better Beer!'}
+      title="Have Fun Brew Better Beer!"
+      subtitle="Sign in to track your brewing achievements and compete with fellow brewers!"
       center={true}
+      backgroundImage="/brewery.png"
+      overlay={true}
+      large={true}
     />
 
     <div class="auth-wrapper" class:mobile={isMobile}>
@@ -170,10 +180,30 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     background: var(--color-bg-secondary);
-    padding: var(--space-8);
+  }
+
+  .header-bar {
+    background: white;
+    padding: var(--space-4) var(--space-8);
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .jax-logo {
+    height: 50px;
+    width: auto;
+  }
+
+  .portal-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .auth-wrapper {
@@ -183,6 +213,9 @@
     padding: var(--space-8);
     width: 100%;
     max-width: 400px;
+    margin: -6rem auto var(--space-8) auto;
+    position: relative;
+    z-index: 10;
   }
 
   .auth-wrapper.mobile {
@@ -191,29 +224,44 @@
     max-width: 350px;
   }
 
-  .login-container.mobile {
-    padding: var(--space-4);
+  /* Responsive design to match your main page breakpoints */
+  @media (max-width: 768px) {
+    .header-bar {
+      padding: var(--space-3) var(--space-4);
+    }
+
+    .jax-logo {
+      height: 40px;
+    }
+
+    .portal-title {
+      font-size: var(--font-size-lg);
+    }
+
+    .auth-wrapper {
+      margin: -4rem auto var(--space-6) auto;
+      padding: var(--space-6);
+      max-width: 350px;
+    }
   }
 
-  /* Responsive design to match your main page breakpoints */
   @media (max-width: 480px) {
-    .login-container {
-      padding: var(--space-4);
+    .header-bar {
+      padding: var(--space-2) var(--space-3);
+      gap: var(--space-2);
+    }
+
+    .jax-logo {
+      height: 35px;
+    }
+
+    .portal-title {
+      font-size: var(--font-size-base);
     }
 
     .auth-wrapper {
       padding: 1.5rem;
-    }
-  }
-
-  @media (min-width: 640px) {
-    .login-container {
-      padding: var(--space-12) var(--space-8);
-    }
-
-    .auth-wrapper {
-      padding: 2.5rem;
-      max-width: 450px;
+      margin: -3rem auto var(--space-4) auto;
     }
   }
 
@@ -289,18 +337,4 @@
     border: 1px solid #bbf7d0;
   }
 
-  /* Responsive design */
-  @media (max-width: 640px) {
-    .login-container {
-      padding: 1rem;
-    }
-
-    .login-header h1 {
-      font-size: 2rem;
-    }
-
-    .auth-wrapper {
-      padding: 1.5rem;
-    }
-  }
 </style>
