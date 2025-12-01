@@ -118,12 +118,6 @@
   </Container>
 {:else if !$user}
   <div class="login-container" class:mobile={isMobile}>
-    <!-- Header with Logo -->
-    <div class="header-bar">
-      <img src="/JaxLogo.png" alt="JAX Logo" class="jax-logo" />
-      <h1 class="portal-title">JAX MEMBER PORTAL</h1>
-    </div>
-
     <!-- Hero with Background -->
     <Hero
       title="Have Fun Brew Better Beer!"
@@ -177,33 +171,10 @@
 
 <style>
   .login-container {
-    min-height: 100vh;
+    min-height: calc(100vh - 70px);
     display: flex;
     flex-direction: column;
     background: var(--color-bg-secondary);
-  }
-
-  .header-bar {
-    background: white;
-    padding: var(--space-4) var(--space-8);
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .jax-logo {
-    height: 50px;
-    width: auto;
-  }
-
-  .portal-title {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
   }
 
   .auth-wrapper {
@@ -226,18 +197,6 @@
 
   /* Responsive design to match your main page breakpoints */
   @media (max-width: 768px) {
-    .header-bar {
-      padding: var(--space-3) var(--space-4);
-    }
-
-    .jax-logo {
-      height: 40px;
-    }
-
-    .portal-title {
-      font-size: var(--font-size-lg);
-    }
-
     .auth-wrapper {
       margin: -4rem auto var(--space-6) auto;
       padding: var(--space-6);
@@ -246,19 +205,6 @@
   }
 
   @media (max-width: 480px) {
-    .header-bar {
-      padding: var(--space-2) var(--space-3);
-      gap: var(--space-2);
-    }
-
-    .jax-logo {
-      height: 35px;
-    }
-
-    .portal-title {
-      font-size: var(--font-size-base);
-    }
-
     .auth-wrapper {
       padding: 1.5rem;
       margin: -3rem auto var(--space-4) auto;

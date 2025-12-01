@@ -142,6 +142,12 @@
   }
 </script>
 
+<!-- Header with Logo - appears on all pages -->
+<div class="header-bar">
+  <img src="/JaxLogo.png" alt="JAX Logo" class="jax-logo" />
+  <h1 class="portal-title">JAX MEMBER PORTAL</h1>
+</div>
+
 <div class="topbar">
   <button on:click={handleGoBack} class="nav-button" title="Go back" aria-label="Go back to previous page">
     <ArrowLeft size={24} />
@@ -181,6 +187,32 @@
 <slot />
 
 <style>
+  .header-bar {
+    background: white;
+    padding: var(--space-4) var(--space-8);
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 200;
+  }
+
+  .jax-logo {
+    height: 50px;
+    width: auto;
+  }
+
+  .portal-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
   .topbar {
     position: fixed;
     top: 1rem;
@@ -267,6 +299,20 @@
   }
 
   /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .header-bar {
+      padding: var(--space-3) var(--space-4);
+    }
+
+    .jax-logo {
+      height: 40px;
+    }
+
+    .portal-title {
+      font-size: var(--font-size-lg);
+    }
+  }
+
   @media (max-width: 640px) {
     .topbar {
       top: 0.75rem;
@@ -286,6 +332,19 @@
   }
 
   @media (max-width: 480px) {
+    .header-bar {
+      padding: var(--space-2) var(--space-3);
+      gap: var(--space-2);
+    }
+
+    .jax-logo {
+      height: 35px;
+    }
+
+    .portal-title {
+      font-size: var(--font-size-base);
+    }
+
     .topbar {
       top: 0.5rem;
       right: 0.75rem;
