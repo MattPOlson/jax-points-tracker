@@ -20,6 +20,8 @@
     margin-top: -6rem;
     padding: 0 var(--space-4);
     margin-bottom: var(--space-16);
+    position: relative;
+    z-index: 10;
   }
 
   .overlapping-card {
@@ -30,6 +32,7 @@
     text-align: center;
     max-width: 700px;
     width: 100%;
+    position: relative;
   }
 
   /* Responsive adjustments */

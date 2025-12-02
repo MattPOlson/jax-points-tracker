@@ -189,10 +189,11 @@
 <style>
   .header-bar {
     background: white;
-    padding: var(--space-4) var(--space-8);
+    padding: var(--space-6) var(--space-8);
     display: flex;
     align-items: center;
-    gap: var(--space-4);
+    justify-content: center;
+    gap: var(--space-6);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
@@ -200,28 +201,28 @@
   }
 
   .jax-logo {
-    height: 50px;
+    height: 70px;
     width: auto;
     mix-blend-mode: multiply;
     filter: contrast(1.1) brightness(1.05);
   }
 
   .portal-title {
-    font-size: var(--font-size-3xl);
+    font-size: var(--font-size-5xl);
     font-weight: 900;
     color: var(--color-text-primary);
     margin: 0;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    font-family: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    letter-spacing: 3px;
+    font-family: 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', Arial, sans-serif;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .topbar {
     position: fixed;
     top: 1rem;
     right: 1.5rem;
-    z-index: 100;
+    z-index: 300;
     display: flex;
     gap: 1rem;
     align-items: center;
@@ -305,16 +306,17 @@
   /* Mobile responsiveness */
   @media (max-width: 768px) {
     .header-bar {
-      padding: var(--space-3) var(--space-4);
+      padding: var(--space-4) var(--space-4);
+      gap: var(--space-4);
     }
 
     .jax-logo {
-      height: 40px;
+      height: 55px;
     }
 
     .portal-title {
-      font-size: var(--font-size-xl);
-      letter-spacing: 1.5px;
+      font-size: var(--font-size-3xl);
+      letter-spacing: 2px;
     }
   }
 
@@ -338,17 +340,17 @@
 
   @media (max-width: 480px) {
     .header-bar {
-      padding: var(--space-2) var(--space-3);
-      gap: var(--space-2);
+      padding: var(--space-3) var(--space-3);
+      gap: var(--space-3);
     }
 
     .jax-logo {
-      height: 35px;
+      height: 45px;
     }
 
     .portal-title {
-      font-size: var(--font-size-lg);
-      letter-spacing: 1px;
+      font-size: var(--font-size-2xl);
+      letter-spacing: 1.5px;
     }
 
     .topbar {
