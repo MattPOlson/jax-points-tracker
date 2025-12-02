@@ -53,7 +53,8 @@
 <main>
   <Hero
     title="Have Fun Brew Better Beer!"
-    backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
+    backgroundImage="/Jax-Banner.png"
+    overlay={true}
     large={true}
   />
 
