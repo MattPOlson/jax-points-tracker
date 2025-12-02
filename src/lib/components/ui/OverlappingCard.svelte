@@ -19,7 +19,7 @@
     justify-content: center;
     margin-top: -6rem;
     padding: 0 var(--space-4);
-    margin-bottom: var(--space-16);
+    margin-bottom: var(--space-4);
     position: relative;
     z-index: 10;
   }
@@ -39,7 +39,7 @@
   @media (max-width: 640px) {
     .overlapping-card-container {
       margin-top: -4rem;
-      margin-bottom: var(--space-12);
+      margin-bottom: var(--space-3);
     }
 
     .overlapping-card {

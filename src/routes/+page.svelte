@@ -183,7 +183,7 @@
   .quick-actions-section {
     max-width: 900px;
     margin: 0 auto;
-    padding: var(--space-8) var(--space-4) var(--space-20);
+    padding: var(--space-4) var(--space-4) var(--space-20);
     text-align: center;
   }
 
@@ -231,7 +231,7 @@
 
   @media (max-width: 640px) {
     .quick-actions-section {
-      padding: var(--space-6) var(--space-4) var(--space-16);
+      padding: var(--space-3) var(--space-4) var(--space-16);
     }
 
     .section-title {
