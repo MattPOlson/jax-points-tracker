@@ -202,15 +202,19 @@
   .jax-logo {
     height: 50px;
     width: auto;
+    mix-blend-mode: multiply;
+    filter: contrast(1.1) brightness(1.05);
   }
 
   .portal-title {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-3xl);
+    font-weight: 900;
     color: var(--color-text-primary);
     margin: 0;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 2px;
+    font-family: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
   }
 
   .topbar {
@@ -309,7 +313,8 @@
     }
 
     .portal-title {
-      font-size: var(--font-size-lg);
+      font-size: var(--font-size-xl);
+      letter-spacing: 1.5px;
     }
   }
 
@@ -342,7 +347,8 @@
     }
 
     .portal-title {
-      font-size: var(--font-size-base);
+      font-size: var(--font-size-lg);
+      letter-spacing: 1px;
     }
 
     .topbar {
