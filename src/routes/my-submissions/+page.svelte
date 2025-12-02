@@ -373,8 +373,8 @@
         {/if}
       </div>
     {/if}
-  {/if}
-</Container>
+  </Container>
+{/if}
 
 <style>
 
