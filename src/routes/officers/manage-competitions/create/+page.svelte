@@ -390,14 +390,15 @@
   }
 </style>
 
-<Container size="md">
-  <Hero
-    title="Create Competition"
-    subtitle="Set up a new brewing competition"
-    backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-    large={true}
-  />
+<Hero
+  title="Create Competition"
+  subtitle="Set up a new brewing competition"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
 
+<Container size="md">
   <!-- Form Card -->
   <div class="form-card">
     <form on:submit|preventDefault={handleSubmit}>

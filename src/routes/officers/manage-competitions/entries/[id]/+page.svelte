@@ -1117,14 +1117,15 @@ function printLabels() {
 {/if}
 
 {#if isAuthorized}
-<Container size="xl">
-  <Hero
-    title="Competition Entries"
-    subtitle="Manage entries and print labels"
-    backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-    large={true}
-  />
+<Hero
+  title="Competition Entries"
+  subtitle="Manage entries and print labels"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
 
+<Container size="xl">
   {#if isLoading}
     <LoadingSpinner message="Loading entries..." />
   {:else if competition}

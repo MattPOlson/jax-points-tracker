@@ -387,14 +387,15 @@
   }
 </style>
 
-<Container size="lg">
-  <Hero
-    title="Manage Judges"
-    subtitle="Assign judges to competition"
-    backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-    large={true}
-  />
+<Hero
+  title="Manage Judges"
+  subtitle="Assign judges to competition"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
 
+<Container size="lg">
   {#if isLoading}
     <LoadingSpinner message="Loading competition data..." />
   {:else if competition}

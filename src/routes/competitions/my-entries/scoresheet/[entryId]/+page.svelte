@@ -369,14 +369,15 @@
   }
 </style>
 
-<Container size="lg">
-  <Hero
-    title="Scoresheet Details"
-    subtitle="View detailed judge feedback and scores"
-    backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-    large={true}
-  />
+<Hero
+  title="Scoresheet Details"
+  subtitle="View detailed judge feedback and scores"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
 
+<Container size="lg">
   <!-- Controls -->
   <div class="controls">
     <Button variant="secondary" on:click={goBack}>

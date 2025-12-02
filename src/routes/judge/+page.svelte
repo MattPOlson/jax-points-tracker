@@ -114,8 +114,9 @@
 <Hero
   title="Judge Portal"
   subtitle="Access your assigned competitions and submit scores"
-  backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-  large={true}
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
 />
 
 <Container size="lg">
