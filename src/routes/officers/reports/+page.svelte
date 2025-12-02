@@ -2,7 +2,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
-  import { Container, Button } from '$lib/components/ui';
+  import { Hero, Container, Button } from '$lib/components/ui';
 
   let pageTitle = 'Coming Soon';
   let featureName = 'This Feature';
@@ -30,6 +30,14 @@
     goto('/officers');
   }
 </script>
+
+<Hero
+  title="Reports & Analytics"
+  subtitle="Coming Soon"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
 
 <Container size="md">
   <div class="coming-soon-container">

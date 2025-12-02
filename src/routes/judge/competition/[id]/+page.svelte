@@ -10,9 +10,7 @@
     isJudging,
     currentEntry
   } from '$lib/stores/competitionJudgingStore';
-  import Container from '$lib/components/ui/Container.svelte';
-  import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
-  import Button from '$lib/components/ui/Button.svelte';
+  import { Hero, Container, LoadingSpinner, Button } from '$lib/components/ui';
   import { ArrowLeft, ArrowRight, FileText, Trophy, Flag } from 'lucide-svelte';
 
   // Get competition ID from URL
@@ -782,6 +780,14 @@
     }
   }
 </style>
+
+<Hero
+  title="Judge Competition"
+  subtitle="Evaluate and score beer entries"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
 
 <Container size="lg">
   {#if !$isJudging}

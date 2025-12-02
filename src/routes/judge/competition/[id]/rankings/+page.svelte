@@ -10,9 +10,7 @@
     isJudging
   } from '$lib/stores/competitionJudgingStore';
   import { supabase } from '$lib/supabaseClient';
-  import Container from '$lib/components/ui/Container.svelte';
-  import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
-  import Button from '$lib/components/ui/Button.svelte';
+  import { Hero, Container, LoadingSpinner, Button } from '$lib/components/ui';
   import { Trophy, ArrowLeft, RefreshCw, Save, AlertTriangle, Check, Info, Medal, Award, ArrowUp, ArrowDown, StickyNote, MessageCircle, User } from 'lucide-svelte';
 
   // Get competition ID from URL
@@ -876,6 +874,14 @@
     }
   }
 </style>
+
+<Hero
+  title="Category Rankings"
+  subtitle="Rank and award winning entries"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
 
 <Container size="xl">
   <!-- Header -->
