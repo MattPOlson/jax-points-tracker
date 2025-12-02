@@ -798,15 +798,15 @@
 
 </style>
 
-<Container size="xl">
-  <Hero
-    title="Competition Results"
-    subtitle="View published competition results and standings"
-    backgroundImage="/Jax-Banner.png"
-    overlay={true}
-    compact={true}
-  />
+<Hero
+  title="Competition Results"
+  subtitle="View published competition results and standings"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
 
+<Container size="xl">
   <!-- Controls -->
   <div class="controls">
     <Button variant="secondary" on:click={navigateToCompetitions}>
