@@ -87,8 +87,9 @@
 <Hero
   title="Beer Competitions"
   subtitle="Submit entries, track your progress, and compete with fellow brewers"
-  backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-  large={true}
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
 />
 
 <Container size="lg">

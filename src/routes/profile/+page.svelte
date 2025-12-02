@@ -170,8 +170,9 @@
 <Hero
   title="My Profile"
   subtitle="Manage your account information"
-  backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-  large={true}
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
 />
 
 <Container size="md">

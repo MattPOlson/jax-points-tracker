@@ -744,8 +744,9 @@
   <Hero
     title="Manage Competitions"
     subtitle="Create and manage brewing competitions"
-    backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-    large={true}
+    backgroundImage="/Jax-Banner.png"
+    overlay={true}
+    compact={true}
   />
 
   <!-- Statistics -->

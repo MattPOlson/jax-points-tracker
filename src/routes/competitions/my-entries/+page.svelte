@@ -497,8 +497,9 @@
 <Hero
   title="My Competition Entries"
   subtitle="Manage your beer competition submissions"
-  backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-  large={true}
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
 />
 
 <Container size="lg">
