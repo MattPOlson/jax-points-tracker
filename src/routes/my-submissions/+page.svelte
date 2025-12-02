@@ -10,7 +10,7 @@
     loading,
   } from "$lib/stores/mySubmissionsStore.js";
   import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
-  import { Hero, Container, LoadingSpinner, EmptyState, Button, Card } from '$lib/components/ui';
+  import { Hero, Container, LoadingSpinner, EmptyState, Button, Card, OverlappingCard } from '$lib/components/ui';
   import { CheckCircle, Clock, XCircle, Trophy, ClipboardList, List } from 'lucide-svelte';
 
   let submissions = [];
@@ -150,65 +150,68 @@
 <Hero
   title="My Submissions"
   subtitle="Track your brewing achievements and points"
-  backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-  large={true}
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
 />
 
-<Container size="lg">
-
-  {#if $loading}
+{#if $loading}
+  <Container size="lg">
     <LoadingSpinner message="Loading your submissions..." />
-  {:else if !currentUserId}
+  </Container>
+{:else if !currentUserId}
+  <Container size="lg">
     <EmptyState
       title="Authentication Required"
       message="Please log in to view your submissions."
       actionLabel="Sign In"
       actionHref="/login"
     />
-  {:else}
-    <!-- Stats Overview -->
-    {#if !$loading && $storeAll && $storeAll.length > 0}
-      <div class="stats-section">
-        <div class="stats-grid">
-          <Card class="stat-card approved">
-            <div class="stat-icon">
-              <CheckCircle size={32} strokeWidth={1.5} color="var(--color-success)" />
-            </div>
-            <div class="stat-content">
-              <div class="stat-number">{stats?.approved || 0}</div>
-              <div class="stat-label">Approved</div>
-            </div>
-          </Card>
-          <Card class="stat-card pending">
-            <div class="stat-icon">
-              <Clock size={32} strokeWidth={1.5} color="var(--color-warning)" />
-            </div>
-            <div class="stat-content">
-              <div class="stat-number">{stats?.pending || 0}</div>
-              <div class="stat-label">Pending</div>
-            </div>
-          </Card>
-          <Card class="stat-card rejected">
-            <div class="stat-icon">
-              <XCircle size={32} strokeWidth={1.5} color="var(--color-danger)" />
-            </div>
-            <div class="stat-content">
-              <div class="stat-number">{stats?.rejected || 0}</div>
-              <div class="stat-label">Rejected</div>
-            </div>
-          </Card>
-          <Card class="stat-card points">
-            <div class="stat-icon">
-              <Trophy size={32} strokeWidth={1.5} color="var(--color-brand-primary)" />
-            </div>
-            <div class="stat-content">
-              <div class="stat-number">{stats?.totalPoints?.toLocaleString() || 0}</div>
-              <div class="stat-label">Total Points</div>
-            </div>
-          </Card>
-        </div>
+  </Container>
+{:else}
+  <!-- Stats Overview in Overlapping Card -->
+  {#if !$loading && $storeAll && $storeAll.length > 0}
+    <OverlappingCard>
+      <div class="stats-grid">
+        <Card class="stat-card approved">
+          <div class="stat-icon">
+            <CheckCircle size={32} strokeWidth={1.5} color="var(--color-success)" />
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{stats?.approved || 0}</div>
+            <div class="stat-label">Approved</div>
+          </div>
+        </Card>
+        <Card class="stat-card pending">
+          <div class="stat-icon">
+            <Clock size={32} strokeWidth={1.5} color="var(--color-warning)" />
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{stats?.pending || 0}</div>
+            <div class="stat-label">Pending</div>
+          </div>
+        </Card>
+        <Card class="stat-card rejected">
+          <div class="stat-icon">
+            <XCircle size={32} strokeWidth={1.5} color="var(--color-danger)" />
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{stats?.rejected || 0}</div>
+            <div class="stat-label">Rejected</div>
+          </div>
+        </Card>
+        <Card class="stat-card points">
+          <div class="stat-icon">
+            <Trophy size={32} strokeWidth={1.5} color="var(--color-brand-primary)" />
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{stats?.totalPoints?.toLocaleString() || 0}</div>
+            <div class="stat-label">Total Points</div>
+          </div>
+        </Card>
       </div>
-    {:else if !$loading && currentUserId}
+    </OverlappingCard>
+  {:else if !$loading && currentUserId}
       <!-- Debug info - only show when not loading and user is logged in -->
       <div class="debug-info" style="background: #f0f0f0; padding: 1rem; margin: 1rem 0; font-family: monospace; text-align: left;">
         <div>Store All Length: {$storeAll?.length || 0}</div>
@@ -219,6 +222,7 @@
       </div>
     {/if}
 
+  <Container size="lg">
     <!-- Filter Controls -->
     <div class="controls-section">
       <Button
@@ -374,11 +378,7 @@
 
 <style>
 
-  /* Stats Section */
-  .stats-section {
-    margin-bottom: var(--space-8);
-  }
-
+  /* Stats Grid */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

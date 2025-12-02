@@ -12,6 +12,7 @@
    * @prop {string} backgroundImage - Optional background image URL
    * @prop {boolean} overlay - Show dark overlay on image (default: true)
    * @prop {boolean} large - Large hero for landing pages (default: false)
+   * @prop {boolean} compact - Compact hero for subpages (default: false)
    */
 
   export let title;
@@ -21,10 +22,11 @@
   export let backgroundImage = '';
   export let overlay = true;
   export let large = false;
+  export let compact = false;
 </script>
 
 {#if backgroundImage}
-  <section class="hero hero-with-image" class:hero-large={large}>
+  <section class="hero hero-with-image" class:hero-large={large} class:hero-compact={compact}>
     <div class="hero-background" style="background-image: url({backgroundImage})"></div>
     {#if overlay}
       <div class="hero-overlay"></div>
@@ -107,6 +109,10 @@
     padding: 4rem 1rem 8rem 1rem;
   }
 
+  .hero-compact {
+    padding: 2.5rem 1rem 4rem 1rem;
+  }
+
   .hero-background {
     position: absolute;
     top: 0;
@@ -175,6 +181,10 @@
     .hero-large {
       padding: 3rem 1rem 6rem 1rem;
     }
+
+    .hero-compact {
+      padding: 2rem 1rem 3rem 1rem;
+    }
   }
 
   @media (max-width: 480px) {
@@ -203,6 +213,10 @@
 
     .hero-large {
       padding: 2rem 1rem 4rem 1rem;
+    }
+
+    .hero-compact {
+      padding: 1.5rem 1rem 2.5rem 1rem;
     }
   }
 </style>
