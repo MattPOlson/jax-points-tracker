@@ -252,7 +252,7 @@
     padding: 1.5rem;
     border-radius: 6px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid #64748b;
     margin-bottom: 2rem;
   }
 

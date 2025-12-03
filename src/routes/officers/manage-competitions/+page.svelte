@@ -263,7 +263,7 @@
     padding: 1.5rem;
     border-radius: 6px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid #64748b;
   }
 
   .stat-card .label {
@@ -472,7 +472,7 @@
     padding: 1.5rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid #64748b;
   }
 
   .competition-header {
@@ -665,8 +665,8 @@
 
   /* Entry count badge */
   .entry-count {
-    background: rgba(255, 62, 0, 0.1);
-    color: #ff3e00;
+    background: rgba(100, 116, 139, 0.1);
+    color: #334155;
     padding: 0.25rem 0.5rem;
     border-radius: 12px;
     font-size: 0.75rem;

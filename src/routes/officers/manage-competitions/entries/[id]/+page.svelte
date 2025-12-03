@@ -339,7 +339,7 @@ function printLabels() {
         }
         .entry-number span {
           font-size: 18pt;
-          color: #ff3e00;
+          color: #334155;
         }
         .beer-style {
           font-size: 10pt;
@@ -712,7 +712,7 @@ function printLabels() {
     padding: 1.5rem;
     border-radius: 6px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid #64748b;
     margin-bottom: 2rem;
   }
 
@@ -803,7 +803,7 @@ function printLabels() {
     right: 0.5rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #ff3e00;
+    color: #64748b;
   }
 
   td {
@@ -821,7 +821,7 @@ function printLabels() {
 
   .entry-number {
     font-weight: 600;
-    color: #ff3e00;
+    color: #334155;
   }
 
   .category-badge {
@@ -881,7 +881,7 @@ function printLabels() {
     padding: 1.5rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid #64748b;
   }
 
   .entry-header {
@@ -895,7 +895,7 @@ function printLabels() {
 
   .entry-info h4 {
     margin: 0;
-    color: #ff3e00;
+    color: #334155;
     font-size: 1.25rem;
     font-weight: 600;
   }
@@ -1071,7 +1071,7 @@ function printLabels() {
   }
 
   .modal h2 {
-    color: #ff3e00;
+    color: #334155;
     margin: 0 0 1rem 0;
     font-size: 1.5rem;
   }
@@ -1083,7 +1083,7 @@ function printLabels() {
   }
 
   .modal-button {
-    background: #ff3e00;
+    background: #475569;
     color: white;
     border: none;
     padding: 0.75rem 2rem;
@@ -1094,7 +1094,7 @@ function printLabels() {
   }
 
   .modal-button:hover {
-    background: #e63600;
+    background: #334155;
   }
 </style>
 

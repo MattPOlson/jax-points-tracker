@@ -509,7 +509,7 @@
     padding: 1.5rem;
     border-radius: 6px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid #64748b;
     margin-bottom: 2rem;
   }
 
@@ -626,7 +626,7 @@
 
   .entry-number {
     font-weight: 600;
-    color: #ff3e00;
+    color: #334155;
   }
 
   .category-badge {
@@ -692,7 +692,7 @@
     padding: 1.5rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid #64748b;
   }
 
   .entry-header {

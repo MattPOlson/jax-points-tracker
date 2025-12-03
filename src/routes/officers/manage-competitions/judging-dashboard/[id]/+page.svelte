@@ -567,7 +567,7 @@
     font-size: 2.5rem;
     font-weight: 100;
     margin: 0;
-    color: #ff3e00;
+    color: #334155;
   }
 
   .stat-label {

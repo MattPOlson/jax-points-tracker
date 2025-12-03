@@ -267,7 +267,7 @@
     padding: 2rem;
     border-radius: 6px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid #64748b;
   }
 
   .warning-banner {
@@ -311,8 +311,8 @@
 
   .form-control:focus {
     outline: none;
-    border-color: #ff3e00;
-    box-shadow: 0 0 0 3px rgba(255, 62, 0, 0.1);
+    border-color: #64748b;
+    box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.1);
   }
 
   .form-control.error {
@@ -395,7 +395,7 @@
     color: #333;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid #ff3e00;
+    border-bottom: 2px solid #e5e7eb;
   }
 
   .entry-stats {
@@ -421,7 +421,7 @@
   .stat-value {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #ff3e00;
+    color: #334155;
   }
 
   /* Mobile styles */
@@ -510,8 +510,8 @@
   }
   
   .radio-option:has(input:checked) {
-    border-color: #ff3e00;
-    background: #fff5f5;
+    border-color: #64748b;
+    background: #f1f5f9;
   }
   
   .radio-label {
