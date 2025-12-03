@@ -10,6 +10,7 @@
   import { page } from "$app/stores";
   import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
   import { Hero, Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
+  import { Lock, AlertTriangle, Search, CheckCircle2, Clock, X, Trash2, ClipboardList, Filter } from 'lucide-svelte';
 
   let submissions = [];
   let filtered = [];
@@ -65,10 +66,10 @@
   // Format status helper
   function formatStatus(submission) {
     if (submission.approved === true)
-      return { text: "Approved", icon: "✅", class: "status-approved" };
+      return { text: "Approved", icon: "check", class: "status-approved" };
     if (submission.rejection_reason)
-      return { text: "Rejected", icon: "❌", class: "status-rejected" };
-    return { text: "Pending", icon: "⏳", class: "status-pending" };
+      return { text: "Rejected", icon: "x", class: "status-rejected" };
+    return { text: "Pending", icon: "clock", class: "status-pending" };
   }
 
   // Get unique categories for filter dropdown
@@ -203,33 +204,37 @@
   }
 </script>
 
-<Container size="xl">
-  <Hero
-    title="View All Points"
-    subtitle="Browse and filter all member submissions"
-    backgroundImage="/Jax-Banner.png"
-    overlay={true}
-    compact={true}
-  />
+<Hero
+  title="View All Points"
+  subtitle="Browse and filter all member submissions"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
 
+<Container size="xl">
   {#if $loading}
     <LoadingSpinner message="Loading all submissions..." />
   {:else if !$user}
-    <EmptyState
-      icon="🔒"
-      title="Authentication Required"
-      message="Please log in to view all submissions."
-      actionLabel="Sign In"
-      actionHref="/login"
-    />
+    <div class="empty-state-with-icon">
+      <Lock size={48} strokeWidth={2} class="empty-icon" />
+      <EmptyState
+        title="Authentication Required"
+        message="Please log in to view all submissions."
+        actionLabel="Sign In"
+        actionHref="/login"
+      />
+    </div>
   {:else if !$userProfile?.is_officer}
-    <EmptyState
-      icon="⚠️"
-      title="Access Restricted"
-      message="Officer privileges are required to view all submissions."
-      actionLabel="Back to Officer Tools"
-      actionHref="/officers"
-    />
+    <div class="empty-state-with-icon">
+      <AlertTriangle size={48} strokeWidth={2} class="empty-icon" />
+      <EmptyState
+        title="Access Restricted"
+        message="Officer privileges are required to view all submissions."
+        actionLabel="Back to Officer Tools"
+        actionHref="/officers"
+      />
+    </div>
   {:else}
     <!-- Filter Controls -->
     <div class="controls-section">
@@ -239,7 +244,8 @@
           class="filter-toggle"
           class:active={showFilters}
         >
-          🔍 {showFilters ? "Hide" : "Show"} Filters
+          <Filter size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+          {showFilters ? "Hide" : "Show"} Filters
         </button>
 
         <div class="stats-summary">
@@ -285,9 +291,9 @@
               on:change={applyFilters}
             >
               <option value="">All Status</option>
-              <option value="approved">✅ Approved</option>
-              <option value="pending">⏳ Pending</option>
-              <option value="rejected">❌ Rejected</option>
+              <option value="approved">Approved</option>
+              <option value="pending">Pending</option>
+              <option value="rejected">Rejected</option>
             </select>
           </div>
 
@@ -313,7 +319,8 @@
 
           <div class="filter-actions">
             <button on:click={clearFilters} class="clear-button">
-              🗑️ Clear All
+              <Trash2 size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              Clear All
             </button>
           </div>
         </div>
@@ -325,28 +332,36 @@
       <div class="stats-section">
         <div class="stats-grid">
           <div class="stat-card approved">
-            <div class="stat-icon">✅</div>
+            <div class="stat-icon">
+              <CheckCircle2 size={32} strokeWidth={2} />
+            </div>
             <div class="stat-content">
               <div class="stat-number">{filterStats.approved}</div>
               <div class="stat-label">Approved</div>
             </div>
           </div>
           <div class="stat-card pending">
-            <div class="stat-icon">⏳</div>
+            <div class="stat-icon">
+              <Clock size={32} strokeWidth={2} />
+            </div>
             <div class="stat-content">
               <div class="stat-number">{filterStats.pending}</div>
               <div class="stat-label">Pending</div>
             </div>
           </div>
           <div class="stat-card rejected">
-            <div class="stat-icon">❌</div>
+            <div class="stat-icon">
+              <X size={32} strokeWidth={2} />
+            </div>
             <div class="stat-content">
               <div class="stat-number">{filterStats.rejected}</div>
               <div class="stat-label">Rejected</div>
             </div>
           </div>
           <div class="stat-card total">
-            <div class="stat-icon">📋</div>
+            <div class="stat-icon">
+              <ClipboardList size={32} strokeWidth={2} />
+            </div>
             <div class="stat-content">
               <div class="stat-number">{filterStats.filtered}</div>
               <div class="stat-label">Showing</div>
@@ -451,7 +466,13 @@
                 </td>
                 <td class="status-cell">
                   <span class="status-badge {formatStatus(s).class}">
-                    <span class="status-icon">{formatStatus(s).icon}</span>
+                    {#if formatStatus(s).icon === 'check'}
+                      <CheckCircle2 size={14} strokeWidth={2.5} />
+                    {:else if formatStatus(s).icon === 'x'}
+                      <X size={14} strokeWidth={2.5} />
+                    {:else}
+                      <Clock size={14} strokeWidth={2.5} />
+                    {/if}
                     {formatStatus(s).text}
                   </span>
                 </td>
@@ -478,7 +499,13 @@
                 </div>
               </div>
               <span class="status-badge {formatStatus(s).class}">
-                <span class="status-icon">{formatStatus(s).icon}</span>
+                {#if formatStatus(s).icon === 'check'}
+                  <CheckCircle2 size={14} strokeWidth={2.5} />
+                {:else if formatStatus(s).icon === 'x'}
+                  <X size={14} strokeWidth={2.5} />
+                {:else}
+                  <Clock size={14} strokeWidth={2.5} />
+                {/if}
                 {formatStatus(s).text}
               </span>
             </div>
@@ -511,20 +538,33 @@
         {/each}
       </div>
     {:else}
-      <EmptyState
-        icon="🔍"
-        title="No Results Found"
-        message="No submissions match your current filters."
-      >
-        <Button variant="secondary" on:click={clearFilters}>
-          Clear Filters
-        </Button>
-      </EmptyState>
+      <div class="empty-state-with-icon">
+        <Search size={48} strokeWidth={2} class="empty-icon" />
+        <EmptyState
+          title="No Results Found"
+          message="No submissions match your current filters."
+        >
+          <Button variant="secondary" on:click={clearFilters}>
+            Clear Filters
+          </Button>
+        </EmptyState>
+      </div>
     {/if}
   {/if}
 </Container>
 
 <style>
+  /* Empty State with Icon */
+  .empty-state-with-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .empty-state-with-icon :global(.empty-icon) {
+    color: #64748b;
+  }
 
   /* Controls Section */
   .controls-section {
@@ -560,11 +600,11 @@
   }
 
   .filter-toggle.active {
-    background-color: #ff3e00;
+    background-color: #64748b;
   }
 
   .filter-toggle.active:hover {
-    background-color: #e63600;
+    background-color: #475569;
   }
 
   .stats-summary {
@@ -578,7 +618,7 @@
   }
 
   .stat.filtered {
-    color: #ff3e00;
+    color: #64748b;
     font-weight: 600;
   }
 
@@ -613,8 +653,8 @@
   .filter-group input:focus,
   .filter-group select:focus {
     outline: none;
-    border-color: #ff3e00;
-    box-shadow: 0 0 0 1px #ff3e00;
+    border-color: #64748b;
+    box-shadow: 0 0 0 1px #64748b;
   }
 
   .filter-actions {
@@ -673,7 +713,7 @@
     border-left-color: #dc2626;
   }
   .stat-card.total {
-    border-left-color: #ff3e00;
+    border-left-color: #64748b;
   }
 
   .stat-icon {
@@ -732,13 +772,13 @@
   .desktop-table th.sort-asc::after {
     content: " ▲";
     font-size: 0.75rem;
-    color: #ff3e00;
+    color: #64748b;
   }
 
   .desktop-table th.sort-desc::after {
     content: " ▼";
     font-size: 0.75rem;
-    color: #ff3e00;
+    color: #64748b;
   }
 
   .desktop-table td {
@@ -765,7 +805,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: #ff3e00;
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
     color: white;
     display: flex;
     align-items: center;
@@ -791,7 +831,7 @@
 
   .points-value {
     font-weight: 700;
-    color: #ff3e00;
+    color: #334155;
     font-size: 1.1rem;
   }
 
