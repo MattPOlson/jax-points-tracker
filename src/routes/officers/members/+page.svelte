@@ -14,8 +14,8 @@
     activityFilter,
     canManageOfficers
   } from '$lib/stores/memberManagementStore';
-  import { Hero, Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
-  import { Lock, Users, X, RefreshCw, BarChart3, Search } from 'lucide-svelte';
+  import { Hero, Container, LoadingSpinner, EmptyState, Button, OverlappingCard } from '$lib/components/ui';
+  import { Lock, Users, X, RefreshCw, BarChart3, Search, Eye, Edit, Zap, FileText, Download, CheckCircle2, Clock, UserX, UserCheck, AlertCircle } from 'lucide-svelte';
 
   // Removed tab switching reload - causes issues with Supabase tab switching
   function setupEventHandlers() {
@@ -264,22 +264,24 @@
   import { supabase } from '../../../lib/supabaseClient';
 </script>
 
-<Container size="xl">
-  {#if !isOfficer}
+{#if !isOfficer}
+  <Container size="xl">
     <EmptyState
       icon="🔒"
       title="Access Denied"
       message="You need officer privileges to access this page."
     />
-  {:else}
-    <Hero
-      title="Manage Members"
-      subtitle="View and manage club members, their roles, activity, and point standings"
-      backgroundImage="/Jax-Banner.png"
-      overlay={true}
-      compact={true}
-    />
+  </Container>
+{:else}
+  <Hero
+    title="Manage Members"
+    subtitle="View and manage club members, their roles, activity, and point standings"
+    backgroundImage="/Jax-Banner.png"
+    overlay={true}
+    compact={true}
+  />
 
+  <Container size="xl">
     {#if $isLoading && $members.length === 0}
       <LoadingSpinner message="Loading members..." />
     {:else if $error}
@@ -294,8 +296,9 @@
         </Button>
       </EmptyState>
     {:else}
-      <!-- Statistics Cards -->
-      <div class="stats-grid">
+      <OverlappingCard>
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
         <div class="stat-card orange">
           <div class="stat-value">{$memberStats.totalMembers}</div>
           <div class="stat-label">Total Members</div>
@@ -313,6 +316,7 @@
           <div class="stat-label">Avg Points</div>
         </div>
       </div>
+      </OverlappingCard>
 
       <!-- Controls Section -->
       <div class="controls-section">
@@ -353,7 +357,7 @@
             Reset
           </button>
           <button on:click={exportData} class="export-button">
-            <BarChart3 size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            <Download size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
             Export
           </button>
           </div>
@@ -420,7 +424,11 @@
                     <td>
                       <div class="activity-info">
                         <span class="activity-badge {getActivityStatus(member)}">
-                          {getActivityStatus(member) === 'active' ? '✅ Active' : '💤 Inactive'}
+                          {#if getActivityStatus(member) === 'active'}
+                            <CheckCircle2 size={12} strokeWidth={2.5} /> Active
+                          {:else}
+                            <Clock size={12} strokeWidth={2.5} /> Inactive
+                          {/if}
                         </span>
                         <div class="last-activity">Last: {formatDate(member.last_submission_date)}</div>
                       </div>
@@ -431,14 +439,14 @@
                     <td>
                       <div class="action-buttons-cell">
                         <button on:click={() => openMemberDetails(member)} class="view-button">
-                          👁️ View
+                          <Eye size={14} /> View
                         </button>
                         {#if hasManagePermissions && member.id !== $userProfile?.id}
                           <button on:click={() => openEditModal(member)} class="edit-button">
-                            ✏️ Edit
+                            <Edit size={14} /> Edit
                           </button>
                           <button on:click={() => openRoleChangeModal(member)} class="manage-button">
-                            ⚡ Manage Role
+                            <Zap size={14} /> Role
                           </button>
                         {/if}
                       </div>
@@ -480,7 +488,11 @@
                   <div class="stat-item">
                     <span class="stat-label">Activity</span>
                     <span class="activity-badge {getActivityStatus(member)}">
-                      {getActivityStatus(member) === 'active' ? '✅ Active' : '💤 Inactive'}
+                      {#if getActivityStatus(member) === 'active'}
+                        <CheckCircle2 size={12} strokeWidth={2.5} /> Active
+                      {:else}
+                        <Clock size={12} strokeWidth={2.5} /> Inactive
+                      {/if}
                     </span>
                   </div>
                   <div class="stat-item">
@@ -491,14 +503,14 @@
                 
                 <div class="card-actions">
                   <button on:click={() => openMemberDetails(member)} class="view-button-mobile">
-                    👁️ View Details
+                    <Eye size={16} /> View
                   </button>
                   {#if hasManagePermissions && member.id !== $userProfile?.id}
                     <button on:click={() => openEditModal(member)} class="edit-button-mobile">
-                      ✏️ Edit
+                      <Edit size={16} /> Edit
                     </button>
                     <button on:click={() => openRoleChangeModal(member)} class="manage-button-mobile">
-                      ⚡ Manage Role
+                      <Zap size={16} /> Role
                     </button>
                   {/if}
                 </div>
@@ -508,8 +520,8 @@
         </div>
       {/if}
     {/if}
-  {/if}
-</Container>
+  </Container>
+{/if}
 
 <!-- Member Details Modal -->
 {#if showMemberModal && selectedMember}
@@ -579,7 +591,13 @@
                     <div class="submission-status">
                       <div class="submission-points">{submission.points} pts</div>
                       <span class="status-badge {submission.approved ? 'approved' : submission.approved === false ? 'rejected' : 'pending'}">
-                        {submission.approved ? '✅ Approved' : submission.approved === false ? '❌ Rejected' : '⏳ Pending'}
+                        {#if submission.approved}
+                          <CheckCircle2 size={12} strokeWidth={2.5} /> Approved
+                        {:else if submission.approved === false}
+                          <X size={12} strokeWidth={2.5} /> Rejected
+                        {:else}
+                          <Clock size={12} strokeWidth={2.5} /> Pending
+                        {/if}
                       </span>
                     </div>
                   </div>
@@ -653,12 +671,12 @@
           >
             Cancel
           </button>
-          <button 
+          <button
             class="save-button"
             on:click={handleMemberEdit}
             disabled={isUpdatingMember || !editedName.trim() || !editedEmail.trim()}
           >
-            {isUpdatingMember ? '⏳ Saving...' : '💾 Save Changes'}
+            {isUpdatingMember ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </div>
@@ -704,13 +722,13 @@
 
         {#if newRole === memberToPromote.role}
           <div class="warning-message">
-            <p>⚠️ This member already has this role</p>
+            <p><AlertCircle size={14} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" /> This member already has this role</p>
           </div>
         {/if}
 
         {#if newRole === 'president' && $userProfile?.role !== 'president'}
           <div class="error-message">
-            <p>❌ Only presidents can promote members to president</p>
+            <p><X size={14} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" /> Only presidents can promote members to president</p>
           </div>
         {/if}
 
@@ -718,12 +736,12 @@
           <button class="cancel-button" on:click={() => { showRoleChangeModal = false; memberToPromote = null; newRole = ''; }}>
             Cancel
           </button>
-          <button 
+          <button
             class="save-button"
             on:click={handleRoleChange}
             disabled={newRole === memberToPromote.role || (newRole === 'president' && $userProfile?.role !== 'president') || $isLoading}
           >
-            {$isLoading ? '⏳ Updating...' : '✅ Update Role'}
+            {$isLoading ? 'Updating...' : 'Update Role'}
           </button>
         </div>
       </div>
@@ -750,10 +768,10 @@
     border-left: 4px solid;
   }
 
-  .stat-card.orange { border-left-color: #ff3e00; }
-  .stat-card.blue { border-left-color: #2563eb; }
-  .stat-card.green { border-left-color: #059669; }
-  .stat-card.red { border-left-color: #dc2626; }
+  .stat-card.orange { border-left-color: #64748b; }
+  .stat-card.blue { border-left-color: #64748b; }
+  .stat-card.green { border-left-color: #64748b; }
+  .stat-card.red { border-left-color: #64748b; }
 
   .stat-value {
     font-size: 2rem;
@@ -761,10 +779,10 @@
     margin-bottom: 0.5rem;
   }
 
-  .stat-card.orange .stat-value { color: #ff3e00; }
-  .stat-card.blue .stat-value { color: #2563eb; }
-  .stat-card.green .stat-value { color: #059669; }
-  .stat-card.red .stat-value { color: #dc2626; }
+  .stat-card.orange .stat-value { color: #334155; }
+  .stat-card.blue .stat-value { color: #334155; }
+  .stat-card.green .stat-value { color: #334155; }
+  .stat-card.red .stat-value { color: #334155; }
 
   .stat-label {
     font-size: 0.875rem;
@@ -820,8 +838,8 @@
 
   .search-box input:focus {
     outline: none;
-    border-color: #ff3e00;
-    box-shadow: 0 0 0 1px #ff3e00;
+    border-color: #64748b;
+    box-shadow: 0 0 0 1px #64748b;
   }
 
   .search-icon {
@@ -845,8 +863,8 @@
 
   .filter-select:focus {
     outline: none;
-    border-color: #ff3e00;
-    box-shadow: 0 0 0 1px #ff3e00;
+    border-color: #64748b;
+    box-shadow: 0 0 0 1px #64748b;
   }
 
   .action-buttons {
@@ -876,13 +894,13 @@
   }
 
   .export-button {
-    background: #2563eb;
+    background: #64748b;
     color: white;
-    border-color: #2563eb;
+    border-color: #64748b;
   }
 
   .export-button:hover {
-    background: #1d4ed8;
+    background: #475569;
   }
 
 
@@ -935,7 +953,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #ff3e00 0%, #e63600 100%);
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1067,31 +1085,34 @@
     cursor: pointer;
     transition: all 0.2s ease;
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
   }
 
   .view-button {
-    background: #2563eb;
+    background: #64748b;
     color: white;
   }
 
   .view-button:hover {
-    background: #1d4ed8;
+    background: #475569;
   }
   .edit-button {
-    background: #059669;
+    background: #64748b;
     color: white;
   }
   .edit-button:hover {
-    background: #047857;
+    background: #475569;
   }
 
   .manage-button {
-    background: #ff3e00;
+    background: #64748b;
     color: white;
   }
 
   .manage-button:hover {
-    background: #e63600;
+    background: #475569;
   }
 
   /* Mobile Cards */
@@ -1104,7 +1125,7 @@
   .member-card {
     background: white;
     border: 1px solid #e5e7eb;
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid #64748b;
     border-radius: 6px;
     padding: 1rem;
   }
@@ -1155,31 +1176,35 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
   }
 
   .view-button-mobile {
-    background: #2563eb;
+    background: #64748b;
     color: white;
   }
 
   .view-button-mobile:hover {
-    background: #1d4ed8;
+    background: #475569;
   }
   .edit-button-mobile {
-    background: #059669;
+    background: #64748b;
     color: white;
   }
   .edit-button-mobile:hover {
-    background: #047857;
+    background: #475569;
   }
 
   .manage-button-mobile {
-    background: #ff3e00;
+    background: #64748b;
     color: white;
   }
 
   .manage-button-mobile:hover {
-    background: #e63600;
+    background: #475569;
   }
 
   /* Modal Styles */
@@ -1256,7 +1281,7 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #ff3e00 0%, #e63600 100%);
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1297,10 +1322,10 @@
     margin-bottom: 0.25rem;
   }
 
-  .member-stats .stat-value.orange { color: #ff3e00; }
-  .member-stats .stat-value.blue { color: #2563eb; }
-  .member-stats .stat-value.green { color: #059669; }
-  .member-stats .stat-value.red { color: #dc2626; }
+  .member-stats .stat-value.orange { color: #334155; }
+  .member-stats .stat-value.blue { color: #334155; }
+  .member-stats .stat-value.green { color: #334155; }
+  .member-stats .stat-value.red { color: #334155; }
 
   .submissions-section h4 {
     color: #111827;
@@ -1359,7 +1384,7 @@
 
   .submission-points {
     font-weight: bold;
-    color: #ff3e00;
+    color: #334155;
     font-size: 0.875rem;
     margin-bottom: 0.25rem;
   }
@@ -1424,8 +1449,8 @@
   }
   .form-group input:focus {
     outline: none;
-    border-color: #ff3e00;
-    box-shadow: 0 0 0 1px #ff3e00;
+    border-color: #64748b;
+    box-shadow: 0 0 0 1px #64748b;
   }
   .form-group input:disabled {
     background-color: #f9fafb;
@@ -1474,8 +1499,8 @@
 
   .role-selection select:focus {
     outline: none;
-    border-color: #ff3e00;
-    box-shadow: 0 0 0 1px #ff3e00;
+    border-color: #64748b;
+    box-shadow: 0 0 0 1px #64748b;
   }
 
   .role-description {
@@ -1539,7 +1564,7 @@
     padding: 0.75rem 1rem;
     border: none;
     border-radius: 6px;
-    background: #ff3e00;
+    background: #64748b;
     color: white;
     font-size: 1rem;
     font-weight: 500;
@@ -1548,7 +1573,7 @@
   }
 
   .save-button:hover:not(:disabled) {
-    background: #e63600;
+    background: #475569;
   }
 
   .save-button:disabled {
