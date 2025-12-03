@@ -365,14 +365,20 @@
   .actions {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .btn-small {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: 0.25rem;
+    white-space: nowrap;
+  }
+
+  .btn-small :global(svg) {
+    flex-shrink: 0;
   }
 
   .btn-edit {
@@ -917,16 +923,16 @@
                     class="btn btn-small btn-results"
                     on:click={() => navigateToResults(competition.id)}
                   >
-                    <Trophy size={14} /> Enter Results
+                    <Trophy size={14} /> Results
                   </button>
                   <button
                     class="btn btn-small btn-toggle {competition.active ? 'inactive' : ''}"
                     on:click={() => toggleStatus(competition)}
                   >
                     {#if competition.active}
-                      <Pause size={14} /> Deactivate
+                      <Pause size={14} /> Disable
                     {:else}
-                      <Play size={14} /> Activate
+                      <Play size={14} /> Enable
                     {/if}
                   </button>
                   {#if competition.entry_count === 0}
@@ -1046,9 +1052,9 @@
               on:click={() => toggleStatus(competition)}
             >
               {#if competition.active}
-                <Pause size={16} /> Deactivate
+                <Pause size={16} /> Disable Competition
               {:else}
-                <Play size={16} /> Activate
+                <Play size={16} /> Enable Competition
               {/if}
             </button>
 
