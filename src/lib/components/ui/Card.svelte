@@ -34,8 +34,8 @@
 <style>
   .card {
     background-color: var(--color-bg-primary);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
     padding: var(--space-6);
     transition: all var(--transition-base);
   }
@@ -49,7 +49,7 @@
   }
 
   .card-hover:hover {
-    transform: translateY(-5px);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
   }
 

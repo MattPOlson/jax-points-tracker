@@ -17,8 +17,11 @@
     error
   } from '$lib/stores/bjcpCategoryStore.js';
   import { supabase } from '$lib/supabaseClient';
-  import { Hero, Container, LoadingSpinner, EmptyState, Button, Card } from '$lib/components/ui';
-  import { Trophy, RotateCcw, Send, CheckCircle, Calendar, Info } from 'lucide-svelte';
+  import Hero from "$lib/components/ui/Hero.svelte";
+  import Container from "$lib/components/ui/Container.svelte";
+  import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
+  import EmptyState from "$lib/components/ui/EmptyState.svelte";
+  import Button from "$lib/components/ui/Button.svelte";
 
   // =============================================
   // Tab Switching Fix (CRITICAL)
@@ -210,14 +213,13 @@
   <title>Submit Competition Entry | JAX Members Portal</title>
 </svelte:head>
 
-<Hero
-  title="Submit Competition Entry"
-  subtitle="Enter your beer into a JAX club competition"
-  backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-  large={true}
-/>
-
 <Container size="md">
+  <Hero
+    title="SUBMIT COMPETITION ENTRY"
+    subtitle="Enter your beer into a JAX club competition"
+    icon="🏆"
+    center={true}
+  />
 
   <!-- Loading State -->
   {#if $isLoading && !$isLoaded}
@@ -225,24 +227,23 @@
 
   <!-- Error State -->
   {:else if $error}
-    <Card class="error-container">
-      <h2>Error Loading Data</h2>
+    <div class="error-container">
+      <h2>❌ Error Loading Data</h2>
       <p>{$error}</p>
       <Button on:click={() => loadCompetitionData(true)} variant="primary">
-        <RotateCcw size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-        Retry
+        🔄 Retry
       </Button>
-    </Card>
+    </div>
 
   <!-- No Active Competitions -->
   {:else if $isLoaded && $activeCompetitions.length === 0}
     <EmptyState
+      icon="📅"
       title="No Active Competitions"
       message="There are currently no competitions accepting entries. Check back later or contact an officer for more information."
     >
       <Button on:click={() => goto('/competitions')} variant="primary">
-        <Calendar size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-        View All Competitions
+        📋 View All Competitions
       </Button>
     </EmptyState>
 
@@ -253,8 +254,7 @@
       <!-- Success Message -->
       {#if submitSuccess}
         <div class="success-message">
-          <CheckCircle size={48} strokeWidth={1.5} color="var(--color-success)" />
-          <h2>Entry Submitted Successfully!</h2>
+          <h2>🎉 Entry Submitted Successfully!</h2>
           <p>Your competition entry has been received. Redirecting to your entries...</p>
         </div>
       {/if}
@@ -290,8 +290,7 @@
               {/if}
               {#if selectedCompetitionObj.category_system === 'custom'}
                 <div class="custom-categories-notice">
-                  <Info size={20} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-                  <p><strong>Custom Categories:</strong> This competition only accepts specific BJCP categories. Only allowed categories will be shown in the selection below.</p>
+                  <p><strong>📋 Custom Categories:</strong> This competition only accepts specific BJCP categories. Only allowed categories will be shown in the selection below.</p>
                 </div>
               {/if}
             </div>
@@ -384,7 +383,7 @@
         <!-- Error Message -->
         {#if submitError}
           <div class="error-message">
-            <p>{submitError}</p>
+            <p>❌ {submitError}</p>
           </div>
         {/if}
 
@@ -396,8 +395,7 @@
             variant="secondary"
             disabled={submitting || submitSuccess}
           >
-            <RotateCcw size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-            Reset Form
+            🔄 Reset Form
           </Button>
 
           <Button
@@ -406,21 +404,18 @@
             disabled={!canSubmit || submitSuccess}
           >
             {#if submitting}
-              <RotateCcw size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem; animation: spin 1s linear infinite;" />
-              Submitting...
+              🔄 Submitting...
             {:else if submitSuccess}
-              <CheckCircle size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-              Submitted
+              ✅ Submitted
             {:else}
-              <Send size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-              Submit Entry
+              🍺 Submit Entry
             {/if}
           </Button>
         </div>
 
         <!-- Form Help -->
         <div class="form-help">
-          <h3>Entry Guidelines</h3>
+          <h3>📝 Entry Guidelines</h3>
           <ul>
             <li>Entries must be submitted before the deadline</li>
             <li>One entry per category per brewer per competition</li>
@@ -435,37 +430,36 @@
 </Container>
 
 <style>
-  :global(.error-container) {
+  .error-container {
     text-align: center;
-    padding: var(--space-12) var(--space-8);
-    border-left: 4px solid var(--color-danger);
+    padding: 3rem 2rem;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-left: 4px solid #ff3e00;
   }
 
   .form-container {
-    background: var(--color-bg-primary);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
-    border-left: 4px solid var(--color-brand-primary);
-    padding: var(--space-8);
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-left: 4px solid #ff3e00;
+    padding: 2rem;
   }
 
   .success-message {
-    background: var(--color-success-light);
-    border: 1px solid var(--color-success);
-    border-radius: var(--radius-card);
-    padding: var(--space-6);
-    margin-bottom: var(--space-8);
+    background: #f0f9ff;
+    border: 1px solid #059669;
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-4);
   }
 
   .success-message h2 {
-    color: var(--color-success);
-    margin: 0;
-    font-size: var(--font-size-2xl);
+    color: #059669;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
   }
 
   .entry-form {
@@ -499,7 +493,7 @@
   .form-group select:focus,
   .form-group textarea:focus {
     outline: none;
-    border-color: var(--color-brand-primary);
+    border-color: #ff3e00;
   }
 
   .form-group input:disabled,
@@ -600,10 +594,9 @@
   }
 
   .form-help h3 {
-    color: var(--color-brand-primary);
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-bold);
-    margin: 0 0 var(--space-4) 0;
+    color: #ff3e00;
+    font-size: 1.1rem;
+    margin: 0 0 1rem 0;
   }
 
   .form-help ul {

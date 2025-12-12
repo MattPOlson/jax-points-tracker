@@ -13,7 +13,6 @@
   import { page } from "$app/stores";
   import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
   import { Hero, Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
-  import { CheckCircle, X, Lock, AlertTriangle, PartyPopper, RefreshCw, ClipboardList } from 'lucide-svelte';
 
   let message = "";
   let showApprovalModal = false;
@@ -174,12 +173,7 @@
 </script>
 
 <Container size="lg">
-  <Hero
-    title="Review Submissions"
-    subtitle="Approve or reject member point submissions"
-    backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-    large={true}
-  />
+  <Hero title="Review Submissions" subtitle="Approve or reject member point submissions" icon="✅" center={true} />
 
   {#if $loading}
     <LoadingSpinner message="Loading submissions..." />
@@ -203,9 +197,7 @@
     <div class="submissions-container">
       <!-- Summary Stats -->
       <div class="summary-card">
-        <div class="summary-icon">
-          <ClipboardList size={40} strokeWidth={2} />
-        </div>
+        <div class="summary-icon">📋</div>
         <div class="summary-content">
           <div class="summary-number">{submissions.length}</div>
           <div class="summary-label">
@@ -259,16 +251,14 @@
                       class="approve-btn"
                       disabled={isProcessing}
                     >
-                      <CheckCircle size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-                      Approve
+                      ✅ Approve
                     </button>
                     <button
                       on:click={() => openReject(s)}
                       class="reject-btn"
                       disabled={isProcessing}
                     >
-                      <X size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-                      Reject
+                      ❌ Reject
                     </button>
                   </div>
                 </td>
@@ -318,16 +308,14 @@
                 class="approve-btn mobile"
                 disabled={isProcessing}
               >
-                <CheckCircle size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-                Approve
+                ✅ Approve
               </button>
               <button
                 on:click={() => openReject(s)}
                 class="reject-btn mobile"
                 disabled={isProcessing}
               >
-                <X size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-                Reject
+                ❌ Reject
               </button>
             </div>
           </div>
@@ -341,8 +329,7 @@
       message="No pending submissions to review at this time."
     >
       <Button variant="secondary" on:click={() => loadApprovals(true)}>
-        <RefreshCw size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-        Refresh
+        🔄 Refresh
       </Button>
     </EmptyState>
   {/if}
@@ -365,10 +352,7 @@
     >
       <div class="modal approval-modal" on:click|stopPropagation>
         <div class="modal-header">
-          <h3 id="approval-modal-title">
-            <CheckCircle size={20} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-            Approve Submission
-          </h3>
+          <h3 id="approval-modal-title">✅ Approve Submission</h3>
         </div>
         <div class="modal-body">
           <div class="submission-preview">
@@ -414,8 +398,7 @@
               <span class="button-spinner"></span>
               Approving...
             {:else}
-              <CheckCircle size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-              Yes, Approve
+              ✅ Yes, Approve
             {/if}
           </button>
           <button
@@ -442,10 +425,7 @@
     >
       <div class="modal reject-modal" on:click|stopPropagation>
         <div class="modal-header">
-          <h3 id="reject-modal-title">
-            <X size={20} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-            Reject Submission
-          </h3>
+          <h3 id="reject-modal-title">❌ Reject Submission</h3>
         </div>
         <div class="modal-body">
           <div class="submission-preview">
@@ -490,8 +470,7 @@
               <span class="button-spinner"></span>
               Rejecting...
             {:else}
-              <X size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-              Reject Submission
+              ❌ Reject Submission
             {/if}
           </button>
           <button
@@ -511,36 +490,36 @@
 
   /* Summary Card */
   .summary-card {
-    background: var(--color-bg-primary);
-    border-radius: var(--radius-button);
-    padding: var(--space-6);
-    margin-bottom: var(--space-8);
-    box-shadow: var(--shadow-card);
-    border-left: 4px solid var(--color-brand-primary);
+    background: white;
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #ff3e00;
     display: flex;
     align-items: center;
-    gap: var(--space-4);
+    gap: 1rem;
     max-width: 400px;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: var(--space-8);
+    margin-bottom: 2rem;
   }
 
   .summary-icon {
-    color: var(--color-brand-primary);
+    font-size: 2.5rem;
   }
 
   .summary-number {
-    font-size: var(--font-size-3xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-brand-primary);
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ff3e00;
     line-height: 1;
   }
 
   .summary-label {
-    font-size: var(--font-size-base);
-    color: var(--color-text-secondary);
-    font-weight: var(--font-weight-medium);
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
   }
 
   /* Submissions Container */
