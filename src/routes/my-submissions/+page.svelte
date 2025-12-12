@@ -10,8 +10,7 @@
     loading,
   } from "$lib/stores/mySubmissionsStore.js";
   import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
-  import { Hero, Container, LoadingSpinner, EmptyState, Button, Card } from '$lib/components/ui';
-  import { CheckCircle, Clock, XCircle, Trophy, ClipboardList, List } from 'lucide-svelte';
+  import { Hero, Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
 
   let submissions = [];
   let message = "";
@@ -90,9 +89,9 @@
   }
 
   function formatStatus(sub) {
-    if (sub.approved === true) return { text: "Approved", iconComponent: CheckCircle, class: "status-approved" };
-    if (sub.rejection_reason) return { text: "Rejected", iconComponent: XCircle, class: "status-rejected" };
-    return { text: "Pending", iconComponent: Clock, class: "status-pending" };
+    if (sub.approved === true) return { text: "Approved", icon: "✅", class: "status-approved" };
+    if (sub.rejection_reason) return { text: "Rejected", icon: "❌", class: "status-rejected" };
+    return { text: "Pending", icon: "⏳", class: "status-pending" };
   }
 
  // function formatDate(dateString) {
@@ -147,19 +146,14 @@
   });
 </script>
 
-<Hero
-  title="My Submissions"
-  subtitle="Track your brewing achievements and points"
-  backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-  large={true}
-/>
-
 <Container size="lg">
+  <Hero title="My Submissions" subtitle="Track your brewing achievements and points" icon="📋" center={true} />
 
   {#if $loading}
     <LoadingSpinner message="Loading your submissions..." />
   {:else if !currentUserId}
     <EmptyState
+      icon="🔒"
       title="Authentication Required"
       message="Please log in to view your submissions."
       actionLabel="Sign In"
@@ -170,42 +164,34 @@
     {#if !$loading && $storeAll && $storeAll.length > 0}
       <div class="stats-section">
         <div class="stats-grid">
-          <Card class="stat-card approved">
-            <div class="stat-icon">
-              <CheckCircle size={32} strokeWidth={1.5} color="var(--color-success)" />
-            </div>
+          <div class="stat-card approved">
+            <div class="stat-icon">✅</div>
             <div class="stat-content">
               <div class="stat-number">{stats?.approved || 0}</div>
               <div class="stat-label">Approved</div>
             </div>
-          </Card>
-          <Card class="stat-card pending">
-            <div class="stat-icon">
-              <Clock size={32} strokeWidth={1.5} color="var(--color-warning)" />
-            </div>
+          </div>
+          <div class="stat-card pending">
+            <div class="stat-icon">⏳</div>
             <div class="stat-content">
               <div class="stat-number">{stats?.pending || 0}</div>
               <div class="stat-label">Pending</div>
             </div>
-          </Card>
-          <Card class="stat-card rejected">
-            <div class="stat-icon">
-              <XCircle size={32} strokeWidth={1.5} color="var(--color-danger)" />
-            </div>
+          </div>
+          <div class="stat-card rejected">
+            <div class="stat-icon">❌</div>
             <div class="stat-content">
               <div class="stat-number">{stats?.rejected || 0}</div>
               <div class="stat-label">Rejected</div>
             </div>
-          </Card>
-          <Card class="stat-card points">
-            <div class="stat-icon">
-              <Trophy size={32} strokeWidth={1.5} color="var(--color-brand-primary)" />
-            </div>
+          </div>
+          <div class="stat-card points">
+            <div class="stat-icon">🏆</div>
             <div class="stat-content">
               <div class="stat-number">{stats?.totalPoints?.toLocaleString() || 0}</div>
               <div class="stat-label">Total Points</div>
             </div>
-          </Card>
+          </div>
         </div>
       </div>
     {:else if !$loading && currentUserId}
@@ -225,13 +211,7 @@
         variant={showAll ? 'primary' : 'secondary'}
         on:click={toggleView}
       >
-        {#if showAll}
-          <List size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-          Show All
-        {:else}
-          <Clock size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-          Pending Only
-        {/if}
+        {showAll ? "📋 Show All" : "⏳ Pending Only"}
       </Button>
       
       <div class="view-info">
@@ -290,7 +270,7 @@
                   <td class="date-cell">{formatDate(s.event_date)}</td>
                   <td class="status-cell">
                     <span class="status-badge {formatStatus(s).class}">
-                      <svelte:component this={formatStatus(s).iconComponent} size={16} strokeWidth={2} />
+                      <span class="status-icon">{formatStatus(s).icon}</span>
                       {formatStatus(s).text}
                     </span>
                   </td>
@@ -314,7 +294,7 @@
               <div class="card-header">
                 <div class="category-badge">{s.category}</div>
                 <span class="status-badge {formatStatus(s).class}">
-                  <svelte:component this={formatStatus(s).iconComponent} size={16} strokeWidth={2} />
+                  <span class="status-icon">{formatStatus(s).icon}</span>
                   {formatStatus(s).text}
                 </span>
               </div>
@@ -347,9 +327,9 @@
       <div class="empty-state">
         <div class="empty-icon">
           {#if showAll}
-            <ClipboardList size={64} strokeWidth={1.5} color="var(--color-text-tertiary)" />
+            📋
           {:else}
-            <Clock size={64} strokeWidth={1.5} color="var(--color-text-tertiary)" />
+            ⏳
           {/if}
         </div>
         <h3>
@@ -376,40 +356,48 @@
 
   /* Stats Section */
   .stats-section {
-    margin-bottom: var(--space-8);
+    margin-bottom: 2rem;
   }
 
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--space-4);
+    gap: 1rem;
     max-width: 800px;
     margin: 0 auto;
   }
 
-  :global(.stat-card) {
+  .stat-card {
+    background: white;
+    border-radius: 6px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
-    gap: var(--space-4);
+    gap: 1rem;
     border-left: 4px solid;
   }
 
-  :global(.stat-card.approved) { border-left-color: var(--color-success); }
-  :global(.stat-card.pending) { border-left-color: var(--color-warning); }
-  :global(.stat-card.rejected) { border-left-color: var(--color-danger); }
-  :global(.stat-card.points) { border-left-color: var(--color-brand-primary); }
+  .stat-card.approved { border-left-color: #059669; }
+  .stat-card.pending { border-left-color: #d97706; }
+  .stat-card.rejected { border-left-color: #dc2626; }
+  .stat-card.points { border-left-color: #ff3e00; }
+
+  .stat-icon {
+    font-size: 2rem;
+  }
 
   .stat-number {
-    font-size: var(--font-size-3xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
     line-height: 1;
   }
 
   .stat-label {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
-    font-weight: var(--font-weight-medium);
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
   }
 
   /* Controls Section */
@@ -470,13 +458,13 @@
   .desktop-table th.sort-asc::after {
     content: " ▲";
     font-size: 0.75rem;
-    color: var(--color-brand-primary);
+    color: #ff3e00;
   }
 
   .desktop-table th.sort-desc::after {
     content: " ▼";
     font-size: 0.75rem;
-    color: var(--color-brand-primary);
+    color: #ff3e00;
   }
 
   .desktop-table td {
@@ -499,8 +487,8 @@
   }
 
   .points-cell {
-    font-weight: var(--font-weight-bold);
-    color: var(--color-brand-primary);
+    font-weight: 700;
+    color: #ff3e00;
   }
 
   .status-badge {
@@ -594,7 +582,7 @@
   }
 
   .points-value {
-    color: var(--color-brand-primary);
+    color: #ff3e00;
   }
 
   .rejection-row {

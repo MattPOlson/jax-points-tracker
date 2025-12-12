@@ -9,7 +9,6 @@
   import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
   import EmptyState from "$lib/components/ui/EmptyState.svelte";
   import Button from "$lib/components/ui/Button.svelte";
-  import { Trophy, RefreshCw, Plus, AlertTriangle } from 'lucide-svelte';
   
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -741,12 +740,7 @@
 </style>
 
 <Container size="lg">
-  <Hero
-    title="Manage Competitions"
-    subtitle="Create and manage brewing competitions"
-    backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-    large={true}
-  />
+  <Hero title="Manage Competitions" subtitle="Create and manage brewing competitions" icon="🏆" center={true} />
 
   <!-- Statistics -->
   {#if !$isLoading}
@@ -785,20 +779,17 @@
       <option value="past">Past/Closed</option>
     </select>
     <Button variant="secondary" on:click={forceRefresh}>
-      <RefreshCw size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-      Refresh
+      🔄 Refresh
     </Button>
     <Button variant="primary" on:click={navigateToCreate}>
-      <Plus size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-      Create Competition
+      ➕ Create Competition
     </Button>
   </div>
 
   <!-- Error State -->
   {#if $error}
     <div class="error">
-      <AlertTriangle size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-      {$error}
+      ⚠️ {$error}
     </div>
   {/if}
 

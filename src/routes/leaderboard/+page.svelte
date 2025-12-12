@@ -2,8 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { page } from '$app/stores';
   import { leaderboard, message, loadLeaderboard, loading } from '$lib/stores/leaderboardStore.js';
-  import { Hero, Container, LoadingSpinner, EmptyState, Badge, Card } from '$lib/components/ui';
-  import { Trophy, Medal, Award, Crown, TrendingUp } from 'lucide-svelte';
+  import { Hero, Container, LoadingSpinner, EmptyState, Badge } from '$lib/components/ui';
 
   let cleanupFunctions = [];
 
@@ -21,6 +20,16 @@
       await loadLeaderboard(force);
     } catch (error) {
       console.error('Error loading leaderboard:', error);
+    }
+  }
+
+  // Get medal emoji for top 3 positions
+  function getMedal(rank) {
+    switch (rank) {
+      case 1: return '🥇';
+      case 2: return '🥈';
+      case 3: return '🥉';
+      default: return '';
     }
   }
 
@@ -54,14 +63,8 @@
   }
 </script>
 
-<Hero
-  title="Leaderboard"
-  subtitle="Top Brewers in the JAX Community"
-  backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-  large={true}
-/>
-
 <Container size="lg">
+  <Hero title="Leaderboard" subtitle="Top Brewers in the JAX Community" icon="🏆" center={true} />
 
   {#if $loading}
     <LoadingSpinner message="Loading leaderboard..." />
@@ -74,38 +77,30 @@
             <!-- Second Place -->
             <div class="podium-position second">
               <div class="podium-card">
-                <div class="medal-icon">
-                  <Medal size={48} strokeWidth={1.5} color="#c0c0c0" />
-                </div>
+                <div class="medal">🥈</div>
                 <div class="name">{$leaderboard[1].name}</div>
                 <div class="points">{$leaderboard[1].points.toLocaleString()}</div>
                 <div class="rank-label">2nd Place</div>
               </div>
               <div class="podium-base second-base">2</div>
             </div>
-
+            
             <!-- First Place -->
             <div class="podium-position first">
               <div class="podium-card champion">
-                <div class="crown-icon">
-                  <Crown size={36} strokeWidth={1.5} color="#ffd700" />
-                </div>
-                <div class="medal-icon">
-                  <Trophy size={56} strokeWidth={1.5} color="#ffd700" />
-                </div>
+                <div class="crown">👑</div>
+                <div class="medal">🥇</div>
                 <div class="name">{$leaderboard[0].name}</div>
                 <div class="points">{$leaderboard[0].points.toLocaleString()}</div>
                 <div class="rank-label">Champion</div>
               </div>
               <div class="podium-base first-base">1</div>
             </div>
-
+            
             <!-- Third Place -->
             <div class="podium-position third">
               <div class="podium-card">
-                <div class="medal-icon">
-                  <Award size={48} strokeWidth={1.5} color="#cd7f32" />
-                </div>
+                <div class="medal">🥉</div>
                 <div class="name">{$leaderboard[2].name}</div>
                 <div class="points">{$leaderboard[2].points.toLocaleString()}</div>
                 <div class="rank-label">3rd Place</div>
@@ -136,12 +131,8 @@
                 <tr class="rank-row {getRankClass(index + 1)}">
                   <td class="rank-cell">
                     <span class="rank-number">#{index + 1}</span>
-                    {#if index === 0}
-                      <Trophy size={20} strokeWidth={2} color="#ffd700" />
-                    {:else if index === 1}
-                      <Medal size={20} strokeWidth={2} color="#c0c0c0" />
-                    {:else if index === 2}
-                      <Award size={20} strokeWidth={2} color="#cd7f32" />
+                    {#if index < 3}
+                      <span class="medal-small">{getMedal(index + 1)}</span>
                     {/if}
                   </td>
                   <td class="name-cell">{entry.name}</td>
@@ -168,12 +159,8 @@
               <div class="card-header">
                 <div class="rank-section">
                   <span class="rank-number">#{index + 1}</span>
-                  {#if index === 0}
-                    <Trophy size={20} strokeWidth={2} color="#ffd700" />
-                  {:else if index === 1}
-                    <Medal size={20} strokeWidth={2} color="#c0c0c0" />
-                  {:else if index === 2}
-                    <Award size={20} strokeWidth={2} color="#cd7f32" />
+                  {#if index < 3}
+                    <span class="medal-mobile">{getMedal(index + 1)}</span>
                   {/if}
                 </div>
                 {#if index === 0}
@@ -195,6 +182,7 @@
     </div>
   {:else if $message}
     <EmptyState
+      icon="📊"
       title="No Data Available"
       message={$message}
       actionLabel="Try Again"
@@ -202,6 +190,7 @@
     />
   {:else}
     <EmptyState
+      icon="🏆"
       title="Leaderboard Coming Soon"
       message="No leaderboard data available yet. Start brewing and submitting points!"
       actionLabel="Refresh"
@@ -239,18 +228,18 @@
   }
 
   .podium-card {
-    background: var(--color-bg-primary);
-    border-radius: var(--radius-card);
+    background: white;
+    border-radius: 6px;
     padding: 1.5rem;
-    box-shadow: var(--shadow-card);
-    border: 2px solid var(--color-border-primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e5e7eb;
     margin-bottom: 0.5rem;
-    transition: transform var(--transition-base);
+    transition: transform 0.2s ease;
     min-width: 140px;
   }
 
   .podium-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-2px);
   }
 
   .podium-card.champion {
@@ -259,36 +248,34 @@
     transform: scale(1.1);
   }
 
-  .crown-icon {
-    margin-bottom: var(--space-2);
-    display: flex;
-    justify-content: center;
+  .crown {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
   }
 
-  .medal-icon {
-    margin-bottom: var(--space-2);
-    display: flex;
-    justify-content: center;
+  .medal {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
   }
 
   .podium-card .name {
-    font-weight: var(--font-weight-semibold);
-    font-size: var(--font-size-base);
-    color: var(--color-text-primary);
-    margin-bottom: var(--space-2);
+    font-weight: 600;
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 0.5rem;
   }
 
   .podium-card .points {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-brand-primary);
-    margin-bottom: var(--space-2);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ff3e00;
+    margin-bottom: 0.5rem;
   }
 
   .rank-label {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
-    font-weight: var(--font-weight-medium);
+    font-size: 0.8rem;
+    color: #666;
+    font-weight: 500;
   }
 
   .podium-base {
@@ -320,17 +307,17 @@
 
   /* Table Styles */
   .table-section h3 {
-    color: var(--color-brand-primary);
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    margin-bottom: var(--space-8);
-    text-align: center;
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-transform: none;
   }
 
   .table-wrapper {
-    background: var(--color-bg-primary);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
@@ -340,25 +327,25 @@
   }
 
   .desktop-table th {
-    background: var(--color-bg-secondary);
-    padding: var(--space-4);
+    background: #f8fafc;
+    padding: 1rem;
     text-align: left;
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text-primary);
-    border-bottom: 2px solid var(--color-border-primary);
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #e5e7eb;
   }
 
   .desktop-table td {
-    padding: var(--space-4);
-    border-bottom: 1px solid var(--color-border-secondary);
+    padding: 1rem;
+    border-bottom: 1px solid #f1f5f9;
   }
 
   .rank-row {
-    transition: background-color var(--transition-base);
+    transition: background-color 0.2s ease;
   }
 
   .rank-row:hover {
-    background-color: var(--color-bg-secondary);
+    background-color: #f8fafc;
   }
 
   .rank-row.rank-gold {
@@ -376,19 +363,23 @@
   .rank-cell {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    font-weight: var(--font-weight-semibold);
+    gap: 0.5rem;
+    font-weight: 600;
+  }
+
+  .medal-small {
+    font-size: 1.2rem;
   }
 
   .name-cell {
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text-primary);
+    font-weight: 500;
+    color: #333;
   }
 
   .points-cell {
-    font-weight: var(--font-weight-bold);
-    color: var(--color-brand-primary);
-    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: #ff3e00;
+    font-size: 1.1rem;
   }
 
 
@@ -398,12 +389,12 @@
   }
 
   .mobile-card {
-    background: var(--color-bg-primary);
-    border-radius: var(--radius-card);
-    padding: var(--space-4);
-    margin-bottom: var(--space-4);
-    box-shadow: var(--shadow-card);
-    border-left: 4px solid var(--color-border-primary);
+    background: white;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #e5e7eb;
   }
 
   .mobile-card.rank-gold {
@@ -425,31 +416,35 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-3);
+    margin-bottom: 0.75rem;
   }
 
   .rank-section {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: 0.5rem;
   }
 
   .rank-number {
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
+    font-weight: 700;
+    color: #333;
+  }
+
+  .medal-mobile {
+    font-size: 1.25rem;
   }
 
   .card-body .name {
-    font-weight: var(--font-weight-semibold);
-    font-size: var(--font-size-lg);
-    color: var(--color-text-primary);
-    margin-bottom: var(--space-1);
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 0.25rem;
   }
 
   .card-body .points {
-    font-weight: var(--font-weight-bold);
-    color: var(--color-brand-primary);
-    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: #ff3e00;
+    font-size: 1.2rem;
   }
 
 

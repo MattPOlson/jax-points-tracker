@@ -5,7 +5,6 @@
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
   import { Hero, Container, LoadingSpinner, EmptyState, Button, Badge } from '$lib/components/ui';
-  import { Trophy, Medal, Award, ArrowLeft, Calendar } from 'lucide-svelte';
   
   let competitions = [];
   let selectedCompetition = null;
@@ -267,15 +266,15 @@
   function getPlacementDisplay(placement) {
     switch (placement) {
       case '1':
-        return { text: '1st Place', class: 'placement-first', icon: Trophy };
+        return { text: '1st Place', class: 'placement-first', medal: '🥇' };
       case '2':
-        return { text: '2nd Place', class: 'placement-second', icon: Medal };
+        return { text: '2nd Place', class: 'placement-second', medal: '🥈' };
       case '3':
-        return { text: '3rd Place', class: 'placement-third', icon: Award };
+        return { text: '3rd Place', class: 'placement-third', medal: '🥉' };
       case 'HM':
-        return { text: 'Honorable Mention', class: 'placement-hm', icon: Award };
+        return { text: 'Honorable Mention', class: 'placement-hm', medal: '🏅' };
       default:
-        return { text: 'No Placement', class: 'placement-none', icon: null };
+        return { text: 'No Placement', class: 'placement-none', medal: '' };
     }
   }
 
@@ -432,90 +431,90 @@
 
 <style>
   .competition-selector {
-    background: var(--color-bg-primary);
-    padding: var(--space-6);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
-    border-left: 4px solid var(--color-brand-primary);
-    margin-bottom: var(--space-8);
+    background: white;
+    padding: 1.5rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #ff3e00;
+    margin-bottom: 2rem;
   }
 
   .selector-label {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text-primary);
-    margin-bottom: var(--space-4);
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
   }
 
   .competition-select {
     width: 100%;
     max-width: 400px;
-    padding: var(--space-3);
-    border: 1px solid var(--color-border-primary);
-    border-radius: var(--radius-button);
-    font-size: var(--font-size-base);
-    background: var(--color-bg-primary);
-    color: var(--color-text-primary);
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    background: white;
+    color: #333;
   }
 
   .competition-select:focus {
     outline: none;
-    border-color: var(--color-brand-primary);
-    box-shadow: 0 0 0 3px var(--color-brand-primary-light);
+    border-color: #ff3e00;
+    box-shadow: 0 0 0 3px rgba(255, 62, 0, 0.1);
   }
 
   .results-summary {
-    background: var(--color-bg-primary);
-    padding: var(--space-6);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
-    border-left: 4px solid var(--color-brand-primary);
-    margin-bottom: var(--space-8);
+    background: white;
+    padding: 1.5rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #ff3e00;
+    margin-bottom: 2rem;
   }
 
   .summary-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--space-4);
+    gap: 1rem;
   }
 
   .summary-item {
     text-align: center;
-    padding: var(--space-4);
-    background: var(--color-bg-secondary);
-    border-radius: var(--radius-card);
+    padding: 1rem;
+    background: #f9f9f9;
+    border-radius: 6px;
   }
 
   .summary-label {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
-    margin-bottom: var(--space-2);
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 0.5rem;
   }
 
   .summary-value {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-brand-primary);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ff3e00;
   }
 
   .category-section {
-    background: var(--color-bg-primary);
-    border-radius: var(--radius-card);
+    background: white;
+    border-radius: 6px;
     overflow: hidden;
-    box-shadow: var(--shadow-card);
-    margin-bottom: var(--space-8);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
   }
 
   .category-header {
-    background: var(--color-bg-secondary);
-    padding: var(--space-4) var(--space-6);
-    border-bottom: 2px solid var(--color-border-secondary);
+    background: #f5f5f5;
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid #ddd;
   }
 
   .category-title {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text-primary);
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
     margin: 0;
   }
 
@@ -525,46 +524,46 @@
   }
 
   .results-table th {
-    background: var(--color-bg-tertiary);
-    padding: var(--space-4);
+    background: #fafafa;
+    padding: 1rem;
     text-align: left;
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text-primary);
-    border-bottom: 1px solid var(--color-border-secondary);
+    font-weight: 600;
+    color: #333;
+    border-bottom: 1px solid #ddd;
   }
 
   .results-table td {
-    padding: var(--space-4);
-    border-bottom: 1px solid var(--color-border-tertiary);
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
   }
 
   .results-table tr:hover {
-    background: var(--color-bg-secondary);
+    background: #f9f9f9;
   }
 
   .placement-badge {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-1) var(--space-3);
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
     border-radius: 12px;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
+    font-size: 0.875rem;
+    font-weight: 600;
   }
 
   .placement-first {
-    background: var(--color-warning-bg);
-    color: var(--color-warning);
+    background: #fef3c7;
+    color: #92400e;
   }
 
   .placement-second {
-    background: var(--color-bg-tertiary);
-    color: var(--color-text-secondary);
+    background: #f3f4f6;
+    color: #6b7280;
   }
 
   .placement-third {
-    background: var(--color-danger-bg);
-    color: var(--color-danger);
+    background: #fecaca;
+    color: #b91c1c;
   }
 
   .placement-hm {
@@ -573,38 +572,38 @@
   }
 
   .placement-none {
-    background: var(--color-bg-secondary);
-    color: var(--color-text-secondary);
+    background: #f9fafb;
+    color: #6b7280;
   }
 
   .score-badge {
     background: #e0f2fe;
     color: #0369a1;
-    padding: var(--space-1) var(--space-2);
-    border-radius: var(--radius-button);
-    font-weight: var(--font-weight-semibold);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-weight: 600;
   }
 
   .entry-number {
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-brand-primary);
+    font-weight: 600;
+    color: #ff3e00;
   }
 
 
   .controls {
     display: flex;
-    gap: var(--space-4);
-    margin-bottom: var(--space-8);
+    gap: 1rem;
+    margin-bottom: 2rem;
     flex-wrap: wrap;
     align-items: center;
   }
 
   .error {
-    background: var(--color-danger-bg);
-    color: var(--color-danger);
-    padding: var(--space-4);
-    border-radius: var(--radius-card);
-    margin-bottom: var(--space-4);
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
   }
 
   /* Mobile styles */
@@ -640,19 +639,19 @@
   }
 
   .result-card {
-    background: var(--color-bg-primary);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
-    margin-bottom: var(--space-4);
-    padding: var(--space-4);
-    border-left: 4px solid var(--color-brand-primary);
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-left: 4px solid #ff3e00;
   }
 
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: var(--space-4);
+    margin-bottom: 1rem;
   }
 
   .entry-info {
@@ -660,21 +659,21 @@
   }
 
   .entry-number {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
-    font-weight: var(--font-weight-medium);
+    font-size: 0.875rem;
+    color: #666;
+    font-weight: 500;
   }
 
   .beer-name {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text-primary);
-    margin: var(--space-1) 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0.25rem 0;
   }
 
   .member-name {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    color: #666;
     margin: 0;
   }
 
@@ -682,51 +681,51 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: var(--space-2);
+    gap: 0.5rem;
   }
 
   .placement-badge-mobile {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: var(--space-1);
-    padding: var(--space-1) var(--space-3);
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
     border-radius: 12px;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
+    font-size: 0.875rem;
+    font-weight: 600;
     text-align: center;
   }
 
-  .placement-badge-mobile.placement-first {
-    background: var(--color-warning-bg);
-    color: var(--color-warning);
+  .placement-badge-mobile.placement-1 {
+    background: linear-gradient(135deg, #ffd700, #ffed4a);
+    color: #744210;
   }
 
-  .placement-badge-mobile.placement-second {
-    background: var(--color-bg-tertiary);
-    color: var(--color-text-secondary);
+  .placement-badge-mobile.placement-2 {
+    background: linear-gradient(135deg, #c0c0c0, #e2e8f0);
+    color: #4a5568;
   }
 
-  .placement-badge-mobile.placement-third {
-    background: var(--color-danger-bg);
-    color: var(--color-danger);
+  .placement-badge-mobile.placement-3 {
+    background: linear-gradient(135deg, #cd7f32, #d69e2e);
+    color: #744210;
   }
 
   .placement-badge-mobile.placement-none {
-    background: var(--color-bg-secondary);
-    color: var(--color-text-secondary);
-    border: 1px solid var(--color-border-secondary);
+    background: #f7fafc;
+    color: #718096;
+    border: 1px solid #e2e8f0;
   }
 
   .card-details {
-    border-top: 1px solid var(--color-border-tertiary);
-    padding-top: var(--space-4);
+    border-top: 1px solid #f1f5f9;
+    padding-top: 1rem;
   }
 
   .detail-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: var(--space-4);
-    margin-bottom: var(--space-4);
+    gap: 1rem;
+    margin-bottom: 1rem;
   }
 
   .detail-item {
@@ -735,19 +734,19 @@
 
   .detail-label {
     display: block;
-    font-size: var(--font-size-xs);
-    color: var(--color-text-secondary);
-    font-weight: var(--font-weight-medium);
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: var(--space-1);
+    margin-bottom: 0.25rem;
   }
 
   .detail-value {
     display: block;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #333;
   }
 
 
@@ -799,18 +798,12 @@
 </style>
 
 <Container size="xl">
-  <Hero
-    title="Competition Results"
-    subtitle="View published competition results and standings"
-    backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-    large={true}
-  />
+  <Hero title="Competition Results" subtitle="View published competition results and standings" icon="🏅" center={true} />
 
   <!-- Controls -->
   <div class="controls">
     <Button variant="secondary" on:click={navigateToCompetitions}>
-      <ArrowLeft size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-      Back to Competitions
+      ← Back to Competitions
     </Button>
   </div>
 
@@ -826,6 +819,7 @@
     <LoadingSpinner message="Loading competition results..." />
   {:else if competitions.length === 0}
     <EmptyState
+      icon="📅"
       title="No Results Published"
       message="There are currently no competition results available to view. Check back after competitions have been judged and results published."
     />
@@ -928,12 +922,9 @@
                     </td>
                     <td>
                       {#if result.calculated_placement}
-                        {@const display = getPlacementDisplay(result.calculated_placement)}
-                        <span class="placement-badge {display.class}">
-                          {#if display.icon}
-                            <svelte:component this={display.icon} size={16} strokeWidth={2} />
-                          {/if}
-                          <span>{display.text}</span>
+                        <span class="placement-badge {getPlacementDisplay(result.calculated_placement).class}">
+                          <span>{getPlacementDisplay(result.calculated_placement).medal}</span>
+                          <span>{getPlacementDisplay(result.calculated_placement).text}</span>
                         </span>
                       {:else}
                         <span class="placement-badge placement-none">No Placement</span>
@@ -956,12 +947,9 @@
                     </div>
                     <div class="ranking-info">
                       {#if result.calculated_placement}
-                        {@const display = getPlacementDisplay(result.calculated_placement)}
-                        <div class="placement-badge-mobile {display.class}">
-                          {#if display.icon}
-                            <svelte:component this={display.icon} size={16} strokeWidth={2} />
-                          {/if}
-                          <span class="placement-text">{display.text}</span>
+                        <div class="placement-badge-mobile {getPlacementDisplay(result.calculated_placement).class}">
+                          <span class="medal">{getPlacementDisplay(result.calculated_placement).medal}</span>
+                          <span class="placement-text">{getPlacementDisplay(result.calculated_placement).text}</span>
                         </div>
                       {:else}
                         <div class="placement-badge-mobile placement-none">No Placement</div>

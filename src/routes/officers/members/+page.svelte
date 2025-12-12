@@ -15,7 +15,6 @@
     canManageOfficers
   } from '$lib/stores/memberManagementStore';
   import { Hero, Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
-  import { Lock, Users, X, RefreshCw, BarChart3, Search } from 'lucide-svelte';
 
   // Removed tab switching reload - causes issues with Supabase tab switching
   function setupEventHandlers() {
@@ -272,12 +271,7 @@
       message="You need officer privileges to access this page."
     />
   {:else}
-    <Hero
-      title="Manage Members"
-      subtitle="View and manage club members, their roles, activity, and point standings"
-      backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-      large={true}
-    />
+    <Hero title="Manage Members" subtitle="View and manage club members, their roles, activity, and point standings" icon="👥" center={true} />
 
     {#if $isLoading && $members.length === 0}
       <LoadingSpinner message="Loading members..." />
@@ -288,8 +282,7 @@
         message={$error}
       >
         <Button variant="secondary" on:click={() => memberManagementStore.refresh()}>
-          <RefreshCw size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-          Try Again
+          🔄 Try Again
         </Button>
       </EmptyState>
     {:else}
@@ -318,14 +311,12 @@
         <div class="controls-container">
           <div class="filters-group">
           <div class="search-box">
-            <input
-              type="text"
-              placeholder="Search members..."
+            <input 
+              type="text" 
+              placeholder="Search members..." 
               bind:value={$searchTerm}
             />
-            <span class="search-icon">
-              <Search size={18} strokeWidth={2} />
-            </span>
+            <span class="search-icon">🔍</span>
           </div>
 
             <div class="filters-row">
@@ -348,12 +339,10 @@
 
         <div class="action-buttons">
           <button on:click={() => memberManagementStore.resetFilters()} class="reset-button">
-            <RefreshCw size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-            Reset
+            🔄 Reset
           </button>
           <button on:click={exportData} class="export-button">
-            <BarChart3 size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
-            Export
+            📊 Export
           </button>
           </div>
         </div>

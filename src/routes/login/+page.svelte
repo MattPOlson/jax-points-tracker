@@ -121,19 +121,20 @@
     <Hero
       title="JAX Members Portal"
       subtitle={isMobile ? 'Sign in to continue' : 'Have Fun Brew Better Beer!'}
+      icon="🍻"
       center={true}
     />
-
+    
     <div class="auth-wrapper" class:mobile={isMobile}>
       <Auth
         supabaseClient={supabase}
-        appearance={{
+        appearance={{ 
           theme: ThemeSupa,
           variables: {
             default: {
               colors: {
-                brand: '#1a2a44',
-                brandAccent: '#2c456b',
+                brand: '#2563eb',
+                brandAccent: '#1d4ed8',
               },
               space: {
                 inputPadding: isMobile ? '12px' : '14px',
@@ -142,11 +143,6 @@
               fontSizes: {
                 baseInputSize: isMobile ? '16px' : '14px', // Prevents zoom on iOS
                 baseButtonSize: isMobile ? '16px' : '16px',
-              },
-              radii: {
-                borderRadiusButton: '6px',
-                buttonBorderRadius: '6px',
-                inputBorderRadius: '6px',
               }
             }
           }
@@ -177,17 +173,17 @@
   }
 
   .auth-wrapper {
-    background: var(--color-bg-primary);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
-    padding: var(--space-8);
+    background: white;
+    border-radius: 6px; /* Match your nav-button border radius */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 2rem;
     width: 100%;
     max-width: 400px;
   }
 
   .auth-wrapper.mobile {
-    border-radius: var(--radius-card);
-    padding: var(--space-6);
+    border-radius: 6px;
+    padding: 1.5rem;
     max-width: 350px;
   }
 
@@ -222,8 +218,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: var(--font-size-xl);
-    color: var(--color-text-secondary);
+    font-size: 1.2rem;
+    color: #666;
   }
 
   /* Override Supabase Auth UI styles */
@@ -243,24 +239,24 @@
 
   :global(.supabase-auth-ui_ui-input:focus) {
     outline: none;
-    border-color: var(--color-brand-primary);
+    border-color: #2563eb;
   }
 
   :global(.supabase-auth-ui_ui-button) {
     width: 100%;
     padding: 0.875rem;
-    background-color: var(--color-brand-primary);
+    background-color: #2563eb;
     color: white;
     border: none;
-    border-radius: var(--radius-button);
+    border-radius: 8px;
     cursor: pointer;
     font-size: 1rem;
-    font-weight: var(--font-weight-semibold);
-    transition: background-color var(--transition-base);
+    font-weight: 600;
+    transition: background-color 0.2s;
   }
 
   :global(.supabase-auth-ui_ui-button:hover) {
-    background-color: var(--color-brand-primary-hover);
+    background-color: #1d4ed8;
   }
 
   :global(.supabase-auth-ui_ui-label) {

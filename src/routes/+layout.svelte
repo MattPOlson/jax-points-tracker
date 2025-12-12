@@ -6,7 +6,6 @@
   import { userProfile } from '$lib/stores/userProfile';
   import toast, { Toaster } from 'svelte-french-toast';
   import { goto } from '$app/navigation';
-  import { ArrowLeft, Home, LogOut, User } from 'lucide-svelte';
 
   let subscription;
 
@@ -144,21 +143,34 @@
 
 <div class="topbar">
   <button on:click={handleGoBack} class="nav-button" title="Go back" aria-label="Go back to previous page">
-    <ArrowLeft size={24} />
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m12 19-7-7 7-7" />
+      <path d="M19 12H5" />
+    </svg>
   </button>
-
+  
   <a href="/" class="nav-button" title="Home" aria-label="Go to homepage">
-    <Home size={24} />
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
   </a>
 
 
   {#if $user}
     <button on:click={handleLogout} class="nav-button logout-btn" title="Logout" aria-label="Logout">
-      <LogOut size={24} />
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" y1="12" x2="9" y2="12" />
+      </svg>
     </button>
     <div class="user-info" title={$userProfile?.name || $user.email}>
       <div class="login-icon logged-in" title="You are logged in">
-        <User size={24} strokeWidth={2} color="white" />
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <circle cx="12" cy="8" r="5" />
+          <path d="M20 21a8 8 0 1 0-16 0" />
+        </svg>
       </div>
       {#if $userProfile?.name}
         <span class="user-name">{$userProfile.name}</span>
@@ -166,7 +178,10 @@
     </div>
   {:else}
     <a href="/login" aria-label="Login" class="login-icon">
-      <User size={24} strokeWidth={2} color="#333" />
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+        <circle cx="12" cy="8" r="5" />
+        <path d="M20 21a8 8 0 1 0-16 0" />
+      </svg>
     </a>
   {/if}
 </div>

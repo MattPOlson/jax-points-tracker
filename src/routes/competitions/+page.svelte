@@ -1,3 +1,5 @@
+<!-- src/routes/competitions/+page.svelte -->
+<!-- JAX Members Portal - Competitions Landing Page -->
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
@@ -18,20 +20,33 @@
     entryStats,
     loadMyEntries
   } from '$lib/stores/myCompetitionEntriesStore.js';
-  import { Hero, Container, LoadingSpinner, EmptyState, Button, Badge, Card, ActionCard } from '$lib/components/ui';
-  import { Beer, ListChecks, Trophy, Scale, FileText, Award, DollarSign, CheckCircle } from 'lucide-svelte';
+  import { Hero, Container, LoadingSpinner, EmptyState, Button, Badge } from '$lib/components/ui';
 
+  // =============================================
+  // Tab Switching Fix (CRITICAL) - Commented for now
+  // =============================================
   let cleanup;
+
+  // =============================================
+  // Component State
+  // =============================================
   let userEntriesLoaded = false;
   let hasJudgeAssignments = false;
 
+  // =============================================
+  // Lifecycle
+  // =============================================
   onMount(async () => {
+    // Load competition data
     try {
       await loadCompetitionData();
-
+      
+      // Load user entries if logged in
       if ($userProfile?.id) {
         await loadMyEntries();
         userEntriesLoaded = true;
+        
+        // Check for judge assignments
         await checkJudgeAssignments($userProfile.id);
       }
     } catch (err) {
@@ -43,6 +58,10 @@
     if (cleanup) cleanup();
   });
 
+  // =============================================
+  // Navigation Functions
+  // =============================================
+  
   function navigateTo(path) {
     goto(path);
   }
@@ -55,7 +74,7 @@
         .eq('judge_id', userId)
         .eq('active', true)
         .limit(1);
-
+      
       if (error) throw error;
       hasJudgeAssignments = data && data.length > 0;
     } catch (err) {
@@ -67,14 +86,15 @@
   function getCompetitionStatus(competition) {
     const daysLeft = getDaysUntilDeadline(competition);
     if (daysLeft > 7) {
-      return { text: `${daysLeft} days left`, variant: 'success' };
+      return { text: `${daysLeft} days left`, class: 'status-open' };
     } else if (daysLeft > 0) {
-      return { text: `${daysLeft} days left`, variant: 'warning' };
+      return { text: `${daysLeft} days left`, class: 'status-closing' };
     } else {
-      return { text: 'Entries closed', variant: 'danger' };
+      return { text: 'Entries closed', class: 'status-closed' };
     }
   }
 
+  // Reactive statement to check judge assignments when user profile changes
   $: if ($userProfile?.id && !hasJudgeAssignments) {
     checkJudgeAssignments($userProfile.id);
   }
@@ -84,77 +104,88 @@
   <title>Competitions | JAX Members Portal</title>
 </svelte:head>
 
-<Hero
-  title="Beer Competitions"
-  subtitle="Submit entries, track your progress, and compete with fellow brewers"
-  backgroundImage="linear-gradient(135deg, #1a2a44 0%, #2c456b 100%)"
-  large={true}
-/>
-
 <Container size="lg">
-  <!-- Quick Actions Section -->
+  <Hero
+    title="Competitions"
+    subtitle="Submit entries, track your progress, and compete with fellow brewers"
+    icon="🏆"
+    center={true}
+  />
+
+  <!-- Quick Actions Grid -->
   <section class="quick-actions">
-    <h2 class="section-title">Quick Actions</h2>
-    <div class="action-grid">
-      <ActionCard
-        href="/competitions/submit-entry"
-        title="Submit Entry"
-        description="Enter your beer into a competition"
-      >
-        <Beer slot="icon" size={64} strokeWidth={1.5} />
-      </ActionCard>
+    <div class="action-cards">
+      
+      <!-- Submit Entry Card -->
+      <div class="action-card primary" on:click={() => navigateTo('/competitions/submit-entry')}>
+        <div class="card-icon">🍺</div>
+        <div class="card-content">
+          <h3>Submit Entry</h3>
+          <p>Enter your beer into a competition</p>
+        </div>
+        <div class="card-arrow">→</div>
+      </div>
 
-      <ActionCard
-        href="/competitions/my-entries"
-        title="My Entries"
-        description="View and manage your submissions"
-      >
-        <ListChecks slot="icon" size={64} strokeWidth={1.5} />
-        {#if userEntriesLoaded && $entryStats.total > 0}
-          <div class="card-stats">
-            <Badge variant="primary">{$entryStats.total} entries</Badge>
-            <Badge variant="warning">{$entryStats.active} active</Badge>
-          </div>
-        {/if}
-      </ActionCard>
+      <!-- My Entries Card -->
+      <div class="action-card" on:click={() => navigateTo('/competitions/my-entries')}>
+        <div class="card-icon">📋</div>
+        <div class="card-content">
+          <h3>My Entries</h3>
+          <p>View and manage your submissions</p>
+          {#if userEntriesLoaded && $entryStats.total > 0}
+            <div class="card-stats">
+              <Badge size="sm">{$entryStats.total} entries</Badge>
+              <Badge variant="warning" size="sm">{$entryStats.active} active</Badge>
+            </div>
+          {/if}
+        </div>
+        <div class="card-arrow">→</div>
+      </div>
 
-      <ActionCard
-        href="/competitions/results"
-        title="Results"
-        description="View competition winners and scores"
-      >
-        <Trophy slot="icon" size={64} strokeWidth={1.5} />
-      </ActionCard>
+      <!-- Results Card -->
+      <div class="action-card" on:click={() => navigateTo('/competitions/results')}>
+        <div class="card-icon">🏅</div>
+        <div class="card-content">
+          <h3>Results</h3>
+          <p>View competition winners and scores</p>
+        </div>
+        <div class="card-arrow">→</div>
+      </div>
 
+      <!-- Judge Portal Card (only show if user has judge assignments) -->
       {#if $userProfile && hasJudgeAssignments}
-        <ActionCard
-          href="/judge"
-          title="Judge Portal"
-          description="Access your assigned competitions"
-        >
-          <Scale slot="icon" size={64} strokeWidth={1.5} />
-        </ActionCard>
+        <div class="action-card judge-card" on:click={() => navigateTo('/judge')}>
+          <div class="card-icon">⚖️</div>
+          <div class="card-content">
+            <h3>Judge Portal</h3>
+            <p>Access your assigned competitions for judging</p>
+          </div>
+          <div class="card-arrow">→</div>
+        </div>
       {/if}
+
     </div>
   </section>
 
   <!-- Active Competitions Section -->
   <section class="competitions-section">
-    <h2 class="section-title">Active Competitions</h2>
-
+    <h2>🚀 ACTIVE COMPETITIONS</h2>
+    
     {#if $isLoading && !$isLoaded}
       <LoadingSpinner message="Loading competitions..." />
 
     {:else if $error}
       <EmptyState
+        icon="❌"
         title="Error Loading Competitions"
         message={$error}
-        actionLabel="Retry"
+        actionLabel="🔄 Retry"
         on:action={() => loadCompetitionData(true)}
       />
 
     {:else if $isLoaded && $activeCompetitions.length === 0}
       <EmptyState
+        icon="📅"
         title="No Active Competitions"
         message="Check back later for new competitions, or contact an officer for more information."
       />
@@ -162,25 +193,25 @@
     {:else if $isLoaded}
       <div class="competitions-grid">
         {#each $activeCompetitions as competition}
-          <Card hover={false}>
+          <div class="competition-card">
             <div class="competition-header">
               <h3>{competition.name}</h3>
-              <Badge variant={getCompetitionStatus(competition).variant}>
+              <div class="competition-status {getCompetitionStatus(competition).class}">
                 {getCompetitionStatus(competition).text}
-              </Badge>
+              </div>
             </div>
-
+            
             <div class="competition-details">
               {#if competition.description}
                 <p class="description">{competition.description}</p>
               {/if}
-
+              
               <div class="competition-meta">
                 <div class="meta-item">
                   <span class="label">Entry Deadline:</span>
                   <span class="value">{formatDeadline(competition)}</span>
                 </div>
-
+                
                 {#if competition.judging_date}
                   <div class="meta-item">
                     <span class="label">Judging Date:</span>
@@ -191,15 +222,14 @@
             </div>
 
             <div class="competition-actions">
-              <Button
-                variant="primary"
-                fullWidth={true}
+              <button 
+                class="submit-entry-btn"
                 on:click={() => navigateTo('/competitions/submit-entry')}
               >
-                Submit Entry
-              </Button>
+                🍺 Submit Entry
+              </button>
             </div>
-          </Card>
+          </div>
         {/each}
       </div>
     {/if}
@@ -207,13 +237,10 @@
 
   <!-- Quick Info Section -->
   <section class="info-section">
-    <h2 class="section-title">Competition Information</h2>
     <div class="info-grid">
-
-      <Card>
-        <div class="info-icon">
-          <FileText size={48} strokeWidth={1.5} color="var(--color-brand-primary)" />
-        </div>
+      
+      <div class="info-card">
+        <div class="info-icon">📝</div>
         <h4>How to Enter</h4>
         <ul>
           <li>Select an active competition</li>
@@ -221,12 +248,10 @@
           <li>Provide beer details and notes</li>
           <li>Submit before the deadline</li>
         </ul>
-      </Card>
+      </div>
 
-      <Card>
-        <div class="info-icon">
-          <CheckCircle size={48} strokeWidth={1.5} color="var(--color-brand-primary)" />
-        </div>
+      <div class="info-card">
+        <div class="info-icon">🏆</div>
         <h4>Judging Process</h4>
         <ul>
           <li>Anonymous judging by certified judges</li>
@@ -234,12 +259,10 @@
           <li>Scores and feedback provided</li>
           <li>Awards for top entries</li>
         </ul>
-      </Card>
+      </div>
 
-      <Card>
-        <div class="info-icon">
-          <DollarSign size={48} strokeWidth={1.5} color="var(--color-brand-primary)" />
-        </div>
+      <div class="info-card">
+        <div class="info-icon">💰</div>
         <h4>Entry Fees</h4>
         <ul>
           <li>Check with officers for fee structure</li>
@@ -247,154 +270,309 @@
           <li>Payment status tracked in portal</li>
           <li>Fee goes toward prizes and judging</li>
         </ul>
-      </Card>
+      </div>
     </div>
   </section>
 </Container>
 
 <style>
+
   /* Quick Actions Section */
   .quick-actions {
-    margin-top: var(--space-16);
-    margin-bottom: var(--space-16);
+    margin-bottom: 4rem;
   }
 
-  .section-title {
-    font-size: var(--font-size-2xl);
-    color: var(--color-brand-primary);
-    margin-bottom: var(--space-8);
-    font-weight: var(--font-weight-bold);
-    text-align: center;
-  }
-
-  .action-grid {
+  .action-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--space-8);
+    gap: 1.5rem;
+  }
+
+  .action-card {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    border-left: 4px solid #ddd;
+    padding: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+
+  .action-card.primary {
+    border-left-color: #ff3e00;
+    background: linear-gradient(135deg, #fff 0%, #fff8f6 100%);
+  }
+
+  .action-card.primary:hover {
+    box-shadow: 0 4px 20px rgba(255, 62, 0, 0.2);
+  }
+
+  .action-card.officer {
+    border-left-color: #2563eb;
+    background: linear-gradient(135deg, #fff 0%, #f6f8ff 100%);
+  }
+
+  .action-card.judge-card {
+    border-left-color: #059669;
+    background: linear-gradient(135deg, #fff 0%, #f0fdf4 100%);
+  }
+
+  .action-card.judge-card:hover {
+    box-shadow: 0 4px 20px rgba(5, 150, 105, 0.2);
+  }
+
+  .card-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+  }
+
+  .card-content {
+    flex: 1;
+  }
+
+  .card-content h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.3rem;
+    color: #333;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .card-content p {
+    margin: 0;
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.4;
   }
 
   .card-stats {
-    margin-top: var(--space-4);
+    margin-top: 0.75rem;
     display: flex;
-    gap: var(--space-2);
+    gap: 0.5rem;
     flex-wrap: wrap;
-    justify-content: center;
+  }
+
+
+  .card-arrow {
+    font-size: 1.5rem;
+    color: #ff3e00;
+    font-weight: bold;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+  }
+
+  .action-card:hover .card-arrow {
+    opacity: 1;
   }
 
   /* Competitions Section */
   .competitions-section {
-    margin-bottom: var(--space-16);
+    margin-bottom: 4rem;
+  }
+
+  .competitions-section h2 {
+    color: #ff3e00;
+    font-size: 2rem;
+    font-weight: 100;
+    text-transform: uppercase;
+    margin: 0 0 2rem 0;
+    letter-spacing: 2px;
+    text-align: center;
   }
 
   .competitions-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: var(--space-8);
+    gap: 2rem;
+  }
+
+  .competition-card {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    border-left: 4px solid #ff3e00;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .competition-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(255, 62, 0, 0.15);
   }
 
   .competition-header {
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: var(--space-4);
-    margin-bottom: var(--space-6);
+    gap: 1rem;
   }
 
   .competition-header h3 {
     margin: 0;
-    font-size: var(--font-size-xl);
-    color: var(--color-text-primary);
-    font-weight: var(--font-weight-semibold);
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 600;
     flex: 1;
   }
 
+  .competition-status {
+    padding: 0.4rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .status-open {
+    background: #d1fae5;
+    color: #059669;
+  }
+
+  .status-closing {
+    background: #fef3c7;
+    color: #d97706;
+  }
+
+  .status-closed {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
   .competition-details {
-    margin-bottom: var(--space-6);
+    padding: 0 1.5rem 1rem 1.5rem;
   }
 
   .description {
-    margin: 0 0 var(--space-4) 0;
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-base);
-    line-height: var(--line-height-relaxed);
+    margin: 0 0 1rem 0;
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.5;
   }
 
   .competition-meta {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: 0.5rem;
   }
 
   .meta-item {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
-    font-size: var(--font-size-sm);
+    gap: 0.75rem;
+    font-size: 0.9rem;
   }
 
   .meta-item .label {
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text-primary);
-    min-width: 120px;
+    font-weight: 600;
+    color: #374151;
+    min-width: 100px;
   }
 
   .meta-item .value {
-    color: var(--color-text-secondary);
+    color: #6b7280;
   }
 
   .competition-actions {
-    padding-top: var(--space-6);
-    border-top: 1px solid var(--color-border-primary);
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    border-top: 1px solid #f3f4f6;
   }
+
+  .submit-entry-btn {
+    width: 100%;
+    background: #ff3e00;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.3s ease;
+  }
+
+  .submit-entry-btn:hover {
+    background: #e63600;
+  }
+
 
   /* Info Section */
   .info-section {
-    margin-bottom: var(--space-20);
+    margin-bottom: 2rem;
   }
 
   .info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--space-8);
+    gap: 2rem;
+  }
+
+  .info-card {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-left: 4px solid #2563eb;
+    padding: 2rem;
   }
 
   .info-icon {
-    margin-bottom: var(--space-4);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
   }
 
-  .info-section h4 {
-    margin: 0 0 var(--space-4) 0;
-    color: var(--color-brand-primary);
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-bold);
+  .info-card h4 {
+    margin: 0 0 1rem 0;
+    color: #333;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 1px;
   }
 
-  .info-section ul {
+  .info-card ul {
     margin: 0;
-    padding-left: var(--space-6);
+    padding-left: 1.5rem;
     list-style-type: none;
   }
 
-  .info-section li {
-    margin-bottom: var(--space-3);
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-base);
-    line-height: var(--line-height-relaxed);
+  .info-card li {
+    margin-bottom: 0.5rem;
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.4;
     position: relative;
   }
 
-  .info-section li:before {
+  .info-card li:before {
     content: "•";
-    color: var(--color-brand-primary);
-    font-weight: var(--font-weight-bold);
+    color: #ff3e00;
+    font-weight: bold;
     position: absolute;
-    left: calc(-1 * var(--space-6));
+    left: -1rem;
   }
 
   /* Mobile Responsiveness */
   @media (max-width: 768px) {
-    .action-grid {
+
+    .action-cards {
       grid-template-columns: 1fr;
+    }
+
+    .action-card {
+      flex-direction: column;
+      text-align: center;
+      padding: 1.5rem;
     }
 
     .competitions-grid {
@@ -404,13 +582,17 @@
     .competition-header {
       flex-direction: column;
       align-items: flex-start;
-      gap: var(--space-3);
+      gap: 0.75rem;
+    }
+
+    .competition-status {
+      align-self: flex-end;
     }
 
     .meta-item {
       flex-direction: column;
       align-items: flex-start;
-      gap: var(--space-1);
+      gap: 0.25rem;
     }
 
     .meta-item .label {
@@ -419,6 +601,20 @@
 
     .info-grid {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .action-card {
+      padding: 1rem;
+    }
+
+    .competitions-section h2 {
+      font-size: 1.5rem;
+    }
+
+    .competition-card {
+      margin: 0 0.5rem;
     }
   }
 </style>
