@@ -195,14 +195,14 @@
         </div>
       </div>
     {:else if !$loading && currentUserId}
-      <!-- Debug info - only show when not loading and user is logged in -->
+      <!-- Debug info - only show when not loading and user is logged in
       <div class="debug-info" style="background: #f0f0f0; padding: 1rem; margin: 1rem 0; font-family: monospace; text-align: left;">
         <div>Store All Length: {$storeAll?.length || 0}</div>
         <div>Store Message: {$storeMessage || 'none'}</div>
         <div>Loading: {$loading}</div>
         <div>Current User ID: {currentUserId || 'none'}</div>
         <div>Data: {JSON.stringify($storeAll?.slice(0, 2) || [], null, 2)}</div>
-      </div>
+      </div>-->
     {/if}
 
     <!-- Filter Controls -->
