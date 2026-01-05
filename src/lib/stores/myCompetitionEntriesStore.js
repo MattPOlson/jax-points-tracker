@@ -142,7 +142,8 @@ export async function loadMyEntries(forceRefresh = false) {
                     entry_deadline,
                     judging_date,
                     results_published,
-                    active
+                    active,
+                    competition_type
                 ),
                 bjcp_category:bjcp_categories(
                     id,

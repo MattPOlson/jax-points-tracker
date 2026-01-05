@@ -329,46 +329,76 @@
 
     // Create print window
     const printWindow = window.open('', '_blank');
-    
-    // Generate label HTML including Member Name and Beer Name
+
+    // Generate label HTML - check competition type for each entry
     // Create 3 copies of each label (for 3 bottles per entry)
     const labelsHtml = filteredEntries.flatMap(entry => {
-      const labelTemplate = `
-        <div class="label">
-          <div class="label-header">
-            <strong>${entry.competition?.name || 'Competition'}</strong>
-          </div>
-          <div class="entry-number">
-            Entry #: <span>${entry.entry_number}</span>
-          </div>
-          <div class="member-name">
-            Member: <span>${$userProfile?.name || $userProfile?.email || 'Unknown'}</span>
-          </div>
-          <div class="beer-name">
-            Beer: <span>${entry.beer_name || 'Unknown'}</span>
-          </div>
-          <div class="beer-style">
-            Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span>
-            ${entry.bjcp_category?.category_name ? `<br><small>${entry.bjcp_category.category_name}</small>` : ''}
-            ${entry.bjcp_category?.subcategory_name ? `<br><small>${entry.bjcp_category.subcategory_name}</small>` : ''}
-          </div>
-          ${entry.beer_notes? `
-            <div class="special">
-              Special: <span>${entry.beer_notes}</span>
+      const isIntraclub = entry.competition?.competition_type === 'intraclub';
+
+      let labelTemplate;
+
+      if (isIntraclub) {
+        // Use officer label format (no member name, no beer name)
+        labelTemplate = `
+          <div class="label officer-label">
+            <div class="label-header">
+              <strong>${entry.competition?.name || 'Competition'}</strong>
             </div>
-          ` : ''}
-          ${entry.notes ? `
-            <div class="notes">
-              Notes: <span>${entry.notes}</span>
+            <div class="entry-number">
+              Entry #: <span>${entry.entry_number}</span>
             </div>
-          ` : ''}
-        </div>
-      `;
+            <div class="beer-style">
+              Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span> - ${entry.bjcp_category?.category_name || ''}
+              ${entry.bjcp_category?.subcategory_name ? `<br><small>${entry.bjcp_category.subcategory_name}</small>` : ''}
+              ${entry.beer_notes ? `<br><small>Special: ${entry.beer_notes}</small>` : ''}
+            </div>
+            ${entry.notes ? `
+              <div class="notes">
+                Notes: ${entry.notes}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      } else {
+        // Use regular member label format (with member name and beer name)
+        labelTemplate = `
+          <div class="label member-label">
+            <div class="label-header">
+              <strong>${entry.competition?.name || 'Competition'}</strong>
+            </div>
+            <div class="entry-number">
+              Entry #: <span>${entry.entry_number}</span>
+            </div>
+            <div class="member-name">
+              Member: <span>${$userProfile?.name || $userProfile?.email || 'Unknown'}</span>
+            </div>
+            <div class="beer-name">
+              Beer: <span>${entry.beer_name || 'Unknown'}</span>
+            </div>
+            <div class="beer-style">
+              Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span>
+              ${entry.bjcp_category?.category_name ? `<br><small>${entry.bjcp_category.category_name}</small>` : ''}
+              ${entry.bjcp_category?.subcategory_name ? `<br><small>${entry.bjcp_category.subcategory_name}</small>` : ''}
+            </div>
+            ${entry.beer_notes? `
+              <div class="special">
+                Special: <span>${entry.beer_notes}</span>
+              </div>
+            ` : ''}
+            ${entry.notes ? `
+              <div class="notes">
+                Notes: <span>${entry.notes}</span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+
       // Return 3 copies of each label
       return [labelTemplate, labelTemplate, labelTemplate];
     }).join('');
 
-    // Write print document with updated CSS for 3.375" x 2.125" labels
+    // Write print document with CSS for both label types
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
@@ -377,35 +407,39 @@
         <style>
           @page {
             size: 8.5in 11in;
-            margin: 0.25in;
+            margin: 0.5in;
           }
-          
+
           body {
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
-            font-size: 10px;
-            line-height: 1.2;
           }
-          
+
+          /* Base label styles */
           .label {
+            border: 1px solid #000;
+            box-sizing: border-box;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-bottom: 0.1875in;
+          }
+
+          /* Member label (regular competition) - 2.25" x 1.5" */
+          .member-label {
             width: 2.25in;
             height: 1.5in;
-            border: 1px solid #000;
             float: left;
             padding: 0.1in;
-            box-sizing: border-box;
             margin-right: 0.125in;
-            margin-bottom: 0.125in;
-            page-break-inside: avoid;
             overflow: hidden;
           }
-          
-          .label:nth-child(2n) {
+
+          .member-label:nth-child(2n) {
             margin-right: 0;
           }
-          
-          .label-header {
+
+          .member-label .label-header {
             text-align: center;
             border-bottom: 1px solid #000;
             margin-bottom: 0.05in;
@@ -413,26 +447,89 @@
             font-weight: bold;
             font-size: 11px;
           }
-          
-          .entry-number, .member-name, .beer-name, .beer-style, .special, .notes {
+
+          .member-label .entry-number,
+          .member-label .member-name,
+          .member-label .beer-name,
+          .member-label .beer-style,
+          .member-label .special,
+          .member-label .notes {
             margin-bottom: 0.03in;
             font-size: 9px;
           }
-          
-          .entry-number span, .member-name span, .beer-name span, .beer-style span, .special span, .notes span {
+
+          .member-label .entry-number span,
+          .member-label .member-name span,
+          .member-label .beer-name span,
+          .member-label .beer-style span,
+          .member-label .special span,
+          .member-label .notes span {
             font-weight: bold;
           }
-          
-          .beer-style small {
+
+          .member-label .beer-style small {
             font-size: 9px;
+          }
+
+          /* Officer label (intraclub competition) - 2.25" x 2.25" */
+          .officer-label {
+            width: 2.25in;
+            height: 2.25in;
+            padding: 0.125in;
+            display: inline-block;
+            margin-right: 0.1875in;
+          }
+
+          .officer-label .label-header {
+            font-size: 10pt;
+            text-align: center;
+            margin-bottom: 0.1in;
+            border-bottom: 1px solid #000;
+            padding-bottom: 0.05in;
+          }
+
+          .officer-label .entry-number {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 0.1in;
+          }
+
+          .officer-label .entry-number span {
+            font-size: 18pt;
+            color: #ff3e00;
+          }
+
+          .officer-label .beer-style {
+            font-size: 10pt;
+            margin-bottom: 0.1in;
+          }
+
+          .officer-label .beer-style span {
+            font-weight: bold;
+            font-size: 12pt;
+          }
+
+          .officer-label .beer-style small {
+            font-size: 9pt;
+          }
+
+          .officer-label .special,
+          .officer-label .notes {
+            font-size: 9pt;
+            margin-top: 0.05in;
+            padding-top: 0.05in;
+            border-top: 1px solid #ccc;
           }
 
           @media print {
             body {
               margin: 0 !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
             }
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            .label {
+              border: 1px solid #000 !important;
+            }
           }
         </style>
       </head>
@@ -441,10 +538,10 @@
       </body>
       </html>
     `);
-    
+
     printWindow.document.close();
     printWindow.focus();
-    
+
     // Trigger print after a short delay
     setTimeout(() => {
       printWindow.print();
