@@ -10,6 +10,7 @@
   import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
   import EmptyState from "$lib/components/ui/EmptyState.svelte";
   import Button from "$lib/components/ui/Button.svelte";
+  import { jsPDF } from "jspdf";
 
   let showAccessDeniedModal = false;
   let isAuthorized = false;
@@ -251,140 +252,137 @@
     }
   }
 
-// Fixed print labels function for competition entries
+// Print labels function for competition entries - PDF-based for mobile compatibility
 function printLabels() {
-  const entriesToPrint = selectedEntries.size > 0 
+  const entriesToPrint = selectedEntries.size > 0
     ? filteredEntries.filter(e => selectedEntries.has(e.id))
     : filteredEntries;
-  
+
   if (entriesToPrint.length === 0) {
     alert('No entries selected for printing');
     return;
   }
 
-  // Create print window
-  const printWindow = window.open('', '_blank');
-  
-  // Generate label HTML - create 3 copies of each label (for 3 bottles per entry)
-  const labelsHtml = entriesToPrint.flatMap(entry => {
-    const labelTemplate = `
-      <div class="label">
-        <div class="label-header">
-          <strong>${competition?.name || 'Competition'}</strong>
-        </div>
-        <div class="entry-number">
-          Entry #: <span>${entry.entry_number}</span>
-        </div>
-        <div class="beer-style">
-          Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span> - ${entry.bjcp_category?.category_name || ''}
-          ${entry.bjcp_category?.subcategory_name ? `<br><small>${entry.bjcp_category.subcategory_name}</small>` : ''}
-          ${entry.beer_notes ? `<br><small>Special: ${entry.beer_notes}</small>` : ''}
-        </div>
-        ${entry.notes ? `
-          <div class="notes">
-            Notes: ${entry.notes}
-          </div>
-        ` : ''}
-      </div>
-    `;
-    // Return 3 copies of each label
-    return [labelTemplate, labelTemplate, labelTemplate];
-  }).join('');
+  // Create PDF document (8.5" x 11")
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'in',
+    format: 'letter'
+  });
 
-  // Write print document with updated CSS for 3.375" x 2.125" labels
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Competition Entry Labels</title>
-      <style>
-        @page {
-          size: 8.5in 11in;
-          margin: 0.5in;
-        }
-        body {
-          margin: 0;
-          padding: 0;
-          font-family: Arial, sans-serif;
-        }
-        .labels-container {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.1875in;
-          justify-content: flex-start;
-        }
-        .label {
-          width: 2.25in;
-          height: 2.25in;
-          padding: 0.125in;
-          box-sizing: border-box;
-          border: 1px solid #000;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          margin-bottom: 0.1875in;
-          break-inside: avoid;
-        }
-        .label-header {
-          font-size: 10pt;
-          text-align: center;
-          margin-bottom: 0.1in;
-          border-bottom: 1px solid #000;
-          padding-bottom: 0.05in;
-        }
-        .entry-number {
-          font-size: 14pt;
-          font-weight: bold;
-          margin-bottom: 0.1in;
-        }
-        .entry-number span {
-          font-size: 18pt;
-          color: #ff3e00;
-        }
-        .beer-style {
-          font-size: 10pt;
-          margin-bottom: 0.1in;
-        }
-        .beer-style span {
-          font-weight: bold;
-          font-size: 12pt;
-        }
-        .beer-style small {
-          font-size: 9pt;
-        }
-        .special, .notes {
-          font-size: 9pt;
-          margin-top: 0.05in;
-          padding-top: 0.05in;
-          border-top: 1px solid #ccc;
-        }
-        @media print {
-          .label {
-            border: 1px solid #000 !important;
-          }
-          body {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="labels-container">
-        ${labelsHtml}
-      </div>
-    </body>
-    </html>
-  `);
+  // Page dimensions and margins
+  const pageWidth = 8.5;
+  const pageHeight = 11;
+  const marginX = 0.5;
+  const marginY = 0.5;
+  const labelSpacing = 0.1875; // Spacing between labels
 
-  printWindow.document.close();
-  printWindow.focus();
-  
-  // Trigger print after a short delay
+  // Officer labels are always 2.25" x 2.25"
+  const labelWidth = 2.25;
+  const labelHeight = 2.25;
+
+  let currentX = marginX;
+  let currentY = marginY;
+  let isFirstLabelOnPage = true;
+
+  // Process each entry (3 labels per entry)
+  entriesToPrint.forEach(entry => {
+    // Create 3 copies of each label
+    for (let copy = 0; copy < 3; copy++) {
+      // Check if label fits on current row
+      if (!isFirstLabelOnPage && currentX + labelWidth > pageWidth - marginX) {
+        // Move to next row
+        currentX = marginX;
+        currentY += labelHeight + labelSpacing;
+      }
+
+      // Check if label fits on current page
+      if (currentY + labelHeight > pageHeight - marginY) {
+        // Add new page
+        doc.addPage();
+        currentX = marginX;
+        currentY = marginY;
+        isFirstLabelOnPage = true;
+      }
+
+      // Draw label border
+      doc.setDrawColor(0);
+      doc.setLineWidth(0.01);
+      doc.rect(currentX, currentY, labelWidth, labelHeight);
+
+      // Label content
+      let yPos = currentY + 0.2;
+
+      // Competition name header
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      const compName = competition?.name || 'Competition';
+      const compNameLines = doc.splitTextToSize(compName, labelWidth - 0.2);
+      doc.text(compNameLines, currentX + labelWidth / 2, yPos, { align: 'center' });
+      yPos += compNameLines.length * 0.12 + 0.1;
+
+      // Horizontal line under header
+      doc.setLineWidth(0.01);
+      doc.line(currentX + 0.125, yPos, currentX + labelWidth - 0.125, yPos);
+      yPos += 0.25;
+
+      // Entry number
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Entry #:', currentX + 0.15, yPos);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(255, 62, 0); // Orange color
+      doc.text(entry.entry_number || '', currentX + 0.75, yPos);
+      doc.setTextColor(0, 0, 0); // Reset to black
+      yPos += 0.25;
+
+      // Beer style
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      const styleCode = `${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}`;
+      const categoryName = entry.bjcp_category?.category_name || '';
+      doc.text(`Style: ${styleCode}`, currentX + 0.15, yPos);
+      yPos += 0.16;
+
+      if (categoryName) {
+        doc.setFontSize(9);
+        const lines = doc.splitTextToSize(categoryName, labelWidth - 0.3);
+        doc.text(lines, currentX + 0.15, yPos);
+        yPos += lines.length * 0.13;
+      }
+
+      if (entry.bjcp_category?.subcategory_name) {
+        doc.setFontSize(8);
+        const subLines = doc.splitTextToSize(entry.bjcp_category.subcategory_name, labelWidth - 0.3);
+        doc.text(subLines, currentX + 0.15, yPos);
+        yPos += subLines.length * 0.12;
+      }
+
+      if (entry.beer_notes) {
+        yPos += 0.08;
+        doc.setFontSize(8);
+        const notesLines = doc.splitTextToSize(`Special: ${entry.beer_notes}`, labelWidth - 0.3);
+        doc.text(notesLines, currentX + 0.15, yPos);
+      }
+
+      // Move to next position (advance horizontally)
+      currentX += labelWidth + labelSpacing;
+      isFirstLabelOnPage = false;
+    }
+  });
+
+  // Generate PDF and open in new tab (without auto-printing)
+  const pdfBlob = doc.output('blob');
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+
+  // Open PDF in new window - user can manually print when ready
+  window.open(pdfUrl, '_blank');
+
+  // Clean up after a delay
   setTimeout(() => {
-    printWindow.print();
-    printWindow.close();
-  }, 250);
+    URL.revokeObjectURL(pdfUrl);
+  }, 10000); // Give more time for the PDF to load
 }
 
   // Format date
