@@ -31,6 +31,7 @@
   import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
   import EmptyState from "$lib/components/ui/EmptyState.svelte";
   import Button from "$lib/components/ui/Button.svelte";
+  import { jsPDF } from "jspdf";
 
   // =============================================
   // Component Lifecycle
@@ -320,233 +321,192 @@
     return subcategory ? `${subcategory.letter} - ${subcategory.name}` : "";
   }
 
-  // Print labels function for my entries
+  // Print labels function for my entries - PDF-based for mobile compatibility
   function printEntries() {
     if (!filteredEntries || filteredEntries.length === 0) {
       alert('No entries available to print');
       return;
     }
 
-    // Create print window
-    const printWindow = window.open('', '_blank');
+    // Create PDF document (8.5" x 11")
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'in',
+      format: 'letter'
+    });
 
-    // Generate label HTML - check competition type for each entry
-    // Create 3 copies of each label (for 3 bottles per entry)
-    const labelsHtml = filteredEntries.flatMap(entry => {
+    // Page dimensions and margins
+    const pageWidth = 8.5;
+    const pageHeight = 11;
+    const marginX = 0.5;
+    const marginY = 0.5;
+    const labelSpacing = 0.1875; // Spacing between labels
+    const labelWidth = 2.25;
+
+    let currentX = marginX;
+    let currentY = marginY;
+    let currentRowHeight = 0; // Track the height of the current row
+    let isFirstLabelOnPage = true;
+
+    // Process each entry (3 labels per entry)
+    filteredEntries.forEach(entry => {
       const isIntraclub = entry.competition?.competition_type === 'intraclub';
+      const labelHeight = isIntraclub ? 2.25 : 1.5;
 
-      let labelTemplate;
+      // Create 3 copies of each label
+      for (let copy = 0; copy < 3; copy++) {
+        // Check if label fits on current row
+        if (!isFirstLabelOnPage && currentX + labelWidth > pageWidth - marginX) {
+          // Move to next row
+          currentX = marginX;
+          currentY += currentRowHeight + labelSpacing;
+          currentRowHeight = 0;
+        }
 
-      if (isIntraclub) {
-        // Use officer label format (no member name, no beer name)
-        labelTemplate = `
-          <div class="label officer-label">
-            <div class="label-header">
-              <strong>${entry.competition?.name || 'Competition'}</strong>
-            </div>
-            <div class="entry-number">
-              Entry #: <span>${entry.entry_number}</span>
-            </div>
-            <div class="beer-style">
-              Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span> - ${entry.bjcp_category?.category_name || ''}
-              ${entry.bjcp_category?.subcategory_name ? `<br><small>${entry.bjcp_category.subcategory_name}</small>` : ''}
-              ${entry.beer_notes ? `<br><small>Special: ${entry.beer_notes}</small>` : ''}
-            </div>
-            ${entry.notes ? `
-              <div class="notes">
-                Notes: ${entry.notes}
-              </div>
-            ` : ''}
-          </div>
-        `;
-      } else {
-        // Use regular member label format (with member name and beer name)
-        labelTemplate = `
-          <div class="label member-label">
-            <div class="label-header">
-              <strong>${entry.competition?.name || 'Competition'}</strong>
-            </div>
-            <div class="entry-number">
-              Entry #: <span>${entry.entry_number}</span>
-            </div>
-            <div class="member-name">
-              Member: <span>${$userProfile?.name || $userProfile?.email || 'Unknown'}</span>
-            </div>
-            <div class="beer-name">
-              Beer: <span>${entry.beer_name || 'Unknown'}</span>
-            </div>
-            <div class="beer-style">
-              Style: <span>${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}</span>
-              ${entry.bjcp_category?.category_name ? `<br><small>${entry.bjcp_category.category_name}</small>` : ''}
-              ${entry.bjcp_category?.subcategory_name ? `<br><small>${entry.bjcp_category.subcategory_name}</small>` : ''}
-            </div>
-            ${entry.beer_notes? `
-              <div class="special">
-                Special: <span>${entry.beer_notes}</span>
-              </div>
-            ` : ''}
-            ${entry.notes ? `
-              <div class="notes">
-                Notes: <span>${entry.notes}</span>
-              </div>
-            ` : ''}
-          </div>
-        `;
+        // Check if label fits on current page
+        if (currentY + labelHeight > pageHeight - marginY) {
+          // Add new page
+          doc.addPage();
+          currentX = marginX;
+          currentY = marginY;
+          currentRowHeight = 0;
+          isFirstLabelOnPage = true;
+        }
+
+        // Update row height if this label is taller
+        currentRowHeight = Math.max(currentRowHeight, labelHeight);
+
+        // Draw label border
+        doc.setDrawColor(0);
+        doc.setLineWidth(0.01);
+        doc.rect(currentX, currentY, labelWidth, labelHeight);
+
+        // Label content
+        let yPos = currentY + 0.2;
+
+        // Competition name header
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        const compName = entry.competition?.name || 'Competition';
+        const compNameLines = doc.splitTextToSize(compName, labelWidth - 0.2);
+        doc.text(compNameLines, currentX + labelWidth / 2, yPos, { align: 'center' });
+        yPos += compNameLines.length * 0.12 + 0.1;
+
+        // Horizontal line under header
+        doc.setLineWidth(0.01);
+        doc.line(currentX + 0.125, yPos, currentX + labelWidth - 0.125, yPos);
+        yPos += 0.25;
+
+        if (isIntraclub) {
+          // Officer label format (no member name, no beer name)
+
+          // Entry number
+          doc.setFontSize(12);
+          doc.setFont('helvetica', 'normal');
+          doc.text('Entry #:', currentX + 0.15, yPos);
+          doc.setFontSize(16);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(255, 62, 0); // Orange color
+          doc.text(entry.entry_number || '', currentX + 0.75, yPos);
+          doc.setTextColor(0, 0, 0); // Reset to black
+          yPos += 0.25;
+
+          // Beer style
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'normal');
+          const styleCode = `${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}`;
+          const categoryName = entry.bjcp_category?.category_name || '';
+          doc.text(`Style: ${styleCode}`, currentX + 0.15, yPos);
+          yPos += 0.16;
+
+          if (categoryName) {
+            doc.setFontSize(9);
+            const lines = doc.splitTextToSize(categoryName, labelWidth - 0.3);
+            doc.text(lines, currentX + 0.15, yPos);
+            yPos += lines.length * 0.13;
+          }
+
+          if (entry.bjcp_category?.subcategory_name) {
+            doc.setFontSize(8);
+            const subLines = doc.splitTextToSize(entry.bjcp_category.subcategory_name, labelWidth - 0.3);
+            doc.text(subLines, currentX + 0.15, yPos);
+            yPos += subLines.length * 0.12;
+          }
+
+          if (entry.beer_notes) {
+            yPos += 0.08;
+            doc.setFontSize(8);
+            const notesLines = doc.splitTextToSize(`Special: ${entry.beer_notes}`, labelWidth - 0.3);
+            doc.text(notesLines, currentX + 0.15, yPos);
+          }
+
+        } else {
+          // Member label format (with member name and beer name)
+
+          // Entry number
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'normal');
+          doc.text(`Entry #: `, currentX + 0.1, yPos);
+          doc.setFont('helvetica', 'bold');
+          doc.text(entry.entry_number || '', currentX + 0.55, yPos);
+          doc.setFont('helvetica', 'normal');
+          yPos += 0.13;
+
+          // Member name
+          const memberName = $userProfile?.name || $userProfile?.email || 'Unknown';
+          doc.setFontSize(8);
+          doc.text(`Member: `, currentX + 0.1, yPos);
+          doc.setFont('helvetica', 'bold');
+          const memberLines = doc.splitTextToSize(memberName, labelWidth - 0.7);
+          doc.text(memberLines, currentX + 0.5, yPos);
+          doc.setFont('helvetica', 'normal');
+          yPos += memberLines.length * 0.11;
+
+          // Beer name
+          doc.text(`Beer: `, currentX + 0.1, yPos);
+          doc.setFont('helvetica', 'bold');
+          const beerLines = doc.splitTextToSize(entry.beer_name || 'Unknown', labelWidth - 0.5);
+          doc.text(beerLines, currentX + 0.35, yPos);
+          doc.setFont('helvetica', 'normal');
+          yPos += beerLines.length * 0.11;
+
+          // Style
+          const styleCode = `${entry.bjcp_category?.category_number || ''}${entry.bjcp_category?.subcategory_letter || ''}`;
+          doc.setFontSize(8);
+          doc.text(`Style: ${styleCode}`, currentX + 0.1, yPos);
+          yPos += 0.11;
+
+          if (entry.bjcp_category?.category_name) {
+            doc.setFontSize(7);
+            const catLines = doc.splitTextToSize(entry.bjcp_category.category_name, labelWidth - 0.2);
+            doc.text(catLines, currentX + 0.1, yPos);
+            yPos += catLines.length * 0.1;
+          }
+
+          if (entry.bjcp_category?.subcategory_name) {
+            doc.setFontSize(7);
+            const subLines = doc.splitTextToSize(entry.bjcp_category.subcategory_name, labelWidth - 0.2);
+            doc.text(subLines, currentX + 0.1, yPos);
+          }
+        }
+
+        // Move to next position (advance horizontally)
+        currentX += labelWidth + labelSpacing;
+        isFirstLabelOnPage = false;
       }
+    });
 
-      // Return 3 copies of each label
-      return [labelTemplate, labelTemplate, labelTemplate];
-    }).join('');
+    // Generate PDF and open in new tab (without auto-printing)
+    const pdfBlob = doc.output('blob');
+    const pdfUrl = URL.createObjectURL(pdfBlob);
 
-    // Write print document with CSS for both label types
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>My Competition Entry Labels</title>
-        <style>
-          @page {
-            size: 8.5in 11in;
-            margin: 0.5in;
-          }
+    // Open PDF in new window - user can manually print when ready
+    window.open(pdfUrl, '_blank');
 
-          body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-          }
-
-          /* Base label styles */
-          .label {
-            border: 1px solid #000;
-            box-sizing: border-box;
-            page-break-inside: avoid;
-            break-inside: avoid;
-            margin-bottom: 0.1875in;
-          }
-
-          /* Member label (regular competition) - 2.25" x 1.5" */
-          .member-label {
-            width: 2.25in;
-            height: 1.5in;
-            float: left;
-            padding: 0.1in;
-            margin-right: 0.125in;
-            overflow: hidden;
-          }
-
-          .member-label:nth-child(2n) {
-            margin-right: 0;
-          }
-
-          .member-label .label-header {
-            text-align: center;
-            border-bottom: 1px solid #000;
-            margin-bottom: 0.05in;
-            padding-bottom: 0.02in;
-            font-weight: bold;
-            font-size: 11px;
-          }
-
-          .member-label .entry-number,
-          .member-label .member-name,
-          .member-label .beer-name,
-          .member-label .beer-style,
-          .member-label .special,
-          .member-label .notes {
-            margin-bottom: 0.03in;
-            font-size: 9px;
-          }
-
-          .member-label .entry-number span,
-          .member-label .member-name span,
-          .member-label .beer-name span,
-          .member-label .beer-style span,
-          .member-label .special span,
-          .member-label .notes span {
-            font-weight: bold;
-          }
-
-          .member-label .beer-style small {
-            font-size: 9px;
-          }
-
-          /* Officer label (intraclub competition) - 2.25" x 2.25" */
-          .officer-label {
-            width: 2.25in;
-            height: 2.25in;
-            padding: 0.125in;
-            display: inline-block;
-            margin-right: 0.1875in;
-          }
-
-          .officer-label .label-header {
-            font-size: 10pt;
-            text-align: center;
-            margin-bottom: 0.1in;
-            border-bottom: 1px solid #000;
-            padding-bottom: 0.05in;
-          }
-
-          .officer-label .entry-number {
-            font-size: 14pt;
-            font-weight: bold;
-            margin-bottom: 0.1in;
-          }
-
-          .officer-label .entry-number span {
-            font-size: 18pt;
-            color: #ff3e00;
-          }
-
-          .officer-label .beer-style {
-            font-size: 10pt;
-            margin-bottom: 0.1in;
-          }
-
-          .officer-label .beer-style span {
-            font-weight: bold;
-            font-size: 12pt;
-          }
-
-          .officer-label .beer-style small {
-            font-size: 9pt;
-          }
-
-          .officer-label .special,
-          .officer-label .notes {
-            font-size: 9pt;
-            margin-top: 0.05in;
-            padding-top: 0.05in;
-            border-top: 1px solid #ccc;
-          }
-
-          @media print {
-            body {
-              margin: 0 !important;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            .label {
-              border: 1px solid #000 !important;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        ${labelsHtml}
-      </body>
-      </html>
-    `);
-
-    printWindow.document.close();
-    printWindow.focus();
-
-    // Trigger print after a short delay
+    // Clean up after a delay
     setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 250);
+      URL.revokeObjectURL(pdfUrl);
+    }, 10000); // Give more time for the PDF to load
   }
 
   // =============================================

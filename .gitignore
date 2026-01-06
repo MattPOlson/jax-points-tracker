@@ -3,5 +3,9 @@ node_modules
 
 # Ignore build output
 .svelte-kit/
+build/
+
 # Windows metadata files
 *.Zone.Identifier
+*.jpg
+*.png
