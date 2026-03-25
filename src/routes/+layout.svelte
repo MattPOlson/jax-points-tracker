@@ -199,7 +199,8 @@
     align-items: center;
     justify-content: center;
     gap: var(--space-4);
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 3px 16px rgba(0, 0, 0, 0.4);
+    border-bottom: 3px solid var(--color-brand-gold);
     position: sticky;
     top: 0;
     z-index: 200;

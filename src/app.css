@@ -120,7 +120,7 @@
   --radius-full: 9999px;   /* Circular */
 
   /* Component-specific radii */
-  --radius-button: 0.375rem;  /* 6px for buttons */
+  --radius-button: 0.5rem;    /* 8px for buttons */
   --radius-card: 0.75rem;     /* 12px for cards */
 
 
@@ -132,7 +132,10 @@
   --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 
   /* Component-specific shadows */
-  --shadow-card: 0 4px 15px rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 4px 20px rgba(26, 42, 68, 0.10);
+
+  /* Brand accent */
+  --color-brand-gold: #c9a227;
 
 
   /* ========== Transitions ========== */

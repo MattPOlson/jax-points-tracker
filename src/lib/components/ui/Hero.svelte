@@ -130,7 +130,12 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(rgba(26, 42, 68, 0.7), rgba(26, 42, 68, 0.7));
+    background: linear-gradient(
+      to bottom,
+      rgba(26, 42, 68, 0.45) 0%,
+      rgba(26, 42, 68, 0.72) 60%,
+      rgba(26, 42, 68, 0.88) 100%
+    );
     z-index: 1;
   }
 
@@ -145,12 +150,17 @@
     font-weight: var(--font-weight-bold);
     margin: 0;
     display: block;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    letter-spacing: 1px;
   }
 
   .hero-with-image .hero-subtitle {
-    color: var(--color-white);
+    color: rgba(255, 255, 255, 0.88);
     font-size: var(--font-size-xl);
     margin-top: var(--space-4);
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.5px;
   }
 
   .hero-with-image .hero-icon {

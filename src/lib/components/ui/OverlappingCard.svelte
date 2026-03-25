@@ -28,11 +28,12 @@
     background: var(--color-bg-primary);
     padding: 3rem 2rem;
     border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
+    box-shadow: 0 8px 40px rgba(26, 42, 68, 0.16);
     text-align: center;
     max-width: 700px;
     width: 100%;
     position: relative;
+    border-top: 4px solid var(--color-brand-primary);
   }
 
   /* Responsive adjustments */

@@ -192,6 +192,21 @@
     color: var(--color-brand-primary);
     margin-bottom: var(--space-10);
     font-weight: var(--font-weight-bold);
+    position: relative;
+    display: inline-block;
+  }
+
+  .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 3rem;
+    height: 3px;
+    background: var(--color-brand-primary);
+    border-radius: var(--radius-full);
+    opacity: 0.4;
   }
 
   .action-grid {
