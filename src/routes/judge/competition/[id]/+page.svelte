@@ -10,9 +10,8 @@
     isJudging,
     currentEntry
   } from '$lib/stores/competitionJudgingStore';
-  import Container from '$lib/components/ui/Container.svelte';
-  import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
-  import Button from '$lib/components/ui/Button.svelte';
+  import { Hero, Container, LoadingSpinner, Button } from '$lib/components/ui';
+  import { ArrowLeft, ArrowRight, FileText, Trophy, Flag } from 'lucide-svelte';
 
   // Get competition ID from URL
   $: competitionId = $page.params.id;
@@ -362,7 +361,7 @@
   }
 
   .progress-fill {
-    background: linear-gradient(90deg, #ff3e00, #059669);
+    background: var(--color-brand-primary);
     height: 100%;
     border-radius: 8px;
     transition: width 0.3s ease;
@@ -398,7 +397,7 @@
   }
 
   .entry-nav-item.active {
-    background: #ff3e00;
+    background: var(--color-brand-primary);
     color: white;
   }
 
@@ -435,7 +434,7 @@
   .entry-number {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #ff3e00;
+    color: var(--color-brand-primary);
     margin: 0 0 0.5rem;
   }
 
@@ -520,7 +519,7 @@
 
   .score-input:focus {
     outline: none;
-    border-color: #ff3e00;
+    border-color: var(--color-border-focus);
   }
 
   .score-input:invalid {
@@ -529,7 +528,7 @@
 
   /* Total Score Display */
   .total-score {
-    background: linear-gradient(135deg, #ff3e00 0%, #e63600 100%);
+    background: var(--color-brand-primary);
     color: white;
     padding: 1.5rem;
     border-radius: 12px;
@@ -593,7 +592,7 @@
 
   .notes-textarea:focus {
     outline: none;
-    border-color: #ff3e00;
+    border-color: var(--color-border-focus);
   }
 
   /* Navigation Buttons */
@@ -781,6 +780,14 @@
     }
   }
 </style>
+
+<Hero
+  title="Judge Competition"
+  subtitle="Evaluate and score beer entries"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
 
 <Container size="lg">
   {#if !$isJudging}
@@ -985,21 +992,24 @@
             on:click={saveAndPrevious}
             disabled={currentEntryIndex === 0 || isSaving}
           >
-            ⬅️ Previous Entry
+            <ArrowLeft size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            Previous Entry
           </Button>
 
           <a
             href="/judge/competition/{competitionId}/scoresheet"
             class="nav-btn nav-btn-secondary nav-btn-link"
           >
-            📋 BJCP Scoresheet
+            <FileText size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            BJCP Scoresheet
           </a>
 
           <a
             href="/judge/competition/{competitionId}/rankings"
             class="nav-btn nav-btn-secondary nav-btn-link"
           >
-            🏆 Rankings
+            <Trophy size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            Rankings
           </a>
 
           {#if currentEntryIndex < $activeSession.assignedEntries.length - 1}
@@ -1008,7 +1018,8 @@
               on:click={saveAndNext}
               disabled={isSaving}
             >
-              Next Entry ➡️
+              Next Entry
+              <ArrowRight size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-left: 0.25rem;" />
             </Button>
           {:else}
             <button
@@ -1016,7 +1027,8 @@
               on:click={finishJudging}
               disabled={isSaving}
             >
-              🏁 Finish Judging
+              <Flag size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              Finish Judging
             </button>
           {/if}
         </div>

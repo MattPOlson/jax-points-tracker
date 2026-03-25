@@ -10,7 +10,8 @@
     loading,
   } from "$lib/stores/mySubmissionsStore.js";
   import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
-  import { Hero, Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
+  import { Hero, Container, LoadingSpinner, EmptyState, Button, Card, OverlappingCard } from '$lib/components/ui';
+  import { CheckCircle, Clock, XCircle, Trophy, ClipboardList, List } from 'lucide-svelte';
 
   let submissions = [];
   let message = "";
@@ -89,9 +90,9 @@
   }
 
   function formatStatus(sub) {
-    if (sub.approved === true) return { text: "Approved", icon: "✅", class: "status-approved" };
-    if (sub.rejection_reason) return { text: "Rejected", icon: "❌", class: "status-rejected" };
-    return { text: "Pending", icon: "⏳", class: "status-pending" };
+    if (sub.approved === true) return { text: "Approved", iconComponent: CheckCircle, class: "status-approved" };
+    if (sub.rejection_reason) return { text: "Rejected", iconComponent: XCircle, class: "status-rejected" };
+    return { text: "Pending", iconComponent: Clock, class: "status-pending" };
   }
 
  // function formatDate(dateString) {
@@ -146,72 +147,95 @@
   });
 </script>
 
-<Container size="lg">
-  <Hero title="My Submissions" subtitle="Track your brewing achievements and points" icon="📋" center={true} />
+<Hero
+  title="My Submissions"
+  subtitle="Track your brewing achievements and points"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
 
-  {#if $loading}
+{#if $loading}
+  <Container size="lg">
     <LoadingSpinner message="Loading your submissions..." />
-  {:else if !currentUserId}
+  </Container>
+{:else if !currentUserId}
+  <Container size="lg">
     <EmptyState
-      icon="🔒"
       title="Authentication Required"
       message="Please log in to view your submissions."
       actionLabel="Sign In"
       actionHref="/login"
     />
-  {:else}
-    <!-- Stats Overview -->
-    {#if !$loading && $storeAll && $storeAll.length > 0}
-      <div class="stats-section">
-        <div class="stats-grid">
-          <div class="stat-card approved">
-            <div class="stat-icon">✅</div>
-            <div class="stat-content">
-              <div class="stat-number">{stats?.approved || 0}</div>
-              <div class="stat-label">Approved</div>
-            </div>
+  </Container>
+{:else}
+  <!-- Stats Overview in Overlapping Card -->
+  {#if !$loading && $storeAll && $storeAll.length > 0}
+    <OverlappingCard>
+      <div class="stats-grid">
+        <Card class="stat-card approved">
+          <div class="stat-icon">
+            <CheckCircle size={32} strokeWidth={1.5} color="var(--color-success)" />
           </div>
-          <div class="stat-card pending">
-            <div class="stat-icon">⏳</div>
-            <div class="stat-content">
-              <div class="stat-number">{stats?.pending || 0}</div>
-              <div class="stat-label">Pending</div>
-            </div>
+          <div class="stat-content">
+            <div class="stat-number">{stats?.approved || 0}</div>
+            <div class="stat-label">Approved</div>
           </div>
-          <div class="stat-card rejected">
-            <div class="stat-icon">❌</div>
-            <div class="stat-content">
-              <div class="stat-number">{stats?.rejected || 0}</div>
-              <div class="stat-label">Rejected</div>
-            </div>
+        </Card>
+        <Card class="stat-card pending">
+          <div class="stat-icon">
+            <Clock size={32} strokeWidth={1.5} color="var(--color-warning)" />
           </div>
-          <div class="stat-card points">
-            <div class="stat-icon">🏆</div>
-            <div class="stat-content">
-              <div class="stat-number">{stats?.totalPoints?.toLocaleString() || 0}</div>
-              <div class="stat-label">Total Points</div>
-            </div>
+          <div class="stat-content">
+            <div class="stat-number">{stats?.pending || 0}</div>
+            <div class="stat-label">Pending</div>
           </div>
-        </div>
+        </Card>
+        <Card class="stat-card rejected">
+          <div class="stat-icon">
+            <XCircle size={32} strokeWidth={1.5} color="var(--color-danger)" />
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{stats?.rejected || 0}</div>
+            <div class="stat-label">Rejected</div>
+          </div>
+        </Card>
+        <Card class="stat-card points">
+          <div class="stat-icon">
+            <Trophy size={32} strokeWidth={1.5} color="var(--color-brand-primary)" />
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{stats?.totalPoints?.toLocaleString() || 0}</div>
+            <div class="stat-label">Total Points</div>
+          </div>
+        </Card>
       </div>
-    {:else if !$loading && currentUserId}
-      <!-- Debug info - only show when not loading and user is logged in
+    </OverlappingCard>
+  {:else if !$loading && currentUserId}
+      <!-- Debug info - only show when not loading and user is logged in -->
       <div class="debug-info" style="background: #f0f0f0; padding: 1rem; margin: 1rem 0; font-family: monospace; text-align: left;">
         <div>Store All Length: {$storeAll?.length || 0}</div>
         <div>Store Message: {$storeMessage || 'none'}</div>
         <div>Loading: {$loading}</div>
         <div>Current User ID: {currentUserId || 'none'}</div>
         <div>Data: {JSON.stringify($storeAll?.slice(0, 2) || [], null, 2)}</div>
-      </div>-->
+      </div>
     {/if}
 
+  <Container size="lg">
     <!-- Filter Controls -->
     <div class="controls-section">
       <Button
         variant={showAll ? 'primary' : 'secondary'}
         on:click={toggleView}
       >
-        {showAll ? "📋 Show All" : "⏳ Pending Only"}
+        {#if showAll}
+          <List size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+          Show All
+        {:else}
+          <Clock size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+          Pending Only
+        {/if}
       </Button>
       
       <div class="view-info">
@@ -270,7 +294,7 @@
                   <td class="date-cell">{formatDate(s.event_date)}</td>
                   <td class="status-cell">
                     <span class="status-badge {formatStatus(s).class}">
-                      <span class="status-icon">{formatStatus(s).icon}</span>
+                      <svelte:component this={formatStatus(s).iconComponent} size={16} strokeWidth={2} />
                       {formatStatus(s).text}
                     </span>
                   </td>
@@ -294,7 +318,7 @@
               <div class="card-header">
                 <div class="category-badge">{s.category}</div>
                 <span class="status-badge {formatStatus(s).class}">
-                  <span class="status-icon">{formatStatus(s).icon}</span>
+                  <svelte:component this={formatStatus(s).iconComponent} size={16} strokeWidth={2} />
                   {formatStatus(s).text}
                 </span>
               </div>
@@ -327,9 +351,9 @@
       <div class="empty-state">
         <div class="empty-icon">
           {#if showAll}
-            📋
+            <ClipboardList size={64} strokeWidth={1.5} color="var(--color-text-tertiary)" />
           {:else}
-            ⏳
+            <Clock size={64} strokeWidth={1.5} color="var(--color-text-tertiary)" />
           {/if}
         </div>
         <h3>
@@ -349,55 +373,43 @@
         {/if}
       </div>
     {/if}
-  {/if}
-</Container>
+  </Container>
+{/if}
 
 <style>
 
-  /* Stats Section */
-  .stats-section {
-    margin-bottom: 2rem;
-  }
-
+  /* Stats Grid */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+    gap: var(--space-4);
     max-width: 800px;
     margin: 0 auto;
   }
 
-  .stat-card {
-    background: white;
-    border-radius: 6px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  :global(.stat-card) {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: var(--space-4);
     border-left: 4px solid;
   }
 
-  .stat-card.approved { border-left-color: #059669; }
-  .stat-card.pending { border-left-color: #d97706; }
-  .stat-card.rejected { border-left-color: #dc2626; }
-  .stat-card.points { border-left-color: #ff3e00; }
-
-  .stat-icon {
-    font-size: 2rem;
-  }
+  :global(.stat-card.approved) { border-left-color: var(--color-success); }
+  :global(.stat-card.pending) { border-left-color: var(--color-warning); }
+  :global(.stat-card.rejected) { border-left-color: var(--color-danger); }
+  :global(.stat-card.points) { border-left-color: var(--color-brand-primary); }
 
   .stat-number {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #333;
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
     line-height: 1;
   }
 
   .stat-label {
-    font-size: 0.9rem;
-    color: #666;
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
   }
 
   /* Controls Section */
@@ -407,21 +419,21 @@
     align-items: center;
     margin-bottom: var(--space-8);
     padding: var(--space-4);
-    background: white;
+    background: var(--color-bg-primary);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-md);
   }
 
   .count-display {
     font-weight: 500;
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   /* Table Styles */
   .submissions-container {
-    background: white;
-    border-radius: 6px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
     overflow: hidden;
   }
 
@@ -435,12 +447,12 @@
   }
 
   .desktop-table th {
-    background: #f8fafc;
+    background: var(--color-bg-secondary);
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    color: #333;
-    border-bottom: 2px solid #e5e7eb;
+    color: var(--color-text-primary);
+    border-bottom: 2px solid var(--color-border-primary);
     white-space: nowrap;
   }
 
@@ -458,13 +470,13 @@
   .desktop-table th.sort-asc::after {
     content: " ▲";
     font-size: 0.75rem;
-    color: #ff3e00;
+    color: var(--color-brand-primary);
   }
 
   .desktop-table th.sort-desc::after {
     content: " ▼";
     font-size: 0.75rem;
-    color: #ff3e00;
+    color: var(--color-brand-primary);
   }
 
   .desktop-table td {
@@ -478,17 +490,17 @@
   }
 
   .submission-row:hover {
-    background-color: #f8fafc;
+    background-color: var(--color-bg-secondary);
   }
 
   .category-cell {
     font-weight: 500;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .points-cell {
-    font-weight: 700;
-    color: #ff3e00;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-brand-primary);
   }
 
   .status-badge {
@@ -571,18 +583,18 @@
 
   .card-row .label {
     font-weight: 500;
-    color: #666;
+    color: var(--color-text-secondary);
     min-width: 100px;
   }
 
   .card-row .value {
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
     text-align: right;
   }
 
   .points-value {
-    color: #ff3e00;
+    color: var(--color-brand-primary);
   }
 
   .rejection-row {

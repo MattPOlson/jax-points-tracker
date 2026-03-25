@@ -13,6 +13,7 @@
   import { page } from "$app/stores";
   import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
   import { Hero, Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
+  import { CheckCircle, X, Lock, AlertTriangle, PartyPopper, RefreshCw, ClipboardList } from 'lucide-svelte';
 
   let message = "";
   let showApprovalModal = false;
@@ -172,8 +173,15 @@
   }
 </script>
 
+<Hero
+  title="Review Submissions"
+  subtitle="Approve or reject member point submissions"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
+
 <Container size="lg">
-  <Hero title="Review Submissions" subtitle="Approve or reject member point submissions" icon="✅" center={true} />
 
   {#if $loading}
     <LoadingSpinner message="Loading submissions..." />
@@ -197,7 +205,9 @@
     <div class="submissions-container">
       <!-- Summary Stats -->
       <div class="summary-card">
-        <div class="summary-icon">📋</div>
+        <div class="summary-icon">
+          <ClipboardList size={40} strokeWidth={2} />
+        </div>
         <div class="summary-content">
           <div class="summary-number">{submissions.length}</div>
           <div class="summary-label">
@@ -251,14 +261,16 @@
                       class="approve-btn"
                       disabled={isProcessing}
                     >
-                      ✅ Approve
+                      <CheckCircle size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                      Approve
                     </button>
                     <button
                       on:click={() => openReject(s)}
                       class="reject-btn"
                       disabled={isProcessing}
                     >
-                      ❌ Reject
+                      <X size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                      Reject
                     </button>
                   </div>
                 </td>
@@ -308,14 +320,16 @@
                 class="approve-btn mobile"
                 disabled={isProcessing}
               >
-                ✅ Approve
+                <CheckCircle size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                Approve
               </button>
               <button
                 on:click={() => openReject(s)}
                 class="reject-btn mobile"
                 disabled={isProcessing}
               >
-                ❌ Reject
+                <X size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                Reject
               </button>
             </div>
           </div>
@@ -329,7 +343,8 @@
       message="No pending submissions to review at this time."
     >
       <Button variant="secondary" on:click={() => loadApprovals(true)}>
-        🔄 Refresh
+        <RefreshCw size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        Refresh
       </Button>
     </EmptyState>
   {/if}
@@ -352,7 +367,10 @@
     >
       <div class="modal approval-modal" on:click|stopPropagation>
         <div class="modal-header">
-          <h3 id="approval-modal-title">✅ Approve Submission</h3>
+          <h3 id="approval-modal-title">
+            <CheckCircle size={20} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            Approve Submission
+          </h3>
         </div>
         <div class="modal-body">
           <div class="submission-preview">
@@ -398,7 +416,8 @@
               <span class="button-spinner"></span>
               Approving...
             {:else}
-              ✅ Yes, Approve
+              <CheckCircle size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              Yes, Approve
             {/if}
           </button>
           <button
@@ -425,7 +444,10 @@
     >
       <div class="modal reject-modal" on:click|stopPropagation>
         <div class="modal-header">
-          <h3 id="reject-modal-title">❌ Reject Submission</h3>
+          <h3 id="reject-modal-title">
+            <X size={20} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            Reject Submission
+          </h3>
         </div>
         <div class="modal-body">
           <div class="submission-preview">
@@ -470,7 +492,8 @@
               <span class="button-spinner"></span>
               Rejecting...
             {:else}
-              ❌ Reject Submission
+              <X size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              Reject Submission
             {/if}
           </button>
           <button
@@ -490,36 +513,36 @@
 
   /* Summary Card */
   .summary-card {
-    background: white;
-    border-radius: 6px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-button);
+    padding: var(--space-6);
+    margin-bottom: var(--space-8);
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid var(--color-brand-primary);
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: var(--space-4);
     max-width: 400px;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-8);
   }
 
   .summary-icon {
-    font-size: 2.5rem;
+    color: var(--color-brand-primary);
   }
 
   .summary-number {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #ff3e00;
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-brand-primary);
     line-height: 1;
   }
 
   .summary-label {
-    font-size: 0.9rem;
-    color: #666;
-    font-weight: 500;
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
   }
 
   /* Submissions Container */
@@ -529,9 +552,9 @@
 
   /* Table Styles */
   .table-wrapper {
-    background: white;
-    border-radius: 6px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
     overflow: hidden;
     overflow-x: auto;
   }
@@ -543,12 +566,12 @@
   }
 
   .desktop-table th {
-    background: #f8fafc;
+    background: var(--color-bg-secondary);
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    color: #333;
-    border-bottom: 2px solid #e5e7eb;
+    color: var(--color-text-primary);
+    border-bottom: 2px solid var(--color-border-primary);
     white-space: nowrap;
   }
 
@@ -563,7 +586,7 @@
   }
 
   .submission-row:hover {
-    background-color: #f8fafc;
+    background-color: var(--color-bg-secondary);
   }
 
   .member-info {
@@ -576,7 +599,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: #ff3e00;
+    background: var(--color-brand-primary);
     color: white;
     display: flex;
     align-items: center;
@@ -602,7 +625,7 @@
 
   .points-value {
     font-weight: 700;
-    color: #ff3e00;
+    color: var(--color-brand-primary);
     font-size: 1.1rem;
   }
 
@@ -659,12 +682,12 @@
   }
 
   .mobile-card {
-    background: white;
-    border-radius: 6px;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-md);
     padding: 1.5rem;
     margin-bottom: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid var(--color-brand-primary);
   }
 
   .card-header {
@@ -681,7 +704,7 @@
 
   .submission-date {
     font-size: 0.8rem;
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   .card-body {
@@ -699,7 +722,7 @@
 
   .card-row .label {
     font-weight: 500;
-    color: #666;
+    color: var(--color-text-secondary);
     min-width: 100px;
   }
 
@@ -749,8 +772,8 @@
   }
 
   .modal {
-    background: white;
-    border-radius: 6px;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-md);
     max-width: 500px;
     width: 100%;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
@@ -760,11 +783,11 @@
 
   .modal-header {
     padding: 1.5rem 1.5rem 0;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-border-primary);
   }
 
   .modal-header h3 {
-    color: #333;
+    color: var(--color-text-primary);
     font-size: 1.25rem;
     margin: 0 0 1rem 0;
     text-transform: none;
@@ -775,8 +798,8 @@
   }
 
   .submission-preview {
-    background: #f8fafc;
-    border-radius: 6px;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
     padding: 1rem;
     margin-bottom: 1.5rem;
   }
@@ -786,7 +809,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem 0;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-border-primary);
   }
 
   .preview-row:last-child {
@@ -795,21 +818,21 @@
 
   .preview-label {
     font-weight: 500;
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   .preview-value {
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .points-highlight {
-    color: #ff3e00;
+    color: var(--color-brand-primary);
     font-size: 1.1rem;
   }
 
   .confirmation-text {
-    color: #666;
+    color: var(--color-text-secondary);
     text-align: center;
     margin: 0;
   }
@@ -821,14 +844,14 @@
   .reason-label {
     display: block;
     font-weight: 500;
-    color: #333;
+    color: var(--color-text-primary);
     margin-bottom: 0.5rem;
   }
 
   textarea {
     width: 100%;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-md);
     padding: 0.75rem;
     font-size: 1rem;
     font-family: inherit;
@@ -840,8 +863,8 @@
 
   textarea:focus {
     outline: none;
-    border-color: #ff3e00;
-    box-shadow: 0 0 0 1px #ff3e00;
+    border-color: var(--color-border-focus);
+    box-shadow: 0 0 0 1px var(--color-border-focus);
   }
 
   textarea:disabled {

@@ -10,6 +10,7 @@
   import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
   import EmptyState from '$lib/components/ui/EmptyState.svelte';
   import Button from '$lib/components/ui/Button.svelte';
+  import { BarChart3, Users, Beer, Trophy, Clock, ArrowLeft, CheckCircle, Megaphone } from 'lucide-svelte';
 
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -566,7 +567,7 @@
     font-size: 2.5rem;
     font-weight: 100;
     margin: 0;
-    color: #ff3e00;
+    color: #334155;
   }
 
   .stat-label {
@@ -604,10 +605,13 @@
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .tab-btn.active {
-    background: #ff3e00;
+    background: var(--color-brand-primary);
     color: white;
   }
 
@@ -630,6 +634,33 @@
   .action-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  .btn-success {
+    background: #059669;
+    color: white;
+  }
+
+  .btn-success:hover:not(:disabled) {
+    background: #047857;
+  }
+
+  .btn-primary {
+    background: var(--color-brand-primary);
+    color: white;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-brand-primary-hover);
+  }
+
+  .btn-secondary {
+    background: var(--color-gray-500);
+    color: white;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--color-gray-600);
   }
 
 
@@ -694,7 +725,7 @@
   }
 
   .progress-fill {
-    background: linear-gradient(90deg, #ff3e00, #059669);
+    background: var(--color-brand-primary);
     height: 100%;
     border-radius: 8px;
     transition: width 0.3s ease;
@@ -727,7 +758,7 @@
     width: 40px;
     height: 40px;
     border: 4px solid #f3f3f3;
-    border-top: 4px solid #ff3e00;
+    border-top: 4px solid var(--color-brand-primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 1rem;
@@ -749,7 +780,7 @@
     padding: 1.5rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid var(--color-brand-primary);
   }
 
   .mobile-card-header {
@@ -838,7 +869,7 @@
   }
 
   .mobile-progress-fill {
-    background: linear-gradient(90deg, #ff3e00, #059669);
+    background: var(--color-brand-primary);
     height: 100%;
     border-radius: 8px;
     transition: width 0.3s ease;
@@ -869,7 +900,7 @@
 
   .mobile-ranking-entry-number {
     font-weight: 600;
-    color: #ff3e00;
+    color: var(--color-brand-primary);
     font-size: 1.1rem;
   }
 
@@ -968,17 +999,18 @@
   }
 </style>
 
-<Container size="xl">
-  {#if isLoading}
-    <LoadingSpinner message="Loading judging dashboard..." />
-  {:else if competition}
-    <!-- Header -->
-    <Hero
-      title="Judging Dashboard"
-      subtitle={competition.name}
-      icon="📊"
-      center={false}
-    />
+{#if isLoading}
+  <LoadingSpinner message="Loading judging dashboard..." />
+{:else if competition}
+  <Hero
+    title="Judging Dashboard"
+    subtitle={competition.name}
+    backgroundImage="/Jax-Banner.png"
+    overlay={true}
+    compact={true}
+  />
+
+  <Container size="xl">
 
     <div class="header-info">
       <div class="info-item">
@@ -1027,37 +1059,45 @@
     <div class="controls">
       <div class="view-tabs">
         <button class="tab-btn {selectedView === 'overview' ? 'active' : ''}" on:click={() => selectedView = 'overview'}>
-          📊 Overview
+          <BarChart3 size={16} /> Overview
         </button>
         <button class="tab-btn {selectedView === 'judges' ? 'active' : ''}" on:click={() => selectedView = 'judges'}>
-          👩‍⚖️ Judges
+          <Users size={16} /> Judges
         </button>
         <button class="tab-btn {selectedView === 'entries' ? 'active' : ''}" on:click={() => selectedView = 'entries'}>
-          🍺 Entries
+          <Beer size={16} /> Entries
         </button>
         <button class="tab-btn {selectedView === 'rankings' ? 'active' : ''}" on:click={() => selectedView = 'rankings'}>
-          🏆 Rankings
+          <Trophy size={16} /> Rankings
         </button>
       </div>
 
-      <button 
+      <button
         class="action-btn btn-success"
         on:click={finalizeResults}
         disabled={isProcessing || judgingStats.completedSessions === 0}
       >
-        {isProcessing ? '⏳ Processing...' : '📊 Finalize Results'}
+        {#if isProcessing}
+          <Clock size={16} /> Processing...
+        {:else}
+          <CheckCircle size={16} /> Finalize Results
+        {/if}
       </button>
 
-      <button 
+      <button
         class="action-btn btn-primary"
         on:click={publishResults}
         disabled={competition.results_published}
       >
-        {competition.results_published ? '✅ Published' : '📢 Publish Results'}
+        {#if competition.results_published}
+          <CheckCircle size={16} /> Published
+        {:else}
+          <Megaphone size={16} /> Publish Results
+        {/if}
       </button>
 
       <button class="action-btn btn-secondary" on:click={() => goto('/officers/manage-competitions')}>
-        ⬅️ Back
+        <ArrowLeft size={16} /> Back
       </button>
     </div>
 
@@ -1214,7 +1254,7 @@
                 <tr>
                   <td>
                     <div>
-                      <div style="font-weight: 600; color: #ff3e00;">#{entry.entry_number}</div>
+                      <div style="font-weight: 600; color: var(--color-brand-primary);">#{entry.entry_number}</div>
                       <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(entry.beer_name)}</div>
                     </div>
                   </td>
@@ -1388,7 +1428,7 @@
                             </td>
                             <td>
                               <div>
-                                <div style="font-weight: 600; color: #ff3e00;">#{entry.entry_number}</div>
+                                <div style="font-weight: 600; color: var(--color-brand-primary);">#{entry.entry_number}</div>
                                 <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(entry.beer_name)}</div>
                               </div>
                             </td>
@@ -1434,7 +1474,7 @@
                             </td>
                             <td>
                               <div>
-                                <div style="font-weight: 600; color: #ff3e00;">#{ranking.entry?.entry_number}</div>
+                                <div style="font-weight: 600; color: var(--color-brand-primary);">#{ranking.entry?.entry_number}</div>
                                 <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
                               </div>
                             </td>
@@ -1497,7 +1537,7 @@
                             </td>
                             <td>
                               <div>
-                                <div style="font-weight: 600; color: #ff3e00;">#{entry.entry_number}</div>
+                                <div style="font-weight: 600; color: var(--color-brand-primary);">#{entry.entry_number}</div>
                                 <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(entry.beer_name)}</div>
                               </div>
                             </td>
@@ -1543,7 +1583,7 @@
                             </td>
                             <td>
                               <div>
-                                <div style="font-weight: 600; color: #ff3e00;">#{ranking.entry?.entry_number}</div>
+                                <div style="font-weight: 600; color: var(--color-brand-primary);">#{ranking.entry?.entry_number}</div>
                                 <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
                               </div>
                             </td>
@@ -1716,5 +1756,5 @@
         </div>
       {/if}
     </div>
-  {/if}
-</Container>
+  </Container>
+{/if}

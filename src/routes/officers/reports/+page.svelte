@@ -2,7 +2,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
-  import { Container, Button } from '$lib/components/ui';
+  import { Hero, Container, Button } from '$lib/components/ui';
 
   let pageTitle = 'Coming Soon';
   let featureName = 'This Feature';
@@ -30,6 +30,14 @@
     goto('/officers');
   }
 </script>
+
+<Hero
+  title="Reports & Analytics"
+  subtitle="Coming Soon"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
 
 <Container size="md">
   <div class="coming-soon-container">
@@ -133,7 +141,7 @@
   }
 
   .hero-section h1 {
-    color: #ff3e00;
+    color: var(--color-brand-primary);
     text-transform: uppercase;
     font-size: 3rem;
     font-weight: 100;
@@ -159,7 +167,7 @@
     border-radius: 6px;
     padding: 2rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid var(--color-brand-primary);
   }
 
   .brew-icon {

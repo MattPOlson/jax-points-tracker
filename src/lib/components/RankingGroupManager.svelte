@@ -298,18 +298,18 @@
   }
   
   .btn-primary {
-    background: #ff3e00;
+    background: var(--color-brand-primary);
     color: white;
-    border: 1px solid #ff3e00;
+    border: 1px solid var(--color-brand-primary);
     padding: 0.5rem 1rem;
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.9rem;
   }
-  
+
   .btn-primary:hover:not(:disabled) {
-    background: #e63600;
-    border-color: #e63600;
+    background: var(--color-brand-primary-hover);
+    border-color: var(--color-brand-primary-hover);
   }
   
   .btn-primary:disabled {

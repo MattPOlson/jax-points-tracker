@@ -10,9 +10,8 @@
     isJudging,
     currentEntry
   } from '$lib/stores/competitionJudgingStore';
-  import Container from '$lib/components/ui/Container.svelte';
-  import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
-  import Button from '$lib/components/ui/Button.svelte';
+  import { Hero, Container, LoadingSpinner, Button } from '$lib/components/ui';
+  import { ArrowLeft, ArrowRight, Edit3 } from 'lucide-svelte';
 
   // Get competition ID from URL
   $: competitionId = $page.params.id;
@@ -544,12 +543,12 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #ff3e00;
+    background: var(--color-brand-primary);
     cursor: pointer;
   }
 
   .total-score {
-    background: linear-gradient(135deg, #ff3e00 0%, #e63600 100%);
+    background: var(--color-brand-primary);
     color: white;
     padding: 1.5rem;
     text-align: center;
@@ -618,7 +617,7 @@
   }
 
   .progress-fill {
-    background: linear-gradient(90deg, #ff3e00, #059669);
+    background: var(--color-brand-primary);
     height: 100%;
     border-radius: 4px;
     transition: width 0.3s ease;
@@ -648,6 +647,14 @@
     }
   }
 </style>
+
+<Hero
+  title="BJCP Score Sheet"
+  subtitle="Detailed beer evaluation and scoring"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
 
 <Container size="lg">
   {#if !$isJudging || !$currentEntry}
@@ -945,14 +952,16 @@
         on:click={navigateToPrevious}
         disabled={currentEntryIndex === 0}
       >
-        ⬅️ Previous Entry
+        <ArrowLeft size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        Previous Entry
       </Button>
 
       <Button
         variant="secondary"
         on:click={() => goto(`/judge/competition/${competitionId}`)}
       >
-        📝 Simple View
+        <Edit3 size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        Simple View
       </Button>
 
       {#if currentEntryIndex < $activeSession.assignedEntries.length - 1}
@@ -960,7 +969,8 @@
           variant="primary"
           on:click={navigateToNext}
         >
-          Next Entry ➡️
+          Next Entry
+          <ArrowRight size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-left: 0.25rem;" />
         </Button>
       {:else}
         <Button

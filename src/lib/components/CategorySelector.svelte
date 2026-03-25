@@ -166,14 +166,14 @@
   .btn-link {
     background: none;
     border: none;
-    color: #ff3e00;
+    color: var(--color-brand-primary);
     text-decoration: underline;
     cursor: pointer;
     font-size: 0.9rem;
   }
-  
+
   .btn-link:hover {
-    color: #e63600;
+    color: var(--color-brand-primary-hover);
   }
   
   .categories-grid {

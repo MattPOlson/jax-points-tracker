@@ -6,9 +6,11 @@
   import { competitionManagementStore, competitions, isLoading, error, stats } from '$lib/stores/competitionManagementStore';
   import Hero from "$lib/components/ui/Hero.svelte";
   import Container from "$lib/components/ui/Container.svelte";
+  import OverlappingCard from "$lib/components/ui/OverlappingCard.svelte";
   import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
   import EmptyState from "$lib/components/ui/EmptyState.svelte";
   import Button from "$lib/components/ui/Button.svelte";
+  import { Trophy, RefreshCw, Plus, AlertTriangle, Pencil, FileText, Users, BarChart3, Play, Pause, Trash2 } from 'lucide-svelte';
   
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -261,7 +263,7 @@
     padding: 1.5rem;
     border-radius: 6px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid #64748b;
   }
 
   .stat-card .label {
@@ -363,16 +365,29 @@
   .actions {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .btn-small {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+  }
+
+  .btn-small :global(svg) {
+    flex-shrink: 0;
   }
 
   .btn-edit {
-    background: #2563eb;
+    background: #475569;
     color: white;
+  }
+
+  .btn-edit:hover {
+    background: #334155;
   }
 
   .btn-toggle {
@@ -380,33 +395,61 @@
     color: white;
   }
 
+  .btn-toggle:hover {
+    background: #047857;
+  }
+
   .btn-toggle.inactive {
     background: #dc2626;
   }
 
+  .btn-toggle.inactive:hover {
+    background: #b91c1c;
+  }
+
   .btn-entries {
-    background: #8b5cf6;
+    background: #64748b;
     color: white;
+  }
+
+  .btn-entries:hover {
+    background: #475569;
   }
 
   .btn-results {
-    background: #f59e0b;
+    background: #ea580c;
     color: white;
+  }
+
+  .btn-results:hover {
+    background: #c2410c;
   }
 
   .btn-judges {
-    background: #059669;
+    background: #64748b;
     color: white;
   }
 
+  .btn-judges:hover {
+    background: #475569;
+  }
+
   .btn-dashboard {
-    background: #7c3aed;
+    background: #64748b;
     color: white;
+  }
+
+  .btn-dashboard:hover {
+    background: #475569;
   }
 
   .btn-delete {
     background: #dc2626;
     color: white;
+  }
+
+  .btn-delete:hover {
+    background: #b91c1c;
   }
 
 
@@ -429,7 +472,7 @@
     padding: 1.5rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid #64748b;
   }
 
   .competition-header {
@@ -541,57 +584,57 @@
 
   /* Button color variants */
   .btn-view {
-    background: #2563eb;
+    background: #475569;
     color: white;
   }
 
   .btn-view:hover {
-    background: #1d4ed8;
+    background: #334155;
   }
 
   .btn-edit-mobile {
-    background: #059669;
+    background: #475569;
     color: white;
   }
 
   .btn-edit-mobile:hover {
-    background: #047857;
+    background: #334155;
   }
 
   .btn-results-mobile {
-    background: #ff3e00;
+    background: #ea580c;
     color: white;
   }
 
   .btn-results-mobile:hover {
-    background: #e63600;
+    background: #c2410c;
   }
 
   .btn-entries-mobile {
-    background: #7c3aed;
+    background: #64748b;
     color: white;
   }
 
   .btn-entries-mobile:hover {
-    background: #6d28d9;
+    background: #475569;
   }
 
   .btn-judges-mobile {
-    background: #059669;
+    background: #64748b;
     color: white;
   }
 
   .btn-judges-mobile:hover {
-    background: #047857;
+    background: #475569;
   }
 
   .btn-dashboard-mobile {
-    background: #7c3aed;
+    background: #64748b;
     color: white;
   }
 
   .btn-dashboard-mobile:hover {
-    background: #6d28d9;
+    background: #475569;
   }
 
   .btn-toggle-mobile {
@@ -622,8 +665,8 @@
 
   /* Entry count badge */
   .entry-count {
-    background: rgba(255, 62, 0, 0.1);
-    color: #ff3e00;
+    background: rgba(100, 116, 139, 0.1);
+    color: #334155;
     padding: 0.25rem 0.5rem;
     border-radius: 12px;
     font-size: 0.75rem;
@@ -739,12 +782,19 @@
   }
 </style>
 
-<Container size="lg">
-  <Hero title="Manage Competitions" subtitle="Create and manage brewing competitions" icon="🏆" center={true} />
+<Hero
+  title="Manage Competitions"
+  subtitle="Create and manage brewing competitions"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
 
+<Container size="lg">
   <!-- Statistics -->
   {#if !$isLoading}
-    <div class="stats-grid">
+    <OverlappingCard>
+      <div class="stats-grid">
       <div class="stat-card">
         <div class="label">Total Competitions</div>
         <div class="value">{$stats.total}</div>
@@ -761,7 +811,8 @@
         <div class="label">Avg Entries</div>
         <div class="value">{$stats.avgEntries}</div>
       </div>
-    </div>
+      </div>
+    </OverlappingCard>
   {/if}
 
   <!-- Controls -->
@@ -779,17 +830,20 @@
       <option value="past">Past/Closed</option>
     </select>
     <Button variant="secondary" on:click={forceRefresh}>
-      🔄 Refresh
+      <RefreshCw size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+      Refresh
     </Button>
     <Button variant="primary" on:click={navigateToCreate}>
-      ➕ Create Competition
+      <Plus size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+      Create Competition
     </Button>
   </div>
 
   <!-- Error State -->
   {#if $error}
     <div class="error">
-      ⚠️ {$error}
+      <AlertTriangle size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+      {$error}
     </div>
   {/if}
 
@@ -841,51 +895,55 @@
               <td>{competition.entry_count || 0}</td>
               <td>
                 <div class="actions">
-                  <button 
+                  <button
                     class="btn btn-small btn-edit"
                     on:click={() => navigateToEdit(competition.id)}
                   >
-                    ✏️ Edit
+                    <Pencil size={14} /> Edit
                   </button>
-                  <button 
+                  <button
                     class="btn btn-small btn-entries"
                     on:click={() => navigateToEntries(competition.id)}
                   >
-                    📋 Entries
+                    <FileText size={14} /> Entries
                   </button>
-                  <button 
+                  <button
                     class="btn btn-small btn-judges"
                     on:click={() => navigateToJudges(competition.id)}
                   >
-                    👩‍⚖️ Judges
+                    <Users size={14} /> Judges
                   </button>
-                  <button 
+                  <button
                     class="btn btn-small btn-dashboard"
                     on:click={() => navigateToJudgingDashboard(competition.id)}
                   >
-                    📊 Dashboard
+                    <BarChart3 size={14} /> Dashboard
                   </button>
-                  <button 
+                  <button
                     class="btn btn-small btn-results"
                     on:click={() => navigateToResults(competition.id)}
                   >
-                    🏆 Enter Results
+                    <Trophy size={14} /> Results
                   </button>
-                  <button 
+                  <button
                     class="btn btn-small btn-toggle {competition.active ? 'inactive' : ''}"
                     on:click={() => toggleStatus(competition)}
                   >
-                    {competition.active ? '⏸️ Deactivate' : '▶️ Activate'}
+                    {#if competition.active}
+                      <Pause size={14} /> Disable
+                    {:else}
+                      <Play size={14} /> Enable
+                    {/if}
                   </button>
                   {#if competition.entry_count === 0}
-                    <button 
+                    <button
                       class="btn btn-small btn-delete"
                       on:click={() => {
                         competitionToDelete = competition;
                         showDeleteConfirm = true;
                       }}
                     >
-                      🗑️ Delete
+                      <Trash2 size={14} /> Delete
                     </button>
                   {/if}
                 </div>
@@ -954,57 +1012,61 @@
 
           <!-- Action buttons - vertical stack -->
           <div class="competition-actions">
-            <button 
+            <button
               class="action-btn btn-edit-mobile"
               on:click={() => navigateToEdit(competition.id)}
             >
-              ✏️ Edit Competition
+              <Pencil size={16} /> Edit Competition
             </button>
-            
-            <button 
+
+            <button
               class="action-btn btn-entries-mobile"
               on:click={() => navigateToEntries(competition.id)}
             >
-              📋 Manage Entries ({competition.entry_count || 0})
+              <FileText size={16} /> Manage Entries ({competition.entry_count || 0})
             </button>
-            
-            <button 
+
+            <button
               class="action-btn btn-judges-mobile"
               on:click={() => navigateToJudges(competition.id)}
             >
-              👩‍⚖️ Manage Judges
+              <Users size={16} /> Manage Judges
             </button>
-            
-            <button 
+
+            <button
               class="action-btn btn-dashboard-mobile"
               on:click={() => navigateToJudgingDashboard(competition.id)}
             >
-              📊 Judging Dashboard
+              <BarChart3 size={16} /> Judging Dashboard
             </button>
-            
-            <button 
+
+            <button
               class="action-btn btn-results-mobile"
               on:click={() => navigateToResults(competition.id)}
             >
-              🏆 Enter Results
+              <Trophy size={16} /> Enter Results
             </button>
-            
-            <button 
+
+            <button
               class="action-btn btn-toggle-mobile {competition.active ? 'inactive' : ''}"
               on:click={() => toggleStatus(competition)}
             >
-              ⚡ {competition.active ? 'Deactivate' : 'Activate'}
+              {#if competition.active}
+                <Pause size={16} /> Disable Competition
+              {:else}
+                <Play size={16} /> Enable Competition
+              {/if}
             </button>
 
             {#if competition.entry_count === 0}
-              <button 
+              <button
                 class="action-btn btn-delete-mobile"
                 on:click={() => {
                   competitionToDelete = competition;
                   showDeleteConfirm = true;
                 }}
               >
-                🗑️ Delete Competition
+                <Trash2 size={16} /> Delete Competition
               </button>
             {/if}
           </div>
