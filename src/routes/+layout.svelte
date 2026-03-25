@@ -144,8 +144,13 @@
 
 <!-- Header with Logo - appears on all pages -->
 <div class="header-bar">
-  <img src="/JaxLogo.png" alt="JAX Logo" class="jax-logo" />
-  <h1 class="portal-title">JAX MEMBER PORTAL</h1>
+  <a href="/" class="header-logo-link">
+    <img src="/JaxGator.png" alt="Jacksonville Ale Exchange" class="jax-logo" />
+  </a>
+  <div class="header-text">
+    <div class="header-club-name">JACKSONVILLE ALE EXCHANGE</div>
+    <h1 class="portal-title">MEMBER PORTAL</h1>
+  </div>
 </div>
 
 <div class="topbar">
@@ -188,34 +193,68 @@
 
 <style>
   .header-bar {
-    background: white;
-    padding: var(--space-6) var(--space-8);
+    background: var(--color-brand-primary);
+    padding: 0 var(--space-8);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-6);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    gap: var(--space-4);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
     position: sticky;
     top: 0;
     z-index: 200;
+    min-height: 90px;
+    overflow: visible;
+  }
+
+  .header-logo-link {
+    display: flex;
+    align-items: flex-end;
+    text-decoration: none;
+    flex-shrink: 0;
   }
 
   .jax-logo {
-    height: 70px;
+    height: 110px;
     width: auto;
-    mix-blend-mode: multiply;
-    filter: contrast(1.1) brightness(1.05);
+    object-fit: contain;
+    /* Lift the gator so it overlaps the top of the header */
+    margin-top: -20px;
+    margin-bottom: -10px;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+    transition: transform 0.2s ease;
+  }
+
+  .header-logo-link:hover .jax-logo {
+    transform: scale(1.03);
+  }
+
+  .header-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .header-club-name {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-family: 'Trebuchet MS', Arial, sans-serif;
+    line-height: 1;
   }
 
   .portal-title {
-    font-size: var(--font-size-5xl);
+    font-size: var(--font-size-4xl);
     font-weight: 900;
-    color: var(--color-text-primary);
+    color: white;
     margin: 0;
     text-transform: uppercase;
-    letter-spacing: 3px;
+    letter-spacing: 4px;
     font-family: 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', Arial, sans-serif;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    line-height: 1.1;
   }
 
   .topbar {
@@ -294,7 +333,7 @@
   }
 
   .login-icon.logged-in {
-    background: #2563eb; /* Match your nav-button color */
+    background: var(--color-brand-primary);
     cursor: default;
     pointer-events: none;
   }
@@ -306,17 +345,25 @@
   /* Mobile responsiveness */
   @media (max-width: 768px) {
     .header-bar {
-      padding: var(--space-4) var(--space-4);
-      gap: var(--space-4);
+      padding: 0 var(--space-4);
+      gap: var(--space-3);
+      min-height: 72px;
     }
 
     .jax-logo {
-      height: 55px;
+      height: 88px;
+      margin-top: -16px;
+      margin-bottom: -8px;
     }
 
     .portal-title {
-      font-size: var(--font-size-3xl);
+      font-size: var(--font-size-2xl);
       letter-spacing: 2px;
+    }
+
+    .header-club-name {
+      font-size: 0.6rem;
+      letter-spacing: 3px;
     }
   }
 
@@ -340,17 +387,24 @@
 
   @media (max-width: 480px) {
     .header-bar {
-      padding: var(--space-3) var(--space-3);
-      gap: var(--space-3);
+      padding: 0 var(--space-3);
+      gap: var(--space-2);
+      min-height: 64px;
     }
 
     .jax-logo {
-      height: 45px;
+      height: 76px;
+      margin-top: -12px;
+      margin-bottom: -6px;
     }
 
     .portal-title {
-      font-size: var(--font-size-2xl);
+      font-size: var(--font-size-xl);
       letter-spacing: 1.5px;
+    }
+
+    .header-club-name {
+      display: none;
     }
 
     .topbar {
