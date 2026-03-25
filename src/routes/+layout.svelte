@@ -151,35 +151,26 @@
     <div class="header-club-name">JACKSONVILLE ALE EXCHANGE</div>
     <h1 class="portal-title">MEMBER PORTAL</h1>
   </div>
-</div>
-
-<div class="topbar">
-  <button on:click={handleGoBack} class="nav-button" title="Go back" aria-label="Go back to previous page">
-    <ArrowLeft size={24} />
-  </button>
-
-  <a href="/" class="nav-button" title="Home" aria-label="Go to homepage">
-    <Home size={24} />
-  </a>
-
-
-  {#if $user}
-    <button on:click={handleLogout} class="nav-button logout-btn" title="Logout" aria-label="Logout">
-      <LogOut size={24} />
+  <nav class="header-nav" aria-label="Site navigation">
+    <button on:click={handleGoBack} class="nav-button" title="Go back" aria-label="Go back to previous page">
+      <ArrowLeft size={20} />
     </button>
-    <div class="user-info" title={$userProfile?.name || $user.email}>
-      <div class="login-icon logged-in" title="You are logged in">
-        <User size={24} strokeWidth={2} color="white" />
-      </div>
-      {#if $userProfile?.name}
-        <span class="user-name">{$userProfile.name}</span>
-      {/if}
-    </div>
-  {:else}
-    <a href="/login" aria-label="Login" class="login-icon">
-      <User size={24} strokeWidth={2} color="#333" />
+    <a href="/" class="nav-button" title="Home" aria-label="Go to homepage">
+      <Home size={20} />
     </a>
-  {/if}
+    {#if $user}
+      <button on:click={handleLogout} class="nav-button logout-btn" title="Logout" aria-label="Logout">
+        <LogOut size={20} />
+      </button>
+      <div class="user-avatar" title={$userProfile?.name || $user.email}>
+        <User size={20} strokeWidth={2} color="white" />
+      </div>
+    {:else}
+      <a href="/login" aria-label="Login" class="nav-button">
+        <User size={20} strokeWidth={2} />
+      </a>
+    {/if}
+  </nav>
 </div>
 
 <Toaster 
@@ -194,10 +185,9 @@
 <style>
   .header-bar {
     background: var(--color-brand-primary);
-    padding: 0 var(--space-8);
+    padding: 0 var(--space-6);
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: var(--space-4);
     box-shadow: 0 3px 16px rgba(0, 0, 0, 0.4);
     border-bottom: 3px solid var(--color-brand-gold);
@@ -219,7 +209,6 @@
     height: 110px;
     width: auto;
     object-fit: contain;
-    /* Lift the gator so it overlaps the top of the header */
     margin-top: -20px;
     margin-bottom: -10px;
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
@@ -235,6 +224,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0;
+    flex: 1;
   }
 
   .header-club-name {
@@ -258,89 +248,52 @@
     line-height: 1.1;
   }
 
-  .topbar {
-    position: fixed;
-    top: 1rem;
-    right: 1.5rem;
-    z-index: 300;
+  /* Nav integrated into header */
+  .header-nav {
     display: flex;
-    gap: 1rem;
     align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
   }
 
   .nav-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
-    border: none;
-    border-radius: 6px; /* Match your design system */
-    width: 48px;
-    height: 48px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-button);
+    width: 40px;
+    height: 40px;
     transition: all 0.2s ease;
     cursor: pointer;
-    color: #333; 
+    color: rgba(255, 255, 255, 0.85);
     text-decoration: none;
+    flex-shrink: 0;
   }
 
   .nav-button:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    background: #f8fafc;
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.35);
+    color: white;
   }
 
   .logout-btn:hover {
-    background: #fef2f2;
-    color: #dc2626;
+    background: rgba(220, 38, 38, 0.3);
+    border-color: rgba(220, 38, 38, 0.5);
+    color: #fca5a5;
   }
 
-
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .user-name {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #333;
-    background: white;
-    padding: 0.5rem 0.75rem;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    white-space: nowrap;
-  }
-
-  .login-icon {
+  .user-avatar {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
-    border-radius: 6px; /* Match your design system */
-    width: 48px;
-    height: 48px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease;
-    cursor: pointer;
-    text-decoration: none;
-  }
-
-  .login-icon:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    background: #f8fafc;
-    transform: translateY(-1px);
-  }
-
-  .login-icon.logged-in {
-    background: var(--color-brand-primary);
-    cursor: default;
-    pointer-events: none;
-  }
-
-  .login-icon.logged-in:hover {
-    transform: none;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: var(--radius-button);
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
   }
 
   /* Mobile responsiveness */
@@ -368,24 +321,6 @@
     }
   }
 
-  @media (max-width: 640px) {
-    .topbar {
-      top: 0.75rem;
-      right: 1rem;
-      gap: 0.75rem;
-    }
-
-    .nav-button,
-    .login-icon {
-      width: 44px;
-      height: 44px;
-    }
-
-    .user-name {
-      display: none; /* Hide username on mobile to save space */
-    }
-  }
-
   @media (max-width: 480px) {
     .header-bar {
       padding: 0 var(--space-3);
@@ -400,24 +335,22 @@
     }
 
     .portal-title {
-      font-size: var(--font-size-xl);
-      letter-spacing: 1.5px;
+      font-size: var(--font-size-lg);
+      letter-spacing: 1px;
     }
 
     .header-club-name {
       display: none;
     }
 
-    .topbar {
-      top: 0.5rem;
-      right: 0.75rem;
-      gap: 0.5rem;
+    .header-nav {
+      gap: var(--space-1);
     }
 
     .nav-button,
-    .login-icon {
-      width: 40px;
-      height: 40px;
+    .user-avatar {
+      width: 36px;
+      height: 36px;
     }
   }
 </style>

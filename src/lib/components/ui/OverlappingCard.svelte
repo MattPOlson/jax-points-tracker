@@ -39,12 +39,12 @@
   /* Responsive adjustments */
   @media (max-width: 640px) {
     .overlapping-card-container {
-      margin-top: -4rem;
-      margin-bottom: var(--space-3);
+      margin-top: -3rem;
+      margin-bottom: var(--space-2);
     }
 
     .overlapping-card {
-      padding: 2rem 1rem;
+      padding: 1.5rem 1rem;
     }
   }
 </style>

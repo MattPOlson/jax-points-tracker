@@ -189,7 +189,7 @@
     }
 
     .hero-large {
-      padding: 3rem 1rem 6rem 1rem;
+      padding: 2.5rem 1rem 5rem 1rem;
     }
 
     .hero-compact {
@@ -222,7 +222,7 @@
     }
 
     .hero-large {
-      padding: 2rem 1rem 4rem 1rem;
+      padding: 1.5rem 1rem 3.5rem 1rem;
     }
 
     .hero-compact {
