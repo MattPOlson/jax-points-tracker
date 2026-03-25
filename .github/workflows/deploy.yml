@@ -29,7 +29,8 @@ jobs:
     # 2. Merged PRs to master (production deployments)
     if: |
       (github.event_name == 'push' && github.ref != 'refs/heads/master') ||
-      (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'master')
+      (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'master') ||
+      github.event_name == 'workflow_dispatch'
     
     steps:
     - name: Checkout code
