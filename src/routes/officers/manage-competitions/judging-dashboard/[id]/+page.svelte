@@ -611,7 +611,7 @@
   }
 
   .tab-btn.active {
-    background: #ff3e00;
+    background: var(--color-brand-primary);
     color: white;
   }
 
@@ -646,21 +646,21 @@
   }
 
   .btn-primary {
-    background: #475569;
+    background: var(--color-brand-primary);
     color: white;
   }
 
   .btn-primary:hover:not(:disabled) {
-    background: #334155;
+    background: var(--color-brand-primary-hover);
   }
 
   .btn-secondary {
-    background: #64748b;
+    background: var(--color-gray-500);
     color: white;
   }
 
   .btn-secondary:hover:not(:disabled) {
-    background: #475569;
+    background: var(--color-gray-600);
   }
 
 
@@ -725,7 +725,7 @@
   }
 
   .progress-fill {
-    background: linear-gradient(90deg, #ff3e00, #059669);
+    background: var(--color-brand-primary);
     height: 100%;
     border-radius: 8px;
     transition: width 0.3s ease;
@@ -758,7 +758,7 @@
     width: 40px;
     height: 40px;
     border: 4px solid #f3f3f3;
-    border-top: 4px solid #ff3e00;
+    border-top: 4px solid var(--color-brand-primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 1rem;
@@ -780,7 +780,7 @@
     padding: 1.5rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid var(--color-brand-primary);
   }
 
   .mobile-card-header {
@@ -869,7 +869,7 @@
   }
 
   .mobile-progress-fill {
-    background: linear-gradient(90deg, #ff3e00, #059669);
+    background: var(--color-brand-primary);
     height: 100%;
     border-radius: 8px;
     transition: width 0.3s ease;
@@ -900,7 +900,7 @@
 
   .mobile-ranking-entry-number {
     font-weight: 600;
-    color: #ff3e00;
+    color: var(--color-brand-primary);
     font-size: 1.1rem;
   }
 
@@ -1254,7 +1254,7 @@
                 <tr>
                   <td>
                     <div>
-                      <div style="font-weight: 600; color: #ff3e00;">#{entry.entry_number}</div>
+                      <div style="font-weight: 600; color: var(--color-brand-primary);">#{entry.entry_number}</div>
                       <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(entry.beer_name)}</div>
                     </div>
                   </td>
@@ -1428,7 +1428,7 @@
                             </td>
                             <td>
                               <div>
-                                <div style="font-weight: 600; color: #ff3e00;">#{entry.entry_number}</div>
+                                <div style="font-weight: 600; color: var(--color-brand-primary);">#{entry.entry_number}</div>
                                 <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(entry.beer_name)}</div>
                               </div>
                             </td>
@@ -1474,7 +1474,7 @@
                             </td>
                             <td>
                               <div>
-                                <div style="font-weight: 600; color: #ff3e00;">#{ranking.entry?.entry_number}</div>
+                                <div style="font-weight: 600; color: var(--color-brand-primary);">#{ranking.entry?.entry_number}</div>
                                 <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
                               </div>
                             </td>
@@ -1537,7 +1537,7 @@
                             </td>
                             <td>
                               <div>
-                                <div style="font-weight: 600; color: #ff3e00;">#{entry.entry_number}</div>
+                                <div style="font-weight: 600; color: var(--color-brand-primary);">#{entry.entry_number}</div>
                                 <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(entry.beer_name)}</div>
                               </div>
                             </td>
@@ -1583,7 +1583,7 @@
                             </td>
                             <td>
                               <div>
-                                <div style="font-weight: 600; color: #ff3e00;">#{ranking.entry?.entry_number}</div>
+                                <div style="font-weight: 600; color: var(--color-brand-primary);">#{ranking.entry?.entry_number}</div>
                                 <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
                               </div>
                             </td>

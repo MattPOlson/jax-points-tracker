@@ -173,14 +173,15 @@
   }
 </script>
 
+<Hero
+  title="Review Submissions"
+  subtitle="Approve or reject member point submissions"
+  backgroundImage="/Jax-Banner.png"
+  overlay={true}
+  compact={true}
+/>
+
 <Container size="lg">
-  <Hero
-    title="Review Submissions"
-    subtitle="Approve or reject member point submissions"
-    backgroundImage="/Jax-Banner.png"
-    overlay={true}
-    compact={true}
-  />
 
   {#if $loading}
     <LoadingSpinner message="Loading submissions..." />
@@ -551,9 +552,9 @@
 
   /* Table Styles */
   .table-wrapper {
-    background: white;
-    border-radius: 6px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
     overflow: hidden;
     overflow-x: auto;
   }
@@ -565,12 +566,12 @@
   }
 
   .desktop-table th {
-    background: #f8fafc;
+    background: var(--color-bg-secondary);
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    color: #333;
-    border-bottom: 2px solid #e5e7eb;
+    color: var(--color-text-primary);
+    border-bottom: 2px solid var(--color-border-primary);
     white-space: nowrap;
   }
 
@@ -585,7 +586,7 @@
   }
 
   .submission-row:hover {
-    background-color: #f8fafc;
+    background-color: var(--color-bg-secondary);
   }
 
   .member-info {
@@ -598,7 +599,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: #ff3e00;
+    background: var(--color-brand-primary);
     color: white;
     display: flex;
     align-items: center;
@@ -624,7 +625,7 @@
 
   .points-value {
     font-weight: 700;
-    color: #ff3e00;
+    color: var(--color-brand-primary);
     font-size: 1.1rem;
   }
 
@@ -681,12 +682,12 @@
   }
 
   .mobile-card {
-    background: white;
-    border-radius: 6px;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-md);
     padding: 1.5rem;
     margin-bottom: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid var(--color-brand-primary);
   }
 
   .card-header {
@@ -703,7 +704,7 @@
 
   .submission-date {
     font-size: 0.8rem;
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   .card-body {
@@ -721,7 +722,7 @@
 
   .card-row .label {
     font-weight: 500;
-    color: #666;
+    color: var(--color-text-secondary);
     min-width: 100px;
   }
 
@@ -771,8 +772,8 @@
   }
 
   .modal {
-    background: white;
-    border-radius: 6px;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-md);
     max-width: 500px;
     width: 100%;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
@@ -782,11 +783,11 @@
 
   .modal-header {
     padding: 1.5rem 1.5rem 0;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-border-primary);
   }
 
   .modal-header h3 {
-    color: #333;
+    color: var(--color-text-primary);
     font-size: 1.25rem;
     margin: 0 0 1rem 0;
     text-transform: none;
@@ -797,8 +798,8 @@
   }
 
   .submission-preview {
-    background: #f8fafc;
-    border-radius: 6px;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
     padding: 1rem;
     margin-bottom: 1.5rem;
   }
@@ -808,7 +809,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem 0;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-border-primary);
   }
 
   .preview-row:last-child {
@@ -817,21 +818,21 @@
 
   .preview-label {
     font-weight: 500;
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   .preview-value {
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .points-highlight {
-    color: #ff3e00;
+    color: var(--color-brand-primary);
     font-size: 1.1rem;
   }
 
   .confirmation-text {
-    color: #666;
+    color: var(--color-text-secondary);
     text-align: center;
     margin: 0;
   }
@@ -843,14 +844,14 @@
   .reason-label {
     display: block;
     font-weight: 500;
-    color: #333;
+    color: var(--color-text-primary);
     margin-bottom: 0.5rem;
   }
 
   textarea {
     width: 100%;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-md);
     padding: 0.75rem;
     font-size: 1rem;
     font-family: inherit;
@@ -862,8 +863,8 @@
 
   textarea:focus {
     outline: none;
-    border-color: #ff3e00;
-    box-shadow: 0 0 0 1px #ff3e00;
+    border-color: var(--color-border-focus);
+    box-shadow: 0 0 0 1px var(--color-border-focus);
   }
 
   textarea:disabled {

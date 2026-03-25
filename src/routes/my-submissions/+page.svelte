@@ -419,21 +419,21 @@
     align-items: center;
     margin-bottom: var(--space-8);
     padding: var(--space-4);
-    background: white;
+    background: var(--color-bg-primary);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-md);
   }
 
   .count-display {
     font-weight: 500;
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   /* Table Styles */
   .submissions-container {
-    background: white;
-    border-radius: 6px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
     overflow: hidden;
   }
 
@@ -447,12 +447,12 @@
   }
 
   .desktop-table th {
-    background: #f8fafc;
+    background: var(--color-bg-secondary);
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    color: #333;
-    border-bottom: 2px solid #e5e7eb;
+    color: var(--color-text-primary);
+    border-bottom: 2px solid var(--color-border-primary);
     white-space: nowrap;
   }
 
@@ -490,12 +490,12 @@
   }
 
   .submission-row:hover {
-    background-color: #f8fafc;
+    background-color: var(--color-bg-secondary);
   }
 
   .category-cell {
     font-weight: 500;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .points-cell {
@@ -583,13 +583,13 @@
 
   .card-row .label {
     font-weight: 500;
-    color: #666;
+    color: var(--color-text-secondary);
     min-width: 100px;
   }
 
   .card-row .value {
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
     text-align: right;
   }
 

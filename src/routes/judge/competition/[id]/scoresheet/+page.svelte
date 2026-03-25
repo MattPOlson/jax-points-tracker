@@ -543,12 +543,12 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #ff3e00;
+    background: var(--color-brand-primary);
     cursor: pointer;
   }
 
   .total-score {
-    background: linear-gradient(135deg, #ff3e00 0%, #e63600 100%);
+    background: var(--color-brand-primary);
     color: white;
     padding: 1.5rem;
     text-align: center;
@@ -617,7 +617,7 @@
   }
 
   .progress-fill {
-    background: linear-gradient(90deg, #ff3e00, #059669);
+    background: var(--color-brand-primary);
     height: 100%;
     border-radius: 4px;
     transition: width 0.3s ease;

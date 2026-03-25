@@ -361,7 +361,7 @@
   }
 
   .progress-fill {
-    background: linear-gradient(90deg, #ff3e00, #059669);
+    background: var(--color-brand-primary);
     height: 100%;
     border-radius: 8px;
     transition: width 0.3s ease;
@@ -397,7 +397,7 @@
   }
 
   .entry-nav-item.active {
-    background: #ff3e00;
+    background: var(--color-brand-primary);
     color: white;
   }
 
@@ -434,7 +434,7 @@
   .entry-number {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #ff3e00;
+    color: var(--color-brand-primary);
     margin: 0 0 0.5rem;
   }
 
@@ -519,7 +519,7 @@
 
   .score-input:focus {
     outline: none;
-    border-color: #ff3e00;
+    border-color: var(--color-border-focus);
   }
 
   .score-input:invalid {
@@ -528,7 +528,7 @@
 
   /* Total Score Display */
   .total-score {
-    background: linear-gradient(135deg, #ff3e00 0%, #e63600 100%);
+    background: var(--color-brand-primary);
     color: white;
     padding: 1.5rem;
     border-radius: 12px;
@@ -592,7 +592,7 @@
 
   .notes-textarea:focus {
     outline: none;
-    border-color: #ff3e00;
+    border-color: var(--color-border-focus);
   }
 
   /* Navigation Buttons */
