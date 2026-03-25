@@ -1,5 +1,5 @@
 export const version = {
-  number: '1.3.5',
-  buildDate: '2026-01-05', // Update this when you deploy
-  display: 'v1.3.5 (2026-01-05)'
+  number: '1.4.0',
+  buildDate: '2026-03-25', // Update this when you deploy
+  display: 'v1.4.0 (2026-03-25)'
 };
