@@ -93,7 +93,9 @@
   function getCompetitionStatus(competition) {
     const now = new Date();
     const deadline = new Date(competition.entry_deadline);
+    // Set judging date to end of day so "today" is still active all day
     const judgingDate = new Date(competition.judging_date);
+    judgingDate.setHours(23, 59, 59, 999);
 
     if (competition.results_published) {
       return { text: 'Results Published', variant: 'success' };
@@ -213,7 +215,7 @@
                 >
                   {#if status.variant === 'warning'}
                     Start Judging
-                  {:else if status.variant === 'success'}
+                  {:else if status.variant === 'success' || status.variant === 'info'}
                     Judging Complete
                   {:else}
                     Not Yet Available
