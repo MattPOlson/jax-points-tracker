@@ -10,12 +10,20 @@ export const judgeStore = writable({
   lastUpdate: null
 });
 
+// Judging table store
+export const judgeTableStore = writable({
+  tables: [],
+  loading: false,
+  error: null
+});
+
 // Current judging session store
 export const judgingSessionStore = writable({
   activeCompetition: null,
   assignedEntries: [],
   currentEntry: null,
   judgeId: null,
+  judgeTableId: null,
   sessionActive: false,
   loading: false,
   error: null
@@ -24,7 +32,7 @@ export const judgingSessionStore = writable({
 // Judging workflow states
 export const JUDGING_STATES = {
   NOT_STARTED: 'not_started',
-  IN_PROGRESS: 'in_progress', 
+  IN_PROGRESS: 'in_progress',
   COMPLETED: 'completed',
   PUBLISHED: 'published'
 };
@@ -37,11 +45,11 @@ export const JUDGE_ROLES = {
 };
 
 class CompetitionJudgingStore {
-  
+
   // Load judges for a competition
   async loadJudges(competitionId) {
     judgeStore.update(store => ({ ...store, loading: true, error: null }));
-    
+
     try {
       const { data, error } = await supabase
         .from('competition_judges')
@@ -74,6 +82,156 @@ class CompetitionJudgingStore {
     }
   }
 
+  // Load judging tables for a competition
+  async loadTables(competitionId) {
+    judgeTableStore.update(store => ({ ...store, loading: true, error: null }));
+
+    try {
+      const { data, error } = await supabase
+        .from('judging_tables')
+        .select('*')
+        .eq('competition_id', competitionId)
+        .order('table_number', { ascending: true });
+
+      if (error) throw error;
+
+      judgeTableStore.update(store => ({
+        ...store,
+        tables: data || [],
+        loading: false
+      }));
+
+      return data;
+    } catch (err) {
+      console.error('Error loading judging tables:', err);
+      judgeTableStore.update(store => ({
+        ...store,
+        loading: false,
+        error: err.message
+      }));
+      throw err;
+    }
+  }
+
+  // Create a new judging table
+  async createTable(competitionId, tableNumber, tableName) {
+    try {
+      const { data, error } = await supabase
+        .from('judging_tables')
+        .insert([{ competition_id: competitionId, table_number: tableNumber, table_name: tableName }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      judgeTableStore.update(store => ({
+        ...store,
+        tables: [...store.tables, data].sort((a, b) => a.table_number - b.table_number)
+      }));
+
+      return data;
+    } catch (err) {
+      console.error('Error creating judging table:', err);
+      throw err;
+    }
+  }
+
+  // Update a judging table's name
+  async updateTable(tableId, tableName) {
+    try {
+      const { data, error } = await supabase
+        .from('judging_tables')
+        .update({ table_name: tableName })
+        .eq('id', tableId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      judgeTableStore.update(store => ({
+        ...store,
+        tables: store.tables.map(t => t.id === tableId ? data : t)
+      }));
+
+      return data;
+    } catch (err) {
+      console.error('Error updating judging table:', err);
+      throw err;
+    }
+  }
+
+  // Delete a judging table
+  async deleteTable(tableId) {
+    try {
+      const { error } = await supabase
+        .from('judging_tables')
+        .delete()
+        .eq('id', tableId);
+
+      if (error) throw error;
+
+      judgeTableStore.update(store => ({
+        ...store,
+        tables: store.tables.filter(t => t.id !== tableId)
+      }));
+    } catch (err) {
+      console.error('Error deleting judging table:', err);
+      throw err;
+    }
+  }
+
+  // Update a judge's table assignment
+  async updateJudgeTable(judgeAssignmentId, tableId) {
+    try {
+      const { error } = await supabase
+        .from('competition_judges')
+        .update({ table_id: tableId })
+        .eq('id', judgeAssignmentId);
+
+      if (error) throw error;
+
+      judgeStore.update(store => ({
+        ...store,
+        judges: store.judges.map(j =>
+          j.id === judgeAssignmentId ? { ...j, table_id: tableId } : j
+        )
+      }));
+    } catch (err) {
+      console.error('Error updating judge table assignment:', err);
+      throw err;
+    }
+  }
+
+  // Assign a single entry to a table
+  async assignEntryToTable(entryId, tableId) {
+    try {
+      const { error } = await supabase
+        .from('competition_entries')
+        .update({ table_id: tableId })
+        .eq('id', entryId);
+
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error assigning entry to table:', err);
+      throw err;
+    }
+  }
+
+  // Bulk-assign entries to a table
+  async bulkAssignEntriesToTable(entryIds, tableId) {
+    try {
+      const { error } = await supabase
+        .from('competition_entries')
+        .update({ table_id: tableId })
+        .in('id', entryIds);
+
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error bulk-assigning entries to table:', err);
+      throw err;
+    }
+  }
+
   // Assign a judge to a competition
   async assignJudge(competitionId, judgeData) {
     try {
@@ -84,7 +242,8 @@ class CompetitionJudgingStore {
         assignment_notes: judgeData.assignment_notes || null,
         assigned_at: new Date().toISOString(),
         assigned_by: judgeData.assigned_by,
-        active: true
+        active: true,
+        table_id: judgeData.table_id || null
       };
 
       const { data, error } = await supabase
@@ -168,14 +327,13 @@ class CompetitionJudgingStore {
       // Check if judging is active (past deadline, before/on judging date)
       const now = new Date();
       const deadline = new Date(competition.entry_deadline);
-      const judgingDate = new Date(competition.judging_date);
 
       if (now < deadline) {
         throw new Error('Competition entry deadline has not passed yet');
       }
 
-      // Load entries to judge
-      const { data: entries, error: entriesError } = await supabase
+      // Build entries query — filter by table if judge has a table assignment
+      let entriesQuery = supabase
         .from('competition_entries')
         .select(`
           *,
@@ -184,6 +342,12 @@ class CompetitionJudgingStore {
         .eq('competition_id', competitionId)
         .order('bjcp_category_id', { ascending: true })
         .order('entry_number', { ascending: true });
+
+      if (assignment.table_id) {
+        entriesQuery = entriesQuery.eq('table_id', assignment.table_id);
+      }
+
+      const { data: entries, error: entriesError } = await entriesQuery;
 
       if (entriesError) throw entriesError;
 
@@ -201,7 +365,7 @@ class CompetitionJudgingStore {
       // Merge judging data with entries
       const entriesWithJudging = entries.map(entry => {
         const judgingSession = existingJudging?.find(j => j.entry_id === entry.id);
-        
+
         // Check if entry has been judged by looking for valid scores
         const hasValidScores = judgingSession && (
           judgingSession.aroma_score !== null ||
@@ -210,7 +374,7 @@ class CompetitionJudgingStore {
           judgingSession.mouthfeel_score !== null ||
           judgingSession.overall_score !== null
         );
-        
+
         return {
           ...entry,
           judging: judgingSession || null,
@@ -223,6 +387,7 @@ class CompetitionJudgingStore {
         activeCompetition: competition,
         assignedEntries: entriesWithJudging,
         judgeId,
+        judgeTableId: assignment.table_id || null,
         sessionActive: true,
         loading: false,
         currentEntry: entriesWithJudging[0] || null
@@ -250,7 +415,7 @@ class CompetitionJudgingStore {
   async saveJudgingResults(entryId, judgingData) {
     try {
       const sessionStore = get(judgingSessionStore);
-      
+
       const judgingSession = {
         competition_id: sessionStore.activeCompetition.id,
         entry_id: entryId,
@@ -309,7 +474,7 @@ class CompetitionJudgingStore {
               result.data.mouthfeel_score !== null ||
               result.data.overall_score !== null
             );
-            
+
             return {
               ...entry,
               judging: result.data,
@@ -372,6 +537,7 @@ class CompetitionJudgingStore {
       assignedEntries: [],
       currentEntry: null,
       judgeId: null,
+      judgeTableId: null,
       sessionActive: false,
       loading: false,
       error: null
@@ -382,6 +548,7 @@ class CompetitionJudgingStore {
   clearError() {
     judgeStore.update(store => ({ ...store, error: null }));
     judgingSessionStore.update(store => ({ ...store, error: null }));
+    judgeTableStore.update(store => ({ ...store, error: null }));
   }
 }
 
@@ -391,6 +558,9 @@ export const competitionJudgingStore = new CompetitionJudgingStore();
 export const judgeList = derived(judgeStore, $store => $store.judges);
 export const isLoadingJudges = derived(judgeStore, $store => $store.loading);
 export const judgeError = derived(judgeStore, $store => $store.error);
+
+export const judgeTableList = derived(judgeTableStore, $store => $store.tables);
+export const isLoadingTables = derived(judgeTableStore, $store => $store.loading);
 
 export const activeSession = derived(judgingSessionStore, $store => $store);
 export const isJudging = derived(judgingSessionStore, $store => $store.sessionActive);

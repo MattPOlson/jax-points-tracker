@@ -5,6 +5,7 @@
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
+  import { competitionJudgingStore } from '$lib/stores/competitionJudgingStore';
   import Hero from "$lib/components/ui/Hero.svelte";
   import Container from "$lib/components/ui/Container.svelte";
   import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
@@ -43,6 +44,10 @@
   let sortDirection = 'asc';
   let selectedEntries = new Set();
   let selectAll = false;
+
+  // Table assignment state
+  let tables = [];
+  let bulkTableId = '';
 
   onMount(() => {
     setupEventHandlers();
@@ -99,6 +104,15 @@
       if (entriesError) throw entriesError;
       
       entries = entriesData || [];
+
+      // Load judging tables for this competition
+      const { data: tablesData } = await supabase
+        .from('judging_tables')
+        .select('*')
+        .eq('competition_id', competitionId)
+        .order('table_number');
+      tables = tablesData || [];
+
       filterAndSortEntries();
     } catch (err) {
       console.error('Error loading data:', err);
@@ -384,6 +398,43 @@ function printLabels() {
     URL.revokeObjectURL(pdfUrl);
   }, 10000); // Give more time for the PDF to load
 }
+
+  // Assign a single entry to a table
+  async function assignEntryToTable(entryId, tableId) {
+    try {
+      await competitionJudgingStore.assignEntryToTable(entryId, tableId || null);
+      const idx = entries.findIndex(e => e.id === entryId);
+      if (idx !== -1) {
+        entries[idx].table_id = tableId || null;
+        filterAndSortEntries();
+      }
+    } catch (err) {
+      console.error('Error assigning entry to table:', err);
+      alert('Failed to update table assignment');
+    }
+  }
+
+  // Bulk-assign selected entries to a table
+  async function bulkAssignToTable() {
+    if (bulkTableId === undefined) return;
+    const entryIds = [...selectedEntries];
+    if (entryIds.length === 0) return;
+    try {
+      await competitionJudgingStore.bulkAssignEntriesToTable(entryIds, bulkTableId || null);
+      entryIds.forEach(id => {
+        const idx = entries.findIndex(e => e.id === id);
+        if (idx !== -1) entries[idx].table_id = bulkTableId || null;
+      });
+      entries = [...entries];
+      filterAndSortEntries();
+      selectedEntries.clear();
+      selectedEntries = new Set();
+      bulkTableId = '';
+    } catch (err) {
+      console.error('Error bulk-assigning entries to table:', err);
+      alert('Failed to bulk-assign entries to table');
+    }
+  }
 
   // Format date
   function formatDate(dateString) {
@@ -1044,6 +1095,41 @@ function printLabels() {
     }
   }
 
+  /* Bulk action bar */
+  .bulk-action-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: #fef9c3;
+    border: 1px solid #fde68a;
+    border-radius: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .bulk-action-bar label {
+    font-weight: 500;
+    color: #92400e;
+    white-space: nowrap;
+  }
+
+  .bulk-action-bar select {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+
+  /* Table cell select */
+  .table-select {
+    padding: 0.3rem 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    min-width: 130px;
+  }
+
   /* Modal styles */
   .modal-overlay {
     position: fixed;
@@ -1181,6 +1267,22 @@ function printLabels() {
       </Button>
     </div>
 
+    <!-- Bulk action bar (shown when entries are selected and tables exist) -->
+    {#if selectedEntries.size > 0 && tables.length > 0}
+      <div class="bulk-action-bar">
+        <label>Assign {selectedEntries.size} selected to table:</label>
+        <select bind:value={bulkTableId}>
+          <option value="">— No Table —</option>
+          {#each tables as table}
+            <option value={table.id}>Table {table.table_number}: {table.table_name}</option>
+          {/each}
+        </select>
+        <Button variant="primary" on:click={bulkAssignToTable}>
+          Apply
+        </Button>
+      </div>
+    {/if}
+
     {#if filteredEntries.length === 0}
       <EmptyState
         icon="📋"
@@ -1239,6 +1341,9 @@ function printLabels() {
                   <span class="sort-indicator">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                 {/if}
               </th>
+              {#if tables.length > 0}
+                <th>Table</th>
+              {/if}
             </tr>
           </thead>
           <tbody>
@@ -1284,6 +1389,20 @@ function printLabels() {
                   </div>
                 </td>
                 <td>{formatDate(entry.submitted_at)}</td>
+                {#if tables.length > 0}
+                  <td>
+                    <select
+                      class="table-select"
+                      value={entry.table_id || ''}
+                      on:change={(e) => assignEntryToTable(entry.id, e.target.value || null)}
+                    >
+                      <option value="">No Table</option>
+                      {#each tables as table}
+                        <option value={table.id}>Table {table.table_number}: {table.table_name}</option>
+                      {/each}
+                    </select>
+                  </td>
+                {/if}
               </tr>
             {/each}
           </tbody>
