@@ -145,7 +145,7 @@
 <!-- Header with Logo - appears on all pages -->
 <div class="header-bar">
   <a href="/" class="header-logo-link">
-    <img src="/JaxGator.png" alt="Jacksonville Ale Exchange" class="jax-logo" />
+    <img src="/JAX-Profile-Final-1.svg" alt="Jacksonville Ale Exchange" class="jax-logo" />
   </a>
   <div class="header-text">
     <div class="header-club-name">JACKSONVILLE ALE EXCHANGE</div>
@@ -188,6 +188,7 @@
     padding: 0 var(--space-6);
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: var(--space-4);
     box-shadow: 0 3px 16px rgba(0, 0, 0, 0.4);
     border-bottom: 3px solid var(--color-brand-gold);
@@ -224,7 +225,6 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0;
-    flex: 1;
   }
 
   .header-club-name {
@@ -250,6 +250,7 @@
 
   /* Nav integrated into header */
   .header-nav {
+    margin-left: auto;
     display: flex;
     align-items: center;
     gap: var(--space-2);

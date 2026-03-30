@@ -1,0 +1,13 @@
+-- BJCP Category 27: Historical Beer
+-- Run directly against the database to insert all 9 subcategories
+
+INSERT INTO bjcp_categories (id, category_number, category_name, subcategory_letter, subcategory_name, description, created_at, updated_at) VALUES
+  ('351edeff-d71e-49fa-997e-928c2cc85e03', '27', 'Historical Beer', 'A', 'Kellerbier',           'Unfiltered, unpasteurized German lager with richer, more rustic character than the base style',              '2026-03-30 00:00:00.000000', '2026-03-30 00:00:00.000000'),
+  ('1bbe0785-be0f-4f2a-a405-2f53fd7e2dc7', '27', 'Historical Beer', 'B', 'Kentucky Common',       'Clean, dry, refreshing, slightly malty dark ale with high carbonation and mild toasty character',            '2026-03-30 00:00:00.000000', '2026-03-30 00:00:00.000000'),
+  ('03b6b1eb-7837-463b-b3eb-7852382bc90a', '27', 'Historical Beer', 'C', 'Lichtenhainer',         'Sour, smoked, lower-gravity Central European wheat beer with refreshing acidity and dry woodsy smoke',       '2026-03-30 00:00:00.000000', '2026-03-30 00:00:00.000000'),
+  ('1b3b8ab6-e040-4bb9-8a63-4c8c88e2e2ae', '27', 'Historical Beer', 'D', 'London Brown Ale',      'Luscious, sweet, malty, low-alcohol dark brown ale with rich caramel and toffee complexity',                '2026-03-30 00:00:00.000000', '2026-03-30 00:00:00.000000'),
+  ('a3019f55-46f5-4458-a217-76a9b4e6bdb5', '27', 'Historical Beer', 'E', 'Piwo Grodziskie',       'Low-gravity, bitter, oak-smoked Polish wheat beer with exceptional carbonation and a clean, dry finish',    '2026-03-30 00:00:00.000000', '2026-03-30 00:00:00.000000'),
+  ('354083c8-088b-40ce-8753-d500a09051bc', '27', 'Historical Beer', 'F', 'Pre-Prohibition Lager',  'Bitter and hoppy pale American adjunct lager with robust corny flavor and rustic hop character',            '2026-03-30 00:00:00.000000', '2026-03-30 00:00:00.000000'),
+  ('d0fc1612-8a74-4871-b227-7263f096fcdb', '27', 'Historical Beer', 'G', 'Pre-Prohibition Porter', 'Historical American dark porter with grainy malt, restrained chocolate, and adjunct character',            '2026-03-30 00:00:00.000000', '2026-03-30 00:00:00.000000'),
+  ('9a8a9362-0b48-498a-9487-973dfd2053bf', '27', 'Historical Beer', 'H', 'Roggenbier',             'Dark Bavarian rye wheat beer with spicy-peppery rye grain and banana-clove weizen yeast character',        '2026-03-30 00:00:00.000000', '2026-03-30 00:00:00.000000'),
+  ('a15fbbe0-e8be-4e02-b08d-cc4bf36b67f7', '27', 'Historical Beer', 'I', 'Sahti',                 'Sweet, heavy, strong Finnish farmhouse beer with rye, juniper, and prominent banana-clove yeast character', '2026-03-30 00:00:00.000000', '2026-03-30 00:00:00.000000');
