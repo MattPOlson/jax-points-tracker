@@ -1,41 +1,42 @@
 import { writable } from 'svelte/store';
 import { supabase } from '$lib/supabaseClient';
-import { browser } from '$app/environment';
 
 export const leaderboard = writable([]);
 export const message = writable('');
 export const loading = writable(false);
+export const availableYears = writable([]);
+export const selectedYear = writable(new Date().getFullYear());
 
-let lastLoaded = 0;
 const CACHE_MS = 10000;
+const cache = new Map(); // year -> { data, loadedAt }
 
-// ✅ Safely defer localStorage interaction until fully in browser context
-if (browser) {
-  setTimeout(() => {
-    try {
-      const stored = localStorage.getItem('leaderboard');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          leaderboard.set(parsed);
-        }
-      }
+export async function loadAvailableYears() {
+  const { data, error } = await supabase
+    .from('point_submissions')
+    .select('event_date')
+    .eq('approved', true)
+    .not('event_date', 'is', null);
 
-      leaderboard.subscribe((value) => {
-        try {
-          localStorage.setItem('leaderboard', JSON.stringify(value));
-        } catch (e) {
-          console.warn('Error writing leaderboard to localStorage:', e);
-        }
-      });
-    } catch (e) {
-      console.warn('Error reading leaderboard from localStorage:', e);
-    }
-  }, 0);
+  if (error || !data) return;
+
+  const years = [...new Set(data.map(r => new Date(r.event_date + 'T00:00:00').getFullYear()))]
+    .filter(y => !isNaN(y))
+    .sort((a, b) => b - a);
+
+  // Always include current year even if no data yet
+  const currentYear = new Date().getFullYear();
+  if (!years.includes(currentYear)) years.unshift(currentYear);
+
+  availableYears.set(years);
 }
 
-export async function loadLeaderboard(force = false) {
-  if (!force && Date.now() - lastLoaded < CACHE_MS) return;
+export async function loadLeaderboard(year, force = false) {
+  const cached = cache.get(year);
+  if (!force && cached && Date.now() - cached.loadedAt < CACHE_MS) {
+    leaderboard.set(cached.data);
+    message.set('');
+    return;
+  }
 
   loading.set(true);
 
@@ -43,13 +44,12 @@ export async function loadLeaderboard(force = false) {
     .from('point_submissions')
     .select(`
       points,
-      approved,
       member_id,
       members(id, name)
     `)
-    .eq('approved', true);
-
-  lastLoaded = Date.now();
+    .eq('approved', true)
+    .gte('event_date', `${year}-01-01`)
+    .lte('event_date', `${year}-12-31`);
 
   if (error) {
     console.error('Error loading leaderboard:', error);
@@ -69,12 +69,10 @@ export async function loadLeaderboard(force = false) {
     totals.get(id).points += points;
   }
 
-  leaderboard.set(
-    Array.from(totals.values())
-      .sort((a, b) => b.points - a.points)
-      .slice(0, 10)
-  );
+  const sorted = Array.from(totals.values()).sort((a, b) => b.points - a.points);
 
+  cache.set(year, { data: sorted, loadedAt: Date.now() });
+  leaderboard.set(sorted);
   message.set('');
   loading.set(false);
 }

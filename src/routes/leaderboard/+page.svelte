@@ -1,57 +1,35 @@
 <script>
-  import { onMount, onDestroy } from 'svelte';
-  import { page } from '$app/stores';
-  import { leaderboard, message, loadLeaderboard, loading } from '$lib/stores/leaderboardStore.js';
-  import { Hero, Container, LoadingSpinner, EmptyState, Badge, Card } from '$lib/components/ui';
-  import { Trophy, Medal, Award, Crown, TrendingUp } from 'lucide-svelte';
+  import { onMount } from 'svelte';
+  import { leaderboard, message, loading, availableYears, selectedYear, loadLeaderboard, loadAvailableYears } from '$lib/stores/leaderboardStore.js';
+  import { Hero, Container, LoadingSpinner, EmptyState, Badge } from '$lib/components/ui';
+  import { Trophy, Medal, Award, Crown, ChevronDown } from 'lucide-svelte';
 
-  let cleanupFunctions = [];
+  const currentYear = new Date().getFullYear();
 
-  // Removed tab focus handler - causes issues with Supabase tab switching
-  function setupEventHandlers() {
-    // Tab visibility handling removed for better Supabase compatibility
-    return () => {
-      // No cleanup needed now
-    };
-  }
-
-  // Data loading function
   async function loadData(force = false) {
     try {
-      await loadLeaderboard(force);
+      await loadLeaderboard($selectedYear, force);
     } catch (error) {
       console.error('Error loading leaderboard:', error);
     }
   }
 
-  // Get rank styling class
+  async function onYearChange(e) {
+    selectedYear.set(Number(e.target.value));
+    await loadData(true);
+  }
+
   function getRankClass(rank) {
-    switch (rank) {
-      case 1: return 'rank-gold';
-      case 2: return 'rank-silver';
-      case 3: return 'rank-bronze';
-      default: return '';
-    }
+    if (rank === 1) return 'rank-gold';
+    if (rank === 2) return 'rank-silver';
+    if (rank === 3) return 'rank-bronze';
+    return '';
   }
 
-  onMount(() => {
-    // Initial data load
-    loadData(true);
-    
-    // Setup tab focus handling
-    const cleanup = setupEventHandlers();
-    cleanupFunctions.push(cleanup);
+  onMount(async () => {
+    await loadAvailableYears();
+    await loadData(true);
   });
-
-  onDestroy(() => {
-    // Cleanup all event listeners
-    cleanupFunctions.forEach(cleanup => cleanup());
-  });
-
-  // Reload when navigating to leaderboard
-  $: if ($page.url.pathname === '/leaderboard') {
-    loadData(true);
-  }
 </script>
 
 <Hero
@@ -64,13 +42,31 @@
 
 <Container size="lg">
 
+  <!-- Year Selector -->
+  <div class="year-selector-bar">
+    <span class="season-label">
+      {$selectedYear === currentYear ? `${currentYear} Season (Current)` : `${$selectedYear} Season`}
+    </span>
+    <div class="select-wrapper">
+      <select class="year-select" value={$selectedYear} on:change={onYearChange}>
+        {#each $availableYears as year}
+          <option value={year}>
+            {year}{year === currentYear ? ' (Current)' : ''}
+          </option>
+        {/each}
+      </select>
+      <ChevronDown size={16} class="select-chevron" />
+    </div>
+  </div>
+
   {#if $loading}
     <LoadingSpinner message="Loading leaderboard..." />
   {:else if $leaderboard.length > 0}
     <div class="leaderboard-container">
+
       <!-- Top 3 Podium (Desktop) -->
-      <div class="podium-section">
-        {#if $leaderboard.length >= 3}
+      {#if $leaderboard.length >= 3}
+        <div class="podium-section">
           <div class="podium">
             <!-- Second Place -->
             <div class="podium-position second">
@@ -114,13 +110,13 @@
               <div class="podium-base third-base">3</div>
             </div>
           </div>
-        {/if}
-      </div>
+        </div>
+      {/if}
 
-      <!-- Full Leaderboard Table -->
+      <!-- Full Rankings Table -->
       <div class="table-section">
         <h3>Complete Rankings</h3>
-        
+
         <!-- Desktop Table -->
         <div class="table-wrapper">
           <table class="desktop-table">
@@ -187,13 +183,14 @@
               </div>
               <div class="card-body">
                 <div class="name">{entry.name}</div>
-                <div class="points">{entry.points.toLocaleString()} points</div>
+                <div class="points">{entry.points.toLocaleString()} pts</div>
               </div>
             </div>
           {/each}
         </div>
       </div>
     </div>
+
   {:else if $message}
     <EmptyState
       title="No Data Available"
@@ -203,23 +200,76 @@
     />
   {:else}
     <EmptyState
-      title="Leaderboard Coming Soon"
-      message="No leaderboard data available yet. Start brewing and submitting points!"
+      title="No Points Yet for {$selectedYear}"
+      message={$selectedYear === currentYear
+        ? "No points have been submitted for this season yet. Start brewing!"
+        : "No points data found for the {$selectedYear} season."}
       actionLabel="Refresh"
       on:action={() => loadData(true)}
     />
   {/if}
+
 </Container>
 
 <style>
+  /* Year Selector */
+  .year-selector-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: var(--space-6) 0 var(--space-4);
+    padding: var(--space-3) var(--space-5);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid var(--color-brand-gold);
+  }
 
+  .season-label {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-brand-primary);
+  }
+
+  .select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .year-select {
+    appearance: none;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-button);
+    padding: var(--space-2) var(--space-8) var(--space-2) var(--space-3);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .year-select:focus {
+    outline: none;
+    border-color: var(--color-brand-primary);
+  }
+
+  .select-wrapper :global(.select-chevron) {
+    position: absolute;
+    right: var(--space-3);
+    pointer-events: none;
+    color: var(--color-text-secondary);
+  }
+
+  /* Leaderboard Layout */
   .leaderboard-container {
     display: flex;
     flex-direction: column;
     gap: 3rem;
   }
 
-  /* Podium Styles */
+  /* Podium */
   .podium-section {
     margin-bottom: 2rem;
   }
@@ -248,6 +298,7 @@
     margin-bottom: 0.5rem;
     transition: transform var(--transition-base);
     min-width: 140px;
+    text-align: center;
   }
 
   .podium-card:hover {
@@ -260,12 +311,7 @@
     transform: scale(1.1);
   }
 
-  .crown-icon {
-    margin-bottom: var(--space-2);
-    display: flex;
-    justify-content: center;
-  }
-
+  .crown-icon,
   .medal-icon {
     margin-bottom: var(--space-2);
     display: flex;
@@ -294,7 +340,6 @@
 
   .podium-base {
     width: 120px;
-    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -304,22 +349,11 @@
     color: white;
   }
 
-  .first-base {
-    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-    height: 60px;
-  }
+  .first-base  { background: linear-gradient(135deg, #ffd700, #ffed4e); height: 60px; }
+  .second-base { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); height: 50px; }
+  .third-base  { background: linear-gradient(135deg, #cd7f32, #deb887); height: 40px; }
 
-  .second-base {
-    background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
-    height: 50px;
-  }
-
-  .third-base {
-    background: linear-gradient(135deg, #cd7f32 0%, #deb887 100%);
-    height: 40px;
-  }
-
-  /* Table Styles */
+  /* Table */
   .table-section h3 {
     color: var(--color-brand-primary);
     font-size: var(--font-size-2xl);
@@ -354,25 +388,11 @@
     border-bottom: 1px solid var(--color-border-secondary);
   }
 
-  .rank-row {
-    transition: background-color var(--transition-base);
-  }
-
-  .rank-row:hover {
-    background-color: var(--color-bg-secondary);
-  }
-
-  .rank-row.rank-gold {
-    background: linear-gradient(135deg, #fffbf0 0%, #fff8e1 100%);
-  }
-
-  .rank-row.rank-silver {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  }
-
-  .rank-row.rank-bronze {
-    background: linear-gradient(135deg, #fefaf5 0%, #fdf7f0 100%);
-  }
+  .rank-row { transition: background-color var(--transition-base); }
+  .rank-row:hover { background-color: var(--color-bg-secondary); }
+  .rank-row.rank-gold   { background: linear-gradient(135deg, #fffbf0, #fff8e1); }
+  .rank-row.rank-silver { background: linear-gradient(135deg, #f8fafc, #f1f5f9); }
+  .rank-row.rank-bronze { background: linear-gradient(135deg, #fefaf5, #fdf7f0); }
 
   .rank-cell {
     display: flex;
@@ -392,11 +412,8 @@
     font-size: var(--font-size-lg);
   }
 
-
   /* Mobile Cards */
-  .mobile-cards {
-    display: none;
-  }
+  .mobile-cards { display: none; }
 
   .mobile-card {
     background: var(--color-bg-primary);
@@ -407,20 +424,9 @@
     border-left: 4px solid var(--color-border-primary);
   }
 
-  .mobile-card.rank-gold {
-    border-left-color: #ffd700;
-    background: linear-gradient(135deg, #fffbf0 0%, #fff8e1 100%);
-  }
-
-  .mobile-card.rank-silver {
-    border-left-color: #c0c0c0;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  }
-
-  .mobile-card.rank-bronze {
-    border-left-color: #cd7f32;
-    background: linear-gradient(135deg, #fefaf5 0%, #fdf7f0 100%);
-  }
+  .mobile-card.rank-gold   { border-left-color: #ffd700; background: linear-gradient(135deg, #fffbf0, #fff8e1); }
+  .mobile-card.rank-silver { border-left-color: #c0c0c0; background: linear-gradient(135deg, #f8fafc, #f1f5f9); }
+  .mobile-card.rank-bronze { border-left-color: #cd7f32; background: linear-gradient(135deg, #fefaf5, #fdf7f0); }
 
   .card-header {
     display: flex;
@@ -435,10 +441,7 @@
     gap: var(--space-2);
   }
 
-  .rank-number {
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
-  }
+  .rank-number { font-weight: var(--font-weight-bold); color: var(--color-text-primary); }
 
   .card-body .name {
     font-weight: var(--font-weight-semibold);
@@ -453,57 +456,26 @@
     font-size: var(--font-size-xl);
   }
 
-
-  /* Mobile Responsive */
   @media (max-width: 768px) {
+    .podium { display: none; }
+    .table-wrapper { display: none; }
+    .mobile-cards { display: block; }
 
-    .podium {
-      display: none; /* Hide podium on mobile */
-    }
-
-    .table-wrapper {
-      display: none;
-    }
-
-    .mobile-cards {
-      display: block;
-    }
-
-    .podium-card {
-      padding: 1rem;
-      min-width: 120px;
-    }
-
-    .medal {
-      font-size: 1.5rem;
-    }
-
-    .podium-card .points {
-      font-size: 1rem;
+    .year-selector-bar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-3);
     }
   }
 
   @media (min-width: 769px) {
-    .mobile-cards {
-      display: none;
-    }
+    .mobile-cards { display: none; }
   }
 
   @media (max-width: 480px) {
-    .leaderboard-container {
-      gap: 2rem;
-    }
-
-    .mobile-card {
-      padding: 0.875rem;
-    }
-
-    .card-body .name {
-      font-size: 1rem;
-    }
-
-    .card-body .points {
-      font-size: 1.1rem;
-    }
+    .leaderboard-container { gap: 2rem; }
+    .mobile-card { padding: 0.875rem; }
+    .card-body .name { font-size: 1rem; }
+    .card-body .points { font-size: 1.1rem; }
   }
 </style>
