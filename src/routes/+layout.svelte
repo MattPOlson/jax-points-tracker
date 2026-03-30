@@ -144,12 +144,15 @@
 
 <!-- Header with Logo - appears on all pages -->
 <div class="header-bar">
-  <a href="/" class="header-logo-link">
-    <img src="/JAX-Profile-Final-1.svg" alt="Jacksonville Ale Exchange" class="jax-logo" />
-  </a>
-  <div class="header-text">
-    <div class="header-club-name">JACKSONVILLE ALE EXCHANGE</div>
-    <h1 class="portal-title">MEMBER PORTAL</h1>
+  <div></div>
+  <div class="header-center">
+    <a href="/" class="header-logo-link">
+      <img src="/JAX-Profile-Final-1.svg" alt="Jacksonville Ale Exchange" class="jax-logo" />
+    </a>
+    <div class="header-text">
+      <div class="header-club-name">JACKSONVILLE ALE EXCHANGE</div>
+      <h1 class="portal-title">MEMBER PORTAL</h1>
+    </div>
   </div>
   <nav class="header-nav" aria-label="Site navigation">
     <button on:click={handleGoBack} class="nav-button" title="Go back" aria-label="Go back to previous page">
@@ -186,10 +189,9 @@
   .header-bar {
     background: var(--color-brand-primary);
     padding: 0 var(--space-6);
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: center;
-    gap: var(--space-4);
     box-shadow: 0 3px 16px rgba(0, 0, 0, 0.4);
     border-bottom: 3px solid var(--color-brand-gold);
     position: sticky;
@@ -201,23 +203,28 @@
 
   .header-logo-link {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     text-decoration: none;
     flex-shrink: 0;
   }
 
   .jax-logo {
-    height: 110px;
+    height: 80px;
     width: auto;
     object-fit: contain;
-    margin-top: -20px;
-    margin-bottom: -10px;
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
     transition: transform 0.2s ease;
   }
 
   .header-logo-link:hover .jax-logo {
     transform: scale(1.03);
+  }
+
+  .header-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
   }
 
   .header-text {
@@ -250,9 +257,9 @@
 
   /* Nav integrated into header */
   .header-nav {
-    margin-left: auto;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: var(--space-2);
     flex-shrink: 0;
   }
@@ -301,14 +308,11 @@
   @media (max-width: 768px) {
     .header-bar {
       padding: 0 var(--space-4);
-      gap: var(--space-3);
       min-height: 72px;
     }
 
     .jax-logo {
-      height: 88px;
-      margin-top: -16px;
-      margin-bottom: -8px;
+      height: 64px;
     }
 
     .portal-title {
@@ -325,14 +329,15 @@
   @media (max-width: 480px) {
     .header-bar {
       padding: 0 var(--space-3);
-      gap: var(--space-2);
       min-height: 64px;
     }
 
     .jax-logo {
-      height: 76px;
-      margin-top: -12px;
-      margin-bottom: -6px;
+      height: 52px;
+    }
+
+    .header-center {
+      gap: var(--space-2);
     }
 
     .portal-title {
