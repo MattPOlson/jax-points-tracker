@@ -79,7 +79,7 @@ jobs:
         
         # Submit build and get the build ID
         BUILD_ID=$(gcloud builds submit --config cloudbuild.yaml \
-          --substitutions=_VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }},_VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }} \
+          --substitutions=_VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }},_VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }},_VITE_VAPID_PUBLIC_KEY=${{ secrets.VITE_VAPID_PUBLIC_KEY }} \
           --async \
           --format="value(name)" | cut -d'/' -f6)
         
@@ -132,6 +132,10 @@ jobs:
           --execution-environment=gen2 \
           --set-env-vars SUPABASE_URL=${{ env.SUPABASE_URL }} \
           --set-env-vars SUPABASE_ANON_KEY=${{ env.SUPABASE_ANON_KEY }} \
+          --set-env-vars VITE_VAPID_PUBLIC_KEY=${{ secrets.VITE_VAPID_PUBLIC_KEY }} \
+          --set-env-vars VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }} \
+          --set-env-vars VAPID_SUBJECT=${{ secrets.VAPID_SUBJECT }} \
+          --set-env-vars SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }} \
           --set-env-vars NODE_ENV=production \
           --set-env-vars NODE_OPTIONS="--max-old-space-size=1536"
 

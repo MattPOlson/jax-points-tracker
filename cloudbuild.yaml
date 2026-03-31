@@ -4,6 +4,7 @@ steps:
       - build
       - '--build-arg=VITE_SUPABASE_URL=${_VITE_SUPABASE_URL}'
       - '--build-arg=VITE_SUPABASE_ANON_KEY=${_VITE_SUPABASE_ANON_KEY}'
+      - '--build-arg=VITE_VAPID_PUBLIC_KEY=${_VITE_VAPID_PUBLIC_KEY}'
       - '-t'
       - 'gcr.io/jax-points-tracker/jax-points'
       - '.'
@@ -15,3 +16,4 @@ images:
 substitutions:
   _VITE_SUPABASE_URL: 'placeholder'
   _VITE_SUPABASE_ANON_KEY: 'placeholder'
+  _VITE_VAPID_PUBLIC_KEY: 'placeholder'

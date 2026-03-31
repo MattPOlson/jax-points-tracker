@@ -10,11 +10,13 @@ RUN npm ci --silent
 # Copy source code and build
 COPY . .
 
-# Set Supabase build-time values
+# Set build-time values (Vite embeds VITE_* vars into the client bundle)
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY
+ARG VITE_VAPID_PUBLIC_KEY
 ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+ENV VITE_VAPID_PUBLIC_KEY=$VITE_VAPID_PUBLIC_KEY
 
 # Build for production
 RUN npm run build
