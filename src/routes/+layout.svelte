@@ -7,6 +7,7 @@
   import toast, { Toaster } from 'svelte-french-toast';
   import { goto } from '$app/navigation';
   import { ArrowLeft, Home, LogOut, User } from 'lucide-svelte';
+  import NotificationPermission from '$lib/components/NotificationPermission.svelte';
 
   let subscription;
 
@@ -162,6 +163,7 @@
       <Home size={20} />
     </a>
     {#if $user}
+      <NotificationPermission />
       <button on:click={handleLogout} class="nav-button logout-btn" title="Logout" aria-label="Logout">
         <LogOut size={20} />
       </button>

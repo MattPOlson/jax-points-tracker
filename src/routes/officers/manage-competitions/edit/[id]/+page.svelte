@@ -13,6 +13,7 @@
   import Container from "$lib/components/ui/Container.svelte";
   import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
   import Button from "$lib/components/ui/Button.svelte";
+  import toast from 'svelte-french-toast';
   
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -258,6 +259,48 @@
 
   // Check if competition has entries (affects what can be edited)
   $: hasEntries = competition?.entry_count > 0;
+
+  // Notification
+  let notifMessage = '';
+  let isSendingNotif = false;
+
+  $: if (name && entryDeadline) {
+    const deadline = new Date(`${entryDeadline}T${entryDeadlineTime}:00`);
+    const formatted = deadline.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    notifMessage = `Entries for "${name}" are due ${formatted}. Don't miss out!`;
+  }
+
+  async function sendNotification() {
+    if (!notifMessage.trim()) return;
+    isSendingNotif = true;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const response = await fetch('/api/push/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          title: name,
+          message: notifMessage.trim(),
+          url: '/competitions'
+        })
+      });
+
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Send failed');
+
+      toast.success(`Notification sent to ${result.sent} subscriber${result.sent !== 1 ? 's' : ''}!`);
+    } catch (err) {
+      console.error('Notification error:', err);
+      toast.error(err.message || 'Failed to send notification.');
+    } finally {
+      isSendingNotif = false;
+    }
+  }
 </script>
 
 <style>
@@ -531,6 +574,24 @@
     border-radius: 8px;
     background: #f9fafb;
   }
+
+  .notif-section {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .char-count {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    text-align: right;
+    margin-top: 0.25rem;
+  }
 </style>
 
 <Hero
@@ -791,6 +852,31 @@
         </div>
         <div class="help-text">
           Uncheck to close competition to new entries
+        </div>
+
+        <!-- Push Notification -->
+        <div class="section-title">Send Push Notification</div>
+        <div class="notif-section">
+          <p class="help-text">Send a push notification to all subscribed members about this competition.</p>
+          <div class="form-group">
+            <label for="notifMessage">Message</label>
+            <textarea
+              id="notifMessage"
+              class="form-control"
+              bind:value={notifMessage}
+              rows="3"
+              maxlength="200"
+              disabled={isSendingNotif}
+            />
+            <div class="char-count">{notifMessage.length}/200</div>
+          </div>
+          <Button
+            variant="info"
+            on:click={sendNotification}
+            disabled={isSendingNotif || !notifMessage.trim()}
+          >
+            {isSendingNotif ? 'Sending...' : 'Send Notification'}
+          </Button>
         </div>
 
         <!-- Form Actions -->
