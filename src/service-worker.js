@@ -17,10 +17,18 @@ const ASSETS = [
 
 sw.addEventListener('install', (event) => {
   event.waitUntil(
-    caches
-      .open(CACHE)
-      .then((cache) => cache.addAll(ASSETS))
-      .then(() => sw.skipWaiting())
+    caches.open(CACHE).then(async (cache) => {
+      // Cache assets individually so one failure doesn't abort the whole install.
+      // A cold Cloud Run start or transient network blip on any single asset
+      // would otherwise prevent the service worker from ever becoming active.
+      await Promise.allSettled(
+        ASSETS.map((url) =>
+          cache.add(url).catch((err) => {
+            console.warn(`[SW] Failed to cache ${url}:`, err);
+          })
+        )
+      );
+    }).then(() => sw.skipWaiting())
   );
 });
 
@@ -51,9 +59,11 @@ sw.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For cached assets: cache first
+  // For cached assets: cache first, fall back to network on miss
   if (ASSETS.includes(url.pathname)) {
-    event.respondWith(caches.match(event.request));
+    event.respondWith(
+      caches.match(event.request).then((cached) => cached || fetch(event.request))
+    );
     return;
   }
 
