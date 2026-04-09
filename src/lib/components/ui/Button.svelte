@@ -36,7 +36,10 @@
     gap: var(--space-2);
     border: none;
     border-radius: var(--radius-button);
-    font-weight: var(--font-weight-semibold);
+    font-family: var(--font-family-display);
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
     text-align: center;
     cursor: pointer;
     transition: all var(--transition-base);

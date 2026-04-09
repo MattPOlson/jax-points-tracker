@@ -41,6 +41,17 @@
 {/if}
 
 <style>
+  @keyframes fadeSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .action-card {
     background: var(--color-bg-card, #ffffff);
     padding: 2.5rem 1.5rem;
@@ -55,6 +66,8 @@
     border-top: 3px solid transparent;
     position: relative;
     overflow: hidden;
+    animation: fadeSlideUp 0.5s ease both;
+    animation-delay: var(--card-delay, 0s);
   }
 
   /* Sweep highlight on hover */

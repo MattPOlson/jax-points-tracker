@@ -129,6 +129,10 @@
     />
 
     <div class="auth-wrapper" class:mobile={isMobile}>
+      <div class="auth-brand-header">
+        <span class="auth-welcome">Welcome to the</span>
+        <span class="auth-portal-name">Member Portal</span>
+      </div>
       <Auth
         supabaseClient={supabase}
         appearance={{
@@ -178,21 +182,51 @@
   }
 
   .auth-wrapper {
-    background: var(--color-bg-primary);
+    background: var(--color-bg-card, #ffffff);
     border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
+    box-shadow: 0 12px 48px rgba(26, 42, 68, 0.18);
     padding: var(--space-8);
     width: 100%;
     max-width: 400px;
     margin: -6rem auto var(--space-8) auto;
     position: relative;
     z-index: 10;
+    border-top: 4px solid var(--color-brand-gold);
+  }
+
+  .auth-brand-header {
+    text-align: center;
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--color-border-primary);
+  }
+
+  .auth-welcome {
+    display: block;
+    font-family: var(--font-family-display);
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--color-brand-gold);
+    margin-bottom: var(--space-1);
+  }
+
+  .auth-portal-name {
+    display: block;
+    font-family: var(--font-family-display);
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--color-brand-primary);
+    line-height: 1.1;
   }
 
   .auth-wrapper.mobile {
     border-radius: var(--radius-card);
     padding: var(--space-6);
     max-width: 350px;
+    border-top: 4px solid var(--color-brand-gold);
   }
 
   /* Responsive design to match your main page breakpoints */

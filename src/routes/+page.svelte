@@ -231,6 +231,14 @@
     gap: var(--space-6);
   }
 
+  /* Stagger animation delays for each card */
+  .action-grid > :global(*:nth-child(1)) { --card-delay: 0.05s; }
+  .action-grid > :global(*:nth-child(2)) { --card-delay: 0.15s; }
+  .action-grid > :global(*:nth-child(3)) { --card-delay: 0.25s; }
+  .action-grid > :global(*:nth-child(4)) { --card-delay: 0.35s; }
+  .action-grid > :global(*:nth-child(5)) { --card-delay: 0.45s; }
+  .action-grid > :global(*:nth-child(6)) { --card-delay: 0.55s; }
+
   .competition-status {
     margin-top: var(--space-4);
     display: flex;
@@ -250,6 +258,18 @@
     padding: var(--space-8) var(--space-4);
     color: var(--color-text-tertiary);
     font-size: var(--font-size-xs);
+    letter-spacing: 1px;
+    position: relative;
+  }
+
+  .version-footer::before {
+    content: '';
+    display: block;
+    width: 3rem;
+    height: 1px;
+    background: var(--color-brand-gold);
+    opacity: 0.4;
+    margin: 0 auto var(--space-4);
   }
 
   /* Responsive */

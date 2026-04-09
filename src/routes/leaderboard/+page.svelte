@@ -305,10 +305,26 @@
     transform: translateY(-5px);
   }
 
+  @keyframes goldShimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
   .podium-card.champion {
-    border-color: #ffd700;
-    background: linear-gradient(135deg, #fff 0%, #fffdf0 100%);
+    border-color: var(--color-brand-gold);
+    border-width: 2px;
+    background: linear-gradient(
+      90deg,
+      #fffdf0 0%,
+      #fff8c8 25%,
+      #fffdf0 50%,
+      #fff8c8 75%,
+      #fffdf0 100%
+    );
+    background-size: 200% 100%;
+    animation: goldShimmer 5s linear infinite;
     transform: scale(1.1);
+    box-shadow: 0 8px 40px rgba(201, 162, 39, 0.25), 0 0 0 1px rgba(201, 162, 39, 0.2);
   }
 
   .crown-icon,
@@ -319,23 +335,44 @@
   }
 
   .podium-card .name {
-    font-weight: var(--font-weight-semibold);
+    font-family: var(--font-family-display);
+    font-weight: 600;
     font-size: var(--font-size-base);
+    letter-spacing: 0.5px;
     color: var(--color-text-primary);
     margin-bottom: var(--space-2);
   }
 
   .podium-card .points {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    letter-spacing: 1px;
     color: var(--color-brand-primary);
     margin-bottom: var(--space-2);
   }
 
+  .podium-card.champion .points {
+    color: var(--color-brand-gold);
+    text-shadow: 0 0 16px var(--color-brand-gold-glow, rgba(201, 162, 39, 0.3));
+  }
+
+  .podium-card.champion .name {
+    color: var(--color-brand-primary);
+    font-weight: 700;
+  }
+
   .rank-label {
-    font-size: var(--font-size-sm);
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-xs);
+    letter-spacing: 2px;
+    text-transform: uppercase;
     color: var(--color-text-secondary);
-    font-weight: var(--font-weight-medium);
+    font-weight: 500;
+  }
+
+  .podium-card.champion .rank-label {
+    color: var(--color-brand-gold);
   }
 
   .podium-base {
@@ -355,11 +392,30 @@
 
   /* Table */
   .table-section h3 {
-    color: var(--color-brand-primary);
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
+    font-family: var(--font-family-display);
+    color: var(--color-text-tertiary);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
     margin-bottom: var(--space-8);
     text-align: center;
+    position: relative;
+    display: inline-block;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .table-section h3::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2.5rem;
+    height: 2px;
+    background: var(--color-brand-gold);
+    border-radius: var(--radius-full);
   }
 
   .table-wrapper {
@@ -375,12 +431,16 @@
   }
 
   .desktop-table th {
-    background: var(--color-bg-secondary);
+    background: var(--color-brand-primary);
     padding: var(--space-4);
     text-align: left;
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text-primary);
-    border-bottom: 2px solid var(--color-border-primary);
+    font-family: var(--font-family-display);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+    border-bottom: 2px solid var(--color-brand-gold);
   }
 
   .desktop-table td {
@@ -407,9 +467,15 @@
   }
 
   .points-cell {
-    font-weight: var(--font-weight-bold);
+    font-family: var(--font-family-display);
+    font-weight: 700;
+    letter-spacing: 1px;
     color: var(--color-brand-primary);
     font-size: var(--font-size-lg);
+  }
+
+  .rank-row.rank-gold .points-cell {
+    color: var(--color-brand-gold);
   }
 
   /* Mobile Cards */
