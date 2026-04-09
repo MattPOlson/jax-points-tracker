@@ -8,6 +8,7 @@
   import { goto } from '$app/navigation';
   import { ArrowLeft, Home, LogOut, User } from 'lucide-svelte';
   import NotificationPermission from '$lib/components/NotificationPermission.svelte';
+  import InstallPrompt from '$lib/components/InstallPrompt.svelte';
 
   let subscription;
 
@@ -184,13 +185,14 @@
   </nav>
 </div>
 
-<Toaster 
+<Toaster
   position="top-right"
   toastOptions={{
     duration: 4000,
     style: 'border-radius: 6px; background: white; color: #333;'
   }}
 />
+<InstallPrompt />
 <slot />
 
 <style>
