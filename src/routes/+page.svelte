@@ -85,7 +85,8 @@
         <ActionCard
           href="/submit"
           title="Submit Points"
-          description="Submit your brewing achievements"
+          description="Log your brewing achievements and earn points for competitions, homebrew events, and club activities."
+          featured={true}
         >
           <FileEdit slot="icon" size={64} strokeWidth={1.5} />
         </ActionCard>
@@ -159,8 +160,8 @@
 
   .cta-text {
     font-size: 1.1rem;
-    color: var(--color-text-dark);
-    margin-bottom: var(--space-6);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-4);
     line-height: var(--line-height-relaxed);
   }
 
@@ -168,16 +169,29 @@
     margin-bottom: 0;
   }
 
+  .cta-text strong {
+    color: var(--color-brand-primary);
+    font-weight: 700;
+  }
+
   .points-display {
     font-size: var(--font-size-lg);
     margin-top: var(--space-4);
     margin-bottom: 0;
+    color: var(--color-text-secondary);
   }
 
   .points-value {
-    color: var(--color-brand-primary);
-    font-weight: var(--font-weight-bold);
-    font-size: 1.5em;
+    display: inline-block;
+    color: var(--color-brand-gold);
+    font-family: var(--font-family-display);
+    font-weight: 700;
+    font-size: 3rem;
+    line-height: 1;
+    letter-spacing: 2px;
+    text-shadow: 0 0 24px var(--color-brand-gold-glow, rgba(201, 162, 39, 0.3));
+    vertical-align: middle;
+    margin-left: var(--space-2);
   }
 
   .quick-actions-section {
@@ -188,10 +202,13 @@
   }
 
   .section-title {
-    font-size: 1.5rem;
-    color: var(--color-brand-primary);
+    font-family: var(--font-family-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
     margin-bottom: var(--space-10);
-    font-weight: var(--font-weight-bold);
     position: relative;
     display: inline-block;
   }
@@ -202,17 +219,16 @@
     bottom: -0.5rem;
     left: 50%;
     transform: translateX(-50%);
-    width: 3rem;
-    height: 3px;
-    background: var(--color-brand-primary);
+    width: 2.5rem;
+    height: 2px;
+    background: var(--color-brand-gold);
     border-radius: var(--radius-full);
-    opacity: 0.4;
   }
 
   .action-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--space-8);
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
   }
 
   .competition-status {
@@ -249,20 +265,18 @@
   }
 
   @media (max-width: 640px) {
+    .action-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-3);
+    }
+
     .quick-actions-section {
       padding: var(--space-2) var(--space-3) var(--space-10);
     }
 
     .section-title {
-      font-size: 1.25rem;
+      font-size: 0.95rem;
       margin-bottom: var(--space-6);
-    }
-  }
-
-  @media (max-width: 400px) {
-    .action-grid {
-      grid-template-columns: 1fr;
-      gap: var(--space-3);
     }
   }
 </style>

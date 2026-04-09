@@ -6,7 +6,7 @@
   import { onMount } from 'svelte';
   import { competitionManagementStore } from '$lib/stores/competitionManagementStore';
   import { Hero, Container, LoadingSpinner, EmptyState, Badge, Card, ActionCard } from '$lib/components/ui';
-  import { FileCheck, List, Trophy, Users, BarChart, ClipboardList, UserCheck, TrendingUp } from 'lucide-svelte';
+  import { FileCheck, List, Trophy, Users, BarChart, ClipboardList, UserCheck, TrendingUp, Bell } from 'lucide-svelte';
 
   let isLoading = true;
   let accessDenied = false;
@@ -267,6 +267,14 @@
           description="Create activity and performance reports"
         >
           <BarChart slot="icon" size={64} strokeWidth={1.5} />
+        </ActionCard>
+
+        <ActionCard
+          href="/officers/notifications"
+          title="Send Notification"
+          description="Push a message to all subscribed members"
+        >
+          <Bell slot="icon" size={64} strokeWidth={1.5} />
         </ActionCard>
       </div>
     </section>
