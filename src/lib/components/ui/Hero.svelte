@@ -121,7 +121,14 @@
     height: 100%;
     background-size: cover;
     background-position: center;
+    background-attachment: fixed;
     z-index: 0;
+  }
+
+  @media (max-width: 768px) {
+    .hero-background {
+      background-attachment: scroll;
+    }
   }
 
   .hero-overlay {

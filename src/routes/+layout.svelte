@@ -11,6 +11,8 @@
 
   let subscription;
 
+  $: userInitial = $userProfile?.name?.charAt(0)?.toUpperCase() || $user?.email?.charAt(0)?.toUpperCase() || '';
+
   async function fetchUserProfile(userId) {
     try {
       const { data, error } = await supabase
@@ -152,7 +154,7 @@
     </a>
     <div class="header-text">
       <div class="header-club-name">JACKSONVILLE ALE EXCHANGE</div>
-      <h1 class="portal-title">MEMBER PORTAL</h1>
+      <span class="portal-title">MEMBER PORTAL</span>
     </div>
   </div>
   <nav class="header-nav" aria-label="Site navigation">
@@ -168,7 +170,11 @@
         <LogOut size={20} />
       </button>
       <div class="user-avatar" title={$userProfile?.name || $user.email}>
-        <User size={20} strokeWidth={2} color="white" />
+        {#if userInitial}
+          <span class="avatar-initial">{userInitial}</span>
+        {:else}
+          <User size={20} strokeWidth={2} color="white" />
+        {/if}
       </div>
     {:else}
       <a href="/login" aria-label="Login" class="nav-button">
@@ -238,23 +244,25 @@
 
   .header-club-name {
     font-size: var(--font-size-xs);
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+    color: var(--color-brand-gold);
     letter-spacing: 4px;
     text-transform: uppercase;
-    font-family: 'Trebuchet MS', Arial, sans-serif;
+    font-family: var(--font-family-display);
     line-height: 1;
+    opacity: 0.85;
   }
 
   .portal-title {
     font-size: var(--font-size-4xl);
-    font-weight: 900;
+    font-weight: 700;
     color: white;
     margin: 0;
     text-transform: uppercase;
-    letter-spacing: 4px;
-    font-family: 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', Arial, sans-serif;
+    letter-spacing: 5px;
+    font-family: var(--font-family-display);
     line-height: 1.1;
+    display: block;
   }
 
   /* Nav integrated into header */
@@ -298,12 +306,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: var(--color-brand-gold);
+    border: 1px solid rgba(201, 162, 39, 0.5);
     border-radius: var(--radius-button);
     width: 40px;
     height: 40px;
     flex-shrink: 0;
+  }
+
+  .avatar-initial {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    color: var(--color-brand-primary);
+    letter-spacing: 0;
+    line-height: 1;
+    text-transform: uppercase;
   }
 
   /* Mobile responsiveness */
@@ -343,8 +361,8 @@
     }
 
     .portal-title {
-      font-size: var(--font-size-lg);
-      letter-spacing: 1px;
+      font-size: var(--font-size-xl);
+      letter-spacing: 2px;
     }
 
     .header-club-name {

@@ -25,7 +25,7 @@
   }
 
   .overlapping-card {
-    background: var(--color-bg-primary);
+    background: var(--color-bg-card, #ffffff);
     padding: 3rem 2rem;
     border-radius: var(--radius-card);
     box-shadow: 0 8px 40px rgba(26, 42, 68, 0.16);
@@ -33,7 +33,7 @@
     max-width: 700px;
     width: 100%;
     position: relative;
-    border-top: 4px solid var(--color-brand-primary);
+    border-top: 4px solid var(--color-brand-gold);
   }
 
   /* Responsive adjustments */
