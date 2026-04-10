@@ -9,3 +9,6 @@ build/
 *.Zone.Identifier
 *.jpg
 *.png
+
+# Allow PWA icons (required for PWA installability)
+!static/icons/*.png
