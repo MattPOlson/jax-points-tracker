@@ -12,6 +12,8 @@
   } from '$lib/stores/competitionJudgingStore';
   import { Hero, Container, LoadingSpinner, Button } from '$lib/components/ui';
   import { ArrowLeft, ArrowRight, Edit3 } from 'lucide-svelte';
+  import toast from 'svelte-french-toast';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
 
   // Get competition ID from URL
   $: competitionId = $page.params.id;
@@ -115,7 +117,7 @@
 
   onMount(async () => {
     if (!$userProfile) {
-      goto('/auth');
+      goto('/login');
       return;
     }
 
@@ -127,7 +129,7 @@
       loadCurrentEntryData();
     } catch (err) {
       console.error('Error starting judging session:', err);
-      alert(`Failed to start judging: ${err.message}`);
+      toast.error(`Failed to start judging: ${err.message}`);
       goto('/judge');
     }
   });
@@ -151,8 +153,6 @@
     if (!$currentEntry) return;
     
     currentEntryId = $currentEntry.id;
-    
-    console.log('Loading data for entry:', $currentEntry.id);
     
     // Reset scoresheet data to defaults
     scoresheetData = {
@@ -289,7 +289,6 @@
     if (!hasData) return;
 
     isSaving = true;
-    console.log('Saving progress for entry:', $currentEntry.id);
 
     try {
       const dataToSave = {
@@ -316,7 +315,6 @@
       };
 
       await competitionJudgingStore.saveJudgingResults($currentEntry.id, dataToSave);
-      console.log('Save successful');
       showToast('Progress saved', 'success');
     } catch (err) {
       console.error('Error auto-saving:', err);

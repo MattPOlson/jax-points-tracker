@@ -122,40 +122,40 @@
 
 <style>
   .category-selector {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    background: var(--color-bg-card, #fff);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-md);
     padding: 1.5rem;
   }
-  
+
   .header {
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--color-border-primary);
   }
-  
+
   .title {
     margin: 0 0 0.5rem 0;
-    color: #333;
+    color: var(--color-text-primary);
     font-size: 1.25rem;
     font-weight: 600;
   }
-  
+
   .description {
     margin: 0 0 1rem 0;
-    color: #666;
+    color: var(--color-text-secondary);
     font-size: 0.9rem;
   }
-  
+
   .selection-summary {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  
+
   .count {
     font-weight: 500;
-    color: #374151;
+    color: var(--color-text-primary);
   }
   
   .bulk-actions {
@@ -183,75 +183,75 @@
   }
   
   .category-group {
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-md);
     overflow: hidden;
   }
-  
+
   .category-header {
-    background: #f8fafc;
+    background: var(--color-bg-secondary);
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-border-primary);
   }
-  
+
   .category-title {
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
-    color: #374151;
+    color: var(--color-text-primary);
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  
+
   .toggle-all-btn {
     background: none;
     border: none;
-    color: #6366f1;
+    color: var(--color-brand-primary);
     text-decoration: underline;
     cursor: pointer;
     font-size: 0.8rem;
     font-weight: normal;
   }
-  
+
   .toggle-all-btn:hover {
-    color: #4f46e5;
+    color: var(--color-brand-gold);
   }
-  
+
   .subcategories {
     padding: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .subcategory-item {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     cursor: pointer;
     padding: 0.25rem;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     transition: background-color 0.15s ease;
   }
-  
+
   .subcategory-item:hover {
-    background: #f1f5f9;
+    background: var(--color-bg-secondary);
   }
-  
+
   .subcategory-item input[type="checkbox"] {
     margin: 0;
     cursor: pointer;
   }
-  
+
   .subcategory-label {
     font-size: 0.9rem;
-    color: #374151;
+    color: var(--color-text-primary);
     cursor: pointer;
   }
-  
+
   .subcategory-label strong {
-    color: #111827;
+    color: var(--color-text-primary);
     margin-right: 0.5rem;
   }
   

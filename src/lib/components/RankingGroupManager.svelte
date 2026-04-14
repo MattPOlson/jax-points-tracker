@@ -3,6 +3,8 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import { categoriesByNumber } from '$lib/stores/bjcpCategoryStore';
+  import toast from 'svelte-french-toast';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
   
   export let rankingGroups = []; // Array of ranking group objects
   export let selectedCategories = []; // Array of available category IDs
@@ -87,11 +89,10 @@
   }
   
   // Delete a group
-  function deleteGroup(groupId) {
-    if (confirm('Are you sure you want to delete this ranking group?')) {
-      rankingGroups = rankingGroups.filter(group => group.id !== groupId);
-      dispatch('change', rankingGroups);
-    }
+  async function deleteGroup(groupId) {
+    if (!await showConfirm('Are you sure you want to delete this ranking group?')) return;
+    rankingGroups = rankingGroups.filter(group => group.id !== groupId);
+    dispatch('change', rankingGroups);
   }
   
   // Toggle category in new group
@@ -104,8 +105,9 @@
   }
   
   // Create default groups (one per category)
-  function createDefaultGroups() {
-    if (confirm('This will create individual ranking groups for each category. Continue?')) {
+  async function createDefaultGroups() {
+    if (!await showConfirm('This will create individual ranking groups for each category. Continue?')) return;
+    {
       const defaultGroups = selectedCategories.map(catId => {
         const catInfo = getCategoryInfo(catId);
         return {
@@ -266,28 +268,28 @@
 
 <style>
   .ranking-group-manager {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    background: var(--color-bg-card, #fff);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-md);
     padding: 1.5rem;
   }
-  
+
   .header {
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--color-border-primary);
   }
-  
+
   .title {
     margin: 0 0 0.5rem 0;
-    color: #333;
+    color: var(--color-text-primary);
     font-size: 1.25rem;
     font-weight: 600;
   }
-  
+
   .description {
     margin: 0 0 1rem 0;
-    color: #666;
+    color: var(--color-text-secondary);
     font-size: 0.9rem;
   }
   
@@ -318,78 +320,78 @@
   }
   
   .btn-secondary {
-    background: white;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    background: var(--color-bg-card, #fff);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border-primary);
     padding: 0.5rem 1rem;
-    border-radius: 6px;
+    border-radius: var(--radius-button);
     cursor: pointer;
     font-size: 0.9rem;
   }
-  
+
   .btn-secondary:hover {
-    background: #f9fafb;
+    background: var(--color-bg-secondary);
   }
-  
+
   .btn-link {
     background: none;
     border: none;
-    color: #6366f1;
+    color: var(--color-brand-primary);
     text-decoration: underline;
     cursor: pointer;
     font-size: 0.9rem;
   }
-  
+
   .btn-link:hover {
-    color: #4f46e5;
+    color: var(--color-brand-gold);
   }
-  
+
   .btn-link.danger {
-    color: #dc2626;
+    color: var(--color-danger, #dc2626);
   }
-  
+
   .btn-link.danger:hover {
-    color: #b91c1c;
+    color: var(--color-danger-dark, #b91c1c);
   }
-  
+
   .group-editor {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-md);
     padding: 1.5rem;
     margin-bottom: 1.5rem;
   }
-  
+
   .group-editor h4 {
     margin: 0 0 1rem 0;
-    color: #374151;
+    color: var(--color-text-primary);
   }
-  
+
   .form-group {
     margin-bottom: 1rem;
   }
-  
+
   .form-group label {
     display: block;
     margin-bottom: 0.25rem;
     font-weight: 500;
-    color: #374151;
+    color: var(--color-text-primary);
   }
-  
+
   .form-group input,
   .form-group textarea {
     width: 100%;
     padding: 0.5rem;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-sm);
     font-size: 0.9rem;
   }
-  
+
   .category-selection {
     max-height: 200px;
     overflow-y: auto;
-    border: 1px solid #e5e7eb;
-    border-radius: 4px;
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-sm);
     padding: 0.5rem;
   }
   

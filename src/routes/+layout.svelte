@@ -9,6 +9,7 @@
   import { ArrowLeft, Home, LogOut, User } from 'lucide-svelte';
   import NotificationPermission from '$lib/components/NotificationPermission.svelte';
   import InstallPrompt from '$lib/components/InstallPrompt.svelte';
+  import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 
   let subscription;
 
@@ -193,6 +194,7 @@
   }}
 />
 <InstallPrompt />
+<ConfirmDialog />
 <slot />
 
 <style>

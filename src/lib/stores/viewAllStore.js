@@ -22,7 +22,6 @@ export async function loadAllSubmissions(force = false) {
   lastLoaded = Date.now();
 
   if (!error) {
-    console.log('[viewAll] Supabase returned:', data); // ✅ Add this for debugging
     allSubmissions.set(data);
     message.set('');
   } else {

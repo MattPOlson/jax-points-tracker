@@ -174,13 +174,13 @@
     if (!memberToEdit || isUpdatingMember) return;
     // Validate inputs
     if (!editedName.trim()) {
-      alert('Name cannot be empty');
+      toast.error('Name cannot be empty');
       return;
     }
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (editedEmail && !emailRegex.test(editedEmail)) {
-      alert('Please enter a valid email address');
+      toast.error('Please enter a valid email address');
       return;
     }
     isUpdatingMember = true;
@@ -207,7 +207,7 @@
       await memberManagementStore.loadMembers(true);
     } catch (err) {
       console.error('❌ Failed to update member:', err);
-      alert('Failed to update member. Please try again.');
+      toast.error('Failed to update member. Please try again.');
     } finally {
       isUpdatingMember = false;
     }
@@ -262,6 +262,8 @@
   });
   // Import supabase for direct database operations
   import { supabase } from '../../../lib/supabaseClient';
+  import toast from 'svelte-french-toast';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
 </script>
 
 {#if !isOfficer}

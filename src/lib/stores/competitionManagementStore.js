@@ -17,12 +17,8 @@ export const lastRefresh = writable(null);
 // =============================================
 
 export const stats = derived(competitions, ($competitions) => {
-    console.log('📊 Computing stats for competitions:', $competitions);
-    
     if (!Array.isArray($competitions) || $competitions.length === 0) {
-        const defaultStats = { total: 0, active: 0, totalEntries: 0, avgEntries: 0 };
-        console.log('📊 Using default stats:', defaultStats);
-        return defaultStats;
+        return { total: 0, active: 0, totalEntries: 0, avgEntries: 0 };
     }
 
     const total = $competitions.length;
@@ -30,9 +26,7 @@ export const stats = derived(competitions, ($competitions) => {
     const totalEntries = $competitions.reduce((sum, comp) => sum + (comp.entry_count || 0), 0);
     const avgEntries = total > 0 ? Math.round(totalEntries / total * 10) / 10 : 0;
 
-    const computedStats = { total, active, totalEntries, avgEntries };
-    console.log('📊 Computed stats:', computedStats);
-    return computedStats;
+    return { total, active, totalEntries, avgEntries };
 });
 
 export const filteredCompetitions = derived(competitions, ($competitions) => {
@@ -55,7 +49,6 @@ export async function loadCompetitions(forceRefresh = false) {
     const lastRefreshTime = get(lastRefresh);
     
     if (!forceRefresh && lastRefreshTime && (now - lastRefreshTime) < 30000) {
-        console.log('Using cached competition data');
         return;
     }
 
@@ -63,60 +56,37 @@ export async function loadCompetitions(forceRefresh = false) {
     error.set(null);
 
     try {
-        console.log('Loading fresh competition data...');
         
-        // Use direct query - avoid problematic RPC
         const { data: competitionsData, error: competitionsError } = await supabase
             .from('competitions')
-            .select('*')
+            .select('*, competition_entries(count)')
             .order('entry_deadline', { ascending: false });
 
         if (competitionsError) {
             throw competitionsError;
         }
 
-        console.log('Competitions fetched:', competitionsData?.length);
+        const now2 = new Date();
+        const competitionsWithCounts = (competitionsData || []).map((comp) => {
+            const entry_count = comp.competition_entries?.[0]?.count ?? 0;
+            const deadline = new Date(comp.entry_deadline);
+            const is_active = comp.active && deadline > now2;
 
-        // Get entry counts separately to avoid join issues
-        const competitionsWithCounts = await Promise.all(
-            (competitionsData || []).map(async (comp) => {
-                const { count, error: countError } = await supabase
-                    .from('competition_entries')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('competition_id', comp.id);
+            let status = 'closed';
+            if (is_active) {
+                status = 'open';
+            } else if (comp.judging_date && new Date(comp.judging_date) >= now2 && !comp.results_published) {
+                status = 'judging';
+            } else if (comp.results_published) {
+                status = 'completed';
+            }
 
-                if (countError) {
-                    console.warn('Warning getting count for competition', comp.id, ':', countError);
-                }
+            const { competition_entries: _ignored, ...rest } = comp;
+            return { ...rest, entry_count, is_active, status };
+        });
 
-                // Calculate status
-                const now = new Date();
-                const deadline = new Date(comp.entry_deadline);
-                const is_active = comp.active && deadline > now;
-                
-                let status = 'closed';
-                if (is_active) {
-                    status = 'open';
-                } else if (comp.judging_date && new Date(comp.judging_date) >= now && !comp.results_published) {
-                    status = 'judging';
-                } else if (comp.results_published) {
-                    status = 'completed';
-                }
-
-                return {
-                    ...comp,
-                    entry_count: count || 0,
-                    is_active,
-                    status
-                };
-            })
-        );
-
-        console.log('Competition data with counts:', competitionsWithCounts?.length);
-        competitions.set(competitionsWithCounts || []);
+        competitions.set(competitionsWithCounts);
         lastRefresh.set(now);
-        
-        console.log('Loading complete');
 
     } catch (err) {
         console.error('Failed to load competitions:', err);
@@ -138,7 +108,6 @@ export async function loadCompetitionEntries(competitionId) {
     }
 
     try {
-        console.log('Loading entries for competition:', competitionId);
 
         // Get competition entries
         const { data: entriesData, error: entriesError } = await supabase
@@ -152,7 +121,6 @@ export async function loadCompetitionEntries(competitionId) {
         }
 
         if (!entriesData || entriesData.length === 0) {
-            console.log('No entries found for this competition');
             return [];
         }
 
@@ -190,7 +158,6 @@ export async function loadCompetitionEntries(competitionId) {
             };
         });
 
-        console.log('Loaded', entriesWithDetails.length, 'entries with full details');
         return entriesWithDetails;
 
     } catch (err) {
@@ -300,19 +267,15 @@ export const competitionManagementStore = {
     deleteCompetition,
     forceRefresh,
     initialize: async () => {
-        console.log('Initializing competition management store');
         await loadCompetitions(false);
     }
 };
 
 // Auto-load when user profile changes
 userProfile.subscribe(($userProfile) => {
-    console.log('User profile changed in store:', $userProfile);
     if ($userProfile?.is_officer) {
-        console.log('User is officer, loading competitions');
         loadCompetitions(false);
     } else {
-        console.log('User is not officer or profile not loaded yet');
         resetStore();
     }
 });

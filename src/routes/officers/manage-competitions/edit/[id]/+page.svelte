@@ -14,6 +14,7 @@
   import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
   import Button from "$lib/components/ui/Button.svelte";
   import toast from 'svelte-french-toast';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
   
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -130,7 +131,7 @@
       }
     } catch (err) {
       console.error('Error loading competition:', err);
-      alert('Failed to load competition');
+      toast.error('Failed to load competition');
       goto('/officers/manage-competitions');
     } finally {
       isLoading = false;
@@ -247,7 +248,7 @@
       goto('/officers/manage-competitions');
     } catch (error) {
       console.error('Error updating competition:', error);
-      alert(`Error updating competition: ${error.message}`);
+      toast.error(`Error updating competition: ${error.message}`);
       isSubmitting = false;
     }
   }

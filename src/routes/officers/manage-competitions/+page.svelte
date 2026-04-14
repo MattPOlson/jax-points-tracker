@@ -11,6 +11,8 @@
   import EmptyState from "$lib/components/ui/EmptyState.svelte";
   import Button from "$lib/components/ui/Button.svelte";
   import { Trophy, RefreshCw, Plus, AlertTriangle, Pencil, FileText, Users, BarChart3, Play, Pause, Trash2 } from 'lucide-svelte';
+  import toast from 'svelte-french-toast';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
   
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -24,13 +26,7 @@
 
   // Initialize store
   onMount(() => {
-    console.log('🎯 Manage Competitions page mounted');
-    console.log('📊 Current user profile:', $userProfile);
-    console.log('🔐 Is officer?:', $userProfile?.is_officer);
-    
     competitionManagementStore.initialize();
-    console.log('✅ Competition store initialized');
-    
     const cleanup = setupEventHandlers();
     
     // Return cleanup function
@@ -51,20 +47,10 @@
     // Cleanup handled by setupEventHandlers return
   });
 
-  // Debug reactive statements
-  $: {
-    console.log('🔄 Reactive update:');
-    console.log('  - isLoading:', $isLoading);
-    console.log('  - error:', $error);
-    console.log('  - competitions:', $competitions);
-    console.log('  - stats:', $stats);
-  }
-
   // Filtered competitions based on search and status
   $: filteredCompetitions = (() => {
-    console.log('🔍 Computing filtered competitions...');
     let comps = [];
-    
+
     switch (filterStatus) {
       case 'active':
         comps = ($competitions || []).filter(c => c.is_active);
@@ -87,17 +73,14 @@
         comps = $competitions || [];
     }
 
-    console.log('📋 Competitions before filter:', comps);
-
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      comps = comps.filter(c => 
+      comps = comps.filter(c =>
         c.name.toLowerCase().includes(query) ||
         c.description?.toLowerCase().includes(query)
       );
     }
 
-    console.log('📋 Competitions after filter:', comps);
     return comps;
   })();
 
@@ -196,7 +179,7 @@
       const { updateCompetition } = await import('$lib/stores/competitionManagementStore');
       await updateCompetition(competition.id, { active: !competition.active });
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      toast.error(`Error: ${err.message}`);
     }
   }
 
@@ -210,7 +193,7 @@
       showDeleteConfirm = false;
       competitionToDelete = null;
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      toast.error(`Error: ${err.message}`);
     }
   }
 

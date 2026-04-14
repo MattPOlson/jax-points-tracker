@@ -19,6 +19,8 @@
   import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
   import EmptyState from "$lib/components/ui/EmptyState.svelte";
   import Button from "$lib/components/ui/Button.svelte";
+  import toast from 'svelte-french-toast';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
 
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -100,7 +102,7 @@
 
     } catch (err) {
       console.error('Error loading data:', err);
-      alert('Failed to load competition data');
+      toast.error('Failed to load competition data');
       goto('/officers/manage-competitions');
     } finally {
       isLoading = false;
@@ -121,7 +123,7 @@
 
   async function saveNewTable() {
     if (!newTableForm.table_name.trim()) {
-      alert('Please enter a table name');
+      toast.error('Please enter a table name');
       return;
     }
     try {
@@ -135,7 +137,7 @@
       showToast('Table created successfully', 'success');
     } catch (err) {
       console.error('Error creating table:', err);
-      alert('Failed to create table: ' + err.message);
+      toast.error('Failed to create table: ' + err.message);
     } finally {
       isSavingTable = false;
     }
@@ -153,7 +155,7 @@
 
   async function saveEditTable(tableId) {
     if (!editingTableName.trim()) {
-      alert('Table name cannot be empty');
+      toast.error('Table name cannot be empty');
       return;
     }
     try {
@@ -163,14 +165,14 @@
       showToast('Table updated successfully', 'success');
     } catch (err) {
       console.error('Error updating table:', err);
-      alert('Failed to update table: ' + err.message);
+      toast.error('Failed to update table: ' + err.message);
     } finally {
       isSavingTable = false;
     }
   }
 
   async function deleteTable(tableId, tableLabel) {
-    if (!confirm(`Delete "${tableLabel}"? Judges and entries assigned to this table will become unassigned.`)) {
+    if (!await showConfirm(`Delete "${tableLabel}"? Judges and entries assigned to this table will become unassigned.`)) {
       return;
     }
     try {
@@ -178,7 +180,7 @@
       showToast('Table deleted', 'success');
     } catch (err) {
       console.error('Error deleting table:', err);
-      alert('Failed to delete table: ' + err.message);
+      toast.error('Failed to delete table: ' + err.message);
     }
   }
 
@@ -190,7 +192,7 @@
 
   async function addJudge() {
     if (!newJudgeForm.judge_id) {
-      alert('Please select a judge');
+      toast.error('Please select a judge');
       return;
     }
 
@@ -220,14 +222,14 @@
 
     } catch (err) {
       console.error('Error adding judge:', err);
-      alert('Failed to assign judge');
+      toast.error('Failed to assign judge');
     } finally {
       isSaving = false;
     }
   }
 
   async function removeJudge(assignmentId) {
-    if (!confirm('Are you sure you want to remove this judge assignment?')) {
+    if (!await showConfirm('Are you sure you want to remove this judge assignment?')) {
       return;
     }
 
@@ -241,7 +243,7 @@
 
     } catch (err) {
       console.error('Error removing judge:', err);
-      alert('Failed to remove judge');
+      toast.error('Failed to remove judge');
     }
   }
 
@@ -251,14 +253,14 @@
       showToast('Table assignment updated', 'success');
     } catch (err) {
       console.error('Error updating judge table:', err);
-      alert('Failed to update table assignment');
+      toast.error('Failed to update table assignment');
       // Reload to reset UI state
       await loadData();
     }
   }
 
   async function assignAllMembers() {
-    if (!confirm(`Are you sure you want to assign all ${availableJudges.length} available members as club judges for this intraclub competition?`)) {
+    if (!await showConfirm(`Are you sure you want to assign all ${availableJudges.length} available members as club judges for this intraclub competition?`)) {
       return;
     }
 
@@ -280,7 +282,7 @@
 
     } catch (err) {
       console.error('Error assigning all judges:', err);
-      alert('Failed to assign all judges');
+      toast.error('Failed to assign all judges');
     } finally {
       isSaving = false;
     }
@@ -304,7 +306,7 @@
 
     } catch (err) {
       console.error('Error refreshing judges:', err);
-      alert('Failed to refresh judges list');
+      toast.error('Failed to refresh judges list');
     } finally {
       isRefreshing = false;
     }

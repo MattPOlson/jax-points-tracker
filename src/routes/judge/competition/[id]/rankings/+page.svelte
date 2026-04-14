@@ -12,6 +12,8 @@
   import { supabase } from '$lib/supabaseClient';
   import { Hero, Container, LoadingSpinner, Button } from '$lib/components/ui';
   import { Trophy, ArrowLeft, RefreshCw, Save, AlertTriangle, Check, Info, Medal, Award, ArrowUp, ArrowDown, StickyNote, MessageCircle, User } from 'lucide-svelte';
+  import toast from 'svelte-french-toast';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
 
   // Get competition ID from URL
   $: competitionId = $page.params.id;
@@ -42,7 +44,7 @@
 
   onMount(async () => {
     if (!$userProfile) {
-      goto('/auth');
+      goto('/login');
       return;
     }
 
@@ -80,7 +82,7 @@
 
   async function handleNavigation(path) {
     if (hasUnsavedChanges) {
-      const confirmLeave = confirm('You have unsaved changes. Do you want to save before leaving?');
+      const confirmLeave = await showConfirm('You have unsaved changes. Do you want to save before leaving?');
       if (confirmLeave) {
         await saveRankings();
       }
@@ -341,7 +343,7 @@
   async function selectCategory(category) {
     // Warn if switching categories with unsaved changes
     if (hasUnsavedChanges) {
-      const confirmSwitch = confirm('You have unsaved changes. Do you want to save before switching categories?');
+      const confirmSwitch = await showConfirm('You have unsaved changes. Do you want to save before switching categories?');
       if (confirmSwitch) {
         await saveRankings();
       }

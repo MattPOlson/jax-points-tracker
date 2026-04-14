@@ -17,6 +17,7 @@
     error
   } from '$lib/stores/bjcpCategoryStore.js';
   import { supabase } from '$lib/supabaseClient';
+  import { generateUniqueEntryNumber } from '$lib/utils/entryNumber.js';
   import { Hero, Container, LoadingSpinner, EmptyState, Button, Card } from '$lib/components/ui';
   import { Trophy, RotateCcw, Send, CheckCircle, Calendar, Info } from 'lucide-svelte';
 
@@ -91,22 +92,10 @@
   // Lifecycle
   // =============================================
   onMount(async () => {
-    console.log('🚀 Page mounted, loading data...');
-    
-    // Check if user is logged in
-    //if (!$userProfile?.id) {
-    //  console.log('❌ User not logged in, redirecting...');
-    //  goto('/login');
-    //  return;
-   // }
-
-    // Load competition data
     try {
-      console.log('📋 Loading competition data...');
       await loadCompetitionData();
-      console.log('✅ Competition data loaded');
     } catch (err) {
-      console.error('❌ Failed to load competition data:', err);
+      console.error('Failed to load competition data:', err);
     }
   });
 
@@ -123,10 +112,7 @@
     submitSuccess = false;
 
     try {
-      console.log('🍺 Submitting competition entry...');
-
-      // Generate random entry number
-      const entryNumber = Math.floor(Math.random() * 99999 + 1).toString().padStart(5, '0');
+      const entryNumber = await generateUniqueEntryNumber(selectedCompetition);
 
       const entryData = {
         competition_id: selectedCompetition,
@@ -194,16 +180,6 @@
   function formatCategoryOption(subcategory) {
     return `${subcategory.letter} - ${subcategory.name}`;
   }
-  // Debug: Log store values
-  $: console.log('📊 Store Debug:', {
-    bjcpCategories: $bjcpCategories.length,
-    competitions: $competitions.length,
-    activeCompetitions: $activeCompetitions.length,
-    mainCategories: $mainCategories.length,
-    isLoaded: $isLoaded,
-    isLoading: $isLoading,
-    error: $error
-  });
 </script>
 
 <svelte:head>
