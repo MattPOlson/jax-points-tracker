@@ -15,37 +15,54 @@ const svgPath = join(root, 'static', 'JAX-Profile-Final-1.svg');
 
 await mkdir(iconsDir, { recursive: true });
 
-// Standard icon (transparent background)
-await sharp(svgPath)
-  .resize(192, 192)
-  .png()
-  .toFile(join(iconsDir, 'icon-192.png'));
-console.log('Created icon-192.png');
+// Render the logo contained (no crop) at the target inner size, then composite
+// onto a transparent canvas so the full logo is visible with a small margin.
+async function buildIcon({ canvas, inner, background, outPath }) {
+  const logoBuffer = await sharp(svgPath)
+    .resize(inner, inner, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png()
+    .toBuffer();
 
-await sharp(svgPath)
-  .resize(512, 512)
-  .png()
-  .toFile(join(iconsDir, 'icon-512.png'));
-console.log('Created icon-512.png');
-
-// Maskable icon (needs padding so the logo isn't clipped by the safe zone)
-// Safe zone is the inner 80% of the icon
-await sharp({
-  create: {
-    width: 512,
-    height: 512,
-    channels: 4,
-    background: { r: 30, g: 58, b: 95, alpha: 1 } // --color-brand-primary #1e3a5f
-  }
-})
-  .composite([
-    {
-      input: await sharp(svgPath).resize(360, 360).png().toBuffer(),
-      gravity: 'center'
+  await sharp({
+    create: {
+      width: canvas,
+      height: canvas,
+      channels: 4,
+      background
     }
-  ])
-  .png()
-  .toFile(join(iconsDir, 'icon-maskable-512.png'));
-console.log('Created icon-maskable-512.png');
+  })
+    .composite([{ input: logoBuffer, gravity: 'center' }])
+    .png()
+    .toFile(outPath);
+
+  console.log(`Created ${outPath.split('/').pop()}`);
+}
+
+const transparent = { r: 0, g: 0, b: 0, alpha: 0 };
+const brandPrimary = { r: 30, g: 58, b: 95, alpha: 1 }; // #1e3a5f
+
+// Standard icons: transparent background, logo at ~85% to leave breathing room.
+await buildIcon({
+  canvas: 192,
+  inner: Math.round(192 * 0.85),
+  background: transparent,
+  outPath: join(iconsDir, 'icon-192.png')
+});
+
+await buildIcon({
+  canvas: 512,
+  inner: Math.round(512 * 0.85),
+  background: transparent,
+  outPath: join(iconsDir, 'icon-512.png')
+});
+
+// Maskable icon: brand blue background, logo at ~70% so it stays inside the
+// platform-imposed safe zone (inner 80%) across Android shape masks.
+await buildIcon({
+  canvas: 512,
+  inner: Math.round(512 * 0.7),
+  background: brandPrimary,
+  outPath: join(iconsDir, 'icon-maskable-512.png')
+});
 
 console.log('\nPWA icons generated successfully in static/icons/');
