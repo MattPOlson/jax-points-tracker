@@ -6,7 +6,7 @@
   import { onMount } from 'svelte';
   import { competitionManagementStore } from '$lib/stores/competitionManagementStore';
   import { Hero, Container, LoadingSpinner, EmptyState, Badge, Card, ActionCard } from '$lib/components/ui';
-  import { FileCheck, List, Trophy, Users, BarChart, ClipboardList, UserCheck, TrendingUp, Bell } from 'lucide-svelte';
+  import { FileCheck, List, Trophy, Users, BarChart, ClipboardList, UserCheck, TrendingUp, Bell, Calendar } from 'lucide-svelte';
 
   let isLoading = true;
   let accessDenied = false;
@@ -251,6 +251,14 @@
               <Badge variant="secondary">{totalCompetitionEntries} Entries</Badge>
             </div>
           {/if}
+        </ActionCard>
+
+        <ActionCard
+          href="/officers/manage-events"
+          title="Manage Events"
+          description="Create events and view signup sheets"
+        >
+          <Calendar slot="icon" size={64} strokeWidth={1.5} />
         </ActionCard>
 
         <ActionCard
