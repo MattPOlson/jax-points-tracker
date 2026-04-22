@@ -10,6 +10,8 @@
   import Hero from "$lib/components/ui/Hero.svelte";
   import Container from "$lib/components/ui/Container.svelte";
   import Button from "$lib/components/ui/Button.svelte";
+  import toast from 'svelte-french-toast';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
   
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -153,7 +155,7 @@
       }
     } catch (error) {
       console.error('Error creating competition:', error);
-      alert(`Error creating competition: ${error.message || 'Unknown error occurred'}`);
+      toast.error(`Error creating competition: ${error.message || 'Unknown error occurred'}`);
       isSubmitting = false;
     }
   }

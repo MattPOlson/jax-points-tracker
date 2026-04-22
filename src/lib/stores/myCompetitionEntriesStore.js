@@ -6,6 +6,7 @@ import { writable, derived } from 'svelte/store';
 import { supabase } from '$lib/supabaseClient';
 import { userProfile } from '$lib/stores/userProfile.js';
 import { get } from 'svelte/store';
+import { generateUniqueEntryNumber } from '$lib/utils/entryNumber.js';
 
 // =============================================
 // Store State
@@ -98,20 +99,9 @@ export const entryStats = derived(myEntries, ($myEntries) => {
 export async function loadMyEntries(forceRefresh = false) {
     const now = new Date();
     const lastRefreshTime = get(lastRefresh);
-    
-    // Wait for user profile to be loaded (NEW FIX)
-    let attempts = 0;
-    let userProfileValue = get(userProfile);
-    
-    while (!userProfileValue?.id && attempts < 10) {
-        console.log(`⏳ Waiting for user profile... (attempt ${attempts + 1})`);
-        await new Promise(resolve => setTimeout(resolve, 100));
-        userProfileValue = get(userProfile);
-        attempts++;
-    }
 
+    const userProfileValue = get(userProfile);
     if (!userProfileValue?.id) {
-        console.log('❌ No user ID available after waiting - user may not be logged in');
         error.set('User not logged in');
         isLoaded.set(true);
         return;
@@ -121,7 +111,6 @@ export async function loadMyEntries(forceRefresh = false) {
 
     // Cache for 30 seconds unless force refresh
     if (!forceRefresh && lastRefreshTime && (now - lastRefreshTime) < 30000) {
-        console.log('🍺 Using cached competition entries');
         return;
     }
 
@@ -129,7 +118,6 @@ export async function loadMyEntries(forceRefresh = false) {
     error.set(null);
 
     try {
-        console.log('🍺 Loading my competition entries...');
         
         const { data, error: queryError } = await supabase
             .from('competition_entries')
@@ -181,7 +169,6 @@ export async function loadMyEntries(forceRefresh = false) {
             result: entry.results?.[0] || null
         }));
 
-        console.log(`✅ Loaded ${processedEntries.length} competition entries`);
         myEntries.set(processedEntries);
         lastRefresh.set(now);
         
@@ -201,7 +188,6 @@ export async function loadMyEntries(forceRefresh = false) {
 // Update an entry (before deadline)
 export async function updateEntry(entryId, updates) {
     try {
-        console.log('📝 Updating competition entry:', entryId);
         
         const { data, error: updateError } = await supabase
             .from('competition_entries')
@@ -233,7 +219,6 @@ export async function updateEntry(entryId, updates) {
             throw updateError;
         }
 
-        console.log('✅ Entry updated successfully');
         
         // Refresh entries list
         await loadMyEntries(true);
@@ -249,7 +234,6 @@ export async function updateEntry(entryId, updates) {
 // Delete an entry (before deadline)
 export async function deleteEntry(entryId) {
     try {
-        console.log('🗑️ Deleting competition entry:', entryId);
         
         const { error: deleteError } = await supabase
             .from('competition_entries')
@@ -261,7 +245,6 @@ export async function deleteEntry(entryId) {
             throw deleteError;
         }
 
-        console.log('✅ Entry deleted successfully');
         
         // Refresh entries list
         await loadMyEntries(true);
@@ -275,11 +258,8 @@ export async function deleteEntry(entryId) {
 // Submit a new entry
 export async function submitEntry(entryData) {
     try {
-        console.log('🍺 Submitting new competition entry...');
-        
-        // Generate random entry number
-        const entryNumber = Math.floor(Math.random() * 99999 + 1).toString().padStart(5, '0');
-        
+        const entryNumber = await generateUniqueEntryNumber(entryData.competition_id);
+
         const { data, error: insertError } = await supabase
             .from('competition_entries')
             .insert([{
@@ -308,7 +288,6 @@ export async function submitEntry(entryData) {
             throw insertError;
         }
 
-        console.log('✅ Entry submitted successfully:', data.id);
         
         // Refresh entries list
         await loadMyEntries(true);
@@ -389,25 +368,11 @@ export function resetStore() {
     isLoading.set(false);
     error.set(null);
     lastRefresh.set(null);
-    console.log('🔄 My entries store reset');
 }
 
 // Force refresh data
 export async function forceRefresh() {
-    console.log('🔄 Force refreshing my entries...');
     lastRefresh.set(null);
     await loadMyEntries(true);
 }
 
-// Subscribe to store changes for debugging
-if (typeof window !== 'undefined') {
-    myEntries.subscribe(value => {
-        console.log('🍺 My entries updated:', value.length, 'entries');
-    });
-    
-    error.subscribe(value => {
-        if (value) {
-            console.error('❌ My entries store error:', value);
-        }
-    });
-}

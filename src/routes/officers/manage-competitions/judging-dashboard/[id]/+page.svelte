@@ -11,6 +11,8 @@
   import EmptyState from '$lib/components/ui/EmptyState.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import { BarChart3, Users, Beer, Trophy, Clock, ArrowLeft, CheckCircle, Megaphone } from 'lucide-svelte';
+  import toast from 'svelte-french-toast';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
 
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -180,7 +182,7 @@
 
     } catch (err) {
       console.error('Error loading dashboard data:', err);
-      alert('Failed to load judging dashboard');
+      toast.error('Failed to load judging dashboard');
       goto('/officers/manage-competitions');
     } finally {
       isLoading = false;
@@ -270,7 +272,7 @@
   }
 
   async function finalizeResults() {
-    if (!confirm('Are you sure you want to finalize all results? This will aggregate scores and create final standings.')) {
+    if (!await showConfirm('Are you sure you want to finalize all results? This will aggregate scores and create final standings.')) {
       return;
     }
 
@@ -458,7 +460,7 @@
   }
 
   async function publishResults() {
-    if (!confirm('Are you sure you want to publish results? This will make them visible to all members.')) {
+    if (!await showConfirm('Are you sure you want to publish results? This will make them visible to all members.')) {
       return;
     }
 

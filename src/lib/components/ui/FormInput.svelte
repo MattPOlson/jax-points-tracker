@@ -36,14 +36,14 @@
   {/if}
   <input
     {id}
-    type={type}
+    {type}
     {placeholder}
     {required}
     {disabled}
-    value={value}
+    {value}
     class="form-input"
     class:form-input-error={error}
-    on:input={(e) => value = e.target.value}
+    on:input={(e) => (value = e.target.value)}
     on:change
     on:blur
     on:focus

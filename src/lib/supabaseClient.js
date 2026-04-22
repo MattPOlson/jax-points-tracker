@@ -13,11 +13,6 @@ if (!supabaseAnonKey) {
   throw new Error('Missing VITE_SUPABASE_ANON_KEY environment variable');
 }
 
-// Only log in browser environment
-if (browser) {
-  console.log('Supabase URL:', supabaseUrl);
-  console.log('Supabase Key:', supabaseAnonKey ? 'Exists' : 'Missing');
-}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {

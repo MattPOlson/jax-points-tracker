@@ -12,6 +12,8 @@
   } from '$lib/stores/competitionJudgingStore';
   import { Hero, Container, LoadingSpinner, Button } from '$lib/components/ui';
   import { ArrowLeft, ArrowRight, FileText, Trophy, Flag } from 'lucide-svelte';
+  import toast from 'svelte-french-toast';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
 
   // Get competition ID from URL
   $: competitionId = $page.params.id;
@@ -53,7 +55,7 @@
 
   onMount(async () => {
     if (!$userProfile) {
-      goto('/auth');
+      goto('/login');
       return;
     }
 
@@ -74,7 +76,7 @@
       loadCurrentEntryData();
     } catch (err) {
       console.error('Error starting judging session:', err);
-      alert(`Failed to start judging: ${err.message}`);
+      toast.error(`Failed to start judging: ${err.message}`);
       goto('/judge');
     }
   });
@@ -295,7 +297,7 @@
   }
 
   async function finishJudging() {
-    if (!confirm('Are you sure you want to finish judging? You can still make changes later if needed.')) {
+    if (!await showConfirm('Are you sure you want to finish judging? You can still make changes later if needed.')) {
       return;
     }
 

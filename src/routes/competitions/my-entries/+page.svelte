@@ -32,6 +32,8 @@
   import EmptyState from "$lib/components/ui/EmptyState.svelte";
   import Button from "$lib/components/ui/Button.svelte";
   import { jsPDF } from "jspdf";
+  import toast from 'svelte-french-toast';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
 
   // =============================================
   // Component Lifecycle
@@ -324,7 +326,7 @@
   // Print labels function for my entries - PDF-based for mobile compatibility
   function printEntries() {
     if (!filteredEntries || filteredEntries.length === 0) {
-      alert('No entries available to print');
+      toast.error('No entries available to print');
       return;
     }
 

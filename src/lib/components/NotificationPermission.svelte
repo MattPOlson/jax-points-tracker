@@ -3,6 +3,7 @@
   import { Bell, BellOff } from 'lucide-svelte';
   import toast from 'svelte-french-toast';
   import { user } from '$lib/stores/user';
+  import { supabase } from '$lib/supabaseClient';
 
   let subscribed = false;
   let supported = false;
@@ -55,10 +56,14 @@
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
       });
 
+      const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch('/api/push/subscribe', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscription, memberId: $user.id })
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({ subscription })
       });
 
       if (!response.ok) throw new Error('Failed to save subscription');
@@ -74,12 +79,17 @@
 
   async function unsubscribe() {
     try {
+      const endpoint = currentSubscription.endpoint;
       await currentSubscription.unsubscribe();
 
+      const { data: { session } } = await supabase.auth.getSession();
       await fetch('/api/push/subscribe', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ endpoint: currentSubscription.endpoint })
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({ endpoint })
       });
 
       currentSubscription = null;

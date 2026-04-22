@@ -10,7 +10,7 @@
   import { page } from '$app/stores';
   import { version } from '$lib/version.js';
   import { Hero, Button, Badge, Container, OverlappingCard, ActionCard } from '$lib/components/ui';
-  import { FileEdit, ClipboardCheck, Trophy, Award, User as UserIcon, Settings } from 'lucide-svelte';
+  import { FileEdit, ClipboardCheck, Trophy, Award, User as UserIcon, Settings, Calendar } from 'lucide-svelte';
 
   $: isLoggedIn = $authUser !== null;
   $: isOfficer = $userProfile?.is_officer === true;
@@ -113,6 +113,14 @@
               {/if}
             </div>
           {/if}
+        </ActionCard>
+
+        <ActionCard
+          href="/events"
+          title="Events"
+          description="Sign up for festivals and club events"
+        >
+          <Calendar slot="icon" size={64} strokeWidth={1.5} />
         </ActionCard>
 
         <ActionCard
@@ -238,6 +246,8 @@
   .action-grid > :global(*:nth-child(4)) { --card-delay: 0.35s; }
   .action-grid > :global(*:nth-child(5)) { --card-delay: 0.45s; }
   .action-grid > :global(*:nth-child(6)) { --card-delay: 0.55s; }
+  .action-grid > :global(*:nth-child(7)) { --card-delay: 0.65s; }
+  .action-grid > :global(*:nth-child(8)) { --card-delay: 0.75s; }
 
   .competition-status {
     margin-top: var(--space-4);

@@ -12,6 +12,8 @@
   import EmptyState from "$lib/components/ui/EmptyState.svelte";
   import Button from "$lib/components/ui/Button.svelte";
   import { jsPDF } from "jspdf";
+  import toast from 'svelte-french-toast';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
 
   let showAccessDeniedModal = false;
   let isAuthorized = false;
@@ -116,7 +118,7 @@
       filterAndSortEntries();
     } catch (err) {
       console.error('Error loading data:', err);
-      alert('Failed to load competition entries');
+      toast.error('Failed to load competition entries');
       goto('/officers/manage-competitions');
     } finally {
       isLoading = false;
@@ -262,7 +264,7 @@
       }
     } catch (err) {
       console.error('Error updating payment status:', err);
-      alert('Failed to update payment status');
+      toast.error('Failed to update payment status');
     }
   }
 
@@ -273,7 +275,7 @@ function printLabels() {
     : filteredEntries;
 
   if (entriesToPrint.length === 0) {
-    alert('No entries selected for printing');
+    toast.error('No entries selected for printing');
     return;
   }
 
@@ -410,7 +412,7 @@ function printLabels() {
       }
     } catch (err) {
       console.error('Error assigning entry to table:', err);
-      alert('Failed to update table assignment');
+      toast.error('Failed to update table assignment');
     }
   }
 
@@ -432,7 +434,7 @@ function printLabels() {
       bulkTableId = '';
     } catch (err) {
       console.error('Error bulk-assigning entries to table:', err);
-      alert('Failed to bulk-assign entries to table');
+      toast.error('Failed to bulk-assign entries to table');
     }
   }
 
@@ -507,7 +509,7 @@ function printLabels() {
       : filteredEntries;
     
     if (entriesToExport.length === 0) {
-      alert('No entries to export');
+      toast.error('No entries to export');
       return;
     }
 
@@ -559,7 +561,7 @@ function printLabels() {
       : filteredEntries;
     
     if (entriesToPrint.length === 0) {
-      alert('No entries to print judging sheets for');
+      toast.error('No entries to print judging sheets for');
       return;
     }
 

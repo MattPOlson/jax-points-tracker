@@ -10,6 +10,8 @@
   } from '$lib/stores/competitionJudgingStore';
   import { Hero, Container, LoadingSpinner, Button, Badge, Card } from '$lib/components/ui';
   import { Scale, Calendar, User as UserIcon, Trophy, CheckCircle, Clock, Smartphone } from 'lucide-svelte';
+  import toast from 'svelte-french-toast';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
 
   let availableCompetitions = [];
   let userJudgeAssignments = [];
@@ -77,7 +79,7 @@
       goto(`/judge/competition/${competitionId}`);
     } catch (err) {
       console.error('Error starting judging session:', err);
-      alert(`Failed to start judging: ${err.message}`);
+      toast.error(`Failed to start judging: ${err.message}`);
     }
   }
 

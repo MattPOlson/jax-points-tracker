@@ -10,6 +10,8 @@
   import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
   import EmptyState from "$lib/components/ui/EmptyState.svelte";
   import Button from "$lib/components/ui/Button.svelte";
+  import toast from 'svelte-french-toast';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
   
   // Check officer status
   $: if ($userProfile && !$userProfile.is_officer) {
@@ -261,7 +263,7 @@
       
     } catch (err) {
       console.error('Error loading data:', err);
-      alert('Failed to load competition entries');
+      toast.error('Failed to load competition entries');
       goto('/officers/manage-competitions');
     } finally {
       isLoading = false;
@@ -387,7 +389,7 @@
     } catch (err) {
       console.error('Error saving results:', err);
       if (!skipToast) {
-        alert('Failed to save results');
+        toast.error('Failed to save results');
       }
       throw err; // Re-throw for saveAllResults to handle
     } finally {
@@ -400,7 +402,7 @@
   // Save all results
   async function saveAllResults() {
     if (unsavedChanges.size === 0) {
-      alert('No unsaved changes to save');
+      toast.error('No unsaved changes to save');
       return;
     }
 
@@ -427,7 +429,7 @@
       }
     } catch (err) {
       console.error('Error saving all results:', err);
-      alert('Failed to save all results');
+      toast.error('Failed to save all results');
     } finally {
       isSaving = false;
     }
@@ -435,7 +437,7 @@
 
   // Publish results (make them visible to public)
   async function publishResults() {
-    if (!confirm('Are you sure you want to publish these results? This will make them visible to all members.')) {
+    if (!await showConfirm('Are you sure you want to publish these results? This will make them visible to all members.')) {
       return;
     }
 
@@ -457,7 +459,7 @@
 
     } catch (err) {
       console.error('Error publishing results:', err);
-      alert('Failed to publish results');
+      toast.error('Failed to publish results');
     } finally {
       isSaving = false;
     }

@@ -20,7 +20,7 @@
 
   onMount(() => {
     if (!$userProfile) {
-      goto('/auth');
+      goto('/login');
       return;
     }
     loadScoresheet();

@@ -10,21 +10,33 @@ export async function POST({ request }) {
     throw error(500, 'Server misconfigured');
   }
 
-  const body = await request.json();
-  const { subscription, memberId } = body;
-
-  if (!subscription?.endpoint || !memberId) {
-    throw error(400, 'Missing subscription or memberId');
-  }
-
   const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
-  // Upsert: if same endpoint already exists, update it; otherwise insert
+  // Verify the requesting user is authenticated
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    throw error(401, 'Unauthorized');
+  }
+  const token = authHeader.slice(7);
+
+  const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+  if (authError || !user) {
+    throw error(401, 'Invalid token');
+  }
+
+  const body = await request.json();
+  const { subscription } = body;
+
+  if (!subscription?.endpoint) {
+    throw error(400, 'Missing subscription');
+  }
+
+  // Always use the authenticated user's ID — never trust memberId from the request body
   const { error: dbError } = await supabaseAdmin
     .from('push_subscriptions')
     .upsert(
       {
-        member_id: memberId,
+        member_id: user.id,
         endpoint: subscription.endpoint,
         subscription
       },
@@ -48,6 +60,20 @@ export async function DELETE({ request }) {
     throw error(500, 'Server misconfigured');
   }
 
+  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+
+  // Verify the requesting user is authenticated
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    throw error(401, 'Unauthorized');
+  }
+  const token = authHeader.slice(7);
+
+  const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+  if (authError || !user) {
+    throw error(401, 'Invalid token');
+  }
+
   const body = await request.json();
   const { endpoint } = body;
 
@@ -55,12 +81,12 @@ export async function DELETE({ request }) {
     throw error(400, 'Missing endpoint');
   }
 
-  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
-
+  // Scope deletion to the authenticated user's subscriptions only
   const { error: dbError } = await supabaseAdmin
     .from('push_subscriptions')
     .delete()
-    .eq('endpoint', endpoint);
+    .eq('endpoint', endpoint)
+    .eq('member_id', user.id);
 
   if (dbError) {
     console.error('Error removing push subscription:', dbError);
