@@ -301,10 +301,10 @@ function printLabels() {
   let currentY = marginY;
   let isFirstLabelOnPage = true;
 
-  // Process each entry (3 labels per entry)
+  // Process each entry (2 labels per entry)
   entriesToPrint.forEach(entry => {
-    // Create 3 copies of each label
-    for (let copy = 0; copy < 3; copy++) {
+    // Create 2 copies of each label
+    for (let copy = 0; copy < 2; copy++) {
       // Check if label fits on current row
       if (!isFirstLabelOnPage && currentX + labelWidth > pageWidth - marginX) {
         // Move to next row

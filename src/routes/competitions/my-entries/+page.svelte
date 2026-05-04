@@ -350,13 +350,13 @@
     let currentRowHeight = 0; // Track the height of the current row
     let isFirstLabelOnPage = true;
 
-    // Process each entry (3 labels per entry)
+    // Process each entry (2 labels per entry)
     filteredEntries.forEach(entry => {
       const isIntraclub = entry.competition?.competition_type === 'intraclub';
       const labelHeight = isIntraclub ? 2.25 : 1.5;
 
-      // Create 3 copies of each label
-      for (let copy = 0; copy < 3; copy++) {
+      // Create 2 copies of each label
+      for (let copy = 0; copy < 2; copy++) {
         // Check if label fits on current row
         if (!isFirstLabelOnPage && currentX + labelWidth > pageWidth - marginX) {
           // Move to next row
