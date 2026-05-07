@@ -9,8 +9,11 @@
     isLoadingTopic,
     topicError,
     loadTopic,
-    appendReply
+    appendReply,
+    editPostBody
   } from '$lib/stores/forumTopicStore';
+
+  const POST_EDIT_WINDOW_MS = 24 * 60 * 60 * 1000;
   import { userProfile } from '$lib/stores/userProfile';
   import ForumPost from '$lib/components/forum/ForumPost.svelte';
   import ForumEditor from '$lib/components/forum/ForumEditor.svelte';
@@ -29,6 +32,46 @@
 
   let replyBody = '';
   let posting = false;
+  let editingPostId = null;
+  let savingEditPostId = null;
+
+  function canEditPost(post) {
+    if (!post || !$userProfile?.id || post.deleted_at) return false;
+    if ($userProfile.is_officer) return true;
+    if (post.author_id !== $userProfile.id) return false;
+    const created = new Date(post.created_at).getTime();
+    return Date.now() - created < POST_EDIT_WINDOW_MS;
+  }
+
+  function handleStartEdit(e) {
+    editingPostId = e.detail.id;
+  }
+  function handleCancelEdit() {
+    editingPostId = null;
+  }
+  async function handleSaveEdit(e) {
+    const { id, body } = e.detail;
+    const trimmed = (body || '').trim();
+    if (trimmed.length < 1) {
+      toast.error('Post cannot be empty.');
+      return;
+    }
+    if (trimmed.length > 20000) {
+      toast.error('Post is too long.');
+      return;
+    }
+    savingEditPostId = id;
+    try {
+      await editPostBody(id, trimmed);
+      editingPostId = null;
+      toast.success('Post updated.');
+    } catch (err) {
+      console.error('Edit failed:', err);
+      toast.error(err.message || 'Failed to update post.');
+    } finally {
+      savingEditPostId = null;
+    }
+  }
 
   $: canReply =
     $activeTopic &&
@@ -111,7 +154,15 @@
 
     <div class="forum-post-list">
       {#each $activePosts as post (post.id)}
-        <ForumPost {post} />
+        <ForumPost
+          {post}
+          canEdit={canEditPost(post)}
+          editing={editingPostId === post.id}
+          saving={savingEditPostId === post.id}
+          on:startEdit={handleStartEdit}
+          on:cancelEdit={handleCancelEdit}
+          on:saveEdit={handleSaveEdit}
+        />
       {/each}
     </div>
 
