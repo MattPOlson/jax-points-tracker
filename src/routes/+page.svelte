@@ -123,13 +123,15 @@
           <Calendar slot="icon" size={64} strokeWidth={1.5} />
         </ActionCard>
 
-        <ActionCard
-          href="/forum"
-          title="Forum"
-          description="Talk shop with fellow brewers"
-        >
-          <MessageSquare slot="icon" size={64} strokeWidth={1.5} />
-        </ActionCard>
+        {#if $userProfile?.forum_beta}
+          <ActionCard
+            href="/forum"
+            title="Forum"
+            description="Talk shop with fellow brewers"
+          >
+            <MessageSquare slot="icon" size={64} strokeWidth={1.5} />
+          </ActionCard>
+        {/if}
 
         <ActionCard
           href="/leaderboard"

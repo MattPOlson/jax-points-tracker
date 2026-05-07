@@ -38,6 +38,7 @@
   let editedEmail = '';
   let memberDetails = null;
   let loadingDetails = false;
+  let editedForumBeta = false;
   let isUpdatingMember = false;
   let unsubscribeVisibility = null;
 
@@ -146,13 +147,25 @@
   }
 
   // Open edit member modal
-  function openEditModal(member) {
+  async function openEditModal(member) {
     if (!hasManagePermissions) return;
     memberToEdit = member;
     editedName = member.name || '';
     editedPhone = member.phone || '';
     editedEmail = member.email || '';
+    editedForumBeta = !!member.forum_beta;
     showEditModal = true;
+    // The members RPC may not surface forum_beta; fetch the current value directly.
+    try {
+      const { data } = await supabase
+        .from('members')
+        .select('forum_beta')
+        .eq('id', member.id)
+        .single();
+      if (data) editedForumBeta = !!data.forum_beta;
+    } catch (err) {
+      console.warn('Could not load forum_beta:', err);
+    }
   }
   // Handle role change
   async function handleRoleChange() {
@@ -188,7 +201,8 @@
       const updates = {
         name: editedName.trim(),
         phone: editedPhone.trim() || null,
-        email: editedEmail.trim() || null
+        email: editedEmail.trim() || null,
+        forum_beta: editedForumBeta
       };
       const { data, error } = await supabase
         .from('members')
@@ -615,11 +629,11 @@
 
 <!-- Edit Member Modal -->
 {#if showEditModal && memberToEdit}
-  <div class="modal-backdrop" on:click={() => { showEditModal = false; memberToEdit = null; editedName = ''; editedPhone = ''; editedEmail = ''; }}>
+  <div class="modal-backdrop" on:click={() => { showEditModal = false; memberToEdit = null; editedName = ''; editedPhone = ''; editedEmail = ''; editedForumBeta = false; }}>
     <div class="modal-content small" on:click|stopPropagation>
       <div class="modal-header">
         <h2>Edit Member Information</h2>
-        <button class="close-button" on:click={() => { showEditModal = false; memberToEdit = null; editedName = ''; editedPhone = ''; editedEmail = ''; }}>
+        <button class="close-button" on:click={() => { showEditModal = false; memberToEdit = null; editedName = ''; editedPhone = ''; editedEmail = ''; editedForumBeta = false; }}>
           ✕
         </button>
       </div>
@@ -656,19 +670,31 @@
           </div>
           <div class="form-group">
             <label for="editPhone">Phone Number</label>
-            <input 
+            <input
               id="editPhone"
-              type="tel" 
-              bind:value={editedPhone} 
+              type="tel"
+              bind:value={editedPhone}
               placeholder="(555) 123-4567"
               disabled={isUpdatingMember}
             />
+          </div>
+          <div class="form-group form-group-checkbox">
+            <label for="editForumBeta" class="checkbox-label">
+              <input
+                id="editForumBeta"
+                type="checkbox"
+                bind:checked={editedForumBeta}
+                disabled={isUpdatingMember}
+              />
+              <span>Forum beta access</span>
+            </label>
+            <small class="form-hint">Grants access to the in-app forum.</small>
           </div>
         </div>
         <div class="modal-actions">
           <button 
             class="cancel-button" 
-            on:click={() => { showEditModal = false; memberToEdit = null; editedName = ''; editedPhone = ''; editedEmail = ''; }}
+            on:click={() => { showEditModal = false; memberToEdit = null; editedName = ''; editedPhone = ''; editedEmail = ''; editedForumBeta = false; }}
             disabled={isUpdatingMember}
           >
             Cancel
@@ -1458,6 +1484,25 @@
     background-color: #f9fafb;
     color: #6b7280;
     cursor: not-allowed;
+  }
+  .form-group-checkbox .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    cursor: pointer;
+  }
+  .form-group-checkbox .checkbox-label input {
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+  .form-hint {
+    color: #6b7280;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
   }
   /* Role Change Modal */
   .role-change-member {
