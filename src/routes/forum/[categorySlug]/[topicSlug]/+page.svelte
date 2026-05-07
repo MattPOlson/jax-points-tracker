@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
   import toast from 'svelte-french-toast';
   import {
     activeCategory,
@@ -10,15 +11,20 @@
     topicError,
     loadTopic,
     appendReply,
-    editPostBody
+    editPostBody,
+    softDeletePost,
+    setTopicPinned,
+    setTopicLocked,
+    deleteTopic
   } from '$lib/stores/forumTopicStore';
-
-  const POST_EDIT_WINDOW_MS = 24 * 60 * 60 * 1000;
   import { userProfile } from '$lib/stores/userProfile';
   import ForumPost from '$lib/components/forum/ForumPost.svelte';
   import ForumEditor from '$lib/components/forum/ForumEditor.svelte';
+  import ForumModerationMenu from '$lib/components/forum/ForumModerationMenu.svelte';
   import { Hero, Container, LoadingSpinner, EmptyState, Button, Badge } from '$lib/components/ui';
   import { ArrowLeft, Lock, Pin, MessageSquare } from 'lucide-svelte';
+
+  const POST_EDIT_WINDOW_MS = 24 * 60 * 60 * 1000;
 
   $: categorySlug = $page.params.categorySlug;
   $: topicSlug = $page.params.topicSlug;
@@ -34,6 +40,7 @@
   let posting = false;
   let editingPostId = null;
   let savingEditPostId = null;
+  let modBusy = false;
 
   function canEditPost(post) {
     if (!post || !$userProfile?.id || post.deleted_at) return false;
@@ -49,6 +56,56 @@
   function handleCancelEdit() {
     editingPostId = null;
   }
+  async function handleDeletePost(e) {
+    if (!$userProfile?.is_officer) return;
+    try {
+      await softDeletePost(e.detail.id);
+      toast.success('Post removed.');
+    } catch (err) {
+      console.error('Delete post failed:', err);
+      toast.error(err.message || 'Failed to remove post.');
+    }
+  }
+
+  async function handleTogglePin(e) {
+    modBusy = true;
+    try {
+      await setTopicPinned($activeTopic.id, e.detail.pinned);
+      toast.success(e.detail.pinned ? 'Topic pinned.' : 'Topic unpinned.');
+    } catch (err) {
+      console.error('Pin failed:', err);
+      toast.error(err.message || 'Failed to update topic.');
+    } finally {
+      modBusy = false;
+    }
+  }
+
+  async function handleToggleLock(e) {
+    modBusy = true;
+    try {
+      await setTopicLocked($activeTopic.id, e.detail.locked);
+      toast.success(e.detail.locked ? 'Topic locked.' : 'Topic unlocked.');
+    } catch (err) {
+      console.error('Lock failed:', err);
+      toast.error(err.message || 'Failed to update topic.');
+    } finally {
+      modBusy = false;
+    }
+  }
+
+  async function handleDeleteTopic() {
+    modBusy = true;
+    try {
+      await deleteTopic($activeTopic.id);
+      toast.success('Topic deleted.');
+      goto(`/forum/${categorySlug}`);
+    } catch (err) {
+      console.error('Delete topic failed:', err);
+      toast.error(err.message || 'Failed to delete topic.');
+      modBusy = false;
+    }
+  }
+
   async function handleSaveEdit(e) {
     const { id, body } = e.detail;
     const trimmed = (body || '').trim();
@@ -152,16 +209,29 @@
       </span>
     </div>
 
+    {#if $userProfile?.is_officer}
+      <ForumModerationMenu
+        pinned={$activeTopic.pinned}
+        locked={$activeTopic.locked}
+        busy={modBusy}
+        on:togglePin={handleTogglePin}
+        on:toggleLock={handleToggleLock}
+        on:deleteTopic={handleDeleteTopic}
+      />
+    {/if}
+
     <div class="forum-post-list">
       {#each $activePosts as post (post.id)}
         <ForumPost
           {post}
           canEdit={canEditPost(post)}
+          canDelete={$userProfile?.is_officer && !post.deleted_at && !post.is_first_post}
           editing={editingPostId === post.id}
           saving={savingEditPostId === post.id}
           on:startEdit={handleStartEdit}
           on:cancelEdit={handleCancelEdit}
           on:saveEdit={handleSaveEdit}
+          on:delete={handleDeletePost}
         />
       {/each}
     </div>
