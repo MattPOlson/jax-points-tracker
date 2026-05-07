@@ -10,7 +10,7 @@
   import { page } from '$app/stores';
   import { version } from '$lib/version.js';
   import { Hero, Button, Badge, Container, OverlappingCard, ActionCard } from '$lib/components/ui';
-  import { FileEdit, ClipboardCheck, Trophy, Award, User as UserIcon, Settings, Calendar } from 'lucide-svelte';
+  import { FileEdit, ClipboardCheck, Trophy, Award, User as UserIcon, Settings, Calendar, MessageSquare } from 'lucide-svelte';
 
   $: isLoggedIn = $authUser !== null;
   $: isOfficer = $userProfile?.is_officer === true;
@@ -121,6 +121,14 @@
           description="Sign up for festivals and club events"
         >
           <Calendar slot="icon" size={64} strokeWidth={1.5} />
+        </ActionCard>
+
+        <ActionCard
+          href="/forum"
+          title="Forum"
+          description="Talk shop with fellow brewers"
+        >
+          <MessageSquare slot="icon" size={64} strokeWidth={1.5} />
         </ActionCard>
 
         <ActionCard
