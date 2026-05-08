@@ -74,7 +74,13 @@
               <Card>
                 <div class="event-header">
                   <h3 class="event-name">{event.name}</h3>
-                  <Badge variant="primary">Upcoming</Badge>
+                  {#if event.locked}
+                    <Badge variant="warning">Locked</Badge>
+                  {:else if event.max_attendees && event.signup_count >= event.max_attendees}
+                    <Badge variant="warning">Full</Badge>
+                  {:else}
+                    <Badge variant="primary">Upcoming</Badge>
+                  {/if}
                 </div>
 
                 <div class="event-meta">

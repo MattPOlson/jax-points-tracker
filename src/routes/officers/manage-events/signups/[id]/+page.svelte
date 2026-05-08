@@ -3,7 +3,13 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { userProfile } from '$lib/stores/userProfile.js';
-  import { loadEvent, loadEventSignups } from '$lib/stores/eventManagementStore.js';
+  import {
+    loadEvent,
+    loadEventSignups,
+    loadSignupCandidates,
+    addMemberSignup,
+    removeSignup
+  } from '$lib/stores/eventManagementStore.js';
   import {
     Hero,
     Container,
@@ -11,9 +17,13 @@
     EmptyState,
     Card,
     Button,
-    Badge
+    Badge,
+    FormInput,
+    FormSelect
   } from '$lib/components/ui';
-  import { ArrowLeft, Printer, Pencil } from 'lucide-svelte';
+  import { ArrowLeft, Printer, Pencil, UserPlus, Trash2 } from 'lucide-svelte';
+  import toast from 'svelte-french-toast';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
 
   $: if ($userProfile && !$userProfile.is_officer) {
     goto('/');
@@ -23,8 +33,21 @@
 
   let event = null;
   let signups = [];
+  let candidates = [];
   let isLoading = true;
   let loadError = null;
+
+  let selectedMemberId = '';
+  let bringing = '';
+  let notes = '';
+  let isAdding = false;
+
+  $: capacityReached =
+    !!event?.max_attendees && signups.length >= event.max_attendees;
+  $: candidateOptions = candidates.map((m) => ({
+    value: m.id,
+    label: m.email ? `${m.name} (${m.email})` : m.name
+  }));
 
   onMount(async () => {
     await refresh();
@@ -36,10 +59,56 @@
     try {
       event = await loadEvent(eventId);
       signups = await loadEventSignups(eventId);
+      candidates = await loadSignupCandidates(eventId);
     } catch (err) {
       loadError = err.message || 'Failed to load event';
     } finally {
       isLoading = false;
+    }
+  }
+
+  async function handleAddMember() {
+    if (!selectedMemberId) {
+      toast.error('Pick a member to add.');
+      return;
+    }
+
+    if (capacityReached) {
+      const confirmed = await showConfirm(
+        `This event is at its capacity of ${event.max_attendees}. Add this member anyway?`,
+        'Over capacity'
+      );
+      if (!confirmed) return;
+    }
+
+    isAdding = true;
+    try {
+      await addMemberSignup(eventId, selectedMemberId, { bringing, notes });
+      toast.success('Member added.');
+      selectedMemberId = '';
+      bringing = '';
+      notes = '';
+      await refresh();
+    } catch (err) {
+      toast.error(`Error: ${err.message}`);
+    } finally {
+      isAdding = false;
+    }
+  }
+
+  async function handleRemove(signup) {
+    const confirmed = await showConfirm(
+      `Remove ${signup.member_name} from this event?`,
+      'Remove signup?'
+    );
+    if (!confirmed) return;
+
+    try {
+      await removeSignup(signup.id);
+      toast.success('Signup removed.');
+      await refresh();
+    } catch (err) {
+      toast.error(`Error: ${err.message}`);
     }
   }
 
@@ -107,9 +176,66 @@
       </Button>
     </EmptyState>
   {:else}
+    <div class="add-member screen-only">
+      <Card accent accentColor="primary">
+        <h2 class="add-member-title">Add a member</h2>
+        <p class="add-member-help">
+          Manually sign up a member who can't (or hasn't) RSVP'd online.
+        </p>
+
+        {#if candidates.length === 0}
+          <p class="muted">All current members are already signed up.</p>
+        {:else}
+          <div class="add-form">
+            <FormSelect
+              id="add-member"
+              label="Member"
+              placeholder="Choose a member..."
+              bind:value={selectedMemberId}
+              options={candidateOptions}
+            />
+            <FormInput
+              id="add-bringing"
+              label="Bringing (optional)"
+              bind:value={bringing}
+              placeholder="e.g. keg of IPA"
+            />
+            <FormInput
+              id="add-notes"
+              label="Notes (optional)"
+              bind:value={notes}
+            />
+            <div class="add-actions">
+              <Button
+                variant="primary"
+                on:click={handleAddMember}
+                disabled={isAdding || !selectedMemberId}
+              >
+                <UserPlus size={14} />
+                {isAdding ? 'Adding...' : 'Add to event'}
+              </Button>
+              {#if capacityReached}
+                <span class="capacity-warning">At capacity ({signups.length} / {event.max_attendees})</span>
+              {/if}
+            </div>
+          </div>
+        {/if}
+      </Card>
+    </div>
+
     <div class="print-sheet">
       <header class="sheet-header">
-        <h1 class="sheet-title">{event.name}</h1>
+        <div class="sheet-title-row">
+          <h1 class="sheet-title">{event.name}</h1>
+          <div class="sheet-badges screen-only">
+            {#if event.locked}
+              <Badge variant="warning">Locked</Badge>
+            {/if}
+            {#if capacityReached}
+              <Badge variant="warning">At capacity</Badge>
+            {/if}
+          </div>
+        </div>
         <div class="sheet-meta">
           <div><strong>When:</strong> {formatDate(event.event_date)}</div>
           {#if event.location}
@@ -140,6 +266,7 @@
                   <th class="col-contact">Contact</th>
                   <th>Notes</th>
                   <th class="col-check">Checked&nbsp;in</th>
+                  <th class="col-actions screen-only-cell">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -155,6 +282,12 @@
                     </td>
                     <td>{s.notes || ''}</td>
                     <td class="col-check"></td>
+                    <td class="col-actions screen-only-cell">
+                      <Button variant="danger" size="sm" on:click={() => handleRemove(s)}>
+                        <Trash2 size={14} />
+                        Remove
+                      </Button>
+                    </td>
                   </tr>
                 {/each}
               </tbody>
@@ -184,6 +317,61 @@
     gap: var(--space-2);
   }
 
+  .add-member {
+    margin: var(--space-4) 0 var(--space-6);
+  }
+
+  .add-member-title {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-xl);
+    color: var(--color-brand-primary);
+    margin: 0 0 var(--space-2);
+  }
+
+  .add-member-help {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    margin: 0 0 var(--space-4);
+  }
+
+  .add-form {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: var(--space-4);
+  }
+
+  .add-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  :global(.add-actions .btn) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .capacity-warning {
+    color: var(--color-warning);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .muted {
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-sm);
+    margin: 0;
+  }
+
+  @media (max-width: 720px) {
+    .add-form {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .print-sheet {
     margin: var(--space-4) 0 var(--space-16);
   }
@@ -192,11 +380,36 @@
     margin-bottom: var(--space-5);
   }
 
+  .sheet-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  .sheet-badges {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
   .sheet-title {
     font-family: var(--font-family-display);
     font-size: var(--font-size-3xl);
     color: var(--color-brand-primary);
-    margin: 0 0 var(--space-3);
+    margin: 0;
+  }
+
+  .col-actions {
+    width: 8em;
+    text-align: center;
+  }
+
+  :global(.col-actions .btn) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
   }
 
   .sheet-meta {
@@ -268,6 +481,10 @@
 
   @media print {
     .screen-only {
+      display: none !important;
+    }
+
+    .screen-only-cell {
       display: none !important;
     }
 

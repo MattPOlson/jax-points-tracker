@@ -29,7 +29,9 @@
     Printer,
     Play,
     Pause,
-    RefreshCw
+    RefreshCw,
+    Lock,
+    Unlock
   } from 'lucide-svelte';
   import toast from 'svelte-french-toast';
   import { showConfirm } from '$lib/stores/confirmDialog.js';
@@ -92,6 +94,15 @@
     try {
       await updateEvent(event.id, { active: !event.active });
       toast.success(`Event ${event.active ? 'deactivated' : 'activated'}.`);
+    } catch (err) {
+      toast.error(`Error: ${err.message}`);
+    }
+  }
+
+  async function toggleLocked(event) {
+    try {
+      await updateEvent(event.id, { locked: !event.locked });
+      toast.success(`Event ${event.locked ? 'unlocked' : 'locked'}.`);
     } catch (err) {
       toast.error(`Error: ${err.message}`);
     }
@@ -194,6 +205,11 @@
                 {:else}
                   <Badge variant="primary">Active</Badge>
                 {/if}
+                {#if event.locked}
+                  <Badge variant="warning">Locked</Badge>
+                {:else if event.max_attendees && event.signup_count >= event.max_attendees}
+                  <Badge variant="warning">At capacity</Badge>
+                {/if}
               </div>
 
               <div class="event-meta">
@@ -244,6 +260,15 @@
                 {:else}
                   <Play size={14} />
                   Activate
+                {/if}
+              </Button>
+              <Button variant="secondary" size="sm" on:click={() => toggleLocked(event)}>
+                {#if event.locked}
+                  <Unlock size={14} />
+                  Unlock
+                {:else}
+                  <Lock size={14} />
+                  Lock
                 {/if}
               </Button>
               <Button variant="danger" size="sm" on:click={() => handleDelete(event)}>
