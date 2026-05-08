@@ -19,6 +19,7 @@
   let signupDeadlineTime = toTimeInput(initial.signup_deadline, '18:00');
   let maxAttendees = initial.max_attendees ?? '';
   let isActive = initial.active ?? true;
+  let isLocked = initial.locked ?? false;
 
   let errors = {};
 
@@ -87,7 +88,8 @@
       end_date: combine(endDate, endTime),
       signup_deadline: combine(signupDeadlineDate, signupDeadlineTime),
       max_attendees: maxAttendees === '' ? null : Number(maxAttendees),
-      active: isActive
+      active: isActive,
+      locked: isLocked
     };
 
     dispatch('submit', payload);
@@ -185,6 +187,11 @@
   <label class="checkbox-row">
     <input type="checkbox" bind:checked={isActive} />
     <span>Active (visible to members)</span>
+  </label>
+
+  <label class="checkbox-row">
+    <input type="checkbox" bind:checked={isLocked} />
+    <span>Locked (members can't add or change their signup — at capacity)</span>
   </label>
 
   <div class="form-actions">

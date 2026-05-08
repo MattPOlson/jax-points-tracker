@@ -42,7 +42,8 @@
   $: isFull = event?.max_attendees && signups.length >= event.max_attendees && !mySignup;
   $: isPast = event && new Date(event.event_date) < new Date();
   $: signupClosed = event?.signup_deadline && new Date(event.signup_deadline) < new Date();
-  $: canSignUp = isLoggedIn && !isPast && !signupClosed && event?.active;
+  $: isLocked = !!event?.locked;
+  $: canSignUp = isLoggedIn && !isPast && !signupClosed && !isLocked && event?.active;
 
   onMount(async () => {
     await refresh();
@@ -164,8 +165,12 @@
           <Badge variant="secondary">Past Event</Badge>
         {:else if !event.active}
           <Badge variant="warning">Inactive</Badge>
+        {:else if isLocked}
+          <Badge variant="warning">Locked</Badge>
         {:else if signupClosed}
           <Badge variant="warning">Signups Closed</Badge>
+        {:else if isFull}
+          <Badge variant="warning">Full</Badge>
         {:else}
           <Badge variant="primary">Open</Badge>
         {/if}
@@ -226,6 +231,11 @@
         <p class="note">This event has already happened.</p>
       {:else if !event.active}
         <p class="note">This event is not currently accepting signups.</p>
+      {:else if isLocked && !mySignup}
+        <p class="note">
+          Signups are locked for this event. Reach out to an officer if you need to
+          be added.
+        </p>
       {:else if signupClosed && !mySignup}
         <p class="note">The signup deadline has passed.</p>
       {:else if isFull}
@@ -243,16 +253,22 @@
           {#if mySignup.notes}
             <p><strong>Notes:</strong> {mySignup.notes}</p>
           {/if}
-          <div class="signup-actions">
-            <Button variant="secondary" size="sm" on:click={() => (editing = true)}>
-              <Pencil size={14} />
-              Edit
-            </Button>
-            <Button variant="danger" size="sm" on:click={handleCancel} disabled={isSaving}>
-              <Trash2 size={14} />
-              Cancel signup
-            </Button>
-          </div>
+          {#if isLocked}
+            <p class="note">
+              Signups are locked. Contact an officer if you need to make changes.
+            </p>
+          {:else}
+            <div class="signup-actions">
+              <Button variant="secondary" size="sm" on:click={() => (editing = true)}>
+                <Pencil size={14} />
+                Edit
+              </Button>
+              <Button variant="danger" size="sm" on:click={handleCancel} disabled={isSaving}>
+                <Trash2 size={14} />
+                Cancel signup
+              </Button>
+            </div>
+          {/if}
         </div>
       {:else}
         <form

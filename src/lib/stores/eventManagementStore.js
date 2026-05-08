@@ -165,6 +165,63 @@ export async function deleteEvent(eventId) {
 }
 
 // =============================================
+// Officer signup mutations
+// =============================================
+
+export async function addMemberSignup(eventId, memberId, { bringing, notes } = {}) {
+    if (!eventId || !memberId) throw new Error('Event and member are required.');
+
+    const { data, error: insertError } = await supabase
+        .from('event_signups')
+        .insert([
+            {
+                event_id: eventId,
+                member_id: memberId,
+                bringing: bringing?.trim() ? bringing.trim() : null,
+                notes: notes?.trim() ? notes.trim() : null
+            }
+        ])
+        .select()
+        .single();
+
+    if (insertError) {
+        if (insertError.code === '23505') {
+            throw new Error('That member is already signed up for this event.');
+        }
+        throw insertError;
+    }
+
+    return data;
+}
+
+export async function removeSignup(signupId) {
+    if (!signupId) throw new Error('Signup id is required.');
+
+    const { error: deleteError } = await supabase
+        .from('event_signups')
+        .delete()
+        .eq('id', signupId);
+
+    if (deleteError) throw deleteError;
+}
+
+export async function loadSignupCandidates(eventId) {
+    if (!eventId) return [];
+
+    const [{ data: members, error: membersError }, { data: existing, error: existingError }] =
+        await Promise.all([
+            supabase.from('members').select('id, name, email').order('name', { ascending: true }),
+            supabase.from('event_signups').select('member_id').eq('event_id', eventId)
+        ]);
+
+    if (membersError) throw membersError;
+    if (existingError) throw existingError;
+
+    const taken = new Set((existing || []).map((s) => s.member_id));
+    return (members || []).filter((m) => !taken.has(m.id));
+}
+
+// =============================================
 // Member signup mutations
 // =============================================
 
@@ -243,6 +300,9 @@ export const eventManagementStore = {
     createEvent,
     updateEvent,
     deleteEvent,
+    addMemberSignup,
+    removeSignup,
+    loadSignupCandidates,
     upsertMySignup,
     removeMySignup,
     loadMySignup,
