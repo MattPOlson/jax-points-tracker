@@ -211,9 +211,8 @@
         </Card>
       </div>
     </OverlappingCard>
-  {:else if !$loading && currentUserId}
-      <!-- Debug info - only show when not loading and user is logged in -->
-      <div class="debug-info" style="background: #f0f0f0; padding: 1rem; margin: 1rem 0; font-family: monospace; text-align: left;">
+  {:else if !$loading && currentUserId && import.meta.env.DEV}
+      <div class="debug-info">
         <div>Store All Length: {$storeAll?.length || 0}</div>
         <div>Store Message: {$storeMessage || 'none'}</div>
         <div>Loading: {$loading}</div>
@@ -230,10 +229,10 @@
         on:click={toggleView}
       >
         {#if showAll}
-          <List size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+          <List size={18} strokeWidth={2} class="icon-inline" />
           Show All
         {:else}
-          <Clock size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+          <Clock size={18} strokeWidth={2} class="icon-inline" />
           Pending Only
         {/if}
       </Button>
@@ -464,7 +463,7 @@
   }
 
   .desktop-table th.sortable:hover {
-    background: #f1f5f9;
+    background: var(--color-gray-100);
   }
 
   .desktop-table th.sort-asc::after {
@@ -481,7 +480,7 @@
 
   .desktop-table td {
     padding: 1rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--color-gray-100);
     vertical-align: middle;
   }
 
@@ -508,35 +507,35 @@
     align-items: center;
     gap: 0.25rem;
     padding: 0.25rem 0.75rem;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     font-size: 0.8rem;
     font-weight: 600;
     white-space: nowrap;
   }
 
   .status-badge.status-approved {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--color-success-bg);
+    color: var(--color-success-bg-strong);
   }
 
   .status-badge.status-pending {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--color-warning-bg);
+    color: var(--color-warning-text);
   }
 
   .status-badge.status-rejected {
-    background: #fecaca;
-    color: #991b1b;
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
   }
 
   .rejection-reason {
-    color: #dc2626;
+    color: var(--color-danger);
     font-style: italic;
     font-size: 0.9rem;
   }
 
   .no-reason {
-    color: #9ca3af;
+    color: var(--color-gray-400);
   }
 
   /* Mobile Cards */
@@ -545,7 +544,7 @@
   }
 
   .mobile-card {
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--color-gray-100);
     padding: 1.5rem;
   }
 
@@ -561,10 +560,10 @@
   }
 
   .category-badge {
-    background: #f3f4f6;
-    color: #374151;
+    background: var(--color-gray-100);
+    color: var(--color-gray-700);
     padding: 0.25rem 0.75rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 0.85rem;
     font-weight: 600;
   }
@@ -598,15 +597,15 @@
   }
 
   .rejection-row {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    border-radius: 4px;
+    background: var(--color-danger-bg-softest);
+    border: 1px solid var(--color-danger-bg);
+    border-radius: var(--radius-sm);
     padding: 0.75rem;
     margin-top: 0.5rem;
   }
 
   .rejection-text {
-    color: #dc2626;
+    color: var(--color-danger);
     font-style: italic;
   }
 
@@ -715,5 +714,15 @@
     .mobile-cards {
       display: none;
     }
+  }
+
+  /* Dev-only debug info — gated by import.meta.env.DEV in the markup */
+  .debug-info {
+    background: var(--color-gray-100);
+    padding: var(--space-4);
+    margin: var(--space-4) 0;
+    font-family: var(--font-family-mono);
+    text-align: left;
+    border-radius: var(--radius-md);
   }
 </style>

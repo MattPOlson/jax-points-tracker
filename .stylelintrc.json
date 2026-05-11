@@ -1,0 +1,63 @@
+{
+  "extends": ["stylelint-config-recommended"],
+  "customSyntax": "postcss-html",
+  "rules": {
+    "color-no-hex": [
+      true,
+      {
+        "message": "Use a design-system token (var(--color-*)) instead of a hex literal. Add a new token in src/app.css if needed.",
+        "severity": "warning"
+      }
+    ],
+    "declaration-property-value-disallowed-list": [
+      {
+        "/^(font-family)$/": [
+          "/^Arial/i",
+          "/^Helvetica/i",
+          "/^Times New Roman/i",
+          "/^Inter/i",
+          "/^Roboto/i"
+        ]
+      },
+      {
+        "message": "Use a design-system font token (var(--font-family-base|display|mono|serif)).",
+        "severity": "warning"
+      }
+    ],
+    "declaration-property-unit-disallowed-list": [
+      {
+        "/^(margin|padding|gap|row-gap|column-gap)/": ["px"]
+      },
+      {
+        "message": "Use the spacing scale (var(--space-*)) instead of raw px.",
+        "severity": "warning"
+      }
+    ],
+    "no-descending-specificity": null,
+    "no-duplicate-selectors": null,
+    "selector-pseudo-class-no-unknown": [
+      true,
+      { "ignorePseudoClasses": ["global"] }
+    ],
+    "at-rule-no-unknown": [
+      true,
+      { "ignoreAtRules": ["tailwind", "apply", "screen", "layer"] }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["src/app.css"],
+      "rules": {
+        "color-no-hex": null,
+        "declaration-property-unit-disallowed-list": null
+      }
+    }
+  ],
+  "ignoreFiles": [
+    "build/**",
+    "node_modules/**",
+    "playwright-report/**",
+    "test-results/**",
+    ".svelte-kit/**"
+  ]
+}

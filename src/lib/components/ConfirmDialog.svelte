@@ -104,7 +104,7 @@
     justify-content: flex-end;
     gap: var(--space-3);
     padding: var(--space-4) var(--space-6);
-    border-top: 1px solid var(--color-border-primary, #e2e8f0);
+    border-top: 1px solid var(--color-border-primary, var(--color-gray-200));
   }
 
   .btn {
@@ -123,7 +123,7 @@
   .btn-cancel {
     background: var(--color-bg-secondary, #f5f2ec);
     color: var(--color-text-secondary, #4a5568);
-    border: 1px solid var(--color-border-primary, #e2e8f0);
+    border: 1px solid var(--color-border-primary, var(--color-gray-200));
   }
 
   .btn-cancel:hover {

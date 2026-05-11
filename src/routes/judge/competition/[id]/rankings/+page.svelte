@@ -496,11 +496,11 @@
   }
 
   function getScoreColor(score) {
-    if (score >= 45) return '#059669'; // Excellent
-    if (score >= 38) return '#0891b2'; // Very Good  
-    if (score >= 30) return '#eab308'; // Good
-    if (score >= 21) return '#f59e0b'; // Fair
-    return '#dc2626'; // Poor
+    if (score >= 45) return 'var(--color-success)'; // Excellent
+    if (score >= 38) return 'var(--color-info-cyan)'; // Very Good  
+    if (score >= 30) return 'var(--color-warning-amber-soft)'; // Good
+    if (score >= 21) return 'var(--color-warning-amber)'; // Fair
+    return 'var(--color-danger)'; // Poor
   }
 
   function isOwnEntry(entry) {
@@ -527,11 +527,11 @@
       top: 20px;
       right: 20px;
       padding: 1rem 1.5rem;
-      border-radius: 6px;
+      border-radius: var(--radius-md);
       color: white;
       font-weight: 500;
       z-index: 1000;
-      background: ${type === 'success' ? '#059669' : type === 'error' ? '#dc2626' : '#6b7280'};
+      background: ${type === 'success' ? 'var(--color-success)' : type === 'error' ? 'var(--color-danger)' : 'var(--color-gray-500)'};
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     `;
 
@@ -664,7 +664,7 @@
     padding: var(--space-3) var(--space-6);
     border: none;
     border-radius: var(--radius-button);
-    background: linear-gradient(135deg, var(--color-success) 0%, #047857 100%);
+    background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-hover) 100%);
     color: white;
     cursor: pointer;
     font-weight: var(--font-weight-medium);
@@ -672,7 +672,7 @@
   }
 
   .save-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+    background: linear-gradient(135deg, var(--color-success-hover) 0%, #065f46 100%);
   }
 
   .save-btn:disabled {
@@ -699,7 +699,7 @@
 
   .ranking-item.own-entry {
     background: #eff6ff;
-    border-color: #3b82f6;
+    border-color: var(--color-info-accent);
   }
 
   .ranking-item.invalid-own-entry {
@@ -710,7 +710,7 @@
 
   @keyframes pulse-error {
     0%, 100% { border-color: var(--color-danger); }
-    50% { border-color: #dc2626; }
+    50% { border-color: var(--color-danger); }
   }
 
   .rank-position {
@@ -797,14 +797,14 @@
 
   .validation-warning h4 {
     margin: 0 0 var(--space-2);
-    color: #92400e;
+    color: var(--color-warning-text);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
   }
 
   .validation-error {
     font-size: var(--font-size-sm);
-    color: #92400e;
+    color: var(--color-warning-text);
     margin: var(--space-1) 0;
   }
 
@@ -813,8 +813,8 @@
     align-items: center;
     gap: var(--space-1);
     font-size: var(--font-size-xs);
-    color: #3b82f6;
-    background: #dbeafe;
+    color: var(--color-info-accent);
+    background: var(--color-info-bg);
     padding: var(--space-1) var(--space-2);
     border-radius: var(--radius-card);
     font-weight: var(--font-weight-medium);
@@ -834,7 +834,7 @@
   }
 
   .save-btn.has-changes {
-    background: linear-gradient(135deg, var(--color-warning) 0%, #d97706 100%);
+    background: linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning) 100%);
     animation: pulse-save 2s ease-in-out infinite;
   }
 
@@ -898,11 +898,11 @@
   <!-- Navigation -->
   <div class="nav-buttons">
     <Button variant="secondary" on:click={() => handleNavigation(`/judge/competition/${competitionId}`)}>
-      <ArrowLeft size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+      <ArrowLeft size={18} strokeWidth={2} class="icon-inline" />
       Back to Judging
     </Button>
     <Button variant="secondary" on:click={() => handleNavigation('/judge')}>
-      <ArrowLeft size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+      <ArrowLeft size={18} strokeWidth={2} class="icon-inline" />
       Judge Portal
     </Button>
   </div>
@@ -914,7 +914,7 @@
       <h3>Error Loading Data</h3>
       <p>{error}</p>
       <button class="nav-btn nav-btn-primary" on:click={() => window.location.reload()}>
-        <RefreshCw size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        <RefreshCw size={18} strokeWidth={2} class="icon-inline" />
         Retry
       </button>
     </div>
@@ -950,7 +950,7 @@
             <h2>Rankings for {selectedCategory.displayName}</h2>
             {#if hasUnsavedChanges}
               <div class="unsaved-indicator">
-                <AlertTriangle size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                <AlertTriangle size={16} strokeWidth={2} class="icon-inline" />
                 Unsaved changes - Auto-saving in 3 seconds...
               </div>
             {/if}
@@ -963,10 +963,10 @@
             {#if isSaving}
               Saving...
             {:else if hasUnsavedChanges}
-              <Save size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              <Save size={16} strokeWidth={2} class="icon-inline" />
               Save Changes Now
             {:else}
-              <Check size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              <Check size={16} strokeWidth={2} class="icon-inline" />
               Rankings Saved
             {/if}
           </button>
@@ -975,7 +975,7 @@
         {#if validationErrors.length > 0}
           <div class="validation-warning">
             <h4>
-              <AlertTriangle size={20} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              <AlertTriangle size={20} strokeWidth={2} class="icon-inline" />
               Ranking Restrictions
             </h4>
             {#each validationErrors as error}
@@ -985,9 +985,9 @@
         {/if}
 
         {#if competitionType === 'intraclub'}
-          <div class="validation-warning" style="background: #f0f9ff; border-color: #3b82f6;">
+          <div class="validation-warning" style="background: #f0f9ff; border-color: var(--color-info-accent);">
             <h4>
-              <Info size={20} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              <Info size={20} strokeWidth={2} class="icon-inline" />
               Intraclub Competition Rules
             </h4>
             <div style="color: #1e40af; font-size: 0.875rem;">
@@ -1001,7 +1001,7 @@
             <h3>No Scored Entries</h3>
             <p>You need to score entries in this category before you can rank them.</p>
             <a href="/judge/competition/{competitionId}" class="nav-btn nav-btn-primary">
-              <Trophy size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              <Trophy size={18} strokeWidth={2} class="icon-inline" />
               Start Judging
             </a>
           </div>
@@ -1012,7 +1012,7 @@
               <div class="ranking-item {isOwnEntry(ranking.entry) ? 'own-entry' : ''} {getEntryValidationClass(ranking)}">
                 <div class="rank-position">
                   {#if rankDisplay.icon}
-                    <svelte:component this={rankDisplay.icon} size={24} strokeWidth={2} style="display: inline-block; vertical-align: middle; margin-right: 0.25rem;" />
+                    <svelte:component this={rankDisplay.icon} size={24} strokeWidth={2} class="icon-inline-middle" />
                   {/if}
                   <span>{rankDisplay.text}</span>
                 </div>
@@ -1047,7 +1047,7 @@
                     </span>
                     {#if ranking.entry.judge_notes}
                       <span class="detail-text">
-                        <StickyNote size={14} strokeWidth={2} style="display: inline-block; vertical-align: middle; margin-right: 0.25rem;" />
+                        <StickyNote size={14} strokeWidth={2} class="icon-inline-middle" />
                         Has notes
                       </span>
                     {/if}
@@ -1055,7 +1055,7 @@
 
                   {#if ranking.entry.private_notes}
                     <div class="detail-text" style="margin-top: 0.5rem; color: #6366f1; font-style: italic;">
-                      <MessageCircle size={14} strokeWidth={2} style="display: inline-block; vertical-align: middle; margin-right: 0.25rem;" />
+                      <MessageCircle size={14} strokeWidth={2} class="icon-inline-middle" />
                       {ranking.entry.private_notes}
                     </div>
                   {/if}

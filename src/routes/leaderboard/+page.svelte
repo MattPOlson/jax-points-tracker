@@ -72,7 +72,7 @@
             <div class="podium-position second">
               <div class="podium-card">
                 <div class="medal-icon">
-                  <Medal size={48} strokeWidth={1.5} color="#c0c0c0" />
+                  <Medal size={48} strokeWidth={1.5} color="var(--color-medal-silver)" />
                 </div>
                 <div class="name">{$leaderboard[1].name}</div>
                 <div class="points">{$leaderboard[1].points.toLocaleString()}</div>
@@ -85,10 +85,10 @@
             <div class="podium-position first">
               <div class="podium-card champion">
                 <div class="crown-icon">
-                  <Crown size={36} strokeWidth={1.5} color="#ffd700" />
+                  <Crown size={36} strokeWidth={1.5} color="var(--color-medal-gold)" />
                 </div>
                 <div class="medal-icon">
-                  <Trophy size={56} strokeWidth={1.5} color="#ffd700" />
+                  <Trophy size={56} strokeWidth={1.5} color="var(--color-medal-gold)" />
                 </div>
                 <div class="name">{$leaderboard[0].name}</div>
                 <div class="points">{$leaderboard[0].points.toLocaleString()}</div>
@@ -101,7 +101,7 @@
             <div class="podium-position third">
               <div class="podium-card">
                 <div class="medal-icon">
-                  <Award size={48} strokeWidth={1.5} color="#cd7f32" />
+                  <Award size={48} strokeWidth={1.5} color="var(--color-medal-bronze)" />
                 </div>
                 <div class="name">{$leaderboard[2].name}</div>
                 <div class="points">{$leaderboard[2].points.toLocaleString()}</div>
@@ -134,11 +134,11 @@
                   <td class="rank-cell">
                     <span class="rank-number">#{index + 1}</span>
                     {#if index === 0}
-                      <Trophy size={20} strokeWidth={2} color="#ffd700" />
+                      <Trophy size={20} strokeWidth={2} color="var(--color-medal-gold)" />
                     {:else if index === 1}
-                      <Medal size={20} strokeWidth={2} color="#c0c0c0" />
+                      <Medal size={20} strokeWidth={2} color="var(--color-medal-silver)" />
                     {:else if index === 2}
-                      <Award size={20} strokeWidth={2} color="#cd7f32" />
+                      <Award size={20} strokeWidth={2} color="var(--color-medal-bronze)" />
                     {/if}
                   </td>
                   <td class="name-cell">{entry.name}</td>
@@ -166,11 +166,11 @@
                 <div class="rank-section">
                   <span class="rank-number">#{index + 1}</span>
                   {#if index === 0}
-                    <Trophy size={20} strokeWidth={2} color="#ffd700" />
+                    <Trophy size={20} strokeWidth={2} color="var(--color-medal-gold)" />
                   {:else if index === 1}
-                    <Medal size={20} strokeWidth={2} color="#c0c0c0" />
+                    <Medal size={20} strokeWidth={2} color="var(--color-medal-silver)" />
                   {:else if index === 2}
-                    <Award size={20} strokeWidth={2} color="#cd7f32" />
+                    <Award size={20} strokeWidth={2} color="var(--color-medal-bronze)" />
                   {/if}
                 </div>
                 {#if index === 0}
@@ -380,15 +380,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-weight: 700;
     font-size: 1.5rem;
     color: white;
   }
 
-  .first-base  { background: linear-gradient(135deg, #ffd700, #ffed4e); height: 60px; }
-  .second-base { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); height: 50px; }
-  .third-base  { background: linear-gradient(135deg, #cd7f32, #deb887); height: 40px; }
+  .first-base  { background: linear-gradient(135deg, var(--color-medal-gold), #ffed4e); height: 60px; }
+  .second-base { background: linear-gradient(135deg, var(--color-medal-silver), #e8e8e8); height: 50px; }
+  .third-base  { background: linear-gradient(135deg, var(--color-medal-bronze), #deb887); height: 40px; }
 
   /* Table */
   .table-section h3 {
@@ -451,7 +451,7 @@
   .rank-row { transition: background-color var(--transition-base); }
   .rank-row:hover { background-color: var(--color-bg-secondary); }
   .rank-row.rank-gold   { background: linear-gradient(135deg, #fffbf0, #fff8e1); }
-  .rank-row.rank-silver { background: linear-gradient(135deg, #f8fafc, #f1f5f9); }
+  .rank-row.rank-silver { background: linear-gradient(135deg, var(--color-gray-50), var(--color-gray-100)); }
   .rank-row.rank-bronze { background: linear-gradient(135deg, #fefaf5, #fdf7f0); }
 
   .rank-cell {
@@ -490,9 +490,9 @@
     border-left: 4px solid var(--color-border-primary);
   }
 
-  .mobile-card.rank-gold   { border-left-color: #ffd700; background: linear-gradient(135deg, #fffbf0, #fff8e1); }
-  .mobile-card.rank-silver { border-left-color: #c0c0c0; background: linear-gradient(135deg, #f8fafc, #f1f5f9); }
-  .mobile-card.rank-bronze { border-left-color: #cd7f32; background: linear-gradient(135deg, #fefaf5, #fdf7f0); }
+  .mobile-card.rank-gold   { border-left-color: var(--color-medal-gold); background: linear-gradient(135deg, #fffbf0, #fff8e1); }
+  .mobile-card.rank-silver { border-left-color: var(--color-medal-silver); background: linear-gradient(135deg, var(--color-gray-50), var(--color-gray-100)); }
+  .mobile-card.rank-bronze { border-left-color: var(--color-medal-bronze); background: linear-gradient(135deg, #fefaf5, #fdf7f0); }
 
   .card-header {
     display: flex;

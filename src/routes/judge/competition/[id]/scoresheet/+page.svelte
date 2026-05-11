@@ -233,12 +233,12 @@
   }
 
   function getScoreColor(score) {
-    if (score >= 45) return '#059669'; // Outstanding
-    if (score >= 38) return '#0891b2'; // Excellent  
-    if (score >= 30) return '#eab308'; // Very Good
-    if (score >= 21) return '#f59e0b'; // Good
+    if (score >= 45) return 'var(--color-success)'; // Outstanding
+    if (score >= 38) return 'var(--color-info-cyan)'; // Excellent  
+    if (score >= 30) return 'var(--color-warning-amber-soft)'; // Very Good
+    if (score >= 21) return 'var(--color-warning-amber)'; // Good
     if (score >= 14) return '#f97316'; // Fair
-    return '#dc2626'; // Problematic
+    return 'var(--color-danger)'; // Problematic
   }
 
   function handleScoreInput(field, value) {
@@ -356,11 +356,11 @@
       top: 20px;
       right: 20px;
       padding: 1rem 1.5rem;
-      border-radius: 6px;
+      border-radius: var(--radius-md);
       color: white;
       font-weight: 500;
       z-index: 1000;
-      background: ${type === 'success' ? '#059669' : type === 'error' ? '#dc2626' : '#6b7280'};
+      background: ${type === 'success' ? 'var(--color-success)' : type === 'error' ? 'var(--color-danger)' : 'var(--color-gray-500)'};
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     `;
 
@@ -503,7 +503,7 @@
 
   .descriptor-definition {
     font-style: italic;
-    color: #666;
+    color: var(--color-text-secondary);
     margin-top: 0.25rem;
   }
 
@@ -551,7 +551,7 @@
     padding: 1.5rem;
     text-align: center;
     margin: 1.5rem 0;
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
   }
 
   .total-score-value {
@@ -576,19 +576,19 @@
   .nav-btn {
     padding: 1rem 2rem;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     cursor: pointer;
     font-weight: 500;
     transition: all 0.3s ease;
   }
 
   .nav-btn-secondary {
-    background: #6b7280;
+    background: var(--color-gray-500);
     color: white;
   }
 
   .nav-btn-primary {
-    background: #059669;
+    background: var(--color-success);
     color: white;
   }
 
@@ -601,15 +601,15 @@
     background: white;
     padding: 1rem;
     margin-bottom: 1rem;
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
   }
 
   .progress-bar {
-    background: #e5e7eb;
+    background: var(--color-gray-200);
     height: 8px;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     overflow: hidden;
     margin: 1rem 0;
   }
@@ -617,7 +617,7 @@
   .progress-fill {
     background: var(--color-brand-primary);
     height: 100%;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     transition: width 0.3s ease;
   }
 
@@ -950,7 +950,7 @@
         on:click={navigateToPrevious}
         disabled={currentEntryIndex === 0}
       >
-        <ArrowLeft size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        <ArrowLeft size={18} strokeWidth={2} class="icon-inline" />
         Previous Entry
       </Button>
 
@@ -958,7 +958,7 @@
         variant="secondary"
         on:click={() => goto(`/judge/competition/${competitionId}`)}
       >
-        <Edit3 size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        <Edit3 size={18} strokeWidth={2} class="icon-inline" />
         Simple View
       </Button>
 

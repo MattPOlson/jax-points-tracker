@@ -1059,17 +1059,17 @@
   /* Filters Section */
   .filters-section {
     background: white;
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid var(--color-brand-gold);
     margin-bottom: 2rem;
     overflow: hidden;
   }
 
   .filters-header {
-    background: #f8f9fa;
+    background: var(--color-gray-50);
     padding: 1.5rem;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid var(--color-gray-200);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1078,7 +1078,7 @@
   }
 
   .filters-header h3 {
-    color: #ff3e00;
+    color: var(--color-brand-gold);
     margin: 0;
     font-size: 1.2rem;
     font-weight: 600;
@@ -1086,11 +1086,11 @@
   }
 
   .clear-filters-button {
-    background: #6b7280;
+    background: var(--color-gray-500);
     color: white;
     border: none;
     padding: 0.5rem 1rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 500;
@@ -1098,12 +1098,12 @@
   }
 
   .clear-filters-button:hover:not(:disabled) {
-    background: #4b5563;
+    background: var(--color-gray-600);
   }
 
   .clear-filters-button:disabled {
-    background: #d1d5db;
-    color: #9ca3af;
+    background: var(--color-gray-300);
+    color: var(--color-gray-400);
     cursor: not-allowed;
   }
 
@@ -1123,35 +1123,35 @@
   .filter-label {
     font-size: 0.9rem;
     font-weight: 600;
-    color: #374151;
+    color: var(--color-gray-700);
     margin: 0;
   }
 
   .filter-select {
     padding: 0.75rem 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
     font-size: 0.9rem;
     background: white;
-    color: #333;
+    color: var(--color-text-primary);
     cursor: pointer;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
 
   .filter-select:focus {
     outline: none;
-    border-color: #ff3e00;
-    box-shadow: 0 0 0 3px rgba(255, 62, 0, 0.1);
+    border-color: var(--color-brand-gold);
+    box-shadow: 0 0 0 3px var(--color-brand-gold-light);
   }
 
   .filter-results {
-    background: #f8f9fa;
+    background: var(--color-gray-50);
     padding: 1rem 1.5rem;
-    border-top: 1px solid #dee2e6;
+    border-top: 1px solid var(--color-gray-200);
   }
 
   .results-text {
-    color: #6b7280;
+    color: var(--color-gray-500);
     font-size: 0.9rem;
     font-weight: 500;
   }
@@ -1161,9 +1161,9 @@
     text-align: center;
     padding: 3rem 2rem;
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid var(--color-brand-gold);
   }
 
   /* Statistics Grid */
@@ -1176,9 +1176,9 @@
 
   .stat-card {
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid var(--color-brand-gold);
     padding: 1.5rem;
     text-align: center;
   }
@@ -1186,13 +1186,13 @@
   .stat-number {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #ff3e00;
+    color: var(--color-brand-gold);
     margin-bottom: 0.5rem;
   }
 
   .stat-label {
     font-size: 0.9rem;
-    color: #666;
+    color: var(--color-text-secondary);
     text-transform: uppercase;
     letter-spacing: 1px;
   }
@@ -1222,20 +1222,20 @@
 
   .competition-group {
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid var(--color-brand-gold);
     overflow: hidden;
   }
 
   .competition-header {
-    background: #f8f9fa;
+    background: var(--color-gray-50);
     padding: 1.5rem;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid var(--color-gray-200);
   }
 
   .competition-header h2 {
-    color: #ff3e00;
+    color: var(--color-brand-gold);
     margin: 0 0 0.5rem 0;
     font-size: 1.3rem;
     text-transform: uppercase;
@@ -1250,7 +1250,7 @@
   }
 
   .deadline {
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   .status {
@@ -1262,12 +1262,12 @@
 
   .status.active {
     background: #d1fae5;
-    color: #059669;
+    color: var(--color-success);
   }
 
   .status.closed {
-    background: #fee2e2;
-    color: #dc2626;
+    background: var(--color-danger-bg-soft);
+    color: var(--color-danger);
   }
 
   /* Entries List */
@@ -1278,7 +1278,7 @@
 
   .entry-card {
     padding: 1.5rem;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--color-gray-100);
   }
 
   .entry-card:last-child {
@@ -1293,7 +1293,7 @@
   }
 
   .entry-header h3 {
-    color: #333;
+    color: var(--color-text-primary);
     margin: 0;
     font-size: 1.1rem;
   }
@@ -1308,17 +1308,17 @@
   .entry-number {
     font-family: monospace;
     font-size: 0.9rem;
-    color: #666;
-    background: #f3f4f6;
+    color: var(--color-text-secondary);
+    background: var(--color-gray-100);
     padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     position: relative;
   }
 
   .entry-number.blurred {
-    background: #fee2e2;
+    background: var(--color-danger-bg-soft);
     color: transparent;
-    text-shadow: 0 0 8px #dc2626;
+    text-shadow: 0 0 8px var(--color-danger);
     cursor: help;
   }
 
@@ -1328,7 +1328,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: #dc2626;
+    background: var(--color-danger);
     color: white;
     padding: 0.2rem 0.4rem;
     border-radius: 3px;
@@ -1340,18 +1340,18 @@
   .payment-status {
     font-size: 0.8rem;
     padding: 0.25rem 0.5rem;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     font-weight: 600;
   }
 
   .payment-status.paid {
     background: #d1fae5;
-    color: #059669;
+    color: var(--color-success);
   }
 
   .payment-status.pending {
-    background: #fef3c7;
-    color: #d97706;
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
   }
 
   /* Entry Details */
@@ -1374,23 +1374,23 @@
   .info-row .label {
     min-width: 100px;
     font-weight: 600;
-    color: #374151;
+    color: var(--color-gray-700);
   }
 
   .info-row .value {
-    color: #6b7280;
+    color: var(--color-gray-500);
     flex: 1;
   }
 
   .info-row.results .value.award {
     font-weight: 600;
-    color: #059669;
+    color: var(--color-success);
   }
 
   /* Edit Form */
   .edit-form {
-    background: #f8f9fa;
-    border-radius: 6px;
+    background: var(--color-gray-50);
+    border-radius: var(--radius-md);
     padding: 1.5rem;
     margin-top: 1rem;
   }
@@ -1403,7 +1403,7 @@
     display: block;
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .form-group input,
@@ -1412,7 +1412,7 @@
     width: 100%;
     padding: 0.5rem;
     border: 2px solid #ddd;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-size: 0.9rem;
     box-sizing: border-box;
   }
@@ -1421,20 +1421,20 @@
   .form-group select:focus,
   .form-group textarea:focus {
     outline: none;
-    border-color: #ff3e00;
+    border-color: var(--color-brand-gold);
   }
 
   .error-message {
     background: #fee;
-    border: 1px solid #dc2626;
-    border-radius: 4px;
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-sm);
     padding: 0.75rem;
     margin-bottom: 1rem;
   }
 
   .error-message p {
     margin: 0;
-    color: #dc2626;
+    color: var(--color-danger);
     font-size: 0.9rem;
   }
 
@@ -1448,10 +1448,10 @@
 
 
   .deadline-warning {
-    background: #fef3c7;
-    color: #d97706;
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
     padding: 0.5rem 0.75rem;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-size: 0.8rem;
     font-weight: 600;
   }
@@ -1480,7 +1480,7 @@
 
   .modal-content {
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     padding: 2rem;
     max-width: 400px;
     width: 90%;
@@ -1488,13 +1488,13 @@
   }
 
   .modal-content h2 {
-    color: #dc2626;
+    color: var(--color-danger);
     margin: 0 0 1rem 0;
   }
 
   .modal-content p {
     margin: 0.5rem 0;
-    color: #374151;
+    color: var(--color-gray-700);
   }
 
   .modal-actions {
@@ -1598,11 +1598,11 @@
 
 
   .scoresheet-button {
-    background: #3b82f6;
+    background: var(--color-info-accent);
     color: white;
     padding: 0.5rem 1rem;
     border: none;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 500;

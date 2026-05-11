@@ -492,11 +492,11 @@
       top: 20px;
       right: 20px;
       padding: 1rem 1.5rem;
-      border-radius: 6px;
+      border-radius: var(--radius-md);
       color: white;
       font-weight: 500;
       z-index: 1000;
-      background: ${type === 'success' ? '#059669' : type === 'error' ? '#dc2626' : '#6b7280'};
+      background: ${type === 'success' ? 'var(--color-success)' : type === 'error' ? 'var(--color-danger)' : 'var(--color-gray-500)'};
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     `;
 
@@ -515,11 +515,11 @@
   }
 
   function getScoreColor(score) {
-    if (score >= 45) return '#059669'; // Excellent
-    if (score >= 38) return '#0891b2'; // Very Good  
-    if (score >= 30) return '#eab308'; // Good
-    if (score >= 21) return '#f59e0b'; // Fair
-    return '#dc2626'; // Poor
+    if (score >= 45) return 'var(--color-success)'; // Excellent
+    if (score >= 38) return 'var(--color-info-cyan)'; // Very Good  
+    if (score >= 30) return 'var(--color-warning-amber-soft)'; // Good
+    if (score >= 21) return 'var(--color-warning-amber)'; // Fair
+    return 'var(--color-danger)'; // Poor
   }
 </script>
 
@@ -539,14 +539,14 @@
 
   .info-label {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--color-text-secondary);
     margin-bottom: 0.25rem;
   }
 
   .info-value {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   /* Stats Cards */
@@ -560,7 +560,7 @@
   .stat-card {
     background: white;
     padding: 1.5rem;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
   }
@@ -569,18 +569,18 @@
     font-size: 2.5rem;
     font-weight: 100;
     margin: 0;
-    color: #334155;
+    color: var(--color-gray-700);
   }
 
   .stat-label {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--color-text-secondary);
     margin: 0.5rem 0 0;
   }
 
   .stat-description {
     font-size: 0.75rem;
-    color: #999;
+    color: var(--color-text-tertiary);
     margin: 0.25rem 0 0;
   }
 
@@ -601,9 +601,9 @@
   .tab-btn {
     padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: 8px;
-    background: #e5e7eb;
-    color: #374151;
+    border-radius: var(--radius-lg);
+    background: var(--color-gray-200);
+    color: var(--color-gray-700);
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s ease;
@@ -618,13 +618,13 @@
   }
 
   .tab-btn:hover:not(.active) {
-    background: #d1d5db;
+    background: var(--color-gray-300);
   }
 
   .action-btn {
     padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s ease;
@@ -639,12 +639,12 @@
   }
 
   .btn-success {
-    background: #059669;
+    background: var(--color-success);
     color: white;
   }
 
   .btn-success:hover:not(:disabled) {
-    background: #047857;
+    background: var(--color-success-hover);
   }
 
   .btn-primary {
@@ -669,14 +669,14 @@
   /* Content Sections */
   .content-section {
     background: white;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
   .section-header {
     padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-gray-200);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -685,7 +685,7 @@
   .section-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
     margin: 0;
   }
 
@@ -700,28 +700,28 @@
   }
 
   .data-table th {
-    background: #f9fafb;
+    background: var(--color-gray-50);
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    color: #374151;
-    border-bottom: 2px solid #e5e7eb;
+    color: var(--color-gray-700);
+    border-bottom: 2px solid var(--color-gray-200);
   }
 
   .data-table td {
     padding: 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-gray-200);
     vertical-align: top;
   }
 
   .data-table tr:hover {
-    background: #f9fafb;
+    background: var(--color-gray-50);
   }
 
   /* Progress bars */
   .progress-bar {
-    background: #e5e7eb;
-    border-radius: 8px;
+    background: var(--color-gray-200);
+    border-radius: var(--radius-lg);
     height: 8px;
     overflow: hidden;
   }
@@ -729,13 +729,13 @@
   .progress-fill {
     background: var(--color-brand-primary);
     height: 100%;
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     transition: width 0.3s ease;
   }
 
   .progress-text {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--color-text-secondary);
     margin-top: 0.25rem;
   }
 
@@ -743,7 +743,7 @@
   .score-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-size: 0.875rem;
     font-weight: 500;
     color: white;
@@ -752,7 +752,7 @@
   .loading, .empty-state {
     text-align: center;
     padding: 3rem;
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   .spinner {
@@ -778,7 +778,7 @@
 
   .mobile-card {
     background: white;
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     padding: 1.5rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -797,19 +797,19 @@
   .mobile-card-title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
     margin: 0;
   }
 
   .mobile-card-subtitle {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--color-text-secondary);
     margin: 0.25rem 0 0;
   }
 
   .mobile-card-badge {
     padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-size: 0.75rem;
     font-weight: 500;
     flex-shrink: 0;
@@ -821,8 +821,8 @@
     gap: 1rem;
     margin-bottom: 1rem;
     padding: 1rem;
-    background: #f9fafb;
-    border-radius: 6px;
+    background: var(--color-gray-50);
+    border-radius: var(--radius-md);
   }
 
   /* Entries view has 5 items, so special grid */
@@ -837,7 +837,7 @@
 
   .mobile-detail-label {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--color-gray-500);
     margin-bottom: 0.25rem;
     text-transform: uppercase;
     font-weight: 600;
@@ -846,7 +846,7 @@
 
   .mobile-detail-value {
     font-size: 1rem;
-    color: #333;
+    color: var(--color-text-primary);
     font-weight: 600;
   }
 
@@ -860,12 +860,12 @@
     align-items: center;
     margin-bottom: 0.5rem;
     font-size: 0.875rem;
-    color: #374151;
+    color: var(--color-gray-700);
   }
 
   .mobile-progress-bar {
-    background: #e5e7eb;
-    border-radius: 8px;
+    background: var(--color-gray-200);
+    border-radius: var(--radius-lg);
     height: 8px;
     overflow: hidden;
   }
@@ -873,7 +873,7 @@
   .mobile-progress-fill {
     background: var(--color-brand-primary);
     height: 100%;
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     transition: width 0.3s ease;
   }
 
@@ -882,10 +882,10 @@
     align-items: center;
     gap: 1rem;
     padding: 1rem;
-    background: #f9fafb;
-    border-radius: 6px;
+    background: var(--color-gray-50);
+    border-radius: var(--radius-md);
     margin-bottom: 0.5rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-gray-200);
   }
 
   .mobile-ranking-position {
@@ -907,7 +907,7 @@
   }
 
   .mobile-ranking-beer-name {
-    color: #666;
+    color: var(--color-text-secondary);
     font-size: 0.9rem;
     margin-top: 0.25rem;
   }
@@ -915,7 +915,7 @@
   .mobile-ranking-points {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #059669;
+    color: var(--color-success);
     text-align: right;
     min-width: fit-content;
   }
@@ -992,9 +992,9 @@
 
   /* Hidden brewer name styling for non-Comp Directors */
   .brewer-name-hidden {
-    color: #9ca3af;
+    color: var(--color-gray-400);
     font-style: italic;
-    background: #f3f4f6;
+    background: var(--color-gray-100);
     padding: 0.125rem 0.375rem;
     border-radius: 3px;
     font-size: 0.875rem;
@@ -1172,7 +1172,7 @@
                   <td>
                     <div>
                       <div style="font-weight: 600;">{judge.judge?.name}</div>
-                      <div style="font-size: 0.875rem; color: #666;">{judge.judge?.email}</div>
+                      <div style="font-size: 0.875rem; color: var(--color-text-secondary);">{judge.judge?.email}</div>
                     </div>
                   </td>
                   <td>
@@ -1203,7 +1203,7 @@
                     <h3 class="mobile-card-title">{judge.judge?.name}</h3>
                     <div class="mobile-card-subtitle">{judge.judge?.email}</div>
                   </div>
-                  <div class="mobile-card-badge" style="background: #e5e7eb; color: #374151;">
+                  <div class="mobile-card-badge" style="background: var(--color-gray-200); color: var(--color-gray-700);">
                     {judge.judge_role.replace('_', ' ')}
                   </div>
                 </div>
@@ -1270,11 +1270,11 @@
                   </td>
                   <td>
                     {#if entry.bjcp_categories}
-                      <span style="background: #f3f4f6; color: #374151; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem; font-weight: 600;">
+                      <span style="background: var(--color-gray-100); color: var(--color-gray-700); padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600;">
                         {entry.bjcp_categories.category_number}{entry.bjcp_categories.subcategory_letter || ''}
                       </span>
                       {#if entry.bjcp_categories.subcategory_name}
-                        <br><small style="color: #666;">{entry.bjcp_categories.subcategory_name}</small>
+                        <br><small style="color: var(--color-text-secondary);">{entry.bjcp_categories.subcategory_name}</small>
                       {/if}
                     {:else}
                       -
@@ -1287,16 +1287,16 @@
                         {scores.average}/50
                       </span>
                     {:else}
-                      <span style="color: #666;">Not scored</span>
+                      <span style="color: var(--color-text-secondary);">Not scored</span>
                     {/if}
                   </td>
                   <td>
                     {#if scores.count === judges.length}
-                      <span style="color: #059669;">✅ Complete</span>
+                      <span style="color: var(--color-success);">✅ Complete</span>
                     {:else if scores.count > 0}
-                      <span style="color: #f59e0b;">⏳ Partial</span>
+                      <span style="color: var(--color-warning-amber);">⏳ Partial</span>
                     {:else}
-                      <span style="color: #dc2626;">❌ Pending</span>
+                      <span style="color: var(--color-danger);">❌ Pending</span>
                     {/if}
                   </td>
                 </tr>
@@ -1314,7 +1314,7 @@
                     <h3 class="mobile-card-title">#{entry.entry_number}</h3>
                     <div class="mobile-card-subtitle {getBrewerNameClass()}">{getBeerNameDisplay(entry.beer_name)}</div>
                   </div>
-                  <div class="mobile-card-badge" style="background: {scores.count === judges.length ? '#dcfce7' : scores.count > 0 ? '#fef3c7' : '#fee2e2'}; color: {scores.count === judges.length ? '#059669' : scores.count > 0 ? '#f59e0b' : '#dc2626'};">
+                  <div class="mobile-card-badge" style="background: {scores.count === judges.length ? 'var(--color-success-bg)' : scores.count > 0 ? 'var(--color-warning-bg)' : 'var(--color-danger-bg-soft)'}; color: {scores.count === judges.length ? 'var(--color-success)' : scores.count > 0 ? 'var(--color-warning-amber)' : 'var(--color-danger)'};">
                     {scores.count === judges.length ? 'Complete' : scores.count > 0 ? 'Partial' : 'Pending'}
                   </div>
                 </div>
@@ -1338,11 +1338,11 @@
                     <span class="mobile-detail-label">Style</span>
                     <span class="mobile-detail-value">
                       {#if entry.bjcp_categories}
-                        <span style="background: #f3f4f6; color: #374151; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem; font-weight: 600;">
+                        <span style="background: var(--color-gray-100); color: var(--color-gray-700); padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600;">
                           {entry.bjcp_categories.category_number}{entry.bjcp_categories.subcategory_letter || ''}
                         </span>
                         {#if entry.bjcp_categories.subcategory_name}
-                          <br><small style="color: #666; font-size: 0.8rem;">{entry.bjcp_categories.subcategory_name}</small>
+                          <br><small style="color: var(--color-text-secondary); font-size: 0.8rem;">{entry.bjcp_categories.subcategory_name}</small>
                         {/if}
                       {:else}
                         -
@@ -1357,11 +1357,11 @@
                     <span class="mobile-detail-label">Score</span>
                     <span class="mobile-detail-value">
                       {#if scores.count > 0}
-                        <span style="background: {getScoreColor(scores.average)}; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem;">
+                        <span style="background: {getScoreColor(scores.average)}; color: white; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); font-size: 0.875rem;">
                           {scores.average}/50
                         </span>
                       {:else}
-                        <span style="color: #666;">Not scored</span>
+                        <span style="color: var(--color-text-secondary);">Not scored</span>
                       {/if}
                     </span>
                   </div>
@@ -1390,17 +1390,17 @@
               <div style="margin-bottom: 2rem;">
                 <h4>{group.group_name}</h4>
                 {#if group.group_description}
-                  <p style="color: #666; font-size: 0.875rem; margin-bottom: 1rem;">{group.group_description}</p>
+                  <p style="color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">{group.group_description}</p>
                 {/if}
                 {#if groupRankings.length === 0}
-                  <p style="color: #666; font-style: italic;">No rankings submitted yet</p>
+                  <p style="color: var(--color-text-secondary); font-style: italic;">No rankings submitted yet</p>
                 {:else}
                   {#if groupRankings.length > 1 && hasMultipleJudges(groupRankings)}
-                    <div style="background: #dcfce7; border: 1px solid #22c55e; border-radius: 6px; padding: 1rem; margin-bottom: 1rem;">
-                      <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: #166534;">
+                    <div style="background: var(--color-success-bg); border: 1px solid var(--color-success); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem;">
+                      <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--color-success-bg-strong);">
                         ✅ Multi-Judge Point Compilation
                       </div>
-                      <p style="color: #166534; margin: 0.5rem 0 0; font-size: 0.875rem;">
+                      <p style="color: var(--color-success-bg-strong); margin: 0.5rem 0 0; font-size: 0.875rem;">
                         Rankings from {new Set(groupRankings.map(r => r.judge_id)).size} judges will be compiled using point system: 1st=3pts, 2nd=2pts, 3rd=1pt. Final placement determined by highest total points.
                       </p>
                     </div>
@@ -1435,17 +1435,17 @@
                               </div>
                             </td>
                             <td>
-                              <span style="font-weight: 700; font-size: 1.1rem; color: #059669;">
+                              <span style="font-weight: 700; font-size: 1.1rem; color: var(--color-success);">
                                 {entry.summary.totalPoints} {entry.summary.totalPoints === 1 ? 'pt' : 'pts'}
                               </span>
                             </td>
                             <td>
-                              <span style="color: #666;">
+                              <span style="color: var(--color-text-secondary);">
                                 {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'}
                               </span>
                             </td>
                             <td>
-                              <span style="font-weight: 600; color: {placement === '1st' ? '#d4af37' : placement === '2nd' ? '#c0c0c0' : placement === '3rd' ? '#cd7f32' : placement === 'HM' ? '#059669' : '#666'};">
+                              <span style="font-weight: 600; color: {placement === '1st' ? '#d4af37' : placement === '2nd' ? 'var(--color-medal-silver)' : placement === '3rd' ? 'var(--color-medal-bronze)' : placement === 'HM' ? 'var(--color-success)' : '#666'};">
                                 {placement}
                               </span>
                             </td>
@@ -1481,7 +1481,7 @@
                               </div>
                             </td>
                             <td>
-                              <span style="font-weight: 600; color: {entryPoints > 0 ? '#059669' : '#666'};">
+                              <span style="font-weight: 600; color: {entryPoints > 0 ? 'var(--color-success)' : '#666'};">
                                 {entryPoints} {entryPoints === 1 ? 'pt' : 'pts'}
                               </span>
                             </td>
@@ -1502,14 +1502,14 @@
               <div style="margin-bottom: 2rem;">
                 <h4>{category.name}</h4>
                 {#if categoryRankings.length === 0}
-                  <p style="color: #666; font-style: italic;">No rankings submitted yet</p>
+                  <p style="color: var(--color-text-secondary); font-style: italic;">No rankings submitted yet</p>
                 {:else}
                   {#if categoryRankings.length > 1 && hasMultipleJudges(categoryRankings)}
-                    <div style="background: #dcfce7; border: 1px solid #22c55e; border-radius: 6px; padding: 1rem; margin-bottom: 1rem;">
-                      <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: #166534;">
+                    <div style="background: var(--color-success-bg); border: 1px solid var(--color-success); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem;">
+                      <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--color-success-bg-strong);">
                         ✅ Multi-Judge Point Compilation
                       </div>
-                      <p style="color: #166534; margin: 0.5rem 0 0; font-size: 0.875rem;">
+                      <p style="color: var(--color-success-bg-strong); margin: 0.5rem 0 0; font-size: 0.875rem;">
                         Rankings from {new Set(categoryRankings.map(r => r.judge_id)).size} judges will be compiled using point system: 1st=3pts, 2nd=2pts, 3rd=1pt. Final placement determined by highest total points.
                       </p>
                     </div>
@@ -1544,17 +1544,17 @@
                               </div>
                             </td>
                             <td>
-                              <span style="font-weight: 700; font-size: 1.1rem; color: #059669;">
+                              <span style="font-weight: 700; font-size: 1.1rem; color: var(--color-success);">
                                 {entry.summary.totalPoints} {entry.summary.totalPoints === 1 ? 'pt' : 'pts'}
                               </span>
                             </td>
                             <td>
-                              <span style="color: #666;">
+                              <span style="color: var(--color-text-secondary);">
                                 {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'}
                               </span>
                             </td>
                             <td>
-                              <span style="font-weight: 600; color: {placement === '1st' ? '#d4af37' : placement === '2nd' ? '#c0c0c0' : placement === '3rd' ? '#cd7f32' : placement === 'HM' ? '#059669' : '#666'};">
+                              <span style="font-weight: 600; color: {placement === '1st' ? '#d4af37' : placement === '2nd' ? 'var(--color-medal-silver)' : placement === '3rd' ? 'var(--color-medal-bronze)' : placement === 'HM' ? 'var(--color-success)' : '#666'};">
                                 {placement}
                               </span>
                             </td>
@@ -1590,7 +1590,7 @@
                               </div>
                             </td>
                             <td>
-                              <span style="font-weight: 600; color: {entryPoints > 0 ? '#059669' : '#666'};">
+                              <span style="font-weight: 600; color: {entryPoints > 0 ? 'var(--color-success)' : '#666'};">
                                 {entryPoints} {entryPoints === 1 ? 'pt' : 'pts'}
                               </span>
                             </td>
@@ -1620,18 +1620,18 @@
                         <div class="mobile-card-subtitle">{group.group_description}</div>
                       {/if}
                     </div>
-                    <div class="mobile-card-badge" style="background: #e5e7eb; color: #374151;">
+                    <div class="mobile-card-badge" style="background: var(--color-gray-200); color: var(--color-gray-700);">
                       {getGroupEntryCount(group)} entries
                     </div>
                   </div>
 
                   {#if groupRankings.length === 0}
-                    <div style="padding: 1rem; text-align: center; color: #666; font-style: italic;">
+                    <div style="padding: 1rem; text-align: center; color: var(--color-text-secondary); font-style: italic;">
                       No rankings submitted yet
                     </div>
                   {:else}
                     {#if groupRankings.length > 1 && hasMultipleJudges(groupRankings)}
-                      <div style="background: #dcfce7; border: 1px solid #22c55e; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; font-size: 0.875rem; color: #166534;">
+                      <div style="background: var(--color-success-bg); border: 1px solid var(--color-success); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--color-success-bg-strong);">
                         ✅ Multi-Judge Point Compilation - {new Set(groupRankings.map(r => r.judge_id)).size} judges
                       </div>
                     {/if}
@@ -1649,7 +1649,7 @@
                             <div class="mobile-ranking-entry">
                               <div class="mobile-ranking-entry-number">#{entry.entry_number}</div>
                               <div class="mobile-ranking-beer-name {getBrewerNameClass()}">{getBeerNameDisplay(entry.beer_name)}</div>
-                              <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
+                              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
                                 {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'} • {placement}
                               </div>
                             </div>
@@ -1668,7 +1668,7 @@
                             <div class="mobile-ranking-entry">
                               <div class="mobile-ranking-entry-number">#{ranking.entry?.entry_number}</div>
                               <div class="mobile-ranking-beer-name {getBrewerNameClass()}">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
-                              <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
+                              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
                                 {ranking.judge?.name}{#if ranking.ranking_notes} • {ranking.ranking_notes}{/if}
                               </div>
                             </div>
@@ -1691,18 +1691,18 @@
                     <div>
                       <h3 class="mobile-card-title">{category.name}</h3>
                     </div>
-                    <div class="mobile-card-badge" style="background: #e5e7eb; color: #374151;">
+                    <div class="mobile-card-badge" style="background: var(--color-gray-200); color: var(--color-gray-700);">
                       {category.entryCount} entries
                     </div>
                   </div>
 
                   {#if categoryRankings.length === 0}
-                    <div style="padding: 1rem; text-align: center; color: #666; font-style: italic;">
+                    <div style="padding: 1rem; text-align: center; color: var(--color-text-secondary); font-style: italic;">
                       No rankings submitted yet
                     </div>
                   {:else}
                     {#if categoryRankings.length > 1 && hasMultipleJudges(categoryRankings)}
-                      <div style="background: #dcfce7; border: 1px solid #22c55e; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; font-size: 0.875rem; color: #166534;">
+                      <div style="background: var(--color-success-bg); border: 1px solid var(--color-success); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--color-success-bg-strong);">
                         ✅ Multi-Judge Point Compilation - {new Set(categoryRankings.map(r => r.judge_id)).size} judges
                       </div>
                     {/if}
@@ -1720,7 +1720,7 @@
                             <div class="mobile-ranking-entry">
                               <div class="mobile-ranking-entry-number">#{entry.entry_number}</div>
                               <div class="mobile-ranking-beer-name {getBrewerNameClass()}">{getBeerNameDisplay(entry.beer_name)}</div>
-                              <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
+                              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
                                 {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'} • {placement}
                               </div>
                             </div>
@@ -1739,7 +1739,7 @@
                             <div class="mobile-ranking-entry">
                               <div class="mobile-ranking-entry-number">#{ranking.entry?.entry_number}</div>
                               <div class="mobile-ranking-beer-name {getBrewerNameClass()}">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
-                              <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
+                              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
                                 {ranking.judge?.name}{#if ranking.ranking_notes} • {ranking.ranking_notes}{/if}
                               </div>
                             </div>

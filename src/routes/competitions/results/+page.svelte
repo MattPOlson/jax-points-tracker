@@ -547,7 +547,7 @@
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-1) var(--space-3);
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
   }
@@ -690,7 +690,7 @@
     align-items: center;
     gap: var(--space-1);
     padding: var(--space-1) var(--space-3);
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
     text-align: center;
@@ -810,7 +810,7 @@
   <!-- Controls -->
   <div class="controls">
     <Button variant="secondary" on:click={navigateToCompetitions}>
-      <ArrowLeft size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+      <ArrowLeft size={18} strokeWidth={2} class="icon-inline" />
       Back to Competitions
     </Button>
   </div>
@@ -852,7 +852,7 @@
       <!-- Results Summary -->
       {#if !isLoadingResults && results.length > 0}
         <div class="results-summary">
-          <h2 style="margin: 0 0 1.5rem 0; color: #333;">{selectedCompetition.name} - Results Summary</h2>
+          <h2 style="margin: 0 0 1.5rem 0; color: var(--color-text-primary);">{selectedCompetition.name} - Results Summary</h2>
           <div class="summary-grid">
             <div class="summary-item">
               <div class="summary-label">Total Entries</div>
@@ -913,11 +913,11 @@
                     <td>{result.member_name}</td>
                     <td>{result.beer_name}</td>
                     <td>
-                      <span style="font-weight: 600; color: {result.ranking_points > 0 ? '#059669' : '#666'};">
+                      <span style="font-weight: 600; color: {result.ranking_points > 0 ? 'var(--color-success)' : '#666'};">
                         {result.ranking_points} {result.ranking_points === 1 ? 'pt' : 'pts'}
                       </span>
                       {#if result.judge_count > 0}
-                        <br><small style="color: #666;">{result.judge_count} judge{result.judge_count === 1 ? '' : 's'}</small>
+                        <br><small style="color: var(--color-text-secondary);">{result.judge_count} judge{result.judge_count === 1 ? '' : 's'}</small>
                       {/if}
                     </td>
                     <td>
@@ -974,7 +974,7 @@
                     <div class="detail-row">
                       <div class="detail-item">
                         <span class="detail-label">Points</span>
-                        <span class="detail-value" style="color: {result.ranking_points > 0 ? '#059669' : '#666'}; font-weight: 600;">
+                        <span class="detail-value" style="color: {result.ranking_points > 0 ? 'var(--color-success)' : '#666'}; font-weight: 600;">
                           {result.ranking_points} {result.ranking_points === 1 ? 'pt' : 'pts'}
                         </span>
                       </div>

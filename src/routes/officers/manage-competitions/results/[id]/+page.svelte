@@ -475,11 +475,11 @@
       top: 20px;
       right: 20px;
       padding: 1rem 1.5rem;
-      border-radius: 6px;
+      border-radius: var(--radius-md);
       color: white;
       font-weight: 500;
       z-index: 1000;
-      background: ${type === 'success' ? '#059669' : type === 'error' ? '#dc2626' : '#6b7280'};
+      background: ${type === 'success' ? 'var(--color-success)' : type === 'error' ? 'var(--color-danger)' : 'var(--color-gray-500)'};
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     `;
 
@@ -509,15 +509,15 @@
   .competition-info {
     background: white;
     padding: 1.5rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #64748b;
+    border-left: 4px solid var(--color-gray-500);
     margin-bottom: 2rem;
   }
 
   .competition-info h2 {
     margin: 0 0 1rem 0;
-    color: #333;
+    color: var(--color-text-primary);
     text-transform: none;
     font-size: 1.5rem;
     font-weight: 600;
@@ -536,37 +536,37 @@
 
   .info-label {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--color-text-secondary);
     margin-bottom: 0.25rem;
   }
 
   .info-value {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .status-badge {
     display: inline-block;
     padding: 0.25rem 0.75rem;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     font-size: 0.875rem;
     font-weight: 500;
   }
 
   .status-completed {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--color-success-bg);
+    color: var(--color-success-bg-strong);
   }
 
   .status-judging {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--color-warning-bg);
+    color: var(--color-warning-text);
   }
 
   .status-open {
-    background: #dbeafe;
-    color: #1d4ed8;
+    background: var(--color-info-bg);
+    color: var(--color-info-hover);
   }
 
   .controls {
@@ -580,7 +580,7 @@
   .search-input, .filter-select {
     padding: 0.75rem;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
     background: white;
   }
@@ -597,7 +597,7 @@
 
   .results-table {
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     overflow: hidden;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
@@ -608,11 +608,11 @@
   }
 
   th {
-    background: #f5f5f5;
+    background: var(--color-gray-100);
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
     border-bottom: 2px solid #ddd;
   }
 
@@ -623,19 +623,19 @@
   }
 
   tr:hover {
-    background: #f9f9f9;
+    background: var(--color-gray-50);
   }
 
   .entry-number {
     font-weight: 600;
-    color: #334155;
+    color: var(--color-gray-700);
   }
 
   .category-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
-    background: #e5e7eb;
-    border-radius: 4px;
+    background: var(--color-gray-200);
+    border-radius: var(--radius-sm);
     font-size: 0.875rem;
     font-weight: 500;
   }
@@ -643,7 +643,7 @@
   .score-input {
     padding: 0.5rem;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-size: 0.9rem;
     width: 80px;
   }
@@ -651,7 +651,7 @@
   .placement-select {
     padding: 0.5rem;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-size: 0.9rem;
     background: white;
     width: 120px;
@@ -662,22 +662,22 @@
     min-height: 60px;
     padding: 0.5rem;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-size: 0.9rem;
     resize: vertical;
     font-family: inherit;
   }
 
   .status-complete {
-    color: #059669;
+    color: var(--color-success);
   }
 
   .status-pending {
-    color: #dc2626;
+    color: var(--color-danger);
   }
 
   .unsaved-indicator {
-    color: #dc2626;
+    color: var(--color-danger);
     font-size: 0.75rem;
     margin-left: 0.5rem;
   }
@@ -690,11 +690,11 @@
 
   .entry-card {
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     padding: 1.5rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #64748b;
+    border-left: 4px solid var(--color-gray-500);
   }
 
   .entry-header {
@@ -744,9 +744,31 @@
 
   /* Brewer name privacy styles */
   .brewer-name-hidden {
-    color: #999;
+    color: var(--color-text-tertiary);
     font-style: italic;
     font-weight: normal;
+  }
+
+  .result-label {
+    display: block;
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-1);
+    color: var(--color-text-secondary);
+  }
+
+  .score-input,
+  .placement-select,
+  .notes-input {
+    width: 100%;
+  }
+
+  .judge-notes-block {
+    margin-top: var(--space-4);
+  }
+
+  .save-results-btn {
+    margin-top: var(--space-4);
+    width: 100%;
   }
 </style>
 
@@ -861,11 +883,11 @@
                 <td class="{getBrewerNameClass()}">{getBeerNameDisplay(entry.beer_name)}</td>
                 <td><span class="category-badge">{entry.category_display}</span></td>
                 <td>
-                  <span style="font-weight: 600; color: {entry.ranking_points > 0 ? '#059669' : '#666'};">
+                  <span style="font-weight: 600; color: {entry.ranking_points > 0 ? 'var(--color-success)' : '#666'};">
                     {entry.ranking_points} {entry.ranking_points === 1 ? 'pt' : 'pts'}
                   </span>
                   {#if entry.judge_count > 0}
-                    <br><small style="color: #666;">{entry.judge_count} judge{entry.judge_count === 1 ? '' : 's'}</small>
+                    <br><small style="color: var(--color-text-secondary);">{entry.judge_count} judge{entry.judge_count === 1 ? '' : 's'}</small>
                   {/if}
                 </td>
                 <td>
@@ -934,34 +956,34 @@
               <div class="{getBrewerNameClass()}">{getBeerNameDisplay(entry.beer_name)}</div>
               <span class="category-badge">{entry.category_display}</span>
               <div style="margin-top: 0.5rem;">
-                <span style="font-size: 0.875rem; color: #666;">Ranking Points: </span>
-                <span style="font-weight: 600; color: {entry.ranking_points > 0 ? '#059669' : '#666'};">
+                <span style="font-size: 0.875rem; color: var(--color-text-secondary);">Ranking Points: </span>
+                <span style="font-weight: 600; color: {entry.ranking_points > 0 ? 'var(--color-success)' : '#666'};">
                   {entry.ranking_points} {entry.ranking_points === 1 ? 'pt' : 'pts'}
                 </span>
                 {#if entry.judge_count > 0}
-                  <span style="font-size: 0.875rem; color: #666;"> ({entry.judge_count} judge{entry.judge_count === 1 ? '' : 's'})</span>
+                  <span style="font-size: 0.875rem; color: var(--color-text-secondary);"> ({entry.judge_count} judge{entry.judge_count === 1 ? '' : 's'})</span>
                 {/if}
               </div>
             </div>
             <div class="results-inputs">
               <div>
-                <label style="display: block; font-size: 0.875rem; margin-bottom: 0.25rem; color: #666;">Score (0-50)</label>
+                <label class="result-label" for="score-{entry.id}">Score (0-50)</label>
                 <input
+                  id="score-{entry.id}"
                   type="number"
                   class="score-input"
                   placeholder="Enter score"
                   min="0"
                   max="50"
-                  style="width: 100%;"
                   bind:value={entry.score}
                   on:input={() => updateEntryResults(entry.id, 'score', entry.score)}
                 />
               </div>
               <div>
-                <label style="display: block; font-size: 0.875rem; margin-bottom: 0.25rem; color: #666;">Placement</label>
-                <select 
-                  class="placement-select" 
-                  style="width: 100%;"
+                <label class="result-label" for="placement-{entry.id}">Placement</label>
+                <select
+                  id="placement-{entry.id}"
+                  class="placement-select"
                   bind:value={entry.placement}
                   on:change={() => updateEntryResults(entry.id, 'placement', entry.placement)}
                 >
@@ -973,18 +995,18 @@
                 </select>
               </div>
             </div>
-            <div style="margin-top: 1rem;">
-              <label style="display: block; font-size: 0.875rem; margin-bottom: 0.25rem; color: #666;">Judge Notes</label>
+            <div class="judge-notes-block">
+              <label class="result-label" for="notes-{entry.id}">Judge Notes</label>
               <textarea
+                id="notes-{entry.id}"
                 class="notes-input"
                 placeholder="Optional judging notes..."
                 bind:value={entry.judge_notes}
                 on:input={() => updateEntryResults(entry.id, 'judge_notes', entry.judge_notes)}
               ></textarea>
             </div>
-            <button 
-              class="btn btn-primary" 
-              style="margin-top: 1rem; width: 100%;"
+            <button
+              class="btn btn-primary save-results-btn"
               on:click={() => saveEntryResults(entry.id)}
               disabled={isSaving}
             >

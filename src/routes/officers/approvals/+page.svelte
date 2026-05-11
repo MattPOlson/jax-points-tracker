@@ -256,22 +256,26 @@
                 </td>
                 <td class="actions-cell">
                   <div class="action-buttons">
-                    <button
+                    <Button
+                      variant="success"
+                      size="sm"
+                      subtle
+                      disabled={isProcessing}
                       on:click={() => openApproval(s)}
-                      class="approve-btn"
-                      disabled={isProcessing}
                     >
-                      <CheckCircle size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                      <CheckCircle size={16} strokeWidth={2} />
                       Approve
-                    </button>
-                    <button
-                      on:click={() => openReject(s)}
-                      class="reject-btn"
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      subtle
                       disabled={isProcessing}
+                      on:click={() => openReject(s)}
                     >
-                      <X size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                      <X size={16} strokeWidth={2} />
                       Reject
-                    </button>
+                    </Button>
                   </div>
                 </td>
               </tr>
@@ -315,22 +319,28 @@
             </div>
 
             <div class="card-actions">
-              <button
+              <Button
+                variant="success"
+                size="sm"
+                subtle
+                fullWidth
+                disabled={isProcessing}
                 on:click={() => openApproval(s)}
-                class="approve-btn mobile"
-                disabled={isProcessing}
               >
-                <CheckCircle size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                <CheckCircle size={16} strokeWidth={2} />
                 Approve
-              </button>
-              <button
-                on:click={() => openReject(s)}
-                class="reject-btn mobile"
+              </Button>
+              <Button
+                variant="danger"
+                size="sm"
+                subtle
+                fullWidth
                 disabled={isProcessing}
+                on:click={() => openReject(s)}
               >
-                <X size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                <X size={16} strokeWidth={2} />
                 Reject
-              </button>
+              </Button>
             </div>
           </div>
         {/each}
@@ -343,7 +353,7 @@
       message="No pending submissions to review at this time."
     >
       <Button variant="secondary" on:click={() => loadApprovals(true)}>
-        <RefreshCw size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        <RefreshCw size={16} strokeWidth={2} class="icon-inline" />
         Refresh
       </Button>
     </EmptyState>
@@ -368,7 +378,7 @@
       <div class="modal approval-modal" on:click|stopPropagation>
         <div class="modal-header">
           <h3 id="approval-modal-title">
-            <CheckCircle size={20} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            <CheckCircle size={20} strokeWidth={2} class="icon-inline" />
             Approve Submission
           </h3>
         </div>
@@ -406,27 +416,26 @@
           </p>
         </div>
         <div class="modal-actions">
-          <button
-            on:click={confirmApproval}
-            class="confirm-approve-btn"
+          <Button
+            variant="success"
             disabled={isProcessing}
-            aria-describedby="approval-modal-title"
+            on:click={confirmApproval}
           >
             {#if isProcessing}
               <span class="button-spinner"></span>
               Approving...
             {:else}
-              <CheckCircle size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              <CheckCircle size={16} strokeWidth={2} />
               Yes, Approve
             {/if}
-          </button>
-          <button
-            on:click={closeApprovalModal}
-            class="cancel-btn"
+          </Button>
+          <Button
+            variant="ghost"
             disabled={isProcessing}
+            on:click={closeApprovalModal}
           >
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -445,7 +454,7 @@
       <div class="modal reject-modal" on:click|stopPropagation>
         <div class="modal-header">
           <h3 id="reject-modal-title">
-            <X size={20} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            <X size={20} strokeWidth={2} class="icon-inline" />
             Reject Submission
           </h3>
         </div>
@@ -482,27 +491,26 @@
           </div>
         </div>
         <div class="modal-actions">
-          <button
-            on:click={confirmReject}
-            class="confirm-reject-btn"
+          <Button
+            variant="danger"
             disabled={isProcessing || !rejectionReason.trim()}
-            aria-describedby="reject-modal-title"
+            on:click={confirmReject}
           >
             {#if isProcessing}
               <span class="button-spinner"></span>
               Rejecting...
             {:else}
-              <X size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              <X size={16} strokeWidth={2} />
               Reject Submission
             {/if}
-          </button>
-          <button
-            on:click={closeRejectModal}
-            class="cancel-btn"
+          </Button>
+          <Button
+            variant="ghost"
             disabled={isProcessing}
+            on:click={closeRejectModal}
           >
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -577,7 +585,7 @@
 
   .desktop-table td {
     padding: 1rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--color-gray-100);
     vertical-align: middle;
   }
 
@@ -611,14 +619,14 @@
 
   .member-name {
     font-weight: 500;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .category-badge {
-    background: #f3f4f6;
-    color: #374151;
+    background: var(--color-gray-100);
+    color: var(--color-gray-700);
     padding: 0.25rem 0.75rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 0.85rem;
     font-weight: 600;
   }
@@ -633,47 +641,6 @@
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
-  }
-
-  .approve-btn {
-    background-color: #059669;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .approve-btn:hover:not(:disabled) {
-    background-color: #047857;
-    transform: translateY(-1px);
-  }
-
-  .reject-btn {
-    background-color: #dc2626;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .reject-btn:hover:not(:disabled) {
-    background-color: #b91c1c;
-    transform: translateY(-1px);
-  }
-
-  .approve-btn:disabled,
-  .reject-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
   }
 
   /* Mobile Cards */
@@ -728,7 +695,7 @@
 
   .card-row .value {
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
     text-align: right;
   }
 
@@ -737,21 +704,13 @@
     gap: 0.75rem;
   }
 
-  .approve-btn.mobile,
-  .reject-btn.mobile {
-    flex: 1;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
-  }
-
-
   /* Message Banner */
   .message-banner {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #dc2626;
+    background: var(--color-danger-bg-softest);
+    border: 1px solid var(--color-danger-bg);
+    color: var(--color-danger);
     padding: 1rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     margin: 1rem 0;
     text-align: center;
   }
@@ -868,8 +827,8 @@
   }
 
   textarea:disabled {
-    background-color: #f9fafb;
-    color: #6b7280;
+    background-color: var(--color-gray-50);
+    color: var(--color-gray-500);
     cursor: not-allowed;
   }
 
@@ -878,67 +837,6 @@
     display: flex;
     gap: 1rem;
     justify-content: flex-end;
-  }
-
-  .confirm-approve-btn {
-    background-color: #059669;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .confirm-approve-btn:hover:not(:disabled) {
-    background-color: #047857;
-  }
-
-  .confirm-reject-btn {
-    background-color: #dc2626;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .confirm-reject-btn:hover:not(:disabled) {
-    background-color: #b91c1c;
-  }
-
-  .cancel-btn {
-    background-color: #6b7280;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .cancel-btn:hover:not(:disabled) {
-    background-color: #4b5563;
-  }
-
-  .confirm-approve-btn:disabled,
-  .confirm-reject-btn:disabled,
-  .cancel-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
   }
 
   .button-spinner {

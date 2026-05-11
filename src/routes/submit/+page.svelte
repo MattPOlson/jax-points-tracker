@@ -385,8 +385,8 @@
 
       <!-- NEW: Florida Circuit Placement Question -->
       {#if selectedCategory === "Florida Circuit" && selectedFloridaEvent}
-        <div class="placement-question">
-          <label class="question-label">Did you place in this event? *</label>
+        <fieldset class="placement-question">
+          <legend class="question-label">Did you place in this event? *</legend>
           <div class="radio-group">
             <label class="radio-option">
               <input
@@ -407,7 +407,7 @@
               <span class="radio-text">Yes - I placed in this event</span>
             </label>
           </div>
-        </div>
+        </fieldset>
       {/if}
 
       {#if selectedCategory === "Monthly Challenge"}
@@ -448,7 +448,7 @@
         <!-- Read-only description display for Volunteer -->
         {#if selectedFloridaEvent}
           <div class="description-display">
-            <label class="form-label">Description</label>
+            <span class="form-label">Description</span>
             <div class="read-only-field">Volunteered at {selectedFloridaEvent}</div>
           </div>
         {/if}

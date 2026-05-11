@@ -309,18 +309,18 @@
   .form-card {
     background: white;
     padding: 2rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #64748b;
+    border-left: 4px solid var(--color-gray-500);
   }
 
   .warning-banner {
-    background: #fef3c7;
-    border: 1px solid #f59e0b;
-    border-radius: 6px;
+    background: var(--color-warning-bg);
+    border: 1px solid var(--color-warning-amber);
+    border-radius: var(--radius-md);
     padding: 1rem;
     margin-bottom: 1.5rem;
-    color: #92400e;
+    color: var(--color-warning-text);
   }
 
   .warning-banner strong {
@@ -332,39 +332,40 @@
     margin-bottom: 1.5rem;
   }
 
-  .form-group label {
+  .form-group label,
+  .form-group-title {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--space-2);
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .required::after {
     content: ' *';
-    color: #dc2626;
+    color: var(--color-danger);
   }
 
   .form-control {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
     transition: border-color 0.3s ease;
   }
 
   .form-control:focus {
     outline: none;
-    border-color: #64748b;
+    border-color: var(--color-gray-500);
     box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.1);
   }
 
   .form-control.error {
-    border-color: #dc2626;
+    border-color: var(--color-danger);
   }
 
   .form-control:disabled {
-    background: #f5f5f5;
+    background: var(--color-gray-100);
     cursor: not-allowed;
   }
 
@@ -374,7 +375,7 @@
   }
 
   .error-message {
-    color: #dc2626;
+    color: var(--color-danger);
     font-size: 0.875rem;
     margin-top: 0.25rem;
   }
@@ -418,7 +419,7 @@
   }
 
   .help-text {
-    color: #666;
+    color: var(--color-text-secondary);
     font-size: 0.875rem;
     margin-top: 0.25rem;
   }
@@ -436,16 +437,16 @@
   .section-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid #e5e7eb;
+    border-bottom: 2px solid var(--color-gray-200);
   }
 
   .entry-stats {
-    background: #f9fafb;
+    background: var(--color-gray-50);
     padding: 1rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
@@ -459,13 +460,13 @@
 
   .stat-label {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   .stat-value {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #334155;
+    color: var(--color-gray-700);
   }
 
   /* Mobile styles */
@@ -542,20 +543,20 @@
     align-items: flex-start;
     gap: 0.75rem;
     padding: 1rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
     cursor: pointer;
     transition: all 0.2s ease;
   }
   
   .radio-option:hover {
     border-color: #cbd5e1;
-    background: #f8fafc;
+    background: var(--color-gray-50);
   }
   
   .radio-option:has(input:checked) {
-    border-color: #64748b;
-    background: #f1f5f9;
+    border-color: var(--color-gray-500);
+    background: var(--color-gray-100);
   }
   
   .radio-label {
@@ -564,22 +565,22 @@
   
   .radio-description {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--color-text-secondary);
     margin-top: 0.25rem;
   }
   
   .custom-category-section {
     margin-top: 1.5rem;
     padding: 1.5rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    background: #f9fafb;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    background: var(--color-gray-50);
   }
 
   .notif-section {
     background: #f0f9ff;
     border: 1px solid #bae6fd;
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     padding: 1.25rem;
     margin-bottom: 1.5rem;
     display: flex;
@@ -589,7 +590,7 @@
 
   .char-count {
     font-size: 0.8rem;
-    color: #9ca3af;
+    color: var(--color-gray-400);
     text-align: right;
     margin-top: 0.25rem;
   }
@@ -774,8 +775,8 @@
         <div class="section-title">Category System</div>
         
         <div class="form-group">
-          <label>Ranking System</label>
-          <div class="radio-group">
+          <span class="form-group-title" id="ranking-system-label">Ranking System</span>
+          <div class="radio-group" role="radiogroup" aria-labelledby="ranking-system-label">
             <label class="radio-option">
               <input
                 type="radio"

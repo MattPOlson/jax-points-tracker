@@ -244,7 +244,7 @@
           class="filter-toggle"
           class:active={showFilters}
         >
-          <Filter size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+          <Filter size={16} strokeWidth={2} class="icon-inline" />
           {showFilters ? "Hide" : "Show"} Filters
         </button>
 
@@ -319,7 +319,7 @@
 
           <div class="filter-actions">
             <button on:click={clearFilters} class="clear-button">
-              <Trash2 size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              <Trash2 size={16} strokeWidth={2} class="icon-inline" />
               Clear All
             </button>
           </div>
@@ -563,13 +563,13 @@
   }
 
   .empty-state-with-icon :global(.empty-icon) {
-    color: #64748b;
+    color: var(--color-gray-500);
   }
 
   /* Controls Section */
   .controls-section {
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
     overflow: hidden;
@@ -580,14 +580,14 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-gray-200);
   }
 
   .filter-toggle {
-    background-color: #6b7280;
+    background-color: var(--color-gray-500);
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
     font-weight: 500;
@@ -596,15 +596,15 @@
   }
 
   .filter-toggle:hover {
-    background-color: #4b5563;
+    background-color: var(--color-gray-600);
   }
 
   .filter-toggle.active {
-    background-color: #64748b;
+    background-color: var(--color-gray-500);
   }
 
   .filter-toggle.active:hover {
-    background-color: #475569;
+    background-color: var(--color-gray-600);
   }
 
   .stats-summary {
@@ -614,11 +614,11 @@
 
   .stat {
     font-weight: 500;
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   .stat.filtered {
-    color: #64748b;
+    color: var(--color-gray-500);
     font-weight: 600;
   }
 
@@ -637,15 +637,15 @@
 
   .filter-group label {
     font-weight: 500;
-    color: #333;
+    color: var(--color-text-primary);
     margin-bottom: 0.5rem;
   }
 
   .filter-group input,
   .filter-group select {
     padding: 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
     font-size: 1rem;
     transition: border-color 0.2s;
   }
@@ -653,8 +653,8 @@
   .filter-group input:focus,
   .filter-group select:focus {
     outline: none;
-    border-color: #64748b;
-    box-shadow: 0 0 0 1px #64748b;
+    border-color: var(--color-gray-500);
+    box-shadow: 0 0 0 1px var(--color-gray-500);
   }
 
   .filter-actions {
@@ -663,10 +663,10 @@
   }
 
   .clear-button {
-    background-color: #6b7280;
+    background-color: var(--color-gray-500);
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     padding: 0.75rem 1rem;
     font-size: 0.9rem;
     font-weight: 500;
@@ -676,7 +676,7 @@
   }
 
   .clear-button:hover {
-    background-color: #4b5563;
+    background-color: var(--color-gray-600);
   }
 
   /* Stats Section */
@@ -694,7 +694,7 @@
 
   .stat-card {
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     padding: 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -704,16 +704,16 @@
   }
 
   .stat-card.approved {
-    border-left-color: #059669;
+    border-left-color: var(--color-success);
   }
   .stat-card.pending {
-    border-left-color: #d97706;
+    border-left-color: var(--color-warning);
   }
   .stat-card.rejected {
-    border-left-color: #dc2626;
+    border-left-color: var(--color-danger);
   }
   .stat-card.total {
-    border-left-color: #64748b;
+    border-left-color: var(--color-gray-500);
   }
 
   .stat-icon {
@@ -723,20 +723,20 @@
   .stat-number {
     font-size: 2rem;
     font-weight: 700;
-    color: #333;
+    color: var(--color-text-primary);
     line-height: 1;
   }
 
   .stat-label {
     font-size: 0.9rem;
-    color: #666;
+    color: var(--color-text-secondary);
     font-weight: 500;
   }
 
   /* Table Styles */
   .table-wrapper {
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     overflow-x: auto;
@@ -750,12 +750,12 @@
   }
 
   .desktop-table th {
-    background: #f8fafc;
+    background: var(--color-gray-50);
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    color: #333;
-    border-bottom: 2px solid #e5e7eb;
+    color: var(--color-text-primary);
+    border-bottom: 2px solid var(--color-gray-200);
     white-space: nowrap;
   }
 
@@ -766,24 +766,24 @@
   }
 
   .desktop-table th.sortable:hover {
-    background: #f1f5f9;
+    background: var(--color-gray-100);
   }
 
   .desktop-table th.sort-asc::after {
     content: " ▲";
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--color-gray-500);
   }
 
   .desktop-table th.sort-desc::after {
     content: " ▼";
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--color-gray-500);
   }
 
   .desktop-table td {
     padding: 1rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--color-gray-100);
     vertical-align: middle;
   }
 
@@ -792,7 +792,7 @@
   }
 
   .submission-row:hover {
-    background-color: #f8fafc;
+    background-color: var(--color-gray-50);
   }
 
   .member-info {
@@ -805,7 +805,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    background: linear-gradient(135deg, var(--color-gray-500) 0%, var(--color-gray-600) 100%);
     color: white;
     display: flex;
     align-items: center;
@@ -817,21 +817,21 @@
 
   .member-name {
     font-weight: 500;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .category-badge {
-    background: #f3f4f6;
-    color: #374151;
+    background: var(--color-gray-100);
+    color: var(--color-gray-700);
     padding: 0.25rem 0.75rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 0.85rem;
     font-weight: 600;
   }
 
   .points-value {
     font-weight: 700;
-    color: #334155;
+    color: var(--color-gray-700);
     font-size: 1.1rem;
   }
 
@@ -840,25 +840,25 @@
     align-items: center;
     gap: 0.25rem;
     padding: 0.25rem 0.75rem;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     font-size: 0.8rem;
     font-weight: 600;
     white-space: nowrap;
   }
 
   .status-badge.status-approved {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--color-success-bg);
+    color: var(--color-success-bg-strong);
   }
 
   .status-badge.status-pending {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--color-warning-bg);
+    color: var(--color-warning-text);
   }
 
   .status-badge.status-rejected {
-    background: #fecaca;
-    color: #991b1b;
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
   }
 
   /* Mobile Cards */
@@ -868,11 +868,11 @@
 
   .mobile-card {
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     padding: 1.5rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #e5e7eb;
+    border-left: 4px solid var(--color-gray-200);
     text-align: left;
   }
 
@@ -890,7 +890,7 @@
 
   .submission-date {
     font-size: 0.8rem;
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   .card-body {
@@ -907,26 +907,26 @@
 
   .card-row .label {
     font-weight: 500;
-    color: #666;
+    color: var(--color-text-secondary);
     min-width: 100px;
   }
 
   .card-row .value {
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
     text-align: right;
   }
 
   .rejection-row {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    border-radius: 4px;
+    background: var(--color-danger-bg-softest);
+    border: 1px solid var(--color-danger-bg);
+    border-radius: var(--radius-sm);
     padding: 0.75rem;
     margin-top: 0.5rem;
   }
 
   .rejection-text {
-    color: #dc2626;
+    color: var(--color-danger);
     font-style: italic;
   }
 
