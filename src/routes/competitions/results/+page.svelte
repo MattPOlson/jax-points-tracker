@@ -913,7 +913,7 @@
                     <td>{result.member_name}</td>
                     <td>{result.beer_name}</td>
                     <td>
-                      <span style="font-weight: 600; color: {result.ranking_points > 0 ? 'var(--color-success)' : '#666'};">
+                      <span style="font-weight: 600; color: {result.ranking_points > 0 ? 'var(--color-success)' : 'var(--color-text-secondary)'};">
                         {result.ranking_points} {result.ranking_points === 1 ? 'pt' : 'pts'}
                       </span>
                       {#if result.judge_count > 0}
@@ -974,7 +974,7 @@
                     <div class="detail-row">
                       <div class="detail-item">
                         <span class="detail-label">Points</span>
-                        <span class="detail-value" style="color: {result.ranking_points > 0 ? 'var(--color-success)' : '#666'}; font-weight: 600;">
+                        <span class="detail-value" style="color: {result.ranking_points > 0 ? 'var(--color-success)' : 'var(--color-text-secondary)'}; font-weight: 600;">
                           {result.ranking_points} {result.ranking_points === 1 ? 'pt' : 'pts'}
                         </span>
                       </div>

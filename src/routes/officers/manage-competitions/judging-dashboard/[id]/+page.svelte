@@ -1445,7 +1445,7 @@
                               </span>
                             </td>
                             <td>
-                              <span style="font-weight: 600; color: {placement === '1st' ? '#d4af37' : placement === '2nd' ? 'var(--color-medal-silver)' : placement === '3rd' ? 'var(--color-medal-bronze)' : placement === 'HM' ? 'var(--color-success)' : '#666'};">
+                              <span style="font-weight: 600; color: {placement === '1st' ? 'var(--color-medal-gold)' : placement === '2nd' ? 'var(--color-medal-silver)' : placement === '3rd' ? 'var(--color-medal-bronze)' : placement === 'HM' ? 'var(--color-success)' : 'var(--color-text-secondary)'};">
                                 {placement}
                               </span>
                             </td>
@@ -1481,7 +1481,7 @@
                               </div>
                             </td>
                             <td>
-                              <span style="font-weight: 600; color: {entryPoints > 0 ? 'var(--color-success)' : '#666'};">
+                              <span style="font-weight: 600; color: {entryPoints > 0 ? 'var(--color-success)' : 'var(--color-text-secondary)'};">
                                 {entryPoints} {entryPoints === 1 ? 'pt' : 'pts'}
                               </span>
                             </td>
@@ -1554,7 +1554,7 @@
                               </span>
                             </td>
                             <td>
-                              <span style="font-weight: 600; color: {placement === '1st' ? '#d4af37' : placement === '2nd' ? 'var(--color-medal-silver)' : placement === '3rd' ? 'var(--color-medal-bronze)' : placement === 'HM' ? 'var(--color-success)' : '#666'};">
+                              <span style="font-weight: 600; color: {placement === '1st' ? 'var(--color-medal-gold)' : placement === '2nd' ? 'var(--color-medal-silver)' : placement === '3rd' ? 'var(--color-medal-bronze)' : placement === 'HM' ? 'var(--color-success)' : 'var(--color-text-secondary)'};">
                                 {placement}
                               </span>
                             </td>
@@ -1590,7 +1590,7 @@
                               </div>
                             </td>
                             <td>
-                              <span style="font-weight: 600; color: {entryPoints > 0 ? 'var(--color-success)' : '#666'};">
+                              <span style="font-weight: 600; color: {entryPoints > 0 ? 'var(--color-success)' : 'var(--color-text-secondary)'};">
                                 {entryPoints} {entryPoints === 1 ? 'pt' : 'pts'}
                               </span>
                             </td>

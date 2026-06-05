@@ -883,7 +883,7 @@
                 <td class="{getBrewerNameClass()}">{getBeerNameDisplay(entry.beer_name)}</td>
                 <td><span class="category-badge">{entry.category_display}</span></td>
                 <td>
-                  <span style="font-weight: 600; color: {entry.ranking_points > 0 ? 'var(--color-success)' : '#666'};">
+                  <span style="font-weight: 600; color: {entry.ranking_points > 0 ? 'var(--color-success)' : 'var(--color-text-secondary)'};">
                     {entry.ranking_points} {entry.ranking_points === 1 ? 'pt' : 'pts'}
                   </span>
                   {#if entry.judge_count > 0}
@@ -957,7 +957,7 @@
               <span class="category-badge">{entry.category_display}</span>
               <div style="margin-top: 0.5rem;">
                 <span style="font-size: 0.875rem; color: var(--color-text-secondary);">Ranking Points: </span>
-                <span style="font-weight: 600; color: {entry.ranking_points > 0 ? 'var(--color-success)' : '#666'};">
+                <span style="font-weight: 600; color: {entry.ranking_points > 0 ? 'var(--color-success)' : 'var(--color-text-secondary)'};">
                   {entry.ranking_points} {entry.ranking_points === 1 ? 'pt' : 'pts'}
                 </span>
                 {#if entry.judge_count > 0}
