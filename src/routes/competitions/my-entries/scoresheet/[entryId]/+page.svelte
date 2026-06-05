@@ -124,11 +124,11 @@
   }
 
   function getScoreColor(score) {
-    if (score >= 45) return '#059669'; // Excellent
-    if (score >= 38) return '#0891b2'; // Very Good
-    if (score >= 30) return '#eab308'; // Good
-    if (score >= 21) return '#f59e0b'; // Fair
-    return '#dc2626'; // Poor
+    if (score >= 45) return 'var(--color-success)'; // Excellent
+    if (score >= 38) return 'var(--color-info-cyan)'; // Very Good
+    if (score >= 30) return 'var(--color-warning-amber-soft)'; // Good
+    if (score >= 21) return 'var(--color-warning-amber)'; // Fair
+    return 'var(--color-danger)'; // Poor
   }
 
   function getScoreDescription(score) {
@@ -381,7 +381,7 @@
   <!-- Controls -->
   <div class="controls">
     <Button variant="secondary" on:click={goBack}>
-      <ArrowLeft size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+      <ArrowLeft size={18} strokeWidth={2} class="icon-inline" />
       Back to My Entries
     </Button>
   </div>
@@ -436,7 +436,7 @@
             {/if}
           </div>
 
-          <div class="total-score" style="background: {session.total_score ? getScoreColor(session.total_score) : '#6b7280'}">
+          <div class="total-score" style="background: {session.total_score ? getScoreColor(session.total_score) : 'var(--color-gray-500)'}">
             <div class="score-value">{session.total_score || 'N/A'}/50</div>
             <div class="score-label">Total Score</div>
             {#if session.total_score}

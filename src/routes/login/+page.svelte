@@ -263,8 +263,8 @@
     width: 100%;
     padding: 0.75rem;
     margin-bottom: 1rem;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
+    border: 2px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
     font-size: 1rem;
     transition: border-color 0.2s;
   }
@@ -295,24 +295,24 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 600;
-    color: #374151;
+    color: var(--color-gray-700);
   }
 
   :global(.supabase-auth-ui_ui-message) {
     margin: 1rem 0;
     padding: 0.75rem;
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     font-size: 0.9rem;
   }
 
   :global(.supabase-auth-ui_ui-message.error) {
-    background-color: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
+    background-color: var(--color-danger-bg-softest);
+    color: var(--color-danger);
+    border: 1px solid var(--color-danger-bg);
   }
 
   :global(.supabase-auth-ui_ui-message.success) {
-    background-color: #f0fdf4;
+    background-color: var(--color-success-bg);
     color: #16a34a;
     border: 1px solid #bbf7d0;
   }

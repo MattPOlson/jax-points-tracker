@@ -151,7 +151,7 @@
 
   .subtitle {
     font-size: 1.2rem;
-    color: #666;
+    color: var(--color-text-secondary);
     font-weight: 500;
     margin-bottom: 2rem;
   }
@@ -164,7 +164,7 @@
 
   .message-card {
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     padding: 2rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-left: 4px solid var(--color-brand-primary);
@@ -176,7 +176,7 @@
   }
 
   .message-card h2 {
-    color: #333;
+    color: var(--color-text-primary);
     font-size: 1.75rem;
     font-weight: 600;
     margin-bottom: 1rem;
@@ -184,7 +184,7 @@
   }
 
   .description {
-    color: #666;
+    color: var(--color-text-secondary);
     font-size: 1.1rem;
     line-height: 1.6;
     margin-bottom: 2rem;
@@ -196,7 +196,7 @@
   }
 
   .features-preview h3 {
-    color: #333;
+    color: var(--color-text-primary);
     font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 1rem;
@@ -211,11 +211,11 @@
   }
 
   .features-list li {
-    background: #f8fafc;
+    background: var(--color-gray-50);
     padding: 0.75rem 1rem;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     border-left: 3px solid #2563eb;
-    color: #333;
+    color: var(--color-text-primary);
     font-weight: 500;
   }
 
@@ -239,12 +239,12 @@
   }
 
   .timeline-content {
-    color: #666;
+    color: var(--color-text-secondary);
     font-size: 0.95rem;
   }
 
   .timeline-content strong {
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .action-section {
@@ -256,16 +256,16 @@
 
 
   .contact-info {
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
     padding: 1.5rem;
     max-width: 400px;
   }
 
   .contact-info p {
     margin: 0.5rem 0;
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   .contact-text {

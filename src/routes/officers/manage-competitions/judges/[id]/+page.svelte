@@ -351,11 +351,11 @@
       top: 20px;
       right: 20px;
       padding: 1rem 1.5rem;
-      border-radius: 6px;
+      border-radius: var(--radius-md);
       color: white;
       font-weight: 500;
       z-index: 1000;
-      background: ${type === 'success' ? '#059669' : type === 'error' ? '#dc2626' : '#6b7280'};
+      background: ${type === 'success' ? 'var(--color-success)' : type === 'error' ? 'var(--color-danger)' : 'var(--color-gray-500)'};
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     `;
     document.body.appendChild(toast);
@@ -367,29 +367,29 @@
   .competition-info {
     background: white;
     padding: 1.5rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid var(--color-brand-primary, #1e293b);
+    border-left: 4px solid var(--color-brand-primary, var(--color-gray-800));
     margin-bottom: 2rem;
   }
 
   .competition-info h2 {
     margin: 0 0 1rem 0;
-    color: #333;
+    color: var(--color-text-primary);
     font-size: 1.5rem;
   }
 
   .status-badge {
     display: inline-block;
     padding: 0.25rem 0.75rem;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     font-size: 0.875rem;
     font-weight: 500;
   }
 
-  .status-completed { background: #dcfce7; color: #166534; }
-  .status-judging   { background: #fef3c7; color: #92400e; }
-  .status-open      { background: #dbeafe; color: #1d4ed8; }
+  .status-completed { background: var(--color-success-bg); color: var(--color-success-bg-strong); }
+  .status-judging   { background: var(--color-warning-bg); color: var(--color-warning-text); }
+  .status-open      { background: var(--color-info-bg); color: var(--color-info-hover); }
 
   .controls {
     display: flex;
@@ -402,7 +402,7 @@
   /* ---- Tables section ---- */
   .section-card {
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     margin-bottom: 2rem;
@@ -414,12 +414,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #f8fafc;
+    background: var(--color-gray-50);
   }
 
   .section-header h3 {
     margin: 0;
-    color: var(--color-brand-primary, #1e293b);
+    color: var(--color-brand-primary, var(--color-gray-800));
     font-size: 1.1rem;
     font-weight: 600;
   }
@@ -432,24 +432,24 @@
   }
 
   .table-card {
-    background: #f9fafb;
-    border-radius: 6px;
+    background: var(--color-gray-50);
+    border-radius: var(--radius-md);
     padding: 1rem 1.25rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-gray-200);
   }
 
   .table-card-info h4 {
     margin: 0 0 0.2rem 0;
-    color: var(--color-brand-primary, #1e293b);
+    color: var(--color-brand-primary, var(--color-gray-800));
     font-size: 1rem;
   }
 
   .table-card-info .judge-count {
     font-size: 0.85rem;
-    color: var(--color-text-secondary, #6b7280);
+    color: var(--color-text-secondary, var(--color-gray-500));
   }
 
   .table-card-actions {
@@ -468,20 +468,20 @@
   .inline-edit-form input {
     flex: 1;
     padding: 0.4rem 0.6rem;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-sm);
     font-size: 0.95rem;
   }
 
   .add-table-form {
     padding: 1rem 1.5rem;
     border-top: 1px solid #eee;
-    background: #f8fafc;
+    background: var(--color-gray-50);
   }
 
   .add-table-form h4 {
     margin: 0 0 1rem 0;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .form-row {
@@ -501,7 +501,7 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #333;
+    color: var(--color-text-primary);
     font-size: 0.9rem;
   }
 
@@ -509,7 +509,7 @@
     width: 100%;
     padding: 0.75rem;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-size: 1rem;
     box-sizing: border-box;
   }
@@ -517,7 +517,7 @@
   .form-control-sm {
     padding: 0.5rem 0.65rem;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-size: 0.9rem;
   }
 
@@ -533,33 +533,33 @@
   }
 
   .judge-card {
-    background: #f9fafb;
-    border-radius: 6px;
+    background: var(--color-gray-50);
+    border-radius: var(--radius-md);
     padding: 1rem 1.25rem;
     margin-bottom: 0.75rem;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     gap: 1rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-gray-200);
   }
 
   .judge-info h4 {
     margin: 0 0 0.25rem 0;
-    color: var(--color-brand-primary, #1e293b);
+    color: var(--color-brand-primary, var(--color-gray-800));
   }
 
   .judge-info p {
     margin: 0;
-    color: var(--color-text-secondary, #6b7280);
+    color: var(--color-text-secondary, var(--color-gray-500));
     font-size: 0.9rem;
   }
 
   .role-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
-    background: #e5e7eb;
-    border-radius: 4px;
+    background: var(--color-gray-200);
+    border-radius: var(--radius-sm);
     font-size: 0.8rem;
     font-weight: 500;
     margin-top: 0.5rem;
@@ -575,7 +575,7 @@
 
   .judge-table-selector label {
     font-size: 0.85rem;
-    color: var(--color-text-secondary, #6b7280);
+    color: var(--color-text-secondary, var(--color-gray-500));
     font-weight: 500;
     white-space: nowrap;
   }
@@ -588,38 +588,38 @@
   }
 
   .add-judge-form {
-    background: #f8fafc;
+    background: var(--color-gray-50);
     padding: 1.5rem;
     border-top: 1px solid #eee;
   }
 
   .add-judge-form h4 {
     margin: 0 0 1rem 0;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .icon-btn {
     background: none;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-sm);
     padding: 0.3rem 0.6rem;
     cursor: pointer;
     font-size: 0.85rem;
-    color: #374151;
+    color: var(--color-gray-700);
     transition: background 0.15s;
   }
 
   .icon-btn:hover {
-    background: #e5e7eb;
+    background: var(--color-gray-200);
   }
 
   .icon-btn.danger {
-    color: #dc2626;
+    color: var(--color-danger);
     border-color: #fca5a5;
   }
 
   .icon-btn.danger:hover {
-    background: #fee2e2;
+    background: var(--color-danger-bg-soft);
   }
 
   @media (max-width: 768px) {
@@ -708,7 +708,7 @@
       {#if $isLoadingTables}
         <LoadingSpinner message="Loading tables..." />
       {:else if tables.length === 0 && !showAddTableForm}
-        <div style="padding: 1.5rem 1.5rem; color: var(--color-text-secondary, #6b7280); font-size: 0.95rem;">
+        <div style="padding: 1.5rem 1.5rem; color: var(--color-text-secondary, var(--color-gray-500)); font-size: 0.95rem;">
           No judging tables yet. Add tables to assign judges and entries to specific tables.
         </div>
       {:else}
@@ -717,7 +717,7 @@
             <div class="table-card">
               {#if editingTableId === table.id}
                 <div class="inline-edit-form">
-                  <span style="font-weight:600; color: #374151; white-space: nowrap;">Table {table.table_number}:</span>
+                  <span style="font-weight:600; color: var(--color-gray-700); white-space: nowrap;">Table {table.table_number}:</span>
                   <input
                     class="form-control"
                     style="padding: 0.4rem 0.6rem;"
@@ -833,7 +833,7 @@
                 <div class="judge-table-selector">
                   <label for="judge-table-{judgeAssignment.id}">Table:</label>
                   {#if tables.length === 0}
-                    <span style="font-size:0.85rem; color: var(--color-text-secondary, #6b7280);">No tables created yet</span>
+                    <span style="font-size:0.85rem; color: var(--color-text-secondary, var(--color-gray-500));">No tables created yet</span>
                   {:else}
                     <select
                       id="judge-table-{judgeAssignment.id}"
@@ -946,7 +946,7 @@
     </div>
 
     {#if $judgeError}
-      <div style="background: #fecaca; color: #dc2626; padding: 1rem; border-radius: 4px; margin-top: 1rem;">
+      <div style="background: var(--color-danger-bg); color: var(--color-danger); padding: 1rem; border-radius: var(--radius-sm); margin-top: 1rem;">
         Error: {$judgeError}
       </div>
     {/if}

@@ -1,15 +1,5 @@
 <script>
-  /**
-   * Card Component
-   *
-   * A container component with consistent styling for content cards.
-   *
-   * @prop {boolean} accent - Whether to show left accent border
-   * @prop {string} accentColor - Color for accent border: 'primary', 'success', 'warning', 'danger', 'info'
-   * @prop {boolean} noPadding - Remove default padding
-   * @prop {boolean} hover - Add hover effect
-   */
-
+  // accentColor: 'primary' | 'gold' | 'success' | 'warning' | 'danger' | 'info'
   export let accent = false;
   export let accentColor = 'primary';
   export let noPadding = false;
@@ -20,6 +10,7 @@
   class="card"
   class:card-accent={accent}
   class:card-accent-primary={accent && accentColor === 'primary'}
+  class:card-accent-gold={accent && accentColor === 'gold'}
   class:card-accent-success={accent && accentColor === 'success'}
   class:card-accent-warning={accent && accentColor === 'warning'}
   class:card-accent-danger={accent && accentColor === 'danger'}
@@ -60,6 +51,10 @@
 
   .card-accent-primary {
     border-left-color: var(--color-brand-primary);
+  }
+
+  .card-accent-gold {
+    border-left-color: var(--color-brand-gold);
   }
 
   .card-accent-success {

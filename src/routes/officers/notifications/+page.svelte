@@ -275,7 +275,7 @@
   }
 
   .result-banner {
-    background: var(--color-success-bg, #f0fdf4);
+    background: var(--color-success-bg, var(--color-success-bg));
     border: 1px solid var(--color-success);
     border-radius: var(--radius-md);
     padding: var(--space-3) var(--space-4);

@@ -171,44 +171,45 @@
   .form-card {
     background: white;
     padding: 2rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #64748b;
+    border-left: 4px solid var(--color-gray-500);
   }
 
   .form-group {
     margin-bottom: 1.5rem;
   }
 
-  .form-group label {
+  .form-group label,
+  .form-group-title {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--space-2);
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .required::after {
     content: ' *';
-    color: #dc2626;
+    color: var(--color-danger);
   }
 
   .form-control {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
     transition: border-color 0.3s ease;
   }
 
   .form-control:focus {
     outline: none;
-    border-color: #64748b;
+    border-color: var(--color-gray-500);
     box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.1);
   }
 
   .form-control.error {
-    border-color: #dc2626;
+    border-color: var(--color-danger);
   }
 
   textarea.form-control {
@@ -217,7 +218,7 @@
   }
 
   .error-message {
-    color: #dc2626;
+    color: var(--color-danger);
     font-size: 0.875rem;
     margin-top: 0.25rem;
   }
@@ -261,7 +262,7 @@
   }
 
   .help-text {
-    color: #666;
+    color: var(--color-text-secondary);
     font-size: 0.875rem;
     margin-top: 0.25rem;
   }
@@ -279,10 +280,10 @@
   .section-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid #e5e7eb;
+    border-bottom: 2px solid var(--color-gray-200);
   }
 
   /* Mobile styles */
@@ -347,15 +348,15 @@
     align-items: flex-start;
     gap: 0.75rem;
     padding: 1rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
     cursor: pointer;
     transition: all 0.2s ease;
   }
   
   .radio-option:hover {
     border-color: #cbd5e1;
-    background: #f8fafc;
+    background: var(--color-gray-50);
   }
   
   .radio-option input[type="radio"] {
@@ -369,26 +370,26 @@
   
   .radio-label strong {
     display: block;
-    color: #374151;
+    color: var(--color-gray-700);
     margin-bottom: 0.25rem;
   }
   
   .radio-description {
-    color: #6b7280;
+    color: var(--color-gray-500);
     font-size: 0.9rem;
   }
   
   .radio-option:has(input:checked) {
-    border-color: #64748b;
-    background: #f1f5f9;
+    border-color: var(--color-gray-500);
+    background: var(--color-gray-100);
   }
   
   .custom-category-section {
     margin-top: 1.5rem;
     padding: 1.5rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    background: #f9fafb;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    background: var(--color-gray-50);
   }
 </style>
 
@@ -440,8 +441,8 @@
       </div>
 
       <div class="form-group">
-        <label>Competition Type</label>
-        <div class="radio-group">
+        <span class="form-group-title" id="competition-type-label">Competition Type</span>
+        <div class="radio-group" role="radiogroup" aria-labelledby="competition-type-label">
           <label class="radio-option">
             <input
               type="radio"
@@ -598,8 +599,8 @@
       <div class="section-title">Category System</div>
       
       <div class="form-group">
-        <label>Ranking System</label>
-        <div class="radio-group">
+        <span class="form-group-title" id="ranking-system-label">Ranking System</span>
+        <div class="radio-group" role="radiogroup" aria-labelledby="ranking-system-label">
           <label class="radio-option">
             <input
               type="radio"

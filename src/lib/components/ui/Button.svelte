@@ -1,27 +1,19 @@
 <script>
-  /**
-   * Button Component
-   *
-   * A flexible button component with multiple variants, sizes, and states.
-   *
-   * @prop {string} variant - Button style variant: 'primary', 'secondary', 'success', 'danger', 'info', 'ghost'
-   * @prop {string} size - Button size: 'sm', 'md', 'lg'
-   * @prop {boolean} disabled - Whether the button is disabled
-   * @prop {boolean} fullWidth - Whether the button should take full width
-   * @prop {string} type - Button type attribute: 'button', 'submit', 'reset'
-   */
-
   export let variant = 'primary';
   export let size = 'md';
   export let disabled = false;
   export let fullWidth = false;
   export let type = 'button';
+  // When true, drops the uppercase / Oswald / letter-spacing brand treatment.
+  // Use for in-row, in-modal, or table action buttons where shouty type is wrong.
+  export let subtle = false;
 </script>
 
 <button
   {type}
   class="btn btn-{variant} btn-{size}"
   class:btn-full-width={fullWidth}
+  class:btn-subtle={subtle}
   {disabled}
   on:click
 >
@@ -164,5 +156,13 @@
   /* Full width */
   .btn-full-width {
     width: 100%;
+  }
+
+  /* Subtle: in-row/in-modal mode — drops the brand display-font treatment */
+  .btn-subtle {
+    font-family: var(--font-family-base);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: normal;
+    text-transform: none;
   }
 </style>

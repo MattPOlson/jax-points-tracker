@@ -280,11 +280,11 @@
   }
 
   function getScoreColor(score) {
-    if (score >= 45) return '#059669'; // Excellent
-    if (score >= 38) return '#0891b2'; // Very Good  
-    if (score >= 30) return '#eab308'; // Good
-    if (score >= 21) return '#f59e0b'; // Fair
-    return '#dc2626'; // Poor
+    if (score >= 45) return 'var(--color-success)'; // Excellent
+    if (score >= 38) return 'var(--color-info-cyan)'; // Very Good  
+    if (score >= 30) return 'var(--color-warning-amber-soft)'; // Good
+    if (score >= 21) return 'var(--color-warning-amber)'; // Fair
+    return 'var(--color-danger)'; // Poor
   }
 
   function getScoreDescription(score) {
@@ -318,11 +318,11 @@
       top: 20px;
       right: 20px;
       padding: 1rem 1.5rem;
-      border-radius: 6px;
+      border-radius: var(--radius-md);
       color: white;
       font-weight: 500;
       z-index: 1000;
-      background: ${type === 'success' ? '#059669' : type === 'error' ? '#dc2626' : '#6b7280'};
+      background: ${type === 'success' ? 'var(--color-success)' : type === 'error' ? 'var(--color-danger)' : 'var(--color-gray-500)'};
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     `;
 
@@ -341,7 +341,7 @@
   /* Header */
   .header {
     background: white;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     padding: 1.5rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -350,13 +350,13 @@
   .competition-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
     margin: 0 0 0.5rem;
   }
 
   .progress-bar {
-    background: #e5e7eb;
-    border-radius: 8px;
+    background: var(--color-gray-200);
+    border-radius: var(--radius-lg);
     height: 8px;
     margin: 1rem 0;
     overflow: hidden;
@@ -365,13 +365,13 @@
   .progress-fill {
     background: var(--color-brand-primary);
     height: 100%;
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     transition: width 0.3s ease;
   }
 
   .progress-text {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--color-text-secondary);
     text-align: center;
   }
 
@@ -388,7 +388,7 @@
     min-width: 60px;
     height: 40px;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -404,13 +404,13 @@
   }
 
   .entry-nav-item.judged {
-    background: #059669;
+    background: var(--color-success);
     color: white;
   }
 
   .entry-nav-item.pending {
-    background: #e5e7eb;
-    color: #6b7280;
+    background: var(--color-gray-200);
+    color: var(--color-gray-500);
   }
 
   /* Main Content */
@@ -422,7 +422,7 @@
 
   .entry-card {
     background: white;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     padding: 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
@@ -430,7 +430,7 @@
   .entry-header {
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 2px solid #f1f5f9;
+    border-bottom: 2px solid var(--color-gray-100);
   }
 
   .entry-number {
@@ -453,12 +453,12 @@
   }
 
   .detail-label {
-    color: #666;
+    color: var(--color-text-secondary);
     margin-bottom: 0.25rem;
   }
 
   .detail-value {
-    color: #333;
+    color: var(--color-text-primary);
     font-weight: 500;
   }
 
@@ -470,7 +470,7 @@
   .section-title {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
     margin-bottom: 1rem;
   }
 
@@ -481,10 +481,10 @@
   }
 
   .score-item {
-    background: #f8fafc;
+    background: var(--color-gray-50);
     padding: 1rem;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-gray-200);
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -494,21 +494,21 @@
     display: block;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #374151;
+    color: var(--color-gray-700);
     margin-bottom: 0.5rem;
   }
 
   .score-max {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--color-gray-500);
     font-weight: normal;
   }
 
   .score-input {
     width: 100%;
     padding: 0.75rem;
-    border: 2px solid #e5e7eb;
-    border-radius: 6px;
+    border: 2px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
     font-size: 1.1rem;
     font-weight: 600;
     text-align: center;
@@ -525,7 +525,7 @@
   }
 
   .score-input:invalid {
-    border-color: #dc2626;
+    border-color: var(--color-danger);
   }
 
   /* Total Score Display */
@@ -533,7 +533,7 @@
     background: var(--color-brand-primary);
     color: white;
     padding: 1.5rem;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     text-align: center;
     margin-bottom: 1rem;
   }
@@ -575,7 +575,7 @@
   .notes-label {
     font-size: 0.875rem;
     font-weight: 500;
-    color: #374151;
+    color: var(--color-gray-700);
     margin-bottom: 0.5rem;
   }
 
@@ -583,8 +583,8 @@
     width: 100%;
     min-height: 100px;
     padding: 0.75rem;
-    border: 2px solid #e5e7eb;
-    border-radius: 6px;
+    border: 2px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
     font-size: 1rem;
     resize: vertical;
     font-family: inherit;
@@ -611,7 +611,7 @@
     min-width: 120px;
     padding: 1rem 1.5rem;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
@@ -628,30 +628,30 @@
   }
 
   .nav-btn-secondary {
-    background: #6b7280;
+    background: var(--color-gray-500);
     color: white;
   }
 
   .nav-btn-secondary:hover:not(:disabled) {
-    background: #4b5563;
+    background: var(--color-gray-600);
   }
 
   .nav-btn-primary {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-hover) 100%);
     color: white;
   }
 
   .nav-btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+    background: linear-gradient(135deg, var(--color-success-hover) 0%, #065f46 100%);
   }
 
   .nav-btn-finish {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-hover) 100%);
     color: white;
   }
 
   .nav-btn-finish:hover:not(:disabled) {
-    background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+    background: linear-gradient(135deg, var(--color-danger-hover) 0%, var(--color-danger-text) 100%);
   }
 
   .nav-btn-link {
@@ -859,7 +859,7 @@
         </div>
 
         <!-- Total Score Display -->
-        <div class="total-score" style="background: {totalScore > 0 ? getScoreColor(totalScore) : '#6b7280'}">
+        <div class="total-score" style="background: {totalScore > 0 ? getScoreColor(totalScore) : 'var(--color-gray-500)'}">
           <h3 class="total-score-value">{totalScore}/50</h3>
           <p class="total-score-label">Total Score</p>
           {#if totalScore > 0}
@@ -994,7 +994,7 @@
             on:click={saveAndPrevious}
             disabled={currentEntryIndex === 0 || isSaving}
           >
-            <ArrowLeft size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            <ArrowLeft size={18} strokeWidth={2} class="icon-inline" />
             Previous Entry
           </Button>
 
@@ -1002,7 +1002,7 @@
             href="/judge/competition/{competitionId}/scoresheet"
             class="nav-btn nav-btn-secondary nav-btn-link"
           >
-            <FileText size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            <FileText size={18} strokeWidth={2} class="icon-inline" />
             BJCP Scoresheet
           </a>
 
@@ -1010,7 +1010,7 @@
             href="/judge/competition/{competitionId}/rankings"
             class="nav-btn nav-btn-secondary nav-btn-link"
           >
-            <Trophy size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            <Trophy size={18} strokeWidth={2} class="icon-inline" />
             Rankings
           </a>
 
@@ -1029,7 +1029,7 @@
               on:click={finishJudging}
               disabled={isSaving}
             >
-              <Flag size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              <Flag size={18} strokeWidth={2} class="icon-inline" />
               Finish Judging
             </button>
           {/if}

@@ -18,18 +18,37 @@
   --color-success: #059669;
   --color-success-hover: #047857;
   --color-success-light: rgba(5, 150, 105, 0.1);
+  --color-success-bg: #dcfce7;
+  --color-success-bg-strong: #166534;
 
   --color-warning: #d97706;
   --color-warning-hover: #b45309;
   --color-warning-light: rgba(217, 119, 6, 0.1);
+  --color-warning-bg: #fef3c7;
+  --color-warning-bg-soft: #fed7aa;
+  --color-warning-text: #92400e;
+  --color-warning-amber: #f59e0b;
+  --color-warning-amber-soft: #eab308;
 
   --color-danger: #dc2626;
   --color-danger-hover: #b91c1c;
   --color-danger-light: rgba(220, 38, 38, 0.1);
+  --color-danger-bg: #fecaca;
+  --color-danger-bg-soft: #fee2e2;
+  --color-danger-bg-softest: #fef2f2;
+  --color-danger-text: #991b1b;
 
   --color-info: #2563eb;
   --color-info-hover: #1d4ed8;
   --color-info-light: rgba(37, 99, 235, 0.1);
+  --color-info-bg: #dbeafe;
+  --color-info-accent: #3b82f6;
+  --color-info-cyan: #0891b2;
+
+  /* Medal Colors (semantic, not brand) */
+  --color-medal-gold: #ffd700;
+  --color-medal-silver: #c0c0c0;
+  --color-medal-bronze: #cd7f32;
 
   /* Neutral Colors */
   --color-white: #ffffff;
@@ -201,6 +220,58 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Brand carry-through: a thin gold rule that echoes the header underline,
+   pinned just below the sticky header so the brand color reappears in page
+   content. Decorative only — non-interactive, aria-hidden via pointer-events. */
+body::before {
+  content: '';
+  position: sticky;
+  top: 90px; /* matches header min-height */
+  display: block;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-brand-gold) 20%,
+    var(--color-brand-gold) 80%,
+    transparent 100%
+  );
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 199;
+}
+
+@media (max-width: 768px) {
+  body::before { top: 72px; }
+}
+
+@media (max-width: 480px) {
+  body::before { top: 64px; }
+}
+
+/* Section-title utility — adds a small gold accent under headings so the brand
+   color reappears in card/section contexts. Applied via `.section-title` class. */
+.section-title {
+  position: relative;
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-4);
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-brand-primary);
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 48px;
+  height: 2px;
+  background: var(--color-brand-gold);
+}
+
 /* Subtle grain texture overlay — gives the page an artisanal, crafted feel */
 body::after {
   content: '';
@@ -270,6 +341,20 @@ a:hover {
   outline: none;
 }
 
+/* Many component-level `:focus { outline: none; }` rules in route files
+   removed the keyboard outline for inputs/selects/textareas. Re-assert it
+   for :focus-visible so keyboard users keep a visible indicator without
+   touching every route file. */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
 /* Button reset */
 button {
   font-family: inherit;
@@ -319,6 +404,19 @@ ol[role="list"] {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+/* Inline icon helper — aligns Lucide/SVG icons with adjacent text without inline style attrs */
+.icon-inline {
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-right: var(--space-1);
+}
+
+.icon-inline-middle {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: var(--space-1);
 }
 
 /* Visually hidden but accessible */

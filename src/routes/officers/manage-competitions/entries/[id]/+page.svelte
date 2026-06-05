@@ -598,7 +598,7 @@ function printLabels() {
             }
             
             body {
-              font-family: Arial, sans-serif;
+              font-family: 'DM Sans', Arial, sans-serif;
               font-size: 12px;
               line-height: 1.4;
               margin: 20px;
@@ -655,7 +655,7 @@ function printLabels() {
             }
             
             .beer-style {
-              color: #666;
+              color: var(--color-text-secondary);
               font-size: 11px;
             }
             
@@ -761,15 +761,15 @@ function printLabels() {
   .competition-info {
     background: white;
     padding: 1.5rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid var(--color-brand-gold);
     margin-bottom: 2rem;
   }
 
   .competition-info h2 {
     margin: 0 0 1rem 0;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .info-grid {
@@ -785,14 +785,14 @@ function printLabels() {
 
   .info-label {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--color-text-secondary);
     margin-bottom: 0.25rem;
   }
 
   .info-value {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .controls {
@@ -808,22 +808,22 @@ function printLabels() {
     min-width: 250px;
     padding: 0.75rem;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
   }
 
 
   .selected-count {
     padding: 0.5rem 1rem;
-    background: #fef3c7;
-    border-radius: 6px;
-    color: #92400e;
+    background: var(--color-warning-bg);
+    border-radius: var(--radius-md);
+    color: var(--color-warning-text);
     font-weight: 500;
   }
 
   .entries-table {
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     overflow: hidden;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
@@ -834,11 +834,11 @@ function printLabels() {
   }
 
   th {
-    background: #f5f5f5;
+    background: var(--color-gray-100);
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
     border-bottom: 2px solid #ddd;
     cursor: pointer;
     user-select: none;
@@ -854,7 +854,7 @@ function printLabels() {
     right: 0.5rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #ff3e00;
+    color: var(--color-brand-gold);
   }
 
   td {
@@ -863,7 +863,7 @@ function printLabels() {
   }
 
   tr:hover {
-    background: #f9f9f9;
+    background: var(--color-gray-50);
   }
 
   .checkbox-cell {
@@ -872,14 +872,14 @@ function printLabels() {
 
   .entry-number {
     font-weight: 600;
-    color: #ff3e00;
+    color: var(--color-brand-gold);
   }
 
   .category-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
-    background: #e5e7eb;
-    border-radius: 4px;
+    background: var(--color-gray-200);
+    border-radius: var(--radius-sm);
     font-size: 0.875rem;
     font-weight: 500;
   }
@@ -895,13 +895,13 @@ function printLabels() {
     width: 48px;
     height: 24px;
     background: #ddd;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     cursor: pointer;
     transition: background 0.3s;
   }
 
   .toggle-switch.active {
-    background: #059669;
+    background: var(--color-success);
   }
 
   .toggle-switch::after {
@@ -928,11 +928,11 @@ function printLabels() {
 
   .entry-card {
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     padding: 1.5rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #ff3e00;
+    border-left: 4px solid var(--color-brand-gold);
   }
 
   .entry-header {
@@ -946,13 +946,13 @@ function printLabels() {
 
   .entry-info h4 {
     margin: 0;
-    color: #ff3e00;
+    color: var(--color-brand-gold);
     font-size: 1.25rem;
     font-weight: 600;
   }
 
   .entry-info .beer-name {
-    color: #333;
+    color: var(--color-text-primary);
     font-size: 1rem;
     margin: 0.25rem 0 0;
   }
@@ -970,8 +970,8 @@ function printLabels() {
     gap: 1rem;
     margin-bottom: 1.5rem;
     padding: 1rem;
-    background: #f9f9f9;
-    border-radius: 4px;
+    background: var(--color-gray-50);
+    border-radius: var(--radius-sm);
   }
 
   .detail-group {
@@ -981,14 +981,14 @@ function printLabels() {
 
   .detail-group .label {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--color-text-secondary);
     margin-bottom: 0.25rem;
     font-weight: 500;
   }
 
   .detail-group .value {
     font-size: 1rem;
-    color: #333;
+    color: var(--color-text-primary);
     font-weight: 600;
   }
 
@@ -996,24 +996,24 @@ function printLabels() {
     margin-top: 1rem;
     padding: 1rem;
     background: #f0f9ff;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     border: 1px solid #bfdbfe;
   }
 
   .member-info h5 {
     margin: 0 0 0.5rem;
-    color: #1d4ed8;
+    color: var(--color-info-hover);
     font-size: 0.875rem;
     font-weight: 600;
   }
 
   .member-info .name {
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .member-info .email {
-    color: #666;
+    color: var(--color-text-secondary);
     font-size: 0.875rem;
     margin-top: 0.25rem;
   }
@@ -1025,8 +1025,8 @@ function printLabels() {
     gap: 0.5rem;
     padding: 0.75rem;
     background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 4px;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-sm);
     margin-top: 1rem;
   }
 
@@ -1034,8 +1034,8 @@ function printLabels() {
     display: inline-flex;
     align-items: center;
     padding: 0.25rem 0.5rem;
-    background: #e5e7eb;
-    border-radius: 4px;
+    background: var(--color-gray-200);
+    border-radius: var(--radius-sm);
     font-size: 0.875rem;
     font-weight: 500;
   }
@@ -1105,29 +1105,29 @@ function printLabels() {
     padding: 0.75rem 1rem;
     background: #fef9c3;
     border: 1px solid #fde68a;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     flex-wrap: wrap;
     margin-bottom: 1rem;
   }
 
   .bulk-action-bar label {
     font-weight: 500;
-    color: #92400e;
+    color: var(--color-warning-text);
     white-space: nowrap;
   }
 
   .bulk-action-bar select {
     padding: 0.4rem 0.6rem;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-sm);
     font-size: 0.9rem;
   }
 
   /* Table cell select */
   .table-select {
     padding: 0.3rem 0.5rem;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-sm);
     font-size: 0.85rem;
     min-width: 130px;
   }
@@ -1148,7 +1148,7 @@ function printLabels() {
 
   .modal {
     background: white;
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     padding: 2rem;
     max-width: 500px;
     width: 90%;
@@ -1157,23 +1157,23 @@ function printLabels() {
   }
 
   .modal h2 {
-    color: #ff3e00;
+    color: var(--color-brand-gold);
     margin: 0 0 1rem 0;
     font-size: 1.5rem;
   }
 
   .modal p {
-    color: #333;
+    color: var(--color-text-primary);
     margin-bottom: 1.5rem;
     line-height: 1.5;
   }
 
   .modal-button {
-    background: #ff3e00;
+    background: var(--color-brand-gold);
     color: white;
     border: none;
     padding: 0.75rem 2rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
     cursor: pointer;
     transition: background 0.3s ease;
@@ -1272,8 +1272,8 @@ function printLabels() {
     <!-- Bulk action bar (shown when entries are selected and tables exist) -->
     {#if selectedEntries.size > 0 && tables.length > 0}
       <div class="bulk-action-bar">
-        <label>Assign {selectedEntries.size} selected to table:</label>
-        <select bind:value={bulkTableId}>
+        <label for="bulk-table-select">Assign {selectedEntries.size} selected to table:</label>
+        <select id="bulk-table-select" bind:value={bulkTableId}>
           <option value="">— No Table —</option>
           {#each tables as table}
             <option value={table.id}>Table {table.table_number}: {table.table_name}</option>
@@ -1449,7 +1449,7 @@ function printLabels() {
                     {entry.bjcp_category?.category_number || ''}{entry.bjcp_category?.subcategory_letter || ''}
                   </span>
                   {#if entry.bjcp_category?.subcategory_name}
-                    <br><small style="color: #666; font-size: 0.8rem;">{entry.bjcp_category.subcategory_name}</small>
+                    <br><small style="color: var(--color-text-secondary); font-size: 0.8rem;">{entry.bjcp_category.subcategory_name}</small>
                   {/if}
                 </div>
               </div>

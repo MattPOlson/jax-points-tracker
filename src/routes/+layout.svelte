@@ -190,7 +190,7 @@
   position="top-right"
   toastOptions={{
     duration: 4000,
-    style: 'border-radius: 6px; background: white; color: #333;'
+    style: 'border-radius: var(--radius-md); background: var(--color-bg-card); color: var(--color-text-primary); box-shadow: var(--shadow-lg);'
   }}
 />
 <InstallPrompt />

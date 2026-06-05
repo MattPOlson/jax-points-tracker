@@ -236,7 +236,7 @@
                 <span class="button-spinner"></span>
                 Saving...
               {:else}
-                <Save size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                <Save size={18} strokeWidth={2} class="icon-inline" />
                 Save Changes
               {/if}
             </Button>
@@ -245,7 +245,7 @@
               variant="secondary"
               disabled={isUpdating}
             >
-              <RotateCcw size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              <RotateCcw size={18} strokeWidth={2} class="icon-inline" />
               Reset
             </Button>
           </div>

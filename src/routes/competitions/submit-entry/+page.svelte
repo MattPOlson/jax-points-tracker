@@ -206,7 +206,7 @@
       <h2>Error Loading Data</h2>
       <p>{$error}</p>
       <Button on:click={() => loadCompetitionData(true)} variant="primary">
-        <RotateCcw size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        <RotateCcw size={18} strokeWidth={2} class="icon-inline" />
         Retry
       </Button>
     </Card>
@@ -218,7 +218,7 @@
       message="There are currently no competitions accepting entries. Check back later or contact an officer for more information."
     >
       <Button on:click={() => goto('/competitions')} variant="primary">
-        <Calendar size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+        <Calendar size={18} strokeWidth={2} class="icon-inline" />
         View All Competitions
       </Button>
     </EmptyState>
@@ -267,7 +267,7 @@
               {/if}
               {#if selectedCompetitionObj.category_system === 'custom'}
                 <div class="custom-categories-notice">
-                  <Info size={20} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+                  <Info size={20} strokeWidth={2} class="icon-inline" />
                   <p><strong>Custom Categories:</strong> This competition only accepts specific BJCP categories. Only allowed categories will be shown in the selection below.</p>
                 </div>
               {/if}
@@ -351,7 +351,7 @@
 
         <!-- Brewer Info (Read-only) -->
         <div class="form-group">
-          <label>Brewer</label>
+          <span class="form-group-title">Brewer</span>
           <div class="brewer-info">
             <span class="brewer-name">{$userProfile?.name || $userProfile?.email}</span>
             <span class="auto-filled">(automatically filled)</span>
@@ -373,7 +373,7 @@
             variant="secondary"
             disabled={submitting || submitSuccess}
           >
-            <RotateCcw size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+            <RotateCcw size={18} strokeWidth={2} class="icon-inline" />
             Reset Form
           </Button>
 
@@ -386,10 +386,10 @@
               <RotateCcw size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem; animation: spin 1s linear infinite;" />
               Submitting...
             {:else if submitSuccess}
-              <CheckCircle size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              <CheckCircle size={18} strokeWidth={2} class="icon-inline" />
               Submitted
             {:else}
-              <Send size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+              <Send size={18} strokeWidth={2} class="icon-inline" />
               Submit Entry
             {/if}
           </Button>
@@ -453,11 +453,12 @@
     margin-bottom: 1.5rem;
   }
 
-  .form-group label {
+  .form-group label,
+  .form-group-title {
     display: block;
     font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #333;
+    margin-bottom: var(--space-2);
+    color: var(--color-text-primary);
   }
 
   .form-group input,
@@ -466,7 +467,7 @@
     width: 100%;
     padding: 0.75rem;
     border: 2px solid #ddd;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
     transition: border-color 0.2s;
     box-sizing: border-box;
@@ -482,14 +483,14 @@
   .form-group input:disabled,
   .form-group select:disabled,
   .form-group textarea:disabled {
-    background: #f5f5f5;
+    background: var(--color-gray-100);
     cursor: not-allowed;
   }
 
   .competition-info {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
     padding: 1rem;
     margin-top: 0.5rem;
   }
@@ -502,7 +503,7 @@
   .custom-categories-notice {
     background: #e0f7fa;
     border: 1px solid #4dd0e1;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     padding: 0.75rem;
     margin-top: 0.5rem;
   }
@@ -516,7 +517,7 @@
   .category-description {
     background: #fff3cd;
     border: 1px solid #ffeaa7;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     padding: 0.75rem;
     margin-top: 0.5rem;
     font-size: 0.9rem;
@@ -526,14 +527,14 @@
   .character-count {
     text-align: right;
     font-size: 0.8rem;
-    color: #666;
+    color: var(--color-text-secondary);
     margin-top: 0.25rem;
   }
 
   .brewer-info {
-    background: #f8f9fa;
+    background: var(--color-gray-50);
     border: 2px solid #ddd;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     padding: 0.75rem;
     display: flex;
     justify-content: space-between;
@@ -546,21 +547,21 @@
 
   .auto-filled {
     font-size: 0.8rem;
-    color: #666;
+    color: var(--color-text-secondary);
     font-style: italic;
   }
 
   .error-message {
     background: #fee;
-    border: 1px solid #dc2626;
-    border-radius: 6px;
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-md);
     padding: 1rem;
     margin-bottom: 1rem;
   }
 
   .error-message p {
     margin: 0;
-    color: #dc2626;
+    color: var(--color-danger);
   }
 
   .form-actions {
@@ -573,7 +574,7 @@
   .form-help {
     margin-top: 2rem;
     padding-top: 2rem;
-    border-top: 1px solid #dee2e6;
+    border-top: 1px solid var(--color-gray-200);
   }
 
   .form-help h3 {
@@ -590,7 +591,7 @@
 
   .form-help li {
     margin-bottom: 0.5rem;
-    color: #555;
+    color: var(--color-gray-700);
   }
 
   @media (max-width: 768px) {

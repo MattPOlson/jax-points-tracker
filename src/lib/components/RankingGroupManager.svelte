@@ -5,6 +5,7 @@
   import { categoriesByNumber } from '$lib/stores/bjcpCategoryStore';
   import toast from 'svelte-french-toast';
   import { showConfirm } from '$lib/stores/confirmDialog.js';
+  import Button from '$lib/components/ui/Button.svelte';
   
   export let rankingGroups = []; // Array of ranking group objects
   export let selectedCategories = []; // Array of available category IDs
@@ -141,15 +142,15 @@
     <p class="description">{description}</p>
     
     <div class="actions">
-      <button type="button" class="btn-secondary" on:click={createDefaultGroups}>
+      <Button variant="secondary" subtle on:click={createDefaultGroups}>
         Create Individual Groups
-      </button>
-      <button type="button" class="btn-secondary" on:click={createSingleGroup}>
+      </Button>
+      <Button variant="secondary" subtle on:click={createSingleGroup}>
         Create Single Group
-      </button>
-      <button type="button" class="btn-primary" on:click={startNewGroup}>
+      </Button>
+      <Button variant="primary" subtle on:click={startNewGroup}>
         Add Custom Group
-      </button>
+      </Button>
     </div>
   </div>
   
@@ -178,8 +179,8 @@
         ></textarea>
       </div>
       
-      <div class="form-group">
-        <label>Categories in this group</label>
+      <fieldset class="form-group">
+        <legend>Categories in this group</legend>
         <div class="category-selection">
           {#each (editingGroup === 'new' ? unassignedCategories : selectedCategories) as categoryId}
             <label class="category-item">
@@ -192,20 +193,20 @@
             </label>
           {/each}
         </div>
-      </div>
+      </fieldset>
       
       <div class="editor-actions">
-        <button type="button" class="btn-secondary" on:click={cancelEdit}>
+        <Button variant="ghost" subtle on:click={cancelEdit}>
           Cancel
-        </button>
-        <button 
-          type="button" 
-          class="btn-primary" 
-          on:click={saveGroup}
+        </Button>
+        <Button
+          variant="primary"
+          subtle
           disabled={!newGroupName.trim() || newGroupCategories.length === 0}
+          on:click={saveGroup}
         >
           {editingGroup === 'new' ? 'Create Group' : 'Save Changes'}
-        </button>
+        </Button>
       </div>
     </div>
   {/if}
@@ -299,40 +300,6 @@
     flex-wrap: wrap;
   }
   
-  .btn-primary {
-    background: var(--color-brand-primary);
-    color: white;
-    border: 1px solid var(--color-brand-primary);
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-  }
-
-  .btn-primary:hover:not(:disabled) {
-    background: var(--color-brand-primary-hover);
-    border-color: var(--color-brand-primary-hover);
-  }
-  
-  .btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
-  .btn-secondary {
-    background: var(--color-bg-card, #fff);
-    color: var(--color-text-primary);
-    border: 1px solid var(--color-border-primary);
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-button);
-    cursor: pointer;
-    font-size: 0.9rem;
-  }
-
-  .btn-secondary:hover {
-    background: var(--color-bg-secondary);
-  }
-
   .btn-link {
     background: none;
     border: none;
@@ -347,11 +314,11 @@
   }
 
   .btn-link.danger {
-    color: var(--color-danger, #dc2626);
+    color: var(--color-danger, var(--color-danger));
   }
 
   .btn-link.danger:hover {
-    color: var(--color-danger-dark, #b91c1c);
+    color: var(--color-danger-dark, var(--color-danger-hover));
   }
 
   .group-editor {
@@ -404,7 +371,7 @@
   }
   
   .category-item:hover {
-    background: #f1f5f9;
+    background: var(--color-gray-100);
   }
   
   .editor-actions {
@@ -416,12 +383,12 @@
   .empty-state {
     text-align: center;
     padding: 2rem;
-    color: #6b7280;
+    color: var(--color-gray-500);
   }
   
   .group-card {
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
     padding: 1rem;
     margin-bottom: 1rem;
   }
@@ -435,13 +402,13 @@
   
   .group-name {
     margin: 0 0 0.25rem 0;
-    color: #374151;
+    color: var(--color-gray-700);
     font-size: 1.1rem;
   }
   
   .group-description {
     margin: 0;
-    color: #6b7280;
+    color: var(--color-gray-500);
     font-size: 0.9rem;
   }
   
@@ -451,7 +418,7 @@
   }
   
   .group-categories strong {
-    color: #374151;
+    color: var(--color-gray-700);
     font-size: 0.9rem;
   }
   
@@ -466,27 +433,27 @@
     background: #e0f2fe;
     color: #0369a1;
     padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-size: 0.8rem;
     font-weight: 500;
   }
   
   .category-chip.unassigned {
-    background: #fef3c7;
-    color: #d97706;
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
   }
   
   .unassigned-warning {
     background: #fffbeb;
-    border: 1px solid #fed7aa;
-    border-radius: 6px;
+    border: 1px solid var(--color-warning-bg-soft);
+    border-radius: var(--radius-md);
     padding: 1rem;
     margin-top: 1rem;
   }
   
   .warning-text {
     margin: 0.5rem 0 0 0;
-    color: #d97706;
+    color: var(--color-warning);
     font-size: 0.9rem;
     font-style: italic;
   }

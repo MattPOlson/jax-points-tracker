@@ -244,14 +244,14 @@
   .stat-card {
     background: white;
     padding: 1.5rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #64748b;
+    border-left: 4px solid var(--color-gray-500);
   }
 
   .stat-card .label {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--color-text-secondary);
     text-transform: uppercase;
     margin-bottom: 0.5rem;
   }
@@ -259,7 +259,7 @@
   .stat-card .value {
     font-size: 2rem;
     font-weight: bold;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   .controls {
@@ -274,14 +274,14 @@
     min-width: 200px;
     padding: 0.75rem;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
   }
 
   .filter-select {
     padding: 0.75rem;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
     background: white;
   }
@@ -289,7 +289,7 @@
 
   .competitions-table {
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     overflow: hidden;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
@@ -300,11 +300,11 @@
   }
 
   th {
-    background: #f5f5f5;
+    background: var(--color-gray-100);
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
     border-bottom: 2px solid #ddd;
   }
 
@@ -314,35 +314,35 @@
   }
 
   tr:hover {
-    background: #f9f9f9;
+    background: var(--color-gray-50);
   }
 
   .badge {
     display: inline-block;
     padding: 0.25rem 0.75rem;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     font-size: 0.875rem;
     font-weight: 500;
   }
 
   .badge-active {
     background: #d4f4dd;
-    color: #059669;
+    color: var(--color-success);
   }
 
   .badge-inactive {
-    background: #fef3c7;
-    color: #d97706;
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
   }
 
   .badge-closed {
-    background: #fee2e2;
-    color: #dc2626;
+    background: var(--color-danger-bg-soft);
+    color: var(--color-danger);
   }
 
   .badge-warning {
-    background: #fed7aa;
-    color: #ea580c;
+    background: var(--color-warning-bg-soft);
+    color: var(--color-warning-hover);
   }
 
   .actions {
@@ -365,42 +365,42 @@
   }
 
   .btn-edit {
-    background: #475569;
+    background: var(--color-gray-600);
     color: white;
   }
 
   .btn-edit:hover {
-    background: #334155;
+    background: var(--color-gray-700);
   }
 
   .btn-toggle {
-    background: #059669;
+    background: var(--color-success);
     color: white;
   }
 
   .btn-toggle:hover {
-    background: #047857;
+    background: var(--color-success-hover);
   }
 
   .btn-toggle.inactive {
-    background: #dc2626;
+    background: var(--color-danger);
   }
 
   .btn-toggle.inactive:hover {
-    background: #b91c1c;
+    background: var(--color-danger-hover);
   }
 
   .btn-entries {
-    background: #64748b;
+    background: var(--color-gray-500);
     color: white;
   }
 
   .btn-entries:hover {
-    background: #475569;
+    background: var(--color-gray-600);
   }
 
   .btn-results {
-    background: #ea580c;
+    background: var(--color-warning-hover);
     color: white;
   }
 
@@ -409,38 +409,38 @@
   }
 
   .btn-judges {
-    background: #64748b;
+    background: var(--color-gray-500);
     color: white;
   }
 
   .btn-judges:hover {
-    background: #475569;
+    background: var(--color-gray-600);
   }
 
   .btn-dashboard {
-    background: #64748b;
+    background: var(--color-gray-500);
     color: white;
   }
 
   .btn-dashboard:hover {
-    background: #475569;
+    background: var(--color-gray-600);
   }
 
   .btn-delete {
-    background: #dc2626;
+    background: var(--color-danger);
     color: white;
   }
 
   .btn-delete:hover {
-    background: #b91c1c;
+    background: var(--color-danger-hover);
   }
 
 
   .error {
-    background: #fee2e2;
-    color: #dc2626;
+    background: var(--color-danger-bg-soft);
+    color: var(--color-danger);
     padding: 1rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     margin-bottom: 1rem;
   }
 
@@ -451,11 +451,11 @@
 
   .competition-card {
     background: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     padding: 1.5rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #64748b;
+    border-left: 4px solid var(--color-gray-500);
   }
 
   .competition-header {
@@ -470,7 +470,7 @@
   .competition-name {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
     margin: 0;
     flex: 1;
     min-width: 0;
@@ -483,29 +483,29 @@
   .status-badge {
     display: inline-block;
     padding: 0.25rem 0.75rem;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     font-size: 0.875rem;
     font-weight: 500;
   }
 
   .status-open {
-    background: #dbeafe;
-    color: #1d4ed8;
+    background: var(--color-info-bg);
+    color: var(--color-info-hover);
   }
 
   .status-judging {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--color-warning-bg);
+    color: var(--color-warning-text);
   }
 
   .status-completed {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--color-success-bg);
+    color: var(--color-success-bg-strong);
   }
 
   .status-closed {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--color-gray-100);
+    color: var(--color-gray-500);
   }
 
   /* Competition details grid */
@@ -515,8 +515,8 @@
     gap: 1rem;
     margin-bottom: 1.5rem;
     padding: 1rem;
-    background: #f9f9f9;
-    border-radius: 4px;
+    background: var(--color-gray-50);
+    border-radius: var(--radius-sm);
   }
 
   .detail-item {
@@ -526,14 +526,14 @@
 
   .detail-label {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--color-text-secondary);
     margin-bottom: 0.25rem;
   }
 
   .detail-value {
     font-size: 1rem;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-primary);
   }
 
   /* Action buttons - vertical stack */
@@ -547,7 +547,7 @@
     width: 100%;
     padding: 0.875rem 1rem;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
@@ -567,25 +567,25 @@
 
   /* Button color variants */
   .btn-view {
-    background: #475569;
+    background: var(--color-gray-600);
     color: white;
   }
 
   .btn-view:hover {
-    background: #334155;
+    background: var(--color-gray-700);
   }
 
   .btn-edit-mobile {
-    background: #475569;
+    background: var(--color-gray-600);
     color: white;
   }
 
   .btn-edit-mobile:hover {
-    background: #334155;
+    background: var(--color-gray-700);
   }
 
   .btn-results-mobile {
-    background: #ea580c;
+    background: var(--color-warning-hover);
     color: white;
   }
 
@@ -594,64 +594,64 @@
   }
 
   .btn-entries-mobile {
-    background: #64748b;
+    background: var(--color-gray-500);
     color: white;
   }
 
   .btn-entries-mobile:hover {
-    background: #475569;
+    background: var(--color-gray-600);
   }
 
   .btn-judges-mobile {
-    background: #64748b;
+    background: var(--color-gray-500);
     color: white;
   }
 
   .btn-judges-mobile:hover {
-    background: #475569;
+    background: var(--color-gray-600);
   }
 
   .btn-dashboard-mobile {
-    background: #64748b;
+    background: var(--color-gray-500);
     color: white;
   }
 
   .btn-dashboard-mobile:hover {
-    background: #475569;
+    background: var(--color-gray-600);
   }
 
   .btn-toggle-mobile {
-    background: #059669;
+    background: var(--color-success);
     color: white;
   }
 
   .btn-toggle-mobile:hover {
-    background: #047857;
+    background: var(--color-success-hover);
   }
 
   .btn-toggle-mobile.inactive {
-    background: #dc2626;
+    background: var(--color-danger);
   }
 
   .btn-toggle-mobile.inactive:hover {
-    background: #b91c1c;
+    background: var(--color-danger-hover);
   }
 
   .btn-delete-mobile {
-    background: #dc2626;
+    background: var(--color-danger);
     color: white;
   }
 
   .btn-delete-mobile:hover {
-    background: #b91c1c;
+    background: var(--color-danger-hover);
   }
 
   /* Entry count badge */
   .entry-count {
     background: rgba(100, 116, 139, 0.1);
-    color: #334155;
+    color: var(--color-gray-700);
     padding: 0.25rem 0.5rem;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     font-size: 0.75rem;
     font-weight: 600;
     margin-left: 0.5rem;
@@ -660,17 +660,17 @@
   /* Deadline formatting */
   .deadline-info {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--color-text-secondary);
     margin-top: 0.5rem;
   }
 
   .deadline-urgent {
-    color: #dc2626;
+    color: var(--color-danger);
     font-weight: 600;
   }
 
   .deadline-soon {
-    color: #f59e0b;
+    color: var(--color-warning-amber);
     font-weight: 500;
   }
 
@@ -678,8 +678,8 @@
   .competition-description {
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-    color: #666;
+    border-top: 1px solid var(--color-gray-200);
+    color: var(--color-text-secondary);
     font-size: 0.9rem;
     line-height: 1.4;
   }
@@ -701,14 +701,14 @@
   .modal-content {
     background: white;
     padding: 2rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     max-width: 500px;
     width: 90%;
   }
 
   .modal-content h3 {
     margin-top: 0;
-    color: #dc2626;
+    color: var(--color-danger);
   }
 
   .modal-actions {
@@ -813,11 +813,11 @@
       <option value="past">Past/Closed</option>
     </select>
     <Button variant="secondary" on:click={forceRefresh}>
-      <RefreshCw size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+      <RefreshCw size={16} strokeWidth={2} class="icon-inline" />
       Refresh
     </Button>
     <Button variant="primary" on:click={navigateToCreate}>
-      <Plus size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+      <Plus size={16} strokeWidth={2} class="icon-inline" />
       Create Competition
     </Button>
   </div>
@@ -825,7 +825,7 @@
   <!-- Error State -->
   {#if $error}
     <div class="error">
-      <AlertTriangle size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;" />
+      <AlertTriangle size={18} strokeWidth={2} class="icon-inline" />
       {$error}
     </div>
   {/if}
