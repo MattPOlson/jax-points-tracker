@@ -35,12 +35,18 @@ function normalizeEvent(ev) {
 
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ request }) {
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Runtime env var names vary by environment: Cloud Run injects SUPABASE_URL /
+  // SUPABASE_ANON_KEY, while the Docker image bakes in the VITE_-prefixed names.
+  // Accept whichever is present. Verifying the JWT only needs the anon key.
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const supabaseKey =
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.VITE_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY;
   const calendarId = process.env.GOOGLE_CALENDAR_ID;
   const apiKey = process.env.GOOGLE_CALENDAR_API_KEY;
 
-  if (!supabaseUrl || !serviceRoleKey) {
+  if (!supabaseUrl || !supabaseKey) {
     throw error(500, 'Server misconfigured: missing Supabase env vars');
   }
   if (!calendarId || !apiKey) {
@@ -58,11 +64,11 @@ export async function GET({ request }) {
   }
   const token = authHeader.slice(7);
 
-  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+  const supabaseClient = createClient(supabaseUrl, supabaseKey);
   const {
     data: { user },
     error: authError
-  } = await supabaseAdmin.auth.getUser(token);
+  } = await supabaseClient.auth.getUser(token);
   if (authError || !user) {
     throw error(401, 'Invalid token');
   }
