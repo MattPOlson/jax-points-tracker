@@ -10,7 +10,7 @@
   import { page } from '$app/stores';
   import { version } from '$lib/version.js';
   import { Hero, Button, Badge, Container, OverlappingCard, ActionCard } from '$lib/components/ui';
-  import { FileEdit, ClipboardCheck, Trophy, Award, User as UserIcon, Settings, Calendar } from 'lucide-svelte';
+  import { FileEdit, ClipboardCheck, Trophy, Award, User as UserIcon, Settings, Calendar, CalendarDays } from 'lucide-svelte';
 
   $: isLoggedIn = $authUser !== null;
   $: isOfficer = $userProfile?.is_officer === true;
@@ -132,6 +132,14 @@
         </ActionCard>
 
         {#if isLoggedIn}
+          <ActionCard
+            href="/calendar"
+            title="Calendar"
+            description="See upcoming club events & meetings"
+          >
+            <CalendarDays slot="icon" size={64} strokeWidth={1.5} />
+          </ActionCard>
+
           <ActionCard
             href="/profile"
             title="My Profile"

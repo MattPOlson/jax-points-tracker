@@ -137,8 +137,9 @@ jobs:
           --set-env-vars VAPID_SUBJECT=${{ secrets.VAPID_SUBJECT }} \
           --set-env-vars SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }} \
           --set-env-vars NODE_ENV=production \
-          --set-env-vars NODE_OPTIONS="--max-old-space-size=1536"
-
+          --set-env-vars NODE_OPTIONS="--max-old-space-size=1536" \
+          --set-env-vars GOOGLE_CALENDAR_ID=jaxaleexchange@gmail.com \
+          --set-env-vars GOOGLE_CALENDAR_API_KEY=${{ secrets.GOOGLE_CALENDAR_API_KEY }}
     - name: Get service URL
       id: get_url
       run: |
