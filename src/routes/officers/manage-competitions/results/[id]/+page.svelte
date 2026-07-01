@@ -579,7 +579,7 @@
 
   .search-input, .filter-select {
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-gray-250);
     border-radius: var(--radius-md);
     font-size: 1rem;
     background: white;
@@ -613,12 +613,12 @@
     text-align: left;
     font-weight: 600;
     color: var(--color-text-primary);
-    border-bottom: 2px solid #ddd;
+    border-bottom: 2px solid var(--color-gray-250);
   }
 
   td {
     padding: 1rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-gray-150);
     vertical-align: top;
   }
 
@@ -642,7 +642,7 @@
 
   .score-input {
     padding: 0.5rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-gray-250);
     border-radius: var(--radius-sm);
     font-size: 0.9rem;
     width: 80px;
@@ -650,7 +650,7 @@
 
   .placement-select {
     padding: 0.5rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-gray-250);
     border-radius: var(--radius-sm);
     font-size: 0.9rem;
     background: white;
@@ -661,7 +661,7 @@
     width: 100%;
     min-height: 60px;
     padding: 0.5rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-gray-250);
     border-radius: var(--radius-sm);
     font-size: 0.9rem;
     resize: vertical;

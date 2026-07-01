@@ -151,7 +151,7 @@
   .nav-button.active {
     background: rgba(255, 200, 0, 0.2);
     border-color: rgba(255, 200, 0, 0.5);
-    color: #fcd34d;
+    color: var(--color-warning-gold);
   }
 
   .nav-button.active:hover {

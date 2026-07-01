@@ -273,14 +273,14 @@
     flex: 1;
     min-width: 200px;
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-gray-250);
     border-radius: var(--radius-md);
     font-size: 1rem;
   }
 
   .filter-select {
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-gray-250);
     border-radius: var(--radius-md);
     font-size: 1rem;
     background: white;
@@ -305,12 +305,12 @@
     text-align: left;
     font-weight: 600;
     color: var(--color-text-primary);
-    border-bottom: 2px solid #ddd;
+    border-bottom: 2px solid var(--color-gray-250);
   }
 
   td {
     padding: 1rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-gray-150);
   }
 
   tr:hover {
@@ -326,7 +326,7 @@
   }
 
   .badge-active {
-    background: #d4f4dd;
+    background: var(--color-success-bg);
     color: var(--color-success);
   }
 
@@ -405,7 +405,7 @@
   }
 
   .btn-results:hover {
-    background: #c2410c;
+    background: var(--color-warning-orange);
   }
 
   .btn-judges {
@@ -590,7 +590,7 @@
   }
 
   .btn-results-mobile:hover {
-    background: #c2410c;
+    background: var(--color-warning-orange);
   }
 
   .btn-entries-mobile {

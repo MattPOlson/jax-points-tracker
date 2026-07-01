@@ -122,7 +122,7 @@
 
 <style>
   .category-selector {
-    background: var(--color-bg-card, #fff);
+    background: var(--color-bg-card);
     border: 1px solid var(--color-border-primary);
     border-radius: var(--radius-md);
     padding: 1.5rem;
@@ -266,4 +266,4 @@
       gap: 0.5rem;
     }
   }
-</style>
+</style>

@@ -84,6 +84,58 @@
   --color-border-secondary: #d1d5db;
   --color-border-focus: var(--color-brand-primary);
 
+  /* ========== Extended Palette ==========
+     Added during the hex-literal -> design-token migration (issue #65)
+     to give a token to every colour previously hard-coded in component
+     style blocks. */
+
+  /* Brand */
+  --color-brand-primary-dark: #162c4a;
+
+  /* Extended grays */
+  --color-gray-150: #eeeeee;
+  --color-gray-250: #dddddd;
+
+  /* Info / blue tints */
+  --color-info-text: #0369a1;
+  --color-info-bg-light: #e0f2fe;
+  --color-info-bg-subtle: #eff6ff;
+  --color-info-border: #bfdbfe;
+  --color-info-border-strong: #93c5fd;
+  --color-info-cyan-bg: #e0f7fa;
+  --color-info-cyan-border: #4dd0e1;
+  --color-info-cyan-dark: #006064;
+
+  /* Success / green tints */
+  --color-success-border: #bbf7d0;
+  --color-success-dark: #065f46;
+
+  /* Warning / amber tints */
+  --color-warning-bg-light: #fffbeb;
+  --color-warning-border: #fde68a;
+  --color-warning-gold: #fcd34d;
+  --color-warning-orange: #c2410c;
+
+  /* Danger / alert tints */
+  --color-danger-border: #fca5a5;
+  --color-alert-orange: #e63600;
+
+  /* Accent purple / violet / indigo */
+  --color-accent-purple: #7c3aed;
+  --color-accent-purple-bg: #faf5ff;
+  --color-accent-purple-border: #c4b5fd;
+  --color-accent-violet-bg: #ddd6fe;
+  --color-accent-indigo: #6366f1;
+
+  /* Decorative medal / podium tints */
+  --color-medal-gold-light: #ffed4e;
+  --color-medal-bronze-light: #deb887;
+  --color-gold-tint-lightest: #fffdf0;
+  --color-gold-tint: #fff8c8;
+  --color-gold-tint-soft: #fff8e1;
+  --color-bronze-tint: #fefaf5;
+  --color-bronze-tint-soft: #fdf7f0;
+
 
   /* ========== Spacing Scale ========== */
   --space-0: 0;
@@ -430,4 +482,4 @@ ol[role="list"] {
   clip: rect(0, 0, 0, 0) !important;
   white-space: nowrap !important;
   border: 0 !important;
-} 
+} 

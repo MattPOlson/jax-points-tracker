@@ -642,7 +642,7 @@
   }
 
   .nav-btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, var(--color-success-hover) 0%, #065f46 100%);
+    background: linear-gradient(135deg, var(--color-success-hover) 0%, var(--color-success-dark) 100%);
   }
 
   .nav-btn-finish {
@@ -1037,4 +1037,4 @@
       </div>
     </div>
   {/if}
-</Container>
+</Container>

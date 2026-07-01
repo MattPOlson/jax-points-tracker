@@ -672,7 +672,7 @@
   }
 
   .save-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, var(--color-success-hover) 0%, #065f46 100%);
+    background: linear-gradient(135deg, var(--color-success-hover) 0%, var(--color-success-dark) 100%);
   }
 
   .save-btn:disabled {
@@ -698,7 +698,7 @@
   }
 
   .ranking-item.own-entry {
-    background: #eff6ff;
+    background: var(--color-info-bg-subtle);
     border-color: var(--color-info-accent);
   }
 
@@ -830,7 +830,7 @@
     padding: var(--space-2) var(--space-4);
     border-radius: var(--radius-button);
     font-weight: var(--font-weight-medium);
-    border: 1px solid #fbbf24;
+    border: 1px solid var(--color-warning-amber);
   }
 
   .save-btn.has-changes {
@@ -985,12 +985,12 @@
         {/if}
 
         {#if competitionType === 'intraclub'}
-          <div class="validation-warning" style="background: #f0f9ff; border-color: var(--color-info-accent);">
+          <div class="validation-warning" style="background: var(--color-info-bg-subtle); border-color: var(--color-info-accent);">
             <h4>
               <Info size={20} strokeWidth={2} class="icon-inline" />
               Intraclub Competition Rules
             </h4>
-            <div style="color: #1e40af; font-size: 0.875rem;">
+            <div style="color: var(--color-info-hover); font-size: 0.875rem;">
               You cannot rank your own entries in positions 1-3. Your entries are marked with a blue indicator.
             </div>
           </div>
@@ -1054,7 +1054,7 @@
                   </div>
 
                   {#if ranking.entry.private_notes}
-                    <div class="detail-text" style="margin-top: 0.5rem; color: #6366f1; font-style: italic;">
+                    <div class="detail-text" style="margin-top: 0.5rem; color: var(--color-accent-indigo); font-style: italic;">
                       <MessageCircle size={14} strokeWidth={2} class="icon-inline-middle" />
                       {ranking.entry.private_notes}
                     </div>
@@ -1086,4 +1086,4 @@
       </div>
     {/if}
   {/if}
-</Container>
+</Container>

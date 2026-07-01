@@ -182,7 +182,7 @@
   }
 
   .auth-wrapper {
-    background: var(--color-bg-card, #ffffff);
+    background: var(--color-bg-card);
     border-radius: var(--radius-card);
     box-shadow: 0 12px 48px rgba(26, 42, 68, 0.18);
     padding: var(--space-8);
@@ -313,8 +313,8 @@
 
   :global(.supabase-auth-ui_ui-message.success) {
     background-color: var(--color-success-bg);
-    color: #16a34a;
-    border: 1px solid #bbf7d0;
+    color: var(--color-success);
+    border: 1px solid var(--color-success-border);
   }
 
 </style>

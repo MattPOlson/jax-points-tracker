@@ -53,7 +53,7 @@
   }
 
   .action-card {
-    background: var(--color-bg-card, #ffffff);
+    background: var(--color-bg-card);
     padding: 2.5rem 1.5rem;
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-card);
@@ -109,7 +109,7 @@
     border-top: 3px solid var(--color-brand-gold-light, rgba(201, 162, 39, 0.3));
     background: linear-gradient(
       135deg,
-      #ffffff 0%,
+      var(--color-white) 0%,
       rgba(201, 162, 39, 0.04) 100%
     );
   }
