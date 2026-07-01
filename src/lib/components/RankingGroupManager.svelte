@@ -269,7 +269,7 @@
 
 <style>
   .ranking-group-manager {
-    background: var(--color-bg-card, #fff);
+    background: var(--color-bg-card);
     border: 1px solid var(--color-border-primary);
     border-radius: var(--radius-md);
     padding: 1.5rem;
@@ -430,8 +430,8 @@
   }
   
   .category-chip {
-    background: #e0f2fe;
-    color: #0369a1;
+    background: var(--color-info-bg-light);
+    color: var(--color-info-text);
     padding: 0.25rem 0.5rem;
     border-radius: var(--radius-sm);
     font-size: 0.8rem;
@@ -444,7 +444,7 @@
   }
   
   .unassigned-warning {
-    background: #fffbeb;
+    background: var(--color-warning-bg-light);
     border: 1px solid var(--color-warning-bg-soft);
     border-radius: var(--radius-md);
     padding: 1rem;
@@ -472,4 +472,4 @@
       flex-direction: column;
     }
   }
-</style>
+</style>

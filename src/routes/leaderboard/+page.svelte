@@ -315,11 +315,11 @@
     border-width: 2px;
     background: linear-gradient(
       90deg,
-      #fffdf0 0%,
-      #fff8c8 25%,
-      #fffdf0 50%,
-      #fff8c8 75%,
-      #fffdf0 100%
+      var(--color-gold-tint-lightest) 0%,
+      var(--color-gold-tint) 25%,
+      var(--color-gold-tint-lightest) 50%,
+      var(--color-gold-tint) 75%,
+      var(--color-gold-tint-lightest) 100%
     );
     background-size: 200% 100%;
     animation: goldShimmer 5s linear infinite;
@@ -386,9 +386,9 @@
     color: white;
   }
 
-  .first-base  { background: linear-gradient(135deg, var(--color-medal-gold), #ffed4e); height: 60px; }
-  .second-base { background: linear-gradient(135deg, var(--color-medal-silver), #e8e8e8); height: 50px; }
-  .third-base  { background: linear-gradient(135deg, var(--color-medal-bronze), #deb887); height: 40px; }
+  .first-base  { background: linear-gradient(135deg, var(--color-medal-gold), var(--color-medal-gold-light)); height: 60px; }
+  .second-base { background: linear-gradient(135deg, var(--color-medal-silver), var(--color-gray-200)); height: 50px; }
+  .third-base  { background: linear-gradient(135deg, var(--color-medal-bronze), var(--color-medal-bronze-light)); height: 40px; }
 
   /* Table */
   .table-section h3 {
@@ -450,9 +450,9 @@
 
   .rank-row { transition: background-color var(--transition-base); }
   .rank-row:hover { background-color: var(--color-bg-secondary); }
-  .rank-row.rank-gold   { background: linear-gradient(135deg, #fffbf0, #fff8e1); }
+  .rank-row.rank-gold   { background: linear-gradient(135deg, var(--color-gold-tint-lightest), var(--color-gold-tint-soft)); }
   .rank-row.rank-silver { background: linear-gradient(135deg, var(--color-gray-50), var(--color-gray-100)); }
-  .rank-row.rank-bronze { background: linear-gradient(135deg, #fefaf5, #fdf7f0); }
+  .rank-row.rank-bronze { background: linear-gradient(135deg, var(--color-bronze-tint), var(--color-bronze-tint-soft)); }
 
   .rank-cell {
     display: flex;
@@ -490,9 +490,9 @@
     border-left: 4px solid var(--color-border-primary);
   }
 
-  .mobile-card.rank-gold   { border-left-color: var(--color-medal-gold); background: linear-gradient(135deg, #fffbf0, #fff8e1); }
+  .mobile-card.rank-gold   { border-left-color: var(--color-medal-gold); background: linear-gradient(135deg, var(--color-gold-tint-lightest), var(--color-gold-tint-soft)); }
   .mobile-card.rank-silver { border-left-color: var(--color-medal-silver); background: linear-gradient(135deg, var(--color-gray-50), var(--color-gray-100)); }
-  .mobile-card.rank-bronze { border-left-color: var(--color-medal-bronze); background: linear-gradient(135deg, #fefaf5, #fdf7f0); }
+  .mobile-card.rank-bronze { border-left-color: var(--color-medal-bronze); background: linear-gradient(135deg, var(--color-bronze-tint), var(--color-bronze-tint-soft)); }
 
   .card-header {
     display: flex;

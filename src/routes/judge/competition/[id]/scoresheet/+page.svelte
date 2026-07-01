@@ -373,7 +373,7 @@
 
   .scoresheet {
     background: white;
-    border: 2px solid #000;
+    border: 2px solid var(--color-black);
     padding: 1.5rem;
     font-family: 'Times New Roman', serif;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -381,7 +381,7 @@
 
   .scoresheet-header {
     text-align: center;
-    border-bottom: 2px solid #000;
+    border-bottom: 2px solid var(--color-black);
     padding-bottom: 1rem;
     margin-bottom: 1.5rem;
   }
@@ -403,7 +403,7 @@
     gap: 1rem;
     margin-bottom: 1.5rem;
     padding: 1rem;
-    border: 1px solid #000;
+    border: 1px solid var(--color-black);
   }
 
   .info-group {
@@ -420,18 +420,18 @@
   .info-value {
     font-size: 1rem;
     padding: 0.25rem;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid var(--color-text-primary);
   }
 
   .section {
-    border: 1px solid #000;
+    border: 1px solid var(--color-black);
     margin-bottom: 1rem;
   }
 
   .section-header {
-    background: #f0f0f0;
+    background: var(--color-gray-100);
     padding: 0.5rem 1rem;
-    border-bottom: 1px solid #000;
+    border-bottom: 1px solid var(--color-black);
     font-weight: bold;
     display: flex;
     justify-content: space-between;
@@ -445,7 +445,7 @@
   .score-input {
     width: 60px;
     padding: 0.25rem;
-    border: 1px solid #000;
+    border: 1px solid var(--color-black);
     text-align: center;
     font-weight: bold;
     font-size: 1.1rem;
@@ -467,7 +467,7 @@
     width: 100%;
     min-height: 80px;
     padding: 0.5rem;
-    border: 1px solid #000;
+    border: 1px solid var(--color-black);
     font-family: inherit;
     resize: vertical;
     font-size: 0.9rem;
@@ -531,7 +531,7 @@
     width: 100%;
     height: 6px;
     border-radius: 3px;
-    background: #ddd;
+    background: var(--color-gray-250);
     outline: none;
     -webkit-appearance: none;
   }
@@ -980,4 +980,4 @@
       {/if}
     </div>
   {/if}
-</Container>
+</Container>

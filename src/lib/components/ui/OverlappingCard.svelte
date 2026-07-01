@@ -25,7 +25,7 @@
   }
 
   .overlapping-card {
-    background: var(--color-bg-card, #ffffff);
+    background: var(--color-bg-card);
     padding: 3rem 2rem;
     border-radius: var(--radius-card);
     box-shadow: 0 8px 40px rgba(26, 42, 68, 0.16);

@@ -303,7 +303,7 @@
   .logout-btn:hover {
     background: rgba(220, 38, 38, 0.3);
     border-color: rgba(220, 38, 38, 0.5);
-    color: #fca5a5;
+    color: var(--color-danger-border);
   }
 
   .user-avatar {
@@ -383,4 +383,4 @@
       height: 36px;
     }
   }
-</style>
+</style>

@@ -415,7 +415,7 @@
   }
 
   .points-item {
-    background: linear-gradient(135deg, var(--color-bg-primary) 0%, #e8f2ff 100%);
+    background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-info-bg-subtle) 100%);
     border: 1px solid var(--color-brand-primary);
     border-radius: var(--radius-card);
     padding: var(--space-4);

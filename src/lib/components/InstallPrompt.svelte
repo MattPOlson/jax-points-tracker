@@ -220,7 +220,7 @@
   }
 
   .btn-install:hover {
-    background: var(--color-brand-gold-hover, #b08b1a);
+    background: var(--color-brand-gold-hover);
     transform: translateY(-1px);
   }
 

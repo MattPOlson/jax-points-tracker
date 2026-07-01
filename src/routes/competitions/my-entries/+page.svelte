@@ -1261,7 +1261,7 @@
   }
 
   .status.active {
-    background: #d1fae5;
+    background: var(--color-success-bg);
     color: var(--color-success);
   }
 
@@ -1345,7 +1345,7 @@
   }
 
   .payment-status.paid {
-    background: #d1fae5;
+    background: var(--color-success-bg);
     color: var(--color-success);
   }
 
@@ -1411,7 +1411,7 @@
   .form-group textarea {
     width: 100%;
     padding: 0.5rem;
-    border: 2px solid #ddd;
+    border: 2px solid var(--color-gray-250);
     border-radius: var(--radius-sm);
     font-size: 0.9rem;
     box-sizing: border-box;
@@ -1425,7 +1425,7 @@
   }
 
   .error-message {
-    background: #fee;
+    background: var(--color-danger-bg-softest);
     border: 1px solid var(--color-danger);
     border-radius: var(--radius-sm);
     padding: 0.75rem;
@@ -1613,7 +1613,7 @@
   }
 
   .scoresheet-button:hover {
-    background: #2563eb;
+    background: var(--color-info);
     color: white;
     text-decoration: none;
   }

@@ -60,9 +60,9 @@
   }
 
   .dialog {
-    background: var(--color-bg-primary, #fff);
+    background: var(--color-bg-primary);
     border-radius: var(--radius-lg, 10px);
-    border-top: 3px solid var(--color-brand-gold, #c9a227);
+    border-top: 3px solid var(--color-brand-gold);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     width: 100%;
     max-width: 420px;
@@ -82,7 +82,7 @@
     font-family: var(--font-family-display, 'Oswald', sans-serif);
     font-size: var(--font-size-lg, 1.125rem);
     font-weight: 600;
-    color: var(--color-text-primary, #1e3a5f);
+    color: var(--color-text-primary);
     margin: 0;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -94,7 +94,7 @@
 
   .dialog-message {
     font-size: var(--font-size-base, 1rem);
-    color: var(--color-text-secondary, #4a5568);
+    color: var(--color-text-secondary);
     line-height: 1.5;
     margin: 0;
   }
@@ -121,21 +121,21 @@
   }
 
   .btn-cancel {
-    background: var(--color-bg-secondary, #f5f2ec);
-    color: var(--color-text-secondary, #4a5568);
+    background: var(--color-bg-secondary);
+    color: var(--color-text-secondary);
     border: 1px solid var(--color-border-primary, var(--color-gray-200));
   }
 
   .btn-cancel:hover {
-    background: var(--color-bg-tertiary, #ece9e1);
+    background: var(--color-bg-tertiary);
   }
 
   .btn-confirm {
-    background: var(--color-brand-primary, #1e3a5f);
-    color: #fff;
+    background: var(--color-brand-primary);
+    color: var(--color-white);
   }
 
   .btn-confirm:hover {
-    background: var(--color-brand-primary-dark, #162c4a);
+    background: var(--color-brand-primary-dark);
   }
 </style>

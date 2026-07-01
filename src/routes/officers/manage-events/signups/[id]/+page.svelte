@@ -505,7 +505,7 @@
     }
 
     .signup-table th {
-      background: #eee !important;
+      background: var(--color-gray-150) !important;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
       color: black;
@@ -513,11 +513,11 @@
 
     .signup-table th,
     .signup-table td {
-      border-bottom: 1px solid #999;
+      border-bottom: 1px solid var(--color-gray-400);
     }
 
     .col-check {
-      border-left: 1px solid #999;
+      border-left: 1px solid var(--color-gray-400);
     }
 
     @page {
