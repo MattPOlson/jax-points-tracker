@@ -14,7 +14,7 @@
   "devDependencies": {
     "@sveltejs/adapter-auto": "^3.0.0",
     "@sveltejs/adapter-node": "^5.2.12",
-    "@sveltejs/kit": "^2.0.0",
+    "@sveltejs/kit": "^2.69.0",
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
     "@types/web-push": "^3.6.4",
     "postcss-html": "^1.6.0",
