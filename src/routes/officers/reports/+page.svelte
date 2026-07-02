@@ -1,30 +1,9 @@
 <script>
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
-  import { onMount } from 'svelte';
   import { Hero, Container, Button } from '$lib/components/ui';
 
-  let pageTitle = 'Coming Soon';
-  let featureName = 'This Feature';
-
-  // Determine feature name based on current route
-  onMount(() => {
-    const pathname = $page.url.pathname;
-    
-    if (pathname.includes('/officers/members')) {
-      pageTitle = 'Member Management';
-      featureName = 'Member Management Tools';
-    } else if (pathname.includes('/officers/reports')) {
-      pageTitle = 'Reports Dashboard';
-      featureName = 'Reports & Analytics';
-    } else if (pathname.includes('/officers/')) {
-      // Generic officer tool
-      const segments = pathname.split('/');
-      const toolName = segments[segments.length - 1];
-      pageTitle = toolName.charAt(0).toUpperCase() + toolName.slice(1);
-      featureName = `${pageTitle} Tools`;
-    }
-  });
+  // Static placeholder until the Reports & Analytics feature is built.
+  const featureName = 'Reports & Analytics';
 
   function goBackToOfficers() {
     goto('/officers');
@@ -44,7 +23,7 @@
     <div class="construction-icon">🚧</div>
 
     <div class="hero-section">
-      <h1>{pageTitle}</h1>
+      <h1>Reports Dashboard</h1>
       <p class="subtitle">Coming Soon</p>
     </div>
 
@@ -60,22 +39,10 @@
         <div class="features-preview">
           <h3>What's Coming:</h3>
           <ul class="features-list">
-            {#if pageTitle === 'Member Management'}
-              <li>👤 View and edit member profiles</li>
-              <li>🔧 Manage officer permissions</li>
-              <li>📊 Member activity tracking</li>
-              <li>📧 Bulk communication tools</li>
-            {:else if pageTitle === 'Reports Dashboard'}
-              <li>📈 Monthly activity reports</li>
-              <li>🏆 Points distribution analytics</li>
-              <li>📋 Submission trend analysis</li>
-              <li>📊 Member engagement metrics</li>
-            {:else}
-              <li>⚡ Powerful administrative tools</li>
-              <li>📊 Advanced analytics</li>
-              <li>🔧 Enhanced management features</li>
-              <li>📈 Real-time reporting</li>
-            {/if}
+            <li>📈 Monthly activity reports</li>
+            <li>🏆 Points distribution analytics</li>
+            <li>📋 Submission trend analysis</li>
+            <li>📊 Member engagement metrics</li>
           </ul>
         </div>
 
