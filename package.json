@@ -2,6 +2,9 @@
   "name": "jax-points-tracker",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
