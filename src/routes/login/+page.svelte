@@ -1,8 +1,7 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { supabase } from '$lib/supabaseClient';
-  import { Auth } from '@supabase/auth-ui-svelte';
-  import { ThemeSupa } from '@supabase/auth-ui-shared';
+  import AuthForm from '$lib/components/AuthForm.svelte';
   import { goto } from '$app/navigation';
   import { user } from '$lib/stores/user';
   import { page } from '$app/stores';
@@ -21,6 +20,10 @@
   let splashTimeout;
   let isLoading = false;
   let isMobile = false;
+  let authView = 'sign_in';
+  // True while the user arrived via a password-recovery link and hasn't set
+  // a new password yet — keeps the form visible even though a session exists.
+  let recovering = false;
 
   // Detect mobile device
   onMount(() => {
@@ -67,6 +70,14 @@
   onMount(() => {
     // Check if user is already signed in
     const checkSession = async () => {
+      // A password-recovery link lands here with a session in the URL hash —
+      // don't bounce to the dashboard before the user sets a new password.
+      if (window.location.hash.includes('type=recovery')) {
+        recovering = true;
+        authView = 'update_password';
+        return;
+      }
+
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         user.set(session.user);
@@ -83,12 +94,16 @@
       
       // Use setTimeout to make auth operations non-blocking for tab switching
       setTimeout(() => {
-        if (event === 'SIGNED_IN' && session?.user) {
+        if (event === 'PASSWORD_RECOVERY') {
+          recovering = true;
+          authView = 'update_password';
+        } else if (event === 'SIGNED_IN' && session?.user && !recovering) {
           user.set(session.user);
           startSplash(); // Show splash for new sign-ins
           goto('/');
         } else if (event === 'SIGNED_OUT') {
           user.set(null);
+          recovering = false;
           splash = false;
           clearTimeout(splashTimeout);
         }
@@ -116,7 +131,7 @@
       <small>This may take a few moments</small>
     </p>
   </Container>
-{:else if !$user}
+{:else if !$user || recovering}
   <div class="login-container" class:mobile={isMobile}>
     <!-- Hero with Background -->
     <Hero
@@ -133,36 +148,13 @@
         <span class="auth-welcome">Welcome to the</span>
         <span class="auth-portal-name">Member Portal</span>
       </div>
-      <Auth
-        supabaseClient={supabase}
-        appearance={{
-          theme: ThemeSupa,
-          variables: {
-            default: {
-              colors: {
-                brand: '#1a2a44',
-                brandAccent: '#2c456b',
-              },
-              space: {
-                inputPadding: isMobile ? '12px' : '14px',
-                buttonPadding: isMobile ? '12px 16px' : '14px 20px',
-              },
-              fontSizes: {
-                baseInputSize: isMobile ? '16px' : '14px', // Prevents zoom on iOS
-                baseButtonSize: isMobile ? '16px' : '16px',
-              },
-              radii: {
-                borderRadiusButton: '6px',
-                buttonBorderRadius: '6px',
-                inputBorderRadius: '6px',
-              }
-            }
-          }
+      <AuthForm
+        bind:view={authView}
+        on:passwordUpdated={() => {
+          recovering = false;
+          authView = 'sign_in';
+          goto('/');
         }}
-        providers={[]}
-        showLinks={true}
-        magicLink={true}
-        view={isMobile ? 'sign_in' : undefined}
       />
     </div>
   </div>
@@ -252,69 +244,6 @@
     align-items: center;
     font-size: var(--font-size-xl);
     color: var(--color-text-secondary);
-  }
-
-  /* Override Supabase Auth UI styles */
-  :global(.supabase-auth-ui_ui-container) {
-    width: 100%;
-  }
-
-  :global(.supabase-auth-ui_ui-input) {
-    width: 100%;
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-    border: 2px solid var(--color-gray-200);
-    border-radius: var(--radius-lg);
-    font-size: 1rem;
-    transition: border-color 0.2s;
-  }
-
-  :global(.supabase-auth-ui_ui-input:focus) {
-    outline: none;
-    border-color: var(--color-brand-primary);
-  }
-
-  :global(.supabase-auth-ui_ui-button) {
-    width: 100%;
-    padding: 0.875rem;
-    background-color: var(--color-brand-primary);
-    color: white;
-    border: none;
-    border-radius: var(--radius-button);
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: var(--font-weight-semibold);
-    transition: background-color var(--transition-base);
-  }
-
-  :global(.supabase-auth-ui_ui-button:hover) {
-    background-color: var(--color-brand-primary-hover);
-  }
-
-  :global(.supabase-auth-ui_ui-label) {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--color-gray-700);
-  }
-
-  :global(.supabase-auth-ui_ui-message) {
-    margin: 1rem 0;
-    padding: 0.75rem;
-    border-radius: var(--radius-lg);
-    font-size: 0.9rem;
-  }
-
-  :global(.supabase-auth-ui_ui-message.error) {
-    background-color: var(--color-danger-bg-softest);
-    color: var(--color-danger);
-    border: 1px solid var(--color-danger-bg);
-  }
-
-  :global(.supabase-auth-ui_ui-message.success) {
-    background-color: var(--color-success-bg);
-    color: var(--color-success);
-    border: 1px solid var(--color-success-border);
   }
 
 </style>
