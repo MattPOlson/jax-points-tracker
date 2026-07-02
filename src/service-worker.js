@@ -108,17 +108,18 @@ sw.addEventListener('notificationclick', (event) => {
   );
 });
 
-// Handle expired subscriptions
+// Handle expired subscriptions: renew the browser-side subscription so push
+// keeps working. The service worker cannot authenticate to /api/push/subscribe
+// (the Supabase session lives in localStorage, unreachable from a SW), so the
+// old unauthenticated POST here always 401ed and the renewed subscription was
+// silently lost. Persisting is now done by NotificationPermission.svelte on
+// the next app load, which re-syncs whenever the endpoint changes (#74).
 sw.addEventListener('pushsubscriptionchange', (event) => {
   event.waitUntil(
-    sw.registration.pushManager
-      .subscribe(event.oldSubscription.options)
-      .then((subscription) =>
-        fetch('/api/push/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ subscription })
-        })
-      )
+    (async () => {
+      const options = event.oldSubscription?.options;
+      if (!options) return; // nothing to renew from
+      await sw.registration.pushManager.subscribe(options);
+    })()
   );
 });

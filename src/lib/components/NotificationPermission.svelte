@@ -11,6 +11,10 @@
 
   const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
+  // Tracks the last (user, endpoint) pair we successfully saved to the server,
+  // so we only re-POST when the subscription was rotated or the user changed.
+  const SYNC_MARKER_KEY = 'jax-push-synced-subscription';
+
   onMount(async () => {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
     supported = true;
@@ -19,10 +23,50 @@
       const reg = await navigator.serviceWorker.ready;
       currentSubscription = await reg.pushManager.getSubscription();
       subscribed = !!currentSubscription;
+
+      // The browser can rotate a push subscription (pushsubscriptionchange)
+      // while the service worker has no way to authenticate to
+      // /api/push/subscribe, so renewed subscriptions were silently lost (#74).
+      // Re-sync the live subscription here, where we do have the session.
+      if (currentSubscription) {
+        await syncSubscription(currentSubscription);
+      }
     } catch (err) {
       console.error('Error checking push subscription:', err);
     }
   });
+
+  /**
+   * Persist the current subscription to the server if it differs from the
+   * last one we saved (rotated endpoint, or a different signed-in member).
+   * The server upserts on endpoint, so this is idempotent.
+   * @param {PushSubscription} subscription
+   */
+  async function syncSubscription(subscription) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) return; // not signed in — retry on a later load
+
+      const marker = `${session.user.id}|${subscription.endpoint}`;
+      if (localStorage.getItem(SYNC_MARKER_KEY) === marker) return; // already saved
+
+      const response = await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ subscription })
+      });
+
+      if (response.ok) {
+        localStorage.setItem(SYNC_MARKER_KEY, marker);
+      }
+    } catch (err) {
+      // Non-fatal: the next app load retries.
+      console.warn('Failed to re-sync push subscription:', err);
+    }
+  }
 
   async function toggle() {
     if (!supported) {
@@ -68,6 +112,10 @@
 
       if (!response.ok) throw new Error('Failed to save subscription');
 
+      if (session?.user) {
+        localStorage.setItem(SYNC_MARKER_KEY, `${session.user.id}|${subscription.endpoint}`);
+      }
+
       currentSubscription = subscription;
       subscribed = true;
       toast.success('Notifications enabled!');
@@ -92,6 +140,7 @@
         body: JSON.stringify({ endpoint })
       });
 
+      localStorage.removeItem(SYNC_MARKER_KEY);
       currentSubscription = null;
       subscribed = false;
       toast.success('Notifications disabled.');
