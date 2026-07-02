@@ -201,7 +201,7 @@
       <!-- Editable Fields -->
       <Card class="form-section">
         <h3>
-          <Edit size={20} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.5rem;" />
+          <Edit size={20} strokeWidth={2} class="icon-inline-lg" />
           Edit Information
         </h3>
         <div class="form-grid">
@@ -280,10 +280,10 @@
             <span class="info-label">Account Status</span>
             <span class="info-value status-active">
               {#if profile.active}
-                <Check size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem; color: var(--color-success);" />
+                <Check size={16} strokeWidth={2} class="icon-inline" style="color: var(--color-success);" />
                 Active
               {:else}
-                <X size={16} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem; color: var(--color-danger);" />
+                <X size={16} strokeWidth={2} class="icon-inline" style="color: var(--color-danger);" />
                 Inactive
               {/if}
             </span>

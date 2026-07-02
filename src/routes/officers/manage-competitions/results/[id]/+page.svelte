@@ -770,6 +770,11 @@
     margin-top: var(--space-4);
     width: 100%;
   }
+
+  .btn-compact {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
 </style>
 
 <Hero
@@ -923,9 +928,8 @@
                   {/if}
                 </td>
                 <td>
-                  <button 
-                    class="btn btn-primary" 
-                    style="padding: 0.4rem 0.8rem; font-size: 0.85rem;"
+                  <button
+                    class="btn btn-primary btn-compact"
                     on:click={() => saveEntryResults(entry.id)}
                     disabled={isSaving}
                   >
@@ -951,17 +955,17 @@
                 {/if}
               </span>
             </div>
-            <div style="margin-bottom: 1rem;">
+            <div style="margin-bottom: var(--space-4);">
               <div class="{getBrewerNameClass()}"><strong>{getBrewerNameDisplay(entry.member_name)}</strong></div>
               <div class="{getBrewerNameClass()}">{getBeerNameDisplay(entry.beer_name)}</div>
               <span class="category-badge">{entry.category_display}</span>
-              <div style="margin-top: 0.5rem;">
-                <span style="font-size: 0.875rem; color: var(--color-text-secondary);">Ranking Points: </span>
+              <div style="margin-top: var(--space-2);">
+                <span style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">Ranking Points: </span>
                 <span style="font-weight: 600; color: {entry.ranking_points > 0 ? 'var(--color-success)' : 'var(--color-text-secondary)'};">
                   {entry.ranking_points} {entry.ranking_points === 1 ? 'pt' : 'pts'}
                 </span>
                 {#if entry.judge_count > 0}
-                  <span style="font-size: 0.875rem; color: var(--color-text-secondary);"> ({entry.judge_count} judge{entry.judge_count === 1 ? '' : 's'})</span>
+                  <span style="font-size: var(--font-size-sm); color: var(--color-text-secondary);"> ({entry.judge_count} judge{entry.judge_count === 1 ? '' : 's'})</span>
                 {/if}
               </div>
             </div>

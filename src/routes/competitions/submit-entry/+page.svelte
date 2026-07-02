@@ -383,7 +383,7 @@
             disabled={!canSubmit || submitSuccess}
           >
             {#if submitting}
-              <RotateCcw size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem; animation: spin 1s linear infinite;" />
+              <RotateCcw size={18} strokeWidth={2} class="icon-inline icon-spin" />
               Submitting...
             {:else if submitSuccess}
               <CheckCircle size={18} strokeWidth={2} class="icon-inline" />

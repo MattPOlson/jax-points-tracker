@@ -471,6 +471,31 @@ ol[role="list"] {
   margin-right: var(--space-1);
 }
 
+/* Icon that follows its label text (gap on the left). */
+.icon-inline-after {
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-left: var(--space-1);
+}
+
+/* Icon with a larger trailing gap. */
+.icon-inline-lg {
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-right: var(--space-2);
+}
+
+/* Continuously spinning icon (loading indicators). */
+.icon-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Visually hidden but accessible */
 .visually-hidden {
   position: absolute !important;

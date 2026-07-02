@@ -644,6 +644,20 @@
       width: 100%;
     }
   }
+
+  .section-hint {
+    font-size: 0.9rem;
+    margin-bottom: var(--space-2);
+    font-style: italic;
+  }
+
+  .comments-textarea.is-tall {
+    min-height: 100px;
+  }
+
+  .comments-textarea.is-taller {
+    min-height: 120px;
+  }
 </style>
 
 <Hero
@@ -718,7 +732,7 @@
           </div>
         </div>
         <div class="section-content">
-          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; font-style: italic;">
+          <p class="section-hint">
             Comment on malt, hops, esters, and other aromatics
           </p>
           <textarea
@@ -746,7 +760,7 @@
           </div>
         </div>
         <div class="section-content">
-          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; font-style: italic;">
+          <p class="section-hint">
             Comment on color, clarity, and head (retention, color, and texture)
           </p>
           <textarea
@@ -774,12 +788,11 @@
           </div>
         </div>
         <div class="section-content">
-          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; font-style: italic;">
+          <p class="section-hint">
             Comment on malt, hops, fermentation characteristics, balance, finish/aftertaste, and other flavor characteristics
           </p>
           <textarea
-            class="comments-textarea"
-            style="min-height: 100px;"
+            class="comments-textarea is-tall"
             bind:value={scoresheetData.flavor_comments}
             on:input={handleInputChange}
             placeholder="Describe the flavor profile, balance, and finish..."
@@ -803,7 +816,7 @@
           </div>
         </div>
         <div class="section-content">
-          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; font-style: italic;">
+          <p class="section-hint">
             Comment on body, carbonation, warmth, creaminess, astringency, and other palate sensations
           </p>
           <textarea
@@ -831,12 +844,11 @@
           </div>
         </div>
         <div class="section-content">
-          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; font-style: italic;">
+          <p class="section-hint">
             Comment on overall drinking pleasure associated with entry, give suggestions for improvement
           </p>
           <textarea
-            class="comments-textarea"
-            style="min-height: 120px;"
+            class="comments-textarea is-taller"
             bind:value={scoresheetData.overall_comments}
             on:input={handleInputChange}
             placeholder="Overall assessment and suggestions for improvement..."
@@ -968,7 +980,7 @@
           on:click={navigateToNext}
         >
           Next Entry
-          <ArrowRight size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-left: 0.25rem;" />
+          <ArrowRight size={18} strokeWidth={2} class="icon-inline-after" />
         </Button>
       {:else}
         <Button

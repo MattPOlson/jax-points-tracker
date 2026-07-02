@@ -8,7 +8,8 @@
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "lint:css": "stylelint 'src/**/*.{css,svelte}'"
+    "lint:css": "stylelint 'src/**/*.{css,svelte}'",
+    "lint:inline": "node scripts/check-inline-styles.js"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^3.0.0",

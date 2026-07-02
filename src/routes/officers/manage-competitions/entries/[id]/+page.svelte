@@ -712,7 +712,7 @@ function printLabels() {
           
           <div class="judge-info">
             <strong>Judge Name:</strong> <span class="judge-line"></span>
-            <strong style="margin-left: 40px;">Signature:</strong> <span class="judge-line"></span>
+            <strong style="margin-left: var(--space-10);">Signature:</strong> <span class="judge-line"></span>
           </div>
           
           <div class="entries-section">
@@ -1182,6 +1182,11 @@ function printLabels() {
   .modal-button:hover {
     background: var(--color-alert-orange);
   }
+
+  .category-sub {
+    color: var(--color-text-secondary);
+    font-size: 0.8rem;
+  }
 </style>
 
 <!-- Access Denied Modal -->
@@ -1449,7 +1454,7 @@ function printLabels() {
                     {entry.bjcp_category?.category_number || ''}{entry.bjcp_category?.subcategory_letter || ''}
                   </span>
                   {#if entry.bjcp_category?.subcategory_name}
-                    <br><small style="color: var(--color-text-secondary); font-size: 0.8rem;">{entry.bjcp_category.subcategory_name}</small>
+                    <br><small class="category-sub">{entry.bjcp_category.subcategory_name}</small>
                   {/if}
                 </div>
               </div>
