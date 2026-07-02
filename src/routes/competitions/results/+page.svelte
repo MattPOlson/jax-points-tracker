@@ -852,7 +852,7 @@
       <!-- Results Summary -->
       {#if !isLoadingResults && results.length > 0}
         <div class="results-summary">
-          <h2 style="margin: 0 0 1.5rem 0; color: var(--color-text-primary);">{selectedCompetition.name} - Results Summary</h2>
+          <h2 style="margin: 0 0 var(--space-6) 0; color: var(--color-text-primary);">{selectedCompetition.name} - Results Summary</h2>
           <div class="summary-grid">
             <div class="summary-item">
               <div class="summary-label">Total Entries</div>

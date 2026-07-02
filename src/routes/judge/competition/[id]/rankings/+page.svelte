@@ -889,7 +889,7 @@
   <!-- Header -->
   <div class="header">
     <h1>
-      <Trophy size={32} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-right: 0.5rem;" />
+      <Trophy size={32} strokeWidth={2} class="icon-inline-lg" />
       Category Rankings
     </h1>
     <p>Rank entries within each category based on your judging scores</p>
@@ -985,12 +985,12 @@
         {/if}
 
         {#if competitionType === 'intraclub'}
-          <div class="validation-warning" style="background: #f0f9ff; border-color: var(--color-info-accent);">
+          <div class="validation-warning" style="background: var(--color-info-bg-subtle); border-color: var(--color-info-accent);">
             <h4>
               <Info size={20} strokeWidth={2} class="icon-inline" />
               Intraclub Competition Rules
             </h4>
-            <div style="color: #1e40af; font-size: 0.875rem;">
+            <div style="color: var(--color-info-hover); font-size: var(--font-size-sm);">
               You cannot rank your own entries in positions 1-3. Your entries are marked with a blue indicator.
             </div>
           </div>
@@ -1022,7 +1022,7 @@
                     Entry #{ranking.entry.entry_number}
                     {#if isOwnEntry(ranking.entry)}
                       <span class="own-entry-indicator">
-                        <User size={12} strokeWidth={2} style="display: inline-block; vertical-align: middle; margin-right: 0.125rem;" />
+                        <User size={12} strokeWidth={2} class="icon-inline-middle" />
                         Your Entry
                       </span>
                     {/if}
@@ -1054,7 +1054,7 @@
                   </div>
 
                   {#if ranking.entry.private_notes}
-                    <div class="detail-text" style="margin-top: 0.5rem; color: #6366f1; font-style: italic;">
+                    <div class="detail-text" style="margin-top: var(--space-2); color: var(--color-accent-indigo); font-style: italic;">
                       <MessageCircle size={14} strokeWidth={2} class="icon-inline-middle" />
                       {ranking.entry.private_notes}
                     </div>

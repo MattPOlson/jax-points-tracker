@@ -999,6 +999,51 @@
     border-radius: 3px;
     font-size: 0.875rem;
   }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-8);
+  }
+
+  .score-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  .score-sublabel {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    margin-top: var(--space-1);
+  }
+
+  .score-highlight {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--color-success);
+  }
+
+  .category-sub {
+    color: var(--color-text-secondary);
+    font-size: 0.8rem;
+  }
+
+  .success-panel {
+    background: var(--color-success-bg);
+    border: 1px solid var(--color-success);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .success-panel.is-note {
+    font-size: var(--font-size-sm);
+    color: var(--color-success-bg-strong);
+  }
+
+  .progress-bar--inline {
+    width: 120px;
+  }
 </style>
 
 {#if isLoading}
@@ -1110,7 +1155,7 @@
           <h2 class="section-title">Judging Overview</h2>
         </div>
         <div class="section-content">
-          <div style="margin-bottom: 2rem;">
+          <div style="margin-bottom: var(--space-8);">
             <h3>Overall Progress</h3>
             <div class="progress-bar">
               <div class="progress-fill" style="width: {judgingStats.completionPercentage}%"></div>
@@ -1120,12 +1165,12 @@
             </p>
           </div>
 
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+          <div class="summary-grid">
             <div>
               {#if competition?.category_system === 'custom' && rankingGroups.length > 0}
                 <h4>Custom Ranking Groups ({rankingGroups.length})</h4>
                 {#each rankingGroups as group}
-                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-2);">
                     <span>{group.group_name}</span>
                     <span>{getGroupEntryCount(group)} entries</span>
                   </div>
@@ -1133,7 +1178,7 @@
               {:else}
                 <h4>Categories ({categories.length})</h4>
                 {#each categories as category}
-                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-2);">
                     <span>{category.name}</span>
                     <span>{category.entryCount} entries</span>
                   </div>
@@ -1172,7 +1217,7 @@
                   <td>
                     <div>
                       <div style="font-weight: 600;">{judge.judge?.name}</div>
-                      <div style="font-size: 0.875rem; color: var(--color-text-secondary);">{judge.judge?.email}</div>
+                      <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">{judge.judge?.email}</div>
                     </div>
                   </td>
                   <td>
@@ -1181,7 +1226,7 @@
                     </span>
                   </td>
                   <td>
-                    <div class="progress-bar" style="width: 120px;">
+                    <div class="progress-bar progress-bar--inline">
                       <div class="progress-fill" style="width: {progress.percentage}%"></div>
                     </div>
                     <div class="progress-text">{progress.percentage}%</div>
@@ -1257,7 +1302,7 @@
                   <td>
                     <div>
                       <div style="font-weight: 600; color: var(--color-brand-primary);">#{entry.entry_number}</div>
-                      <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(entry.beer_name)}</div>
+                      <div class="{getBrewerNameClass()}" style="font-size: var(--font-size-sm);">{getBeerNameDisplay(entry.beer_name)}</div>
                     </div>
                   </td>
                   <td><span class="{getBrewerNameClass()}">{getBrewerNameDisplay(entry.members?.name)}</span></td>
@@ -1270,7 +1315,7 @@
                   </td>
                   <td>
                     {#if entry.bjcp_categories}
-                      <span style="background: var(--color-gray-100); color: var(--color-gray-700); padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600;">
+                      <span style="background: var(--color-gray-100); color: var(--color-gray-700); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); font-size: var(--font-size-sm); font-weight: 600;">
                         {entry.bjcp_categories.category_number}{entry.bjcp_categories.subcategory_letter || ''}
                       </span>
                       {#if entry.bjcp_categories.subcategory_name}
@@ -1338,11 +1383,11 @@
                     <span class="mobile-detail-label">Style</span>
                     <span class="mobile-detail-value">
                       {#if entry.bjcp_categories}
-                        <span style="background: var(--color-gray-100); color: var(--color-gray-700); padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600;">
+                        <span style="background: var(--color-gray-100); color: var(--color-gray-700); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); font-size: var(--font-size-sm); font-weight: 600;">
                           {entry.bjcp_categories.category_number}{entry.bjcp_categories.subcategory_letter || ''}
                         </span>
                         {#if entry.bjcp_categories.subcategory_name}
-                          <br><small style="color: var(--color-text-secondary); font-size: 0.8rem;">{entry.bjcp_categories.subcategory_name}</small>
+                          <br><small class="category-sub">{entry.bjcp_categories.subcategory_name}</small>
                         {/if}
                       {:else}
                         -
@@ -1357,7 +1402,7 @@
                     <span class="mobile-detail-label">Score</span>
                     <span class="mobile-detail-value">
                       {#if scores.count > 0}
-                        <span style="background: {getScoreColor(scores.average)}; color: white; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); font-size: 0.875rem;">
+                        <span class="score-badge" style="background: {getScoreColor(scores.average)}">
                           {scores.average}/50
                         </span>
                       {:else}
@@ -1387,20 +1432,20 @@
             <!-- Custom Ranking Group Rankings -->
             {#each rankingGroups as group}
               {@const groupRankings = getGroupRankings(group.id)}
-              <div style="margin-bottom: 2rem;">
+              <div style="margin-bottom: var(--space-8);">
                 <h4>{group.group_name}</h4>
                 {#if group.group_description}
-                  <p style="color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">{group.group_description}</p>
+                  <p style="color: var(--color-text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--space-4);">{group.group_description}</p>
                 {/if}
                 {#if groupRankings.length === 0}
                   <p style="color: var(--color-text-secondary); font-style: italic;">No rankings submitted yet</p>
                 {:else}
                   {#if groupRankings.length > 1 && hasMultipleJudges(groupRankings)}
-                    <div style="background: var(--color-success-bg); border: 1px solid var(--color-success); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem;">
-                      <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--color-success-bg-strong);">
+                    <div class="success-panel">
+                      <div style="display: flex; align-items: center; gap: var(--space-2); font-weight: 600; color: var(--color-success-bg-strong);">
                         ✅ Multi-Judge Point Compilation
                       </div>
-                      <p style="color: var(--color-success-bg-strong); margin: 0.5rem 0 0; font-size: 0.875rem;">
+                      <p style="color: var(--color-success-bg-strong); margin: var(--space-2) 0 0; font-size: var(--font-size-sm);">
                         Rankings from {new Set(groupRankings.map(r => r.judge_id)).size} judges will be compiled using point system: 1st=3pts, 2nd=2pts, 3rd=1pt. Final placement determined by highest total points.
                       </p>
                     </div>
@@ -1424,18 +1469,18 @@
                           {@const placement = index + 1 === 1 ? '1st' : index + 1 === 2 ? '2nd' : index + 1 === 3 ? '3rd' : index + 1 <= 5 ? 'HM' : '-'}
                           <tr>
                             <td>
-                              <span style="font-size: 1.2rem; font-weight: 600;">
+                              <span class="score-value">
                                 {index + 1 === 1 ? '🥇' : index + 1 === 2 ? '🥈' : index + 1 === 3 ? '🥉' : `${index + 1}.`}
                               </span>
                             </td>
                             <td>
                               <div>
                                 <div style="font-weight: 600; color: var(--color-brand-primary);">#{entry.entry_number}</div>
-                                <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(entry.beer_name)}</div>
+                                <div class="{getBrewerNameClass()}" style="font-size: var(--font-size-sm);">{getBeerNameDisplay(entry.beer_name)}</div>
                               </div>
                             </td>
                             <td>
-                              <span style="font-weight: 700; font-size: 1.1rem; color: var(--color-success);">
+                              <span class="score-highlight">
                                 {entry.summary.totalPoints} {entry.summary.totalPoints === 1 ? 'pt' : 'pts'}
                               </span>
                             </td>
@@ -1470,14 +1515,14 @@
                           {@const entryPoints = getPointsForRanking(ranking.rank_position)}
                           <tr>
                             <td>
-                              <span style="font-size: 1.2rem; font-weight: 600;">
+                              <span class="score-value">
                                 {ranking.rank_position === 1 ? '🥇' : ranking.rank_position === 2 ? '🥈' : ranking.rank_position === 3 ? '🥉' : `${ranking.rank_position}.`}
                               </span>
                             </td>
                             <td>
                               <div>
                                 <div style="font-weight: 600; color: var(--color-brand-primary);">#{ranking.entry?.entry_number}</div>
-                                <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
+                                <div class="{getBrewerNameClass()}" style="font-size: var(--font-size-sm);">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
                               </div>
                             </td>
                             <td>
@@ -1499,17 +1544,17 @@
             <!-- Individual Category Rankings (default system) -->
             {#each categories as category}
               {@const categoryRankings = getCategoryRankings(category.id)}
-              <div style="margin-bottom: 2rem;">
+              <div style="margin-bottom: var(--space-8);">
                 <h4>{category.name}</h4>
                 {#if categoryRankings.length === 0}
                   <p style="color: var(--color-text-secondary); font-style: italic;">No rankings submitted yet</p>
                 {:else}
                   {#if categoryRankings.length > 1 && hasMultipleJudges(categoryRankings)}
-                    <div style="background: var(--color-success-bg); border: 1px solid var(--color-success); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem;">
-                      <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--color-success-bg-strong);">
+                    <div class="success-panel">
+                      <div style="display: flex; align-items: center; gap: var(--space-2); font-weight: 600; color: var(--color-success-bg-strong);">
                         ✅ Multi-Judge Point Compilation
                       </div>
-                      <p style="color: var(--color-success-bg-strong); margin: 0.5rem 0 0; font-size: 0.875rem;">
+                      <p style="color: var(--color-success-bg-strong); margin: var(--space-2) 0 0; font-size: var(--font-size-sm);">
                         Rankings from {new Set(categoryRankings.map(r => r.judge_id)).size} judges will be compiled using point system: 1st=3pts, 2nd=2pts, 3rd=1pt. Final placement determined by highest total points.
                       </p>
                     </div>
@@ -1533,18 +1578,18 @@
                           {@const placement = index + 1 === 1 ? '1st' : index + 1 === 2 ? '2nd' : index + 1 === 3 ? '3rd' : index + 1 <= 5 ? 'HM' : '-'}
                           <tr>
                             <td>
-                              <span style="font-size: 1.2rem; font-weight: 600;">
+                              <span class="score-value">
                                 {index + 1 === 1 ? '🥇' : index + 1 === 2 ? '🥈' : index + 1 === 3 ? '🥉' : `${index + 1}.`}
                               </span>
                             </td>
                             <td>
                               <div>
                                 <div style="font-weight: 600; color: var(--color-brand-primary);">#{entry.entry_number}</div>
-                                <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(entry.beer_name)}</div>
+                                <div class="{getBrewerNameClass()}" style="font-size: var(--font-size-sm);">{getBeerNameDisplay(entry.beer_name)}</div>
                               </div>
                             </td>
                             <td>
-                              <span style="font-weight: 700; font-size: 1.1rem; color: var(--color-success);">
+                              <span class="score-highlight">
                                 {entry.summary.totalPoints} {entry.summary.totalPoints === 1 ? 'pt' : 'pts'}
                               </span>
                             </td>
@@ -1579,14 +1624,14 @@
                           {@const entryPoints = getPointsForRanking(ranking.rank_position)}
                           <tr>
                             <td>
-                              <span style="font-size: 1.2rem; font-weight: 600;">
+                              <span class="score-value">
                                 {ranking.rank_position === 1 ? '🥇' : ranking.rank_position === 2 ? '🥈' : ranking.rank_position === 3 ? '🥉' : `${ranking.rank_position}.`}
                               </span>
                             </td>
                             <td>
                               <div>
                                 <div style="font-weight: 600; color: var(--color-brand-primary);">#{ranking.entry?.entry_number}</div>
-                                <div class="{getBrewerNameClass()}" style="font-size: 0.875rem;">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
+                                <div class="{getBrewerNameClass()}" style="font-size: var(--font-size-sm);">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
                               </div>
                             </td>
                             <td>
@@ -1626,17 +1671,17 @@
                   </div>
 
                   {#if groupRankings.length === 0}
-                    <div style="padding: 1rem; text-align: center; color: var(--color-text-secondary); font-style: italic;">
+                    <div style="padding: var(--space-4); text-align: center; color: var(--color-text-secondary); font-style: italic;">
                       No rankings submitted yet
                     </div>
                   {:else}
                     {#if groupRankings.length > 1 && hasMultipleJudges(groupRankings)}
-                      <div style="background: var(--color-success-bg); border: 1px solid var(--color-success); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--color-success-bg-strong);">
+                      <div class="success-panel is-note">
                         ✅ Multi-Judge Point Compilation - {new Set(groupRankings.map(r => r.judge_id)).size} judges
                       </div>
                     {/if}
 
-                    <div style="margin-top: 1rem;">
+                    <div style="margin-top: var(--space-4);">
                       {#if hasMultipleJudges(groupRankings)}
                         {#each getUniqueEntriesFromRankings(groupRankings)
                           .map(entry => ({ ...entry, summary: getEntryPointsSummary(entry.id, entry.bjcp_category_id, group.id) }))
@@ -1649,7 +1694,7 @@
                             <div class="mobile-ranking-entry">
                               <div class="mobile-ranking-entry-number">#{entry.entry_number}</div>
                               <div class="mobile-ranking-beer-name {getBrewerNameClass()}">{getBeerNameDisplay(entry.beer_name)}</div>
-                              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                              <div class="score-sublabel">
                                 {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'} • {placement}
                               </div>
                             </div>
@@ -1668,7 +1713,7 @@
                             <div class="mobile-ranking-entry">
                               <div class="mobile-ranking-entry-number">#{ranking.entry?.entry_number}</div>
                               <div class="mobile-ranking-beer-name {getBrewerNameClass()}">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
-                              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                              <div class="score-sublabel">
                                 {ranking.judge?.name}{#if ranking.ranking_notes} • {ranking.ranking_notes}{/if}
                               </div>
                             </div>
@@ -1697,17 +1742,17 @@
                   </div>
 
                   {#if categoryRankings.length === 0}
-                    <div style="padding: 1rem; text-align: center; color: var(--color-text-secondary); font-style: italic;">
+                    <div style="padding: var(--space-4); text-align: center; color: var(--color-text-secondary); font-style: italic;">
                       No rankings submitted yet
                     </div>
                   {:else}
                     {#if categoryRankings.length > 1 && hasMultipleJudges(categoryRankings)}
-                      <div style="background: var(--color-success-bg); border: 1px solid var(--color-success); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--color-success-bg-strong);">
+                      <div class="success-panel is-note">
                         ✅ Multi-Judge Point Compilation - {new Set(categoryRankings.map(r => r.judge_id)).size} judges
                       </div>
                     {/if}
 
-                    <div style="margin-top: 1rem;">
+                    <div style="margin-top: var(--space-4);">
                       {#if hasMultipleJudges(categoryRankings)}
                         {#each getUniqueEntriesFromRankings(categoryRankings)
                           .map(entry => ({ ...entry, summary: getEntryPointsSummary(entry.id, category.id, null) }))
@@ -1720,7 +1765,7 @@
                             <div class="mobile-ranking-entry">
                               <div class="mobile-ranking-entry-number">#{entry.entry_number}</div>
                               <div class="mobile-ranking-beer-name {getBrewerNameClass()}">{getBeerNameDisplay(entry.beer_name)}</div>
-                              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                              <div class="score-sublabel">
                                 {entry.summary.judgeCount} judge{entry.summary.judgeCount === 1 ? '' : 's'} • {placement}
                               </div>
                             </div>
@@ -1739,7 +1784,7 @@
                             <div class="mobile-ranking-entry">
                               <div class="mobile-ranking-entry-number">#{ranking.entry?.entry_number}</div>
                               <div class="mobile-ranking-beer-name {getBrewerNameClass()}">{getBeerNameDisplay(ranking.entry?.beer_name)}</div>
-                              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                              <div class="score-sublabel">
                                 {ranking.judge?.name}{#if ranking.ranking_notes} • {ranking.ranking_notes}{/if}
                               </div>
                             </div>

@@ -795,7 +795,7 @@
   {#if !$isJudging}
     <LoadingSpinner message="Starting judging session..." />
   {:else if !$currentEntry}
-    <div style="text-align: center; padding: 3rem;">
+    <div style="text-align: center; padding: var(--space-12);">
       <h2>No entries to judge</h2>
       <Button variant="secondary" on:click={() => goto('/judge')}>
         Back to Judge Portal
@@ -1021,7 +1021,7 @@
               disabled={isSaving}
             >
               Next Entry
-              <ArrowRight size={18} strokeWidth={2} style="display: inline-block; vertical-align: text-bottom; margin-left: 0.25rem;" />
+              <ArrowRight size={18} strokeWidth={2} class="icon-inline-after" />
             </Button>
           {:else}
             <button

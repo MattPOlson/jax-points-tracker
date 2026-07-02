@@ -651,6 +651,25 @@
       flex-direction: column;
     }
   }
+
+  .empty-hint {
+    padding: var(--space-6);
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+  }
+
+  .input-compact {
+    padding: 0.4rem 0.6rem;
+  }
+
+  .field-narrow {
+    max-width: 120px;
+  }
+
+  .muted-sm {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+  }
 </style>
 
 <Hero
@@ -708,7 +727,7 @@
       {#if $isLoadingTables}
         <LoadingSpinner message="Loading tables..." />
       {:else if tables.length === 0 && !showAddTableForm}
-        <div style="padding: 1.5rem 1.5rem; color: var(--color-text-secondary, var(--color-gray-500)); font-size: 0.95rem;">
+        <div class="empty-hint">
           No judging tables yet. Add tables to assign judges and entries to specific tables.
         </div>
       {:else}
@@ -719,8 +738,7 @@
                 <div class="inline-edit-form">
                   <span style="font-weight:600; color: var(--color-gray-700); white-space: nowrap;">Table {table.table_number}:</span>
                   <input
-                    class="form-control"
-                    style="padding: 0.4rem 0.6rem;"
+                    class="form-control input-compact"
                     bind:value={editingTableName}
                     on:keydown={(e) => { if (e.key === 'Enter') saveEditTable(table.id); if (e.key === 'Escape') cancelEditTable(); }}
                   />
@@ -752,7 +770,7 @@
         <div class="add-table-form">
           <h4>New Judging Table</h4>
           <div class="form-row">
-            <div class="form-group" style="max-width: 120px;">
+            <div class="form-group field-narrow">
               <label for="table-number">Table #</label>
               <input
                 id="table-number"
@@ -790,7 +808,7 @@
     <div class="section-card">
       <div class="section-header">
         <h3>Assigned Judges ({$judgeList.length})</h3>
-        <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+        <div style="display: flex; gap: var(--space-3); align-items: center; flex-wrap: wrap;">
           {#if competition.competition_type === 'intraclub' && availableJudges.length > 0}
             <Button
               variant="primary"
@@ -827,13 +845,13 @@
                 <p>{judgeAssignment.judge?.email}</p>
                 <span class="role-badge">{getRoleDisplayName(judgeAssignment.judge_role)}</span>
                 {#if judgeAssignment.assignment_notes}
-                  <p style="margin-top: 0.5rem; font-style: italic;">{judgeAssignment.assignment_notes}</p>
+                  <p style="margin-top: var(--space-2); font-style: italic;">{judgeAssignment.assignment_notes}</p>
                 {/if}
                 <!-- Table selector -->
                 <div class="judge-table-selector">
                   <label for="judge-table-{judgeAssignment.id}">Table:</label>
                   {#if tables.length === 0}
-                    <span style="font-size:0.85rem; color: var(--color-text-secondary, var(--color-gray-500));">No tables created yet</span>
+                    <span class="muted-sm">No tables created yet</span>
                   {:else}
                     <select
                       id="judge-table-{judgeAssignment.id}"
@@ -946,7 +964,7 @@
     </div>
 
     {#if $judgeError}
-      <div style="background: var(--color-danger-bg); color: var(--color-danger); padding: 1rem; border-radius: var(--radius-sm); margin-top: 1rem;">
+      <div style="background: var(--color-danger-bg); color: var(--color-danger); padding: var(--space-4); border-radius: var(--radius-sm); margin-top: var(--space-4);">
         Error: {$judgeError}
       </div>
     {/if}

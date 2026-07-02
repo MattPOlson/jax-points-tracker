@@ -644,7 +644,7 @@
           />
           
           {#if selectedCategories.length > 0}
-            <div style="margin-top: 1.5rem;">
+            <div style="margin-top: var(--space-6);">
               <RankingGroupManager
                 bind:rankingGroups
                 {selectedCategories}
