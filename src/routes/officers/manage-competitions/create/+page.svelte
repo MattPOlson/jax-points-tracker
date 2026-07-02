@@ -2,7 +2,6 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
-  import { userProfile } from '$lib/stores/userProfile';
   import { competitionManagementStore } from '$lib/stores/competitionManagementStore';
   import { bjcpCategories, categoriesByNumber, loadBjcpCategories } from '$lib/stores/bjcpCategoryStore';
   import CategorySelector from '$lib/components/CategorySelector.svelte';
@@ -13,10 +12,6 @@
   import toast from 'svelte-french-toast';
   import { showConfirm } from '$lib/stores/confirmDialog.js';
   
-  // Check officer status
-  $: if ($userProfile && !$userProfile.is_officer) {
-    goto('/');
-  }
 
   // Form fields
   let name = '';
@@ -275,7 +270,6 @@
     padding-top: 2rem;
     border-top: 1px solid var(--color-gray-150);
   }
-
 
   .section-title {
     font-size: 1.25rem;

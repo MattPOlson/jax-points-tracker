@@ -1,7 +1,6 @@
 <!-- src/routes/officer-tools/manage-members/+page.svelte -->
 <script>
   import { onMount, onDestroy } from 'svelte';
-  import { goto } from '$app/navigation';
   import { userProfile } from '$lib/stores/userProfile';
   import memberManagementStore, {
     members,
@@ -63,7 +62,6 @@
   }
 
   // Reactive variables for UI state
-  $: isOfficer = $userProfile?.is_officer || false;
   $: hasManagePermissions = $canManageOfficers;
 
   // Filter role options based on current user permissions
@@ -246,12 +244,8 @@
   // Lifecycle
   onMount(async () => {
     unsubscribeVisibility = setupEventHandlers();
-    
-    if (!isOfficer) {
-      goto('/');
-      return;
-    }
 
+    // Access control is enforced by officers/+layout; officers only reach here.
     await memberManagementStore.loadMembers();
   });
 
@@ -266,16 +260,7 @@
   import { showConfirm } from '$lib/stores/confirmDialog.js';
 </script>
 
-{#if !isOfficer}
-  <Container size="xl">
-    <EmptyState
-      icon="🔒"
-      title="Access Denied"
-      message="You need officer privileges to access this page."
-    />
-  </Container>
-{:else}
-  <Hero
+<Hero
     title="Manage Members"
     subtitle="View and manage club members, their roles, activity, and point standings"
     backgroundImage="/Jax-Banner.png"
@@ -523,7 +508,6 @@
       {/if}
     {/if}
   </Container>
-{/if}
 
 <!-- Member Details Modal -->
 {#if showMemberModal && selectedMember}

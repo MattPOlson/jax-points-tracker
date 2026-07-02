@@ -1,16 +1,13 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { user } from "$lib/stores/user";
-  import { userProfile } from "$lib/stores/userProfile";
   import {
     allSubmissions as storeAll,
     loadAllSubmissions,
     loading,
   } from "$lib/stores/viewAllStore.js";
-  import { page } from "$app/stores";
   import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
   import { Hero, Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
-  import { Lock, AlertTriangle, Search, CheckCircle2, Clock, X, Trash2, ClipboardList, Filter } from 'lucide-svelte';
+  import { Search, CheckCircle2, Clock, X, Trash2, ClipboardList, Filter } from 'lucide-svelte';
 
   let submissions = [];
   let filtered = [];
@@ -35,14 +32,6 @@
     return () => {
       // No cleanup needed now
     };
-  }
-
-  // Check if user is authorized
-  $: isAuthorized = $user && $userProfile?.is_officer;
-
-  // Load data when authorized
-  $: if (isAuthorized) {
-    loadSubmissions(true);
   }
 
   // Apply filters when submissions or filters change
@@ -187,21 +176,14 @@
     const cleanup = setupEventHandlers();
     cleanupFunctions.push(cleanup);
 
-    // Initial load if authorized
-    if (isAuthorized) {
-      loadSubmissions(true);
-    }
+    // Access control is enforced by officers/+layout; officers only reach here.
+    loadSubmissions(true);
   });
 
   onDestroy(() => {
     // Cleanup all event listeners
     cleanupFunctions.forEach((cleanup) => cleanup());
   });
-
-  // Reload when navigating to view all page
-  $: if ($page.url.pathname === "/officers/view-all" && isAuthorized) {
-    loadSubmissions(true);
-  }
 </script>
 
 <Hero
@@ -215,26 +197,6 @@
 <Container size="xl">
   {#if $loading}
     <LoadingSpinner message="Loading all submissions..." />
-  {:else if !$user}
-    <div class="empty-state-with-icon">
-      <Lock size={48} strokeWidth={2} class="empty-icon" />
-      <EmptyState
-        title="Authentication Required"
-        message="Please log in to view all submissions."
-        actionLabel="Sign In"
-        actionHref="/login"
-      />
-    </div>
-  {:else if !$userProfile?.is_officer}
-    <div class="empty-state-with-icon">
-      <AlertTriangle size={48} strokeWidth={2} class="empty-icon" />
-      <EmptyState
-        title="Access Restricted"
-        message="Officer privileges are required to view all submissions."
-        actionLabel="Back to Officer Tools"
-        actionHref="/officers"
-      />
-    </div>
   {:else}
     <!-- Filter Controls -->
     <div class="controls-section">

@@ -3,7 +3,6 @@
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { userProfile } from '$lib/stores/userProfile';
   import { competitionManagementStore, updateCompetition } from '$lib/stores/competitionManagementStore';
   import { bjcpCategories, categoriesByNumber, loadBjcpCategories } from '$lib/stores/bjcpCategoryStore';
   import CategorySelector from '$lib/components/CategorySelector.svelte';
@@ -16,10 +15,6 @@
   import toast from 'svelte-french-toast';
   import { showConfirm } from '$lib/stores/confirmDialog.js';
   
-  // Check officer status
-  $: if ($userProfile && !$userProfile.is_officer) {
-    goto('/');
-  }
 
   // Get competition ID from URL
   $: competitionId = $page.params.id;
@@ -432,7 +427,6 @@
     padding-top: 2rem;
     border-top: 1px solid var(--color-gray-150);
   }
-
 
   .section-title {
     font-size: 1.25rem;

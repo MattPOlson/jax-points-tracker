@@ -1,7 +1,6 @@
 <script>
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { userProfile } from '$lib/stores/userProfile.js';
   import {
     events,
     isLoading,
@@ -35,10 +34,6 @@
   } from 'lucide-svelte';
   import toast from 'svelte-french-toast';
   import { showConfirm } from '$lib/stores/confirmDialog.js';
-
-  $: if ($userProfile && !$userProfile.is_officer) {
-    goto('/');
-  }
 
   let filterStatus = 'all';
   let searchQuery = '';

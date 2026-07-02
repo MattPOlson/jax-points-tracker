@@ -13,10 +13,6 @@
   import toast from 'svelte-french-toast';
   import { showConfirm } from '$lib/stores/confirmDialog.js';
   
-  // Check officer status
-  $: if ($userProfile && !$userProfile.is_officer) {
-    goto('/');
-  }
 
   // Get competition ID from URL
   $: competitionId = $page.params.id;
@@ -594,7 +590,6 @@
     min-width: 150px;
   }
 
-
   .results-table {
     background: white;
     border-radius: var(--radius-md);
@@ -681,7 +676,6 @@
     font-size: 0.75rem;
     margin-left: 0.5rem;
   }
-
 
   /* Entry cards for mobile */
   .entry-cards {

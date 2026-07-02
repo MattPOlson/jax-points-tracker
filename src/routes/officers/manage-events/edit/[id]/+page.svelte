@@ -2,7 +2,6 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { userProfile } from '$lib/stores/userProfile.js';
   import { loadEvent, updateEvent } from '$lib/stores/eventManagementStore.js';
   import {
     Hero,
@@ -15,10 +14,6 @@
   import EventForm from '$lib/components/EventForm.svelte';
   import toast from 'svelte-french-toast';
   import { ArrowLeft, Printer } from 'lucide-svelte';
-
-  $: if ($userProfile && !$userProfile.is_officer) {
-    goto('/');
-  }
 
   $: eventId = $page.params.id;
 
