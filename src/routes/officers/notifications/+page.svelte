@@ -1,10 +1,9 @@
 <script>
-  import { user } from '$lib/stores/user';
-  import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
   import { goto } from '$app/navigation';
+  import { onMount } from 'svelte';
   import toast from 'svelte-french-toast';
-  import { Hero, Container, Card, Button, LoadingSpinner, EmptyState } from '$lib/components/ui';
+  import { Hero, Container, Card, Button } from '$lib/components/ui';
   import { Bell } from 'lucide-svelte';
 
   let title = '';
@@ -13,11 +12,8 @@
   let subscriberCount = null;
   let lastResult = null;
 
-  $: if ($user !== undefined && $userProfile !== undefined) {
-    if (!$user) goto('/login');
-    else if ($userProfile && !$userProfile.is_officer) goto('/');
-    else if ($userProfile?.is_officer) loadSubscriberCount();
-  }
+  // Access control is enforced by officers/+layout; officers only reach here.
+  onMount(loadSubscriberCount);
 
   async function loadSubscriberCount() {
     try {
@@ -84,21 +80,7 @@
   <title>Send Notification | JAX Members Portal</title>
 </svelte:head>
 
-{#if $user === undefined || $userProfile === undefined}
-  <Container size="lg">
-    <LoadingSpinner message="Verifying permissions..." />
-  </Container>
-{:else if !$userProfile?.is_officer}
-  <Container size="lg">
-    <EmptyState
-      title="Access Restricted"
-      message="Officer privileges required."
-      actionLabel="Return Home"
-      actionHref="/"
-    />
-  </Container>
-{:else}
-  <Hero
+<Hero
     title="Send Notification"
     subtitle="Push a message to all subscribed members"
     backgroundImage="/Jax-Banner.png"
@@ -185,7 +167,6 @@
       </form>
     </Card>
   </Container>
-{/if}
 
 <style>
   .page-header {

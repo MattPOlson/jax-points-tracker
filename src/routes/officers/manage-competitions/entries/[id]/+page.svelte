@@ -18,7 +18,10 @@
   let showAccessDeniedModal = false;
   let isAuthorized = false;
 
-  // Check Competition Director status - only Comp Directors can access entries
+  // Access control is layered:
+  //   1. officers/+layout enforces the is_officer baseline for every /officers route.
+  //   2. Entry management is intentionally restricted further to Competition
+  //      Directors only, so non-CD officers get the in-page access-denied modal below.
   $: if ($userProfile) {
     if ($userProfile.role === 'competition_director') {
       isAuthorized = true;

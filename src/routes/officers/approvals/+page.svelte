@@ -2,15 +2,12 @@
   import { supabase } from "$lib/supabaseClient";
   import { onMount, onDestroy } from "svelte";
   import toast from "svelte-french-toast";
-  import { user } from "$lib/stores/user";
-  import { userProfile } from "$lib/stores/userProfile";
   import {
     approvals as storeApprovals,
     message as storeMessage,
     loadApprovals,
     loading,
   } from "$lib/stores/approvalsStore.js";
-  import { page } from "$app/stores";
   import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
   import { Hero, Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
   import { CheckCircle, X, Lock, AlertTriangle, PartyPopper, RefreshCw, ClipboardList } from 'lucide-svelte';
@@ -33,14 +30,6 @@
     return () => {
       // No cleanup needed now
     };
-  }
-
-  // Check if user is authorized
-  $: isAuthorized = $user && $userProfile?.is_officer;
-
-  // Load data when authorized
-  $: if (isAuthorized) {
-    loadApprovals(true);
   }
 
   // Format date helper
@@ -156,21 +145,14 @@
     const cleanup = setupEventHandlers();
     cleanupFunctions.push(cleanup);
 
-    // Initial load if authorized
-    if (isAuthorized) {
-      loadApprovals(true);
-    }
+    // Access control is enforced by officers/+layout; officers only reach here.
+    loadApprovals(true);
   });
 
   onDestroy(() => {
     // Cleanup all event listeners
     cleanupFunctions.forEach((cleanup) => cleanup());
   });
-
-  // Reload when navigating to approvals page
-  $: if ($page.url.pathname === "/officers/approvals" && isAuthorized) {
-    loadApprovals(true);
-  }
 </script>
 
 <Hero
@@ -185,22 +167,6 @@
 
   {#if $loading}
     <LoadingSpinner message="Loading submissions..." />
-  {:else if !$user}
-    <EmptyState
-      icon="🔒"
-      title="Authentication Required"
-      message="Please log in to access the approvals system."
-      actionLabel="Sign In"
-      actionHref="/login"
-    />
-  {:else if !$userProfile?.is_officer}
-    <EmptyState
-      icon="⚠️"
-      title="Access Restricted"
-      message="Officer privileges are required to review submissions."
-      actionLabel="Back to Officer Tools"
-      actionHref="/officers"
-    />
   {:else if submissions.length > 0}
     <div class="submissions-container">
       <!-- Summary Stats -->

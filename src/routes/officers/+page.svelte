@@ -1,15 +1,11 @@
 <script>
-  import { user } from '$lib/stores/user';
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
-  import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { competitionManagementStore } from '$lib/stores/competitionManagementStore';
-  import { Hero, Container, LoadingSpinner, EmptyState, Badge, Card, ActionCard } from '$lib/components/ui';
+  import { Hero, Container, Badge, Card, ActionCard } from '$lib/components/ui';
   import { FileCheck, List, Trophy, Users, BarChart, ClipboardList, UserCheck, TrendingUp, Bell, Calendar } from 'lucide-svelte';
 
-  let isLoading = true;
-  let accessDenied = false;
   let statsLoading = true;
 
   // Stats data
@@ -19,26 +15,10 @@
   let activeCompetitions = 0;
   let totalCompetitionEntries = 0;
 
-  $: if ($user !== undefined && $userProfile !== undefined) {
-    isLoading = false;
-
-    if (!$user) {
-      goto('/login');
-    } else if ($userProfile && !$userProfile.is_officer) {
-      accessDenied = true;
-    } else if ($userProfile && $userProfile.is_officer) {
-      accessDenied = false;
-      loadDashboardStats();
-      competitionManagementStore.initialize();
-    }
-  }
-
   onMount(() => {
-    if (typeof window !== 'undefined') {
-      if ($userProfile?.is_officer) {
-        loadDashboardStats();
-      }
-    }
+    // The officers/+layout guard guarantees an officer reaches this page.
+    loadDashboardStats();
+    competitionManagementStore.initialize();
   });
 
   $: if ($competitionManagementStore.stats) {
@@ -97,30 +77,7 @@
   <title>Officer Tools | JAX Members Portal</title>
 </svelte:head>
 
-{#if isLoading}
-  <Container size="lg">
-    <LoadingSpinner message="Verifying permissions..." />
-  </Container>
-{:else if !$user}
-  <Container size="lg">
-    <EmptyState
-      title="Authentication Required"
-      message="Please log in to access officer tools."
-      actionLabel="Sign In"
-      actionHref="/login"
-    />
-  </Container>
-{:else if accessDenied}
-  <Container size="lg">
-    <EmptyState
-      title="Access Restricted"
-      message="You are not authorized to view this page. Officer privileges are required."
-      actionLabel="Return Home"
-      actionHref="/"
-    />
-  </Container>
-{:else}
-  <Hero
+<Hero
     title="Officer Dashboard"
     subtitle="Administrative Tools & Club Management"
     backgroundImage="/Jax-Banner.png"
@@ -287,7 +244,6 @@
       </div>
     </section>
   </Container>
-{/if}
 
 <style>
   .welcome-card {

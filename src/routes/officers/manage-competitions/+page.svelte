@@ -2,7 +2,6 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
-  import { userProfile } from '$lib/stores/userProfile';
   import { competitionManagementStore, competitions, isLoading, error, stats } from '$lib/stores/competitionManagementStore';
   import Hero from "$lib/components/ui/Hero.svelte";
   import Container from "$lib/components/ui/Container.svelte";
@@ -14,10 +13,6 @@
   import toast from 'svelte-french-toast';
   import { showConfirm } from '$lib/stores/confirmDialog.js';
   
-  // Check officer status
-  $: if ($userProfile && !$userProfile.is_officer) {
-    goto('/');
-  }
 
   let searchQuery = '';
   let filterStatus = 'all'; // all, active, upcoming, past
@@ -286,7 +281,6 @@
     background: white;
   }
 
-
   .competitions-table {
     background: white;
     border-radius: var(--radius-md);
@@ -434,7 +428,6 @@
   .btn-delete:hover {
     background: var(--color-danger-hover);
   }
-
 
   .error {
     background: var(--color-danger-bg-soft);

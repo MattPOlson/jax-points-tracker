@@ -1,14 +1,9 @@
 <script>
   import { goto } from '$app/navigation';
-  import { userProfile } from '$lib/stores/userProfile.js';
   import { createEvent } from '$lib/stores/eventManagementStore.js';
   import { Hero, Container, Card } from '$lib/components/ui';
   import EventForm from '$lib/components/EventForm.svelte';
   import toast from 'svelte-french-toast';
-
-  $: if ($userProfile && !$userProfile.is_officer) {
-    goto('/');
-  }
 
   let isSubmitting = false;
 

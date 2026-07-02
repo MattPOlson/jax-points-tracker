@@ -14,11 +14,6 @@
   import toast from 'svelte-french-toast';
   import { showConfirm } from '$lib/stores/confirmDialog.js';
 
-  // Check officer status
-  $: if ($userProfile && !$userProfile.is_officer) {
-    goto('/');
-  }
-
   // Get competition ID from URL
   $: competitionId = $page.params.id;
 
@@ -664,7 +659,6 @@
   .btn-secondary:hover:not(:disabled) {
     background: var(--color-gray-600);
   }
-
 
   /* Content Sections */
   .content-section {
