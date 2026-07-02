@@ -20,7 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
 
       # The guard has no dependencies, so a checkout + Node is all it needs.
       - name: Check for hard-coded inline styles (issue #64)

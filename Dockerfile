@@ -1,5 +1,5 @@
 # Multi-stage build for production optimization
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -21,11 +21,11 @@ ENV VITE_VAPID_PUBLIC_KEY=$VITE_VAPID_PUBLIC_KEY
 # Build for production
 RUN npm run build
 
-# Clean up dev dependencies after build
-RUN npm ci --only=production --silent && npm cache clean --force
+# Clean up dev dependencies after build (--omit=dev is the npm 10+ spelling)
+RUN npm ci --omit=dev --silent && npm cache clean --force
 
 # Production stage
-FROM node:18-alpine AS runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 
