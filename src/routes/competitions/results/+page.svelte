@@ -568,8 +568,8 @@
   }
 
   .placement-hm {
-    background: #ddd6fe;
-    color: #7c3aed;
+    background: var(--color-accent-violet-bg);
+    color: var(--color-accent-purple);
   }
 
   .placement-none {
@@ -578,8 +578,8 @@
   }
 
   .score-badge {
-    background: #e0f2fe;
-    color: #0369a1;
+    background: var(--color-info-bg-light);
+    color: var(--color-info-text);
     padding: var(--space-1) var(--space-2);
     border-radius: var(--radius-button);
     font-weight: var(--font-weight-semibold);

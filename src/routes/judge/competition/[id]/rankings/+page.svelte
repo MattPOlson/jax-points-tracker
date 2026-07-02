@@ -672,7 +672,7 @@
   }
 
   .save-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, var(--color-success-hover) 0%, #065f46 100%);
+    background: linear-gradient(135deg, var(--color-success-hover) 0%, var(--color-success-dark) 100%);
   }
 
   .save-btn:disabled {
@@ -698,7 +698,7 @@
   }
 
   .ranking-item.own-entry {
-    background: #eff6ff;
+    background: var(--color-info-bg-subtle);
     border-color: var(--color-info-accent);
   }
 
@@ -830,7 +830,7 @@
     padding: var(--space-2) var(--space-4);
     border-radius: var(--radius-button);
     font-weight: var(--font-weight-medium);
-    border: 1px solid #fbbf24;
+    border: 1px solid var(--color-warning-amber);
   }
 
   .save-btn.has-changes {
@@ -1086,4 +1086,4 @@
       </div>
     {/if}
   {/if}
-</Container>
+</Container>

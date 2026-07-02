@@ -807,7 +807,7 @@ function printLabels() {
     flex: 1;
     min-width: 250px;
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-gray-250);
     border-radius: var(--radius-md);
     font-size: 1rem;
   }
@@ -839,14 +839,14 @@ function printLabels() {
     text-align: left;
     font-weight: 600;
     color: var(--color-text-primary);
-    border-bottom: 2px solid #ddd;
+    border-bottom: 2px solid var(--color-gray-250);
     cursor: pointer;
     user-select: none;
     position: relative;
   }
 
   th:hover {
-    background: #ebebeb;
+    background: var(--color-gray-150);
   }
 
   .sort-indicator {
@@ -859,7 +859,7 @@ function printLabels() {
 
   td {
     padding: 1rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-gray-150);
   }
 
   tr:hover {
@@ -894,7 +894,7 @@ function printLabels() {
     position: relative;
     width: 48px;
     height: 24px;
-    background: #ddd;
+    background: var(--color-gray-250);
     border-radius: var(--radius-xl);
     cursor: pointer;
     transition: background 0.3s;
@@ -995,9 +995,9 @@ function printLabels() {
   .member-info {
     margin-top: 1rem;
     padding: 1rem;
-    background: #f0f9ff;
+    background: var(--color-info-bg-subtle);
     border-radius: var(--radius-sm);
-    border: 1px solid #bfdbfe;
+    border: 1px solid var(--color-info-border);
   }
 
   .member-info h5 {
@@ -1103,8 +1103,8 @@ function printLabels() {
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem 1rem;
-    background: #fef9c3;
-    border: 1px solid #fde68a;
+    background: var(--color-warning-bg);
+    border: 1px solid var(--color-warning-border);
     border-radius: var(--radius-md);
     flex-wrap: wrap;
     margin-bottom: 1rem;
@@ -1180,7 +1180,7 @@ function printLabels() {
   }
 
   .modal-button:hover {
-    background: #e63600;
+    background: var(--color-alert-orange);
   }
 
   .category-sub {

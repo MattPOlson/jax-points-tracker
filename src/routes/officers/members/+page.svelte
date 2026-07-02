@@ -991,19 +991,19 @@
   }
 
   .role-badge.president {
-    background: #faf5ff;
-    color: #7c3aed;
-    border-color: #c4b5fd;
+    background: var(--color-accent-purple-bg);
+    color: var(--color-accent-purple);
+    border-color: var(--color-accent-purple-border);
   }
 
   .role-badge.vice_president {
-    background: #eff6ff;
-    color: #2563eb;
-    border-color: #93c5fd;
+    background: var(--color-info-bg-subtle);
+    color: var(--color-info);
+    border-color: var(--color-info-border-strong);
   }
 
   .role-badge.officer {
-    background: #fff7ed;
+    background: var(--color-warning-bg-light);
     color: var(--color-warning-hover);
     border-color: var(--color-warning-bg-soft);
   }
@@ -1011,7 +1011,7 @@
   .role-badge.competition_director {
     background: var(--color-warning-bg);
     color: var(--color-warning);
-    border-color: #fde68a;
+    border-color: var(--color-warning-border);
   }
 
   .role-badge.member {
@@ -1053,7 +1053,7 @@
   .activity-badge.active {
     background: var(--color-success-bg);
     color: var(--color-success);
-    border-color: #bbf7d0;
+    border-color: var(--color-success-border);
   }
 
   .activity-badge.inactive {
@@ -1404,7 +1404,7 @@
   .status-badge.approved {
     background: var(--color-success-bg);
     color: var(--color-success);
-    border-color: #bbf7d0;
+    border-color: var(--color-success-border);
   }
 
   .status-badge.rejected {
@@ -1414,7 +1414,7 @@
   }
 
   .status-badge.pending {
-    background: #fffbeb;
+    background: var(--color-warning-bg-light);
     color: var(--color-warning);
     border-color: var(--color-warning-bg-soft);
   }
@@ -1512,7 +1512,7 @@
   }
 
   .warning-message {
-    background: #fffbeb;
+    background: var(--color-warning-bg-light);
     border: 1px solid var(--color-warning-bg-soft);
     border-radius: var(--radius-md);
     padding: 0.75rem;

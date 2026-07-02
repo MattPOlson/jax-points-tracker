@@ -466,7 +466,7 @@
   .form-group textarea {
     width: 100%;
     padding: 0.75rem;
-    border: 2px solid #ddd;
+    border: 2px solid var(--color-gray-250);
     border-radius: var(--radius-md);
     font-size: 1rem;
     transition: border-color 0.2s;
@@ -501,8 +501,8 @@
   }
 
   .custom-categories-notice {
-    background: #e0f7fa;
-    border: 1px solid #4dd0e1;
+    background: var(--color-info-cyan-bg);
+    border: 1px solid var(--color-info-cyan-border);
     border-radius: var(--radius-md);
     padding: 0.75rem;
     margin-top: 0.5rem;
@@ -510,13 +510,13 @@
 
   .custom-categories-notice p {
     margin: 0;
-    color: #006064;
+    color: var(--color-info-cyan-dark);
     font-weight: 500;
   }
 
   .category-description {
-    background: #fff3cd;
-    border: 1px solid #ffeaa7;
+    background: var(--color-warning-bg);
+    border: 1px solid var(--color-warning-border);
     border-radius: var(--radius-md);
     padding: 0.75rem;
     margin-top: 0.5rem;
@@ -533,7 +533,7 @@
 
   .brewer-info {
     background: var(--color-gray-50);
-    border: 2px solid #ddd;
+    border: 2px solid var(--color-gray-250);
     border-radius: var(--radius-md);
     padding: 0.75rem;
     display: flex;
@@ -552,7 +552,7 @@
   }
 
   .error-message {
-    background: #fee;
+    background: var(--color-danger-bg-softest);
     border: 1px solid var(--color-danger);
     border-radius: var(--radius-md);
     padding: 1rem;

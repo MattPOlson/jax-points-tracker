@@ -196,7 +196,7 @@
   .form-control {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-gray-250);
     border-radius: var(--radius-md);
     font-size: 1rem;
     transition: border-color 0.3s ease;
@@ -273,7 +273,7 @@
     justify-content: flex-end;
     margin-top: 2rem;
     padding-top: 2rem;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--color-gray-150);
   }
 
 
@@ -355,7 +355,7 @@
   }
   
   .radio-option:hover {
-    border-color: #cbd5e1;
+    border-color: var(--color-gray-300);
     background: var(--color-gray-50);
   }
   

@@ -214,7 +214,7 @@
     background: var(--color-gray-50);
     padding: 0.75rem 1rem;
     border-radius: var(--radius-sm);
-    border-left: 3px solid #2563eb;
+    border-left: 3px solid var(--color-info);
     color: var(--color-text-primary);
     font-weight: 500;
   }

@@ -410,7 +410,7 @@
 
   .section-header {
     padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-gray-150);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -475,7 +475,7 @@
 
   .add-table-form {
     padding: 1rem 1.5rem;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--color-gray-150);
     background: var(--color-gray-50);
   }
 
@@ -508,7 +508,7 @@
   .form-control {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-gray-250);
     border-radius: var(--radius-sm);
     font-size: 1rem;
     box-sizing: border-box;
@@ -516,7 +516,7 @@
 
   .form-control-sm {
     padding: 0.5rem 0.65rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-gray-250);
     border-radius: var(--radius-sm);
     font-size: 0.9rem;
   }
@@ -590,7 +590,7 @@
   .add-judge-form {
     background: var(--color-gray-50);
     padding: 1.5rem;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--color-gray-150);
   }
 
   .add-judge-form h4 {
@@ -615,7 +615,7 @@
 
   .icon-btn.danger {
     color: var(--color-danger);
-    border-color: #fca5a5;
+    border-color: var(--color-danger-border);
   }
 
   .icon-btn.danger:hover {
