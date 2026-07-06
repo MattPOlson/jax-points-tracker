@@ -10,6 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Fast guard with zero dependencies — checkout + Node is all it needs.
   inline-styles:
     name: Inline style guard
     runs-on: ubuntu-latest
@@ -22,6 +23,52 @@ jobs:
         with:
           node-version: '22'
 
-      # The guard has no dependencies, so a checkout + Node is all it needs.
       - name: Check for hard-coded inline styles (issue #64)
         run: node scripts/check-inline-styles.js
+
+  # Type-check, stylelint, and production build (issue #79).
+  quality:
+    name: svelte-check, stylelint, build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Stylelint
+        run: npm run lint:css
+
+      - name: svelte-check
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+  # Dependency audit — visible but non-blocking to start (issue #79).
+  audit:
+    name: npm audit (non-blocking)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit production dependencies (high+)
+        run: npm audit --omit=dev --audit-level=high
