@@ -119,24 +119,28 @@
 
         if (groupsError) throw groupsError;
 
-        // For each ranking group, count entries
+        // Count entries per group from a single query for all of the
+        // competition's entries, bucketed in memory (#75) — previously one
+        // round-trip per ranking group.
+        const { data: allEntries, error: entriesError } = await supabase
+          .from('competition_entries')
+          .select('id, bjcp_category_id')
+          .eq('competition_id', competitionId);
+
+        if (entriesError) throw entriesError;
+
         const groupsWithCounts = [];
         for (const group of rankingGroups || []) {
           const categoryIds = group.bjcp_category_ids;
-          
-          const { data: entriesData, error: entriesError } = await supabase
-            .from('competition_entries')
-            .select('id, bjcp_category_id')
-            .eq('competition_id', competitionId)
-            .in('bjcp_category_id', categoryIds);
+          const entryCount = (allEntries || []).filter((entry) =>
+            categoryIds.includes(entry.bjcp_category_id)
+          ).length;
 
-          if (entriesError) throw entriesError;
-
-          if (entriesData && entriesData.length > 0) {
+          if (entryCount > 0) {
             groupsWithCounts.push({
               ...group,
               isCustomGroup: true,
-              entryCount: entriesData.length,
+              entryCount,
               displayName: group.group_name
             });
           }

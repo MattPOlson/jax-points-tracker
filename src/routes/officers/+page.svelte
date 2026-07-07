@@ -30,35 +30,37 @@
     try {
       statsLoading = true;
 
-      const { data: pendingData, error: pendingError } = await supabase
-        .from('point_submissions')
-        .select('id')
-        .neq('approved', true);
-
-      if (pendingError) throw pendingError;
-      pendingReviews = pendingData?.length || 0;
-
-      const { data: membersData, error: membersError } = await supabase
-        .from('members')
-        .select('id')
-        .eq('active', true);
-
-      if (membersError) throw membersError;
-      activeMembers = membersData?.length || 0;
-
       const now = new Date();
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const firstDayOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-      const { data: pointsData, error: pointsError } = await supabase
-        .from('point_submissions')
-        .select('points')
-        .gte('submitted_at', firstDayOfMonth.toISOString())
-        .lt('submitted_at', firstDayOfNextMonth.toISOString())
-        .eq('approved', true);
+      // Counts use head:true so only the count travels over the wire (#62),
+      // and the three independent stat queries run in parallel (#75).
+      const [pendingRes, membersRes, pointsRes] = await Promise.all([
+        supabase
+          .from('point_submissions')
+          .select('id', { count: 'exact', head: true })
+          .neq('approved', true),
+        supabase
+          .from('members')
+          .select('id', { count: 'exact', head: true })
+          .eq('active', true),
+        supabase
+          .from('point_submissions')
+          .select('points')
+          .gte('submitted_at', firstDayOfMonth.toISOString())
+          .lt('submitted_at', firstDayOfNextMonth.toISOString())
+          .eq('approved', true)
+      ]);
 
-      if (pointsError) throw pointsError;
-      pointsThisMonth = pointsData?.reduce((sum, submission) => sum + (submission.points || 0), 0) || 0;
+      if (pendingRes.error) throw pendingRes.error;
+      pendingReviews = pendingRes.count || 0;
+
+      if (membersRes.error) throw membersRes.error;
+      activeMembers = membersRes.count || 0;
+
+      if (pointsRes.error) throw pointsRes.error;
+      pointsThisMonth = pointsRes.data?.reduce((sum, submission) => sum + (submission.points || 0), 0) || 0;
 
       await competitionManagementStore.loadCompetitions();
 
