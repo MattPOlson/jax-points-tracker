@@ -89,7 +89,21 @@ sw.addEventListener('push', (event) => {
 sw.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  const url = event.notification.data?.url || '/';
+  const rawUrl = event.notification.data?.url || '/';
+  // Defense-in-depth (#83): only navigate within the app. The send endpoint
+  // already normalizes the URL, but never trust the payload here either.
+  // Resolve and compare origins instead of prefix checks — the URL parser
+  // treats "\" as "/" and strips tabs/newlines, so "/\evil.com" would sneak
+  // past startsWith('/').
+  let url = '/';
+  try {
+    const parsed = new URL(rawUrl, sw.location.origin);
+    if (parsed.origin === sw.location.origin) {
+      url = parsed.pathname + parsed.search + parsed.hash;
+    }
+  } catch {
+    // Unparseable — fall back to '/'
+  }
 
   event.waitUntil(
     sw.clients
