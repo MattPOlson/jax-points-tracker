@@ -4,7 +4,7 @@
   import { goto } from '$app/navigation';
   import { supabase } from '$lib/supabaseClient';
   import { user } from '$lib/stores/user';
-  import { userProfile } from '$lib/stores/userProfile';
+  import { userProfile, loadUserProfile } from '$lib/stores/userProfile';
   import { Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
 
   /**
@@ -36,23 +36,12 @@
       }
 
       // Reuse a profile the root layout already loaded for this user; otherwise
-      // fetch it directly so the gate never keys on a still-loading null.
+      // the shared store loader fetches it (#76). It returns null only for a
+      // definitive "no member row"; transient failures throw into the catch
+      // below — so a real officer is never denied over a network blip.
       let profile = get(userProfile);
       if (!profile || profile.id !== authUser.id) {
-        const { data, error } = await supabase
-          .from('members')
-          .select('*')
-          .eq('id', authUser.id)
-          .single();
-
-        // Couldn't verify — don't deny a possibly-legitimate officer; let them retry.
-        if (error) {
-          authState = 'error';
-          return;
-        }
-
-        profile = data;
-        userProfile.set(profile);
+        profile = await loadUserProfile(true);
       }
 
       authState = profile?.is_officer ? 'authorized' : 'denied';

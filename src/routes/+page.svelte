@@ -20,7 +20,7 @@
     loadApprovals(true);
     loadCategoryData(true);
     loadLeaderboard(true);
-    loadUserProfile(true);
+    loadUserProfile(true).catch((err) => console.error('Failed to load profile:', err));
     loadCompetitionData(true);
     loadMyEntries(true);
   }

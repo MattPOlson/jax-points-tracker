@@ -3,7 +3,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { supabase } from '$lib/supabaseClient';
   import { user } from '$lib/stores/user';
-  import { userProfile } from '$lib/stores/userProfile';
+  import { userProfile, loadUserProfile } from '$lib/stores/userProfile';
   import toast, { Toaster } from 'svelte-french-toast';
   import { goto } from '$app/navigation';
   import { ArrowLeft, Home, LogOut, User } from 'lucide-svelte';
@@ -14,21 +14,6 @@
   let subscription;
 
   $: userInitial = $userProfile?.name?.charAt(0)?.toUpperCase() || $user?.email?.charAt(0)?.toUpperCase() || '';
-
-  async function fetchUserProfile(userId) {
-    try {
-      const { data, error } = await supabase
-        .from('members')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      if (error) throw error;
-      userProfile.set(data);
-    } catch (err) {
-      console.error('Failed to fetch profile:', err);
-      userProfile.set(null);
-    }
-  }
 
   async function checkForApprovals(userId) {
     try {
@@ -79,7 +64,7 @@
         user.set(currentUser);
 
         if (currentUser) {
-          await fetchUserProfile(currentUser.id);
+          await loadUserProfile(true).catch((err) => console.error('Failed to load profile:', err));
           await checkForApprovals(currentUser.id);
         }
 
@@ -91,7 +76,7 @@
               user.set(u);
 
               if (event === 'SIGNED_IN' && u) {
-                await fetchUserProfile(u.id);
+                await loadUserProfile(true).catch((err) => console.error('Failed to load profile:', err));
                 await checkForApprovals(u.id);
                 if (window.location.pathname === '/login') goto('/');
               }
