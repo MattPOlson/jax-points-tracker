@@ -271,6 +271,47 @@ class CompetitionJudgingStore {
     }
   }
 
+  // Bulk-assign judges with a single insert instead of one round-trip
+  // per member (#75).
+  async assignJudges(competitionId, judgeDataList) {
+    if (!judgeDataList?.length) return [];
+
+    try {
+      const rows = judgeDataList.map((judgeData) => ({
+        competition_id: competitionId,
+        judge_id: judgeData.judge_id,
+        judge_role: judgeData.judge_role || JUDGE_ROLES.CLUB_JUDGE,
+        assignment_notes: judgeData.assignment_notes || null,
+        assigned_at: new Date().toISOString(),
+        assigned_by: judgeData.assigned_by,
+        active: true,
+        table_id: judgeData.table_id || null
+      }));
+
+      const { data, error } = await supabase
+        .from('competition_judges')
+        .insert(rows)
+        .select(`
+          *,
+          judge:members!competition_judges_judge_id_fkey(id, name, email, phone),
+          competition:competitions(id, name, judging_date)
+        `);
+
+      if (error) throw error;
+
+      // Update local store
+      judgeStore.update(store => ({
+        ...store,
+        judges: [...store.judges, ...(data || [])]
+      }));
+
+      return data;
+    } catch (err) {
+      console.error('Error assigning judges:', err);
+      throw err;
+    }
+  }
+
   // Remove judge assignment
   async removeJudge(assignmentId) {
     try {

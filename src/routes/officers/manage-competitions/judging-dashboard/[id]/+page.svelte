@@ -427,31 +427,38 @@
       });
     }
 
-    // Upsert results into competition_results table
-    for (const result of finalResults) {
-      // Check if result exists
-      const { data: existing } = await supabase
-        .from('competition_results')
-        .select('id')
-        .eq('competition_id', competitionId)
-        .eq('entry_id', result.entry_id)
-        .single();
+    // Upsert results into competition_results: previously 2 sequential
+    // round-trips per entry (select, then insert/update). Now one fetch of
+    // the existing rows, one bulk insert, and the updates in parallel (#75).
+    const { data: existingResults, error: existingError } = await supabase
+      .from('competition_results')
+      .select('id, entry_id')
+      .eq('competition_id', competitionId);
+    if (existingError) throw existingError;
 
-      if (existing) {
-        // Update existing
+    const existingByEntry = new Map(
+      (existingResults || []).map((row) => [row.entry_id, row.id])
+    );
+
+    const toInsert = finalResults.filter((r) => !existingByEntry.has(r.entry_id));
+    const toUpdate = finalResults.filter((r) => existingByEntry.has(r.entry_id));
+
+    if (toInsert.length > 0) {
+      const { error } = await supabase
+        .from('competition_results')
+        .insert(toInsert);
+      if (error) throw error;
+    }
+
+    await Promise.all(
+      toUpdate.map(async (result) => {
         const { error } = await supabase
           .from('competition_results')
           .update(result)
-          .eq('id', existing.id);
+          .eq('id', existingByEntry.get(result.entry_id));
         if (error) throw error;
-      } else {
-        // Insert new
-        const { error } = await supabase
-          .from('competition_results')
-          .insert([result]);
-        if (error) throw error;
-      }
-    }
+      })
+    );
   }
 
   async function publishResults() {

@@ -262,14 +262,16 @@
     try {
       isSaving = true;
 
-      for (const member of availableJudges) {
-        await competitionJudgingStore.assignJudge(competitionId, {
+      // Single bulk insert instead of one round-trip per member (#75).
+      await competitionJudgingStore.assignJudges(
+        competitionId,
+        availableJudges.map((member) => ({
           judge_id: member.id,
           judge_role: JUDGE_ROLES.CLUB_JUDGE,
           assignment_notes: 'Auto-assigned for intraclub competition',
           assigned_by: $userProfile.id
-        });
-      }
+        }))
+      );
 
       await loadData();
 
