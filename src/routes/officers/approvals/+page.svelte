@@ -335,13 +335,16 @@
   {#if showApprovalModal && selectedSubmission}
     <div
       class="modal-overlay"
-      on:click={closeApprovalModal}
+      role="presentation"
+      on:click={(e) => e.target === e.currentTarget && closeApprovalModal()}
       on:keydown={(e) => e.key === "Escape" && closeApprovalModal()}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="approval-modal-title"
     >
-      <div class="modal approval-modal" on:click|stopPropagation>
+      <div
+        class="modal approval-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="approval-modal-title"
+      >
         <div class="modal-header">
           <h3 id="approval-modal-title">
             <CheckCircle size={20} strokeWidth={2} class="icon-inline" />
@@ -411,13 +414,16 @@
   {#if showRejectModal && selectedSubmission}
     <div
       class="modal-overlay"
-      on:click={closeRejectModal}
+      role="presentation"
+      on:click={(e) => e.target === e.currentTarget && closeRejectModal()}
       on:keydown={(e) => e.key === "Escape" && closeRejectModal()}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="reject-modal-title"
     >
-      <div class="modal reject-modal" on:click|stopPropagation>
+      <div
+        class="modal reject-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reject-modal-title"
+      >
         <div class="modal-header">
           <h3 id="reject-modal-title">
             <X size={20} strokeWidth={2} class="icon-inline" />

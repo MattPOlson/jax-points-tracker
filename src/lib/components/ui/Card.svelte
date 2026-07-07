@@ -17,7 +17,6 @@
   class:card-accent-info={accent && accentColor === 'info'}
   class:card-no-padding={noPadding}
   class:card-hover={hover}
-  on:click
 >
   <slot />
 </div>

@@ -936,6 +936,7 @@
           <div 
             class="category-card {selectedCategory?.id === category.id ? 'selected' : ''}"
             on:click={() => selectCategory(category)}
+            on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectCategory(category); } }}
             role="button"
             tabindex="0"
           >
