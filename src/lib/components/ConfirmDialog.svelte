@@ -17,15 +17,18 @@
 <svelte:window on:keydown={handleKeydown} />
 
 {#if $confirmState.open}
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div class="backdrop" on:click={() => answer(false)}>
+  <div
+    class="backdrop"
+    role="presentation"
+    on:click={(e) => e.target === e.currentTarget && answer(false)}
+    on:keydown={handleKeydown}
+  >
     <div
       class="dialog"
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="confirm-title"
       aria-describedby="confirm-message"
-      on:click|stopPropagation
     >
       <div class="dialog-header">
         <h2 id="confirm-title" class="dialog-title">{$confirmState.title}</h2>

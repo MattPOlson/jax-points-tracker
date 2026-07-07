@@ -897,6 +897,8 @@ function printLabels() {
     position: relative;
     width: 48px;
     height: 24px;
+    padding: 0;
+    border: none;
     background: var(--color-gray-250);
     border-radius: var(--radius-xl);
     cursor: pointer;
@@ -1391,10 +1393,14 @@ function printLabels() {
                 </td>
                 <td>
                   <div class="payment-toggle">
-                    <div 
+                    <button
+                      type="button"
                       class="toggle-switch {entry.is_paid ? 'active' : ''}"
+                      role="switch"
+                      aria-checked={entry.is_paid}
+                      aria-label="Mark entry as paid"
                       on:click={() => updatePaymentStatus(entry.id, !entry.is_paid)}
-                    ></div>
+                    ></button>
                     <span>{entry.is_paid ? 'Paid' : 'Unpaid'}</span>
                   </div>
                 </td>
@@ -1477,10 +1483,14 @@ function printLabels() {
             <!-- Payment status with toggle -->
             <div class="payment-status-mobile">
               <div class="payment-toggle">
-                <div 
+                <button
+                  type="button"
                   class="toggle-switch {entry.is_paid ? 'active' : ''}"
+                  role="switch"
+                  aria-checked={entry.is_paid}
+                  aria-label="Mark entry as paid"
                   on:click={() => updatePaymentStatus(entry.id, !entry.is_paid)}
-                ></div>
+                ></button>
                 <span>{entry.is_paid ? 'Paid' : 'Unpaid'}</span>
               </div>
             </div>

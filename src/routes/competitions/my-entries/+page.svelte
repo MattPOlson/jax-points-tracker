@@ -1032,9 +1032,14 @@
 
 <!-- Delete Confirmation Modal -->
 {#if showDeleteConfirm}
-  <div class="modal-overlay" on:click={cancelDelete}>
-    <div class="modal-content" on:click|stopPropagation>
-      <h2>🗑️ Delete Entry</h2>
+  <div
+    class="modal-overlay"
+    role="presentation"
+    on:click={(e) => e.target === e.currentTarget && cancelDelete()}
+    on:keydown={(e) => e.key === 'Escape' && cancelDelete()}
+  >
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="delete-entry-title">
+      <h2 id="delete-entry-title">🗑️ Delete Entry</h2>
       <p>Are you sure you want to delete this competition entry?</p>
       <p><strong>This action cannot be undone.</strong></p>
 

@@ -152,6 +152,26 @@
     editedEmail = member.email || '';
     showEditModal = true;
   }
+
+  function closeMemberModal() {
+    showMemberModal = false;
+    selectedMember = null;
+    memberDetails = null;
+  }
+
+  function closeEditModal() {
+    showEditModal = false;
+    memberToEdit = null;
+    editedName = '';
+    editedPhone = '';
+    editedEmail = '';
+  }
+
+  function closeRoleChangeModal() {
+    showRoleChangeModal = false;
+    memberToPromote = null;
+    newRole = '';
+  }
   // Handle role change
   async function handleRoleChange() {
     if (!memberToPromote || !newRole) return;
@@ -511,11 +531,16 @@
 
 <!-- Member Details Modal -->
 {#if showMemberModal && selectedMember}
-  <div class="modal-backdrop" on:click={() => { showMemberModal = false; selectedMember = null; memberDetails = null; }}>
-    <div class="modal-content" on:click|stopPropagation>
+  <div
+    class="modal-backdrop"
+    role="presentation"
+    on:click={(e) => e.target === e.currentTarget && closeMemberModal()}
+    on:keydown={(e) => e.key === 'Escape' && closeMemberModal()}
+  >
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="member-details-title">
       <div class="modal-header">
-        <h2>Member Details</h2>
-        <button class="close-button" on:click={() => { showMemberModal = false; selectedMember = null; memberDetails = null; }}>
+        <h2 id="member-details-title">Member Details</h2>
+        <button class="close-button" on:click={closeMemberModal}>
           ✕
         </button>
       </div>
@@ -599,11 +624,16 @@
 
 <!-- Edit Member Modal -->
 {#if showEditModal && memberToEdit}
-  <div class="modal-backdrop" on:click={() => { showEditModal = false; memberToEdit = null; editedName = ''; editedPhone = ''; editedEmail = ''; }}>
-    <div class="modal-content small" on:click|stopPropagation>
+  <div
+    class="modal-backdrop"
+    role="presentation"
+    on:click={(e) => e.target === e.currentTarget && closeEditModal()}
+    on:keydown={(e) => e.key === 'Escape' && closeEditModal()}
+  >
+    <div class="modal-content small" role="dialog" aria-modal="true" aria-labelledby="edit-member-title">
       <div class="modal-header">
-        <h2>Edit Member Information</h2>
-        <button class="close-button" on:click={() => { showEditModal = false; memberToEdit = null; editedName = ''; editedPhone = ''; editedEmail = ''; }}>
+        <h2 id="edit-member-title">Edit Member Information</h2>
+        <button class="close-button" on:click={closeEditModal}>
           ✕
         </button>
       </div>
@@ -652,7 +682,7 @@
         <div class="modal-actions">
           <button 
             class="cancel-button" 
-            on:click={() => { showEditModal = false; memberToEdit = null; editedName = ''; editedPhone = ''; editedEmail = ''; }}
+            on:click={closeEditModal}
             disabled={isUpdatingMember}
           >
             Cancel
@@ -671,11 +701,16 @@
 {/if}
 <!-- Role Change Modal -->
 {#if showRoleChangeModal && memberToPromote}
-  <div class="modal-backdrop" on:click={() => { showRoleChangeModal = false; memberToPromote = null; newRole = ''; }}>
-    <div class="modal-content small" on:click|stopPropagation>
+  <div
+    class="modal-backdrop"
+    role="presentation"
+    on:click={(e) => e.target === e.currentTarget && closeRoleChangeModal()}
+    on:keydown={(e) => e.key === 'Escape' && closeRoleChangeModal()}
+  >
+    <div class="modal-content small" role="dialog" aria-modal="true" aria-labelledby="change-role-title">
       <div class="modal-header">
-        <h2>Change Member Role</h2>
-        <button class="close-button" on:click={() => { showRoleChangeModal = false; memberToPromote = null; newRole = ''; }}>
+        <h2 id="change-role-title">Change Member Role</h2>
+        <button class="close-button" on:click={closeRoleChangeModal}>
           ✕
         </button>
       </div>
@@ -719,7 +754,7 @@
         {/if}
 
         <div class="modal-actions">
-          <button class="cancel-button" on:click={() => { showRoleChangeModal = false; memberToPromote = null; newRole = ''; }}>
+          <button class="cancel-button" on:click={closeRoleChangeModal}>
             Cancel
           </button>
           <button
