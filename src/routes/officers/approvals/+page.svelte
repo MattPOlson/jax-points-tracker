@@ -490,7 +490,6 @@
     background: var(--color-bg-primary);
     border-radius: var(--radius-button);
     padding: var(--space-6);
-    margin-bottom: var(--space-8);
     box-shadow: var(--shadow-card);
     border-left: 4px solid var(--color-brand-primary);
     display: flex;

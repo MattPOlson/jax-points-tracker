@@ -733,9 +733,6 @@
     }
   }
 
-  @media (max-width: 480px) {
-  }
-
   /* Brewer name privacy styles */
   .brewer-name-hidden {
     color: var(--color-text-tertiary);
