@@ -45,6 +45,19 @@ export async function POST({ request }) {
     throw error(400, 'Title and message are required');
   }
 
+  // Server-side caps mirroring the client form limits — the client's
+  // maxlength attributes are advisory only (#83).
+  if (title.trim().length > 100 || message.trim().length > 200) {
+    throw error(400, 'Title is limited to 100 characters and message to 200');
+  }
+
+  // Only same-origin relative paths may ride in a notification: a push from
+  // the club app carries implicit trust, so an absolute/protocol-relative URL
+  // would make it a phishing amplifier (#83). The service worker enforces the
+  // same rule when the notification is clicked.
+  const safeUrl =
+    typeof url === 'string' && url.startsWith('/') && !url.startsWith('//') ? url : '/';
+
   webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
 
   // Fetch all subscriptions
@@ -63,7 +76,7 @@ export async function POST({ request }) {
   const payload = JSON.stringify({
     title: title.trim(),
     body: message.trim(),
-    url: url || '/'
+    url: safeUrl
   });
 
   const results = await Promise.allSettled(

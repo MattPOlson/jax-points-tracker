@@ -89,7 +89,10 @@ sw.addEventListener('push', (event) => {
 sw.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  const url = event.notification.data?.url || '/';
+  const rawUrl = event.notification.data?.url || '/';
+  // Defense-in-depth (#83): only navigate within the app. The send endpoint
+  // already normalizes the URL, but never trust the payload here either.
+  const url = rawUrl.startsWith('/') && !rawUrl.startsWith('//') ? rawUrl : '/';
 
   event.waitUntil(
     sw.clients
