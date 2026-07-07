@@ -52,11 +52,23 @@ export async function POST({ request }) {
   }
 
   // Only same-origin relative paths may ride in a notification: a push from
-  // the club app carries implicit trust, so an absolute/protocol-relative URL
-  // would make it a phishing amplifier (#83). The service worker enforces the
-  // same rule when the notification is clicked.
-  const safeUrl =
-    typeof url === 'string' && url.startsWith('/') && !url.startsWith('//') ? url : '/';
+  // the club app carries implicit trust, so a URL resolving off-origin would
+  // make it a phishing amplifier (#83). Resolve against a sentinel origin
+  // rather than string-prefix checks — the URL parser treats "\" as "/" and
+  // strips tabs/newlines, so "/\evil.com" would sneak past startsWith('/').
+  // The service worker enforces the same rule when the notification is clicked.
+  let safeUrl = '/';
+  if (typeof url === 'string') {
+    try {
+      const sentinel = 'https://sentinel.invalid';
+      const parsed = new URL(url, sentinel);
+      if (parsed.origin === sentinel) {
+        safeUrl = parsed.pathname + parsed.search + parsed.hash;
+      }
+    } catch {
+      // Unparseable — fall back to '/'
+    }
+  }
 
   webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
 
