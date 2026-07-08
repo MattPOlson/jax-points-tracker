@@ -6,10 +6,12 @@
   import { userProfile, loadUserProfile } from '$lib/stores/userProfile';
   import toast, { Toaster } from 'svelte-french-toast';
   import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
   import { ArrowLeft, Home, LogOut, User } from 'lucide-svelte';
   import NotificationPermission from '$lib/components/NotificationPermission.svelte';
   import InstallPrompt from '$lib/components/InstallPrompt.svelte';
   import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
+  import LandingPage from '$lib/components/LandingPage.svelte';
 
   let subscription;
 
@@ -180,7 +182,20 @@
 />
 <InstallPrompt />
 <ConfirmDialog />
-<slot />
+
+<!-- Logged-out visitors get the landing page instead of app pages (#97):
+     with RLS the anon role reads no data, so app pages would only render
+     empty shells — and because they never mount, their onMount data
+     queries never fire. /login stays reachable for the sign-in flow.
+     The user store starts null and flips after getSession resolves, so a
+     signed-in visitor sees the landing only for the moment between
+     hydration and session restore (same window the old empty shells
+     occupied). -->
+{#if $user || $page.url.pathname === '/login'}
+  <slot />
+{:else}
+  <LandingPage />
+{/if}
 
 <style>
   .header-bar {
