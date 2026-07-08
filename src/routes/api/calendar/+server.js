@@ -8,10 +8,18 @@ import { createClient } from '@supabase/supabase-js';
 // =============================================
 
 // Simple in-memory cache (adapter-node persists across requests) to avoid
-// hammering the Google Calendar API and to stay within quota.
+// hammering the Google Calendar API and to stay within quota. On upstream
+// failure the cache is served past its TTL (stale) rather than erroring —
+// slightly old events beat a broken calendar (#104).
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 /** @type {{ data: any[]; expires: number } | null} */
 let cache = null;
+
+// Nothing here may wait on an upstream indefinitely: an unbounded fetch
+// holds the request (and a Cloud Run instance) for the platform's full
+// 300s timeout (#104).
+const GOOGLE_TIMEOUT_MS = 3000;
+const AUTH_TIMEOUT_MS = 5000;
 
 const GOOGLE_CALENDAR_API = 'https://www.googleapis.com/calendar/v3/calendars';
 
@@ -64,12 +72,23 @@ export async function GET({ request }) {
   }
   const token = authHeader.slice(7);
 
-  const supabaseClient = createClient(supabaseUrl, supabaseKey);
+  const supabaseClient = createClient(supabaseUrl, supabaseKey, {
+    global: {
+      fetch: (input, init) =>
+        fetch(input, { ...init, signal: AbortSignal.timeout(AUTH_TIMEOUT_MS) })
+    }
+  });
   const {
     data: { user },
     error: authError
   } = await supabaseClient.auth.getUser(token);
   if (authError || !user) {
+    // A network failure/timeout reaching Supabase is not the caller's fault;
+    // don't report it as a bad token.
+    if (authError?.name === 'AuthRetryableFetchError' || (authError?.status ?? 0) >= 500) {
+      console.error('Auth verification unavailable:', authError);
+      throw error(503, 'Could not verify session, try again');
+    }
     throw error(401, 'Invalid token');
   }
 
@@ -96,15 +115,21 @@ export async function GET({ request }) {
 
   let res;
   try {
-    res = await fetch(url);
+    res = await fetch(url, { signal: AbortSignal.timeout(GOOGLE_TIMEOUT_MS) });
   } catch (err) {
     console.error('Failed to reach Google Calendar API:', err);
+    if (cache) {
+      return json({ events: cache.data, cached: true, stale: true });
+    }
     throw error(502, 'Could not reach Google Calendar');
   }
 
   if (!res.ok) {
     const detail = await res.text().catch(() => '');
     console.error('Google Calendar API error', res.status, detail);
+    if (cache) {
+      return json({ events: cache.data, cached: true, stale: true });
+    }
     if (res.status === 404) {
       throw error(502, 'Calendar not found — check GOOGLE_CALENDAR_ID and that it is public');
     }
