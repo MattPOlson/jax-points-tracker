@@ -13,8 +13,24 @@ if (!supabaseAnonKey) {
   throw new Error('Missing VITE_SUPABASE_ANON_KEY environment variable');
 }
 
+// supabase-js resolves a WebSocket implementation for realtime eagerly inside
+// createClient(), which throws during SSR on Node < 22 ("native WebSocket not
+// found") and 500s every server-rendered page (#99). This app never opens
+// realtime channels — and certainly not on the server — so give the server
+// client an inert transport; the realtime lookup then never touches the
+// runtime's WebSocket. Browser clients keep the default (native) transport.
+class NoopWebSocket {
+  constructor() {
+    this.readyState = 3; // CLOSED
+  }
+  close() {}
+  send() {}
+  addEventListener() {}
+  removeEventListener() {}
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  ...(browser ? {} : { realtime: { transport: NoopWebSocket } }),
   auth: {
     persistSession: true,
     autoRefreshToken: true,
