@@ -12,3 +12,6 @@ build/
 
 # Allow PWA icons (required for PWA installability)
 !static/icons/*.png
+
+# Allow iOS home-screen icons (#101)
+!static/apple-touch-icon*.png

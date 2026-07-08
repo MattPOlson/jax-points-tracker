@@ -1,11 +1,35 @@
 /**
- * Security headers for every response (#84).
+ * Security headers for every response (#84) and a cheap 404 for
+ * vulnerability-scanner probes (#102).
  *
  * The Content-Security-Policy itself is configured in svelte.config.js
  * (kit.csp) so SvelteKit can nonce its inline startup script; everything
  * else lives here.
  */
+
+// Scanner probes for stacks this app doesn't run (WordPress/PHP, leaked
+// dotfiles). Each one otherwise falls through to the catch-all route and
+// renders a full ~7KB error page -- on a cold instance that's 1.5s of
+// compute for a bot (#102). Answer with a tiny plain-text 404 instead.
+// Keep patterns narrow: /.well-known/* must stay routable.
+const SCANNER_PROBES = [
+  /\.php$/i, // no PHP endpoints exist (xmlrpc.php, index.php?opt=...)
+  /^\/wp-/i, // wp-admin, wp-login, wp-content, ...
+  /^\/wordpress\b/i,
+  /^\/\.env/i, // /.env, /.env.bak, ...
+  /^\/\.git\b/i,
+  /^\/phpmyadmin/i
+];
+
 export async function handle({ event, resolve }) {
+  const { pathname } = event.url;
+  if (SCANNER_PROBES.some((probe) => probe.test(pathname))) {
+    return new Response('Not Found', {
+      status: 404,
+      headers: { 'Content-Type': 'text/plain', 'X-Content-Type-Options': 'nosniff' }
+    });
+  }
+
   const response = await resolve(event);
 
   response.headers.set('X-Content-Type-Options', 'nosniff');
