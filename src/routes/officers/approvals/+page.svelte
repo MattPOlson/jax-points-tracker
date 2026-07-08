@@ -8,6 +8,7 @@
     loadApprovals,
     loading,
   } from "$lib/stores/approvalsStore.js";
+  import { userProfile } from "$lib/stores/userProfile";
   import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
   import { Hero, Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
   import { CheckCircle, X, Lock, AlertTriangle, PartyPopper, RefreshCw, ClipboardList } from 'lucide-svelte';
@@ -57,12 +58,24 @@
 
     isProcessing = true;
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("point_submissions")
         .update({ approved: true, updated_at: new Date().toISOString() })
-        .eq("id", selectedSubmission.id);
+        .eq("id", selectedSubmission.id)
+        .select("id");
 
       if (error) throw error;
+
+      // RLS excludes an officer's own submissions from the officer UPDATE
+      // policy (#18), and a 0-row update is not an error to Supabase --
+      // surface it instead of showing a false success (#98).
+      if (!data?.length) {
+        toast.error(
+          "Submission was not updated — another officer must review your own submissions.",
+        );
+        closeApprovalModal();
+        return;
+      }
 
       toast.success(
         `✅ Approved ${selectedSubmission.member.name}'s submission for ${selectedSubmission.points} points!`,
@@ -104,16 +117,27 @@
 
     isProcessing = true;
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("point_submissions")
         .update({
           rejection_reason: rejectionReason.trim(),
           approved: false,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", selectedSubmission.id);
+        .eq("id", selectedSubmission.id)
+        .select("id");
 
       if (error) throw error;
+
+      // See confirmApproval: a 0-row update means RLS refused it (own
+      // submission) -- don't show a false success (#98).
+      if (!data?.length) {
+        toast.error(
+          "Submission was not updated — another officer must review your own submissions.",
+        );
+        closeRejectModal();
+        return;
+      }
 
       toast.success(
         `❌ Rejected ${selectedSubmission.member.name}'s submission`,
@@ -221,28 +245,38 @@
                     : "Not available"}
                 </td>
                 <td class="actions-cell">
-                  <div class="action-buttons">
-                    <Button
-                      variant="success"
-                      size="sm"
-                      subtle
-                      disabled={isProcessing}
-                      on:click={() => openApproval(s)}
-                    >
-                      <CheckCircle size={16} strokeWidth={2} />
-                      Approve
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      subtle
-                      disabled={isProcessing}
-                      on:click={() => openReject(s)}
-                    >
-                      <X size={16} strokeWidth={2} />
-                      Reject
-                    </Button>
-                  </div>
+                  {#if s.member_id === $userProfile?.id}
+                    <!-- RLS blocks officers from reviewing their own
+                         submissions (#18); say so instead of offering
+                         buttons that silently no-op (#98). -->
+                    <div class="self-review-note">
+                      <Lock size={14} strokeWidth={2} />
+                      <span>Another officer must review this</span>
+                    </div>
+                  {:else}
+                    <div class="action-buttons">
+                      <Button
+                        variant="success"
+                        size="sm"
+                        subtle
+                        disabled={isProcessing}
+                        on:click={() => openApproval(s)}
+                      >
+                        <CheckCircle size={16} strokeWidth={2} />
+                        Approve
+                      </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        subtle
+                        disabled={isProcessing}
+                        on:click={() => openReject(s)}
+                      >
+                        <X size={16} strokeWidth={2} />
+                        Reject
+                      </Button>
+                    </div>
+                  {/if}
                 </td>
               </tr>
             {/each}
@@ -284,30 +318,39 @@
               </div>
             </div>
 
-            <div class="card-actions">
-              <Button
-                variant="success"
-                size="sm"
-                subtle
-                fullWidth
-                disabled={isProcessing}
-                on:click={() => openApproval(s)}
-              >
-                <CheckCircle size={16} strokeWidth={2} />
-                Approve
-              </Button>
-              <Button
-                variant="danger"
-                size="sm"
-                subtle
-                fullWidth
-                disabled={isProcessing}
-                on:click={() => openReject(s)}
-              >
-                <X size={16} strokeWidth={2} />
-                Reject
-              </Button>
-            </div>
+            {#if s.member_id === $userProfile?.id}
+              <div class="card-actions">
+                <div class="self-review-note">
+                  <Lock size={14} strokeWidth={2} />
+                  <span>Another officer must review this</span>
+                </div>
+              </div>
+            {:else}
+              <div class="card-actions">
+                <Button
+                  variant="success"
+                  size="sm"
+                  subtle
+                  fullWidth
+                  disabled={isProcessing}
+                  on:click={() => openApproval(s)}
+                >
+                  <CheckCircle size={16} strokeWidth={2} />
+                  Approve
+                </Button>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  subtle
+                  fullWidth
+                  disabled={isProcessing}
+                  on:click={() => openReject(s)}
+                >
+                  <X size={16} strokeWidth={2} />
+                  Reject
+                </Button>
+              </div>
+            {/if}
           </div>
         {/each}
       </div>
@@ -612,6 +655,16 @@
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
+  }
+
+  .self-review-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    font-style: italic;
+    padding: 0.35rem 0;
   }
 
   /* Mobile Cards */
