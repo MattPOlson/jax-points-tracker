@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /api/
+Disallow: /judge
+Disallow: /my-submissions
+Disallow: /officers
+Disallow: /profile
+Disallow: /submit
+
+Sitemap: https://www.jaxmemberportal.org/sitemap.xml
