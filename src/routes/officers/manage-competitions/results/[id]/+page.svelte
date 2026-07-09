@@ -771,7 +771,7 @@
 <Hero
   title="Enter Results"
   subtitle="Record judging scores and placements"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

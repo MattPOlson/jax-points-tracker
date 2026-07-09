@@ -786,7 +786,7 @@
 <Hero
   title="Judge Competition"
   subtitle="Evaluate and score beer entries"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

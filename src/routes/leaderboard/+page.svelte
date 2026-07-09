@@ -35,7 +35,7 @@
 <Hero
   title="Leaderboard"
   subtitle="Top Brewers in the JAX Community"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

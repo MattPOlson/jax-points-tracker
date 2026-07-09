@@ -13,7 +13,7 @@
 <Hero
   title="Reports & Analytics"
   subtitle="Coming Soon"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

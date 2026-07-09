@@ -1053,7 +1053,7 @@
   <Hero
     title="Judging Dashboard"
     subtitle={competition.name}
-    backgroundImage="/Jax-Banner.png"
+    backgroundImage="/Jax-Banner.jpg"
     overlay={true}
     compact={true}
   />

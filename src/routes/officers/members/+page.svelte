@@ -283,7 +283,7 @@
 <Hero
     title="Manage Members"
     subtitle="View and manage club members, their roles, activity, and point standings"
-    backgroundImage="/Jax-Banner.png"
+    backgroundImage="/Jax-Banner.jpg"
     overlay={true}
     compact={true}
   />

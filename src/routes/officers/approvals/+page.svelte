@@ -182,7 +182,7 @@
 <Hero
   title="Review Submissions"
   subtitle="Approve or reject member point submissions"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

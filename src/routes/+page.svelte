@@ -53,7 +53,7 @@
 <main>
   <Hero
     title="Have Fun Brew Better Beer!"
-    backgroundImage="/Jax-Banner.png"
+    backgroundImage="/Jax-Banner.jpg"
     overlay={true}
     large={true}
   />

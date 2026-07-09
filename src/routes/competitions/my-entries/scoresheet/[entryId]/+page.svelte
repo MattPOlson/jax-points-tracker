@@ -372,7 +372,7 @@
 <Hero
   title="Scoresheet Details"
   subtitle="View detailed judge feedback and scores"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

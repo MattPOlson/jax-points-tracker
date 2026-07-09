@@ -150,7 +150,7 @@
 <Hero
   title="My Submissions"
   subtitle="Track your brewing achievements and points"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

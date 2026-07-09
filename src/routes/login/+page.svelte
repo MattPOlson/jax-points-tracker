@@ -138,7 +138,7 @@
       title="Have Fun Brew Better Beer!"
       subtitle="Sign in to track your brewing achievements and compete with fellow brewers!"
       center={true}
-      backgroundImage="/Jax-Banner.png"
+      backgroundImage="/Jax-Banner.jpg"
       overlay={true}
       large={true}
     />

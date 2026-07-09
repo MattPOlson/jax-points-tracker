@@ -38,7 +38,7 @@
 <Hero
   title="Club Events"
   subtitle="Sign up for beer festivals, pours, and club gatherings"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

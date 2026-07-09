@@ -51,13 +51,14 @@ sw.addEventListener('fetch', (event) => {
   // Don't cache Supabase API requests
   if (url.hostname.includes('supabase')) return;
 
-  // For navigation requests: network first, fall back to cache
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
-    );
-    return;
-  }
+  // Navigations are intentionally NOT intercepted (#121). This is an SSR app
+  // (adapter-node, no prerendered route HTML), so there is nothing useful to
+  // fall back to: a network-first handler here hung with no timeout on cold
+  // Cloud Run instances, and on a network error `caches.match(navigation)` was
+  // always a miss -> respondWith(undefined) -> a broken page that only a hard
+  // refresh recovered. Letting navigations go straight to the network gives the
+  // browser's normal load behavior. The SW still precaches JS/CSS below and
+  // handles push. (Cold-start latency itself is the separate #104 lever.)
 
   // For cached assets: cache first, fall back to network on miss
   if (ASSETS.includes(url.pathname)) {

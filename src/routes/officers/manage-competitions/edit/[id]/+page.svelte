@@ -593,7 +593,7 @@
 <Hero
   title="Edit Competition"
   subtitle="Update competition details"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

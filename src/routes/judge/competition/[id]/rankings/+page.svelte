@@ -884,7 +884,7 @@
 <Hero
   title="Category Rankings"
   subtitle="Rank and award winning entries"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />
