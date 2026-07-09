@@ -1,37 +1,33 @@
 # .github/workflows/deploy.yml
 name: Build and Deploy to Cloud Run
 
+# Production deploys happen when a PR merges to master. Preview deploys are
+# manual only (workflow_dispatch from the branch) -- pushing a branch no
+# longer publishes a public copy of the app (#77). Branch deletion and PR
+# close tear the preview service down.
 on:
-  push:
-    branches:
-      - master
-      - develop
-      - 'feature/*'
-      - 'hotfix/*'
   pull_request:
     branches:
       - master
     types: [closed]
-  workflow_dispatch:  
+  workflow_dispatch:
+  delete:
 
 env:
   PROJECT_ID: jax-points-tracker
   REGION: us-central1
-  SUPABASE_URL: https://ftdradvuyhumgrjrsmkp.supabase.co
-  SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0ZHJhZHZ1eWh1bWdyanJzbWtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3NjY1NjQsImV4cCI6MjA2MzM0MjU2NH0.SxWO5NdfiyM36KeSWof2DP5H18FmE7inlwJw8yQINqk
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     # Deploy on:
-    # 1. Direct pushes to non-master branches (feature branches)
-    # 2. Merged PRs to master (production deployments)
+    # 1. Merged PRs to master (production)
+    # 2. Manual workflow_dispatch (production from master, preview from any branch)
     if: |
-      (github.event_name == 'push' && github.ref != 'refs/heads/master') ||
       (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'master') ||
       github.event_name == 'workflow_dispatch'
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -57,11 +53,11 @@ jobs:
           # For merged PRs, use the target branch (master)
           BRANCH_NAME="${{ github.event.pull_request.base.ref }}"
         else
-          # For direct pushes, use the pushed branch
+          # For workflow_dispatch, use the branch it was run from
           BRANCH_NAME=${GITHUB_REF#refs/heads/}
         fi
         echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
-        
+
         # Set service name based on branch
         if [ "$BRANCH_NAME" = "master" ]; then
           SERVICE_NAME="jax-points"
@@ -76,22 +72,22 @@ jobs:
     - name: Build and submit to Cloud Build
       run: |
         echo "🏗️ Starting Cloud Build..."
-        
+
         # Submit build and get the build ID
         BUILD_ID=$(gcloud builds submit --config cloudbuild.yaml \
           --substitutions=_VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }},_VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }},_VITE_VAPID_PUBLIC_KEY=${{ secrets.VITE_VAPID_PUBLIC_KEY }} \
           --async \
           --format="value(name)" | cut -d'/' -f6)
-        
+
         echo "✅ Build submitted with ID: $BUILD_ID"
         echo "🔗 View logs: https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=${{ env.PROJECT_ID }}"
-        
+
         # Wait for build to complete (without streaming logs)
         echo "⏳ Waiting for build to complete..."
         while true; do
           BUILD_STATUS=$(gcloud builds describe $BUILD_ID --format="value(status)" 2>/dev/null || echo "QUEUED")
           echo "📊 Build status: $BUILD_STATUS"
-          
+
           case $BUILD_STATUS in
             "SUCCESS")
               echo "🎉 Build completed successfully!"
@@ -113,10 +109,12 @@ jobs:
           esac
         done
 
-    - name: Deploy to Cloud Run
+    # Production gets the full runtime env, sourced from GitHub secrets (#78).
+    - name: Deploy to Cloud Run (production)
+      if: steps.extract_branch.outputs.service_name == 'jax-points'
       run: |
         # Performance-optimized deployment for 20-30 concurrent judges
-        gcloud run deploy ${{ steps.extract_branch.outputs.service_name }} \
+        gcloud run deploy jax-points \
           --image gcr.io/${{ env.PROJECT_ID }}/jax-points \
           --platform managed \
           --allow-unauthenticated \
@@ -130,8 +128,8 @@ jobs:
           --timeout=300 \
           --cpu-throttling \
           --execution-environment=gen2 \
-          --set-env-vars SUPABASE_URL=${{ env.SUPABASE_URL }} \
-          --set-env-vars SUPABASE_ANON_KEY=${{ env.SUPABASE_ANON_KEY }} \
+          --set-env-vars SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }} \
+          --set-env-vars SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }} \
           --set-env-vars VITE_VAPID_PUBLIC_KEY=${{ secrets.VITE_VAPID_PUBLIC_KEY }} \
           --set-env-vars VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }} \
           --set-env-vars VAPID_SUBJECT=${{ secrets.VAPID_SUBJECT }} \
@@ -140,6 +138,36 @@ jobs:
           --set-env-vars NODE_OPTIONS="--max-old-space-size=1536" \
           --set-env-vars GOOGLE_CALENDAR_ID=jaxaleexchange@gmail.com \
           --set-env-vars GOOGLE_CALENDAR_API_KEY=${{ secrets.GOOGLE_CALENDAR_API_KEY }}
+
+    # Previews deliberately get NO privileged env (#77): no service-role key
+    # (bypasses RLS) and no VAPID private key. The push endpoints detect the
+    # missing env and return a clean 500; everything else works through RLS
+    # exactly like production. Cheaper resource profile, too.
+    - name: Deploy to Cloud Run (preview)
+      if: steps.extract_branch.outputs.service_name != 'jax-points'
+      run: |
+        gcloud run deploy ${{ steps.extract_branch.outputs.service_name }} \
+          --image gcr.io/${{ env.PROJECT_ID }}/jax-points \
+          --platform managed \
+          --allow-unauthenticated \
+          --region ${{ env.REGION }} \
+          --port 8080 \
+          --cpu=1 \
+          --memory=1Gi \
+          --min-instances=0 \
+          --max-instances=2 \
+          --concurrency=50 \
+          --timeout=300 \
+          --cpu-throttling \
+          --execution-environment=gen2 \
+          --set-env-vars SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }} \
+          --set-env-vars SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }} \
+          --set-env-vars VITE_VAPID_PUBLIC_KEY=${{ secrets.VITE_VAPID_PUBLIC_KEY }} \
+          --set-env-vars NODE_ENV=production \
+          --set-env-vars NODE_OPTIONS="--max-old-space-size=768" \
+          --set-env-vars GOOGLE_CALENDAR_ID=jaxaleexchange@gmail.com \
+          --set-env-vars GOOGLE_CALENDAR_API_KEY=${{ secrets.GOOGLE_CALENDAR_API_KEY }}
+
     - name: Get service URL
       id: get_url
       run: |
@@ -156,17 +184,17 @@ jobs:
         echo "🔗 URL: ${{ steps.get_url.outputs.service_url }}"
         echo "🌿 Branch: ${{ steps.extract_branch.outputs.branch_name }}"
 
-  # Build-only job for open PRs (validation before merge)
-  build-only:
+  # Tear down the preview service when its branch is deleted or its PR
+  # closes (#77). Runs for merged and unmerged PRs alike; deleting a
+  # service that was never deployed is a no-op.
+  cleanup-preview:
     runs-on: ubuntu-latest
-    
-    # Only run on open pull requests (not merged ones)
-    if: github.event_name == 'pull_request' && github.event.action != 'closed'
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
 
+    if: |
+      (github.event_name == 'delete' && github.event.ref_type == 'branch') ||
+      (github.event_name == 'pull_request' && github.event.action == 'closed')
+
+    steps:
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
       with:
@@ -177,16 +205,27 @@ jobs:
       with:
         credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-    - name: Configure Docker to use gcloud as a credential helper
-      run: gcloud auth configure-docker
-
-    - name: Build only (PR validation)
+    - name: Delete preview service for the branch
       run: |
-        echo "🔍 Building for PR validation..."
-        gcloud builds submit --config cloudbuild.yaml
+        if [ "${{ github.event_name }}" = "delete" ]; then
+          BRANCH_NAME="${{ github.event.ref }}"
+        else
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+        fi
 
-    - name: PR Build Status
-      run: |
-        echo "✅ PR build completed successfully!"
-        echo "📦 Docker image built and validated"
-        echo "🔀 PR: ${{ github.head_ref }} → ${{ github.base_ref }}"
+        # Must mirror the naming in the deploy job exactly
+        CLEAN_BRANCH=$(echo "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')
+        SERVICE_NAME="jax-points-$CLEAN_BRANCH"
+
+        # Never touch production, whatever the branch name mangles to
+        if [ -z "$CLEAN_BRANCH" ] || [ "$SERVICE_NAME" = "jax-points" ] || [ "$BRANCH_NAME" = "master" ]; then
+          echo "⏭️ Skipping cleanup for branch '$BRANCH_NAME'"
+          exit 0
+        fi
+
+        if gcloud run services describe "$SERVICE_NAME" --region ${{ env.REGION }} --format="value(metadata.name)" >/dev/null 2>&1; then
+          gcloud run services delete "$SERVICE_NAME" --region ${{ env.REGION }} --quiet
+          echo "🧹 Deleted preview service: $SERVICE_NAME"
+        else
+          echo "✨ No preview service named $SERVICE_NAME — nothing to clean up"
+        fi
