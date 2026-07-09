@@ -31,6 +31,13 @@ export async function loadAvailableYears() {
 }
 
 export async function loadLeaderboard(year, force = false) {
+  // Guard: only a real 4-digit-ish year may reach the date range. Callers that
+  // fumble the (year, force) signature — e.g. loadLeaderboard(true) — would
+  // otherwise build `event_date >= "true-01-01"` and 400 against Postgres (#117).
+  if (!Number.isInteger(year) || year < 1970) {
+    year = new Date().getFullYear();
+  }
+
   const cached = cache.get(year);
   if (!force && cached && Date.now() - cached.loadedAt < CACHE_MS) {
     leaderboard.set(cached.data);

@@ -42,3 +42,16 @@ export async function handle({ event, resolve }) {
 
   return response;
 }
+
+/**
+ * Last-resort handler for uncaught errors during SSR (#118). SvelteKit renders
+ * src/routes/+error.svelte with the shape returned here, so the user gets the
+ * branded "something went wrong" page instead of a raw 500. The real error is
+ * logged server-side; only a safe, generic message is exposed to the client.
+ */
+export function handleError({ error, event }) {
+  console.error(`[SSR error] ${event?.url?.pathname ?? ''}`, error);
+  return {
+    message: 'An unexpected error occurred. Please try again.'
+  };
+}

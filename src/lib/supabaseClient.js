@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { browser } from '$app/environment';
+import { createRetryFetch } from '$lib/utils/retryFetch';
 
 // Get environment variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -31,6 +32,9 @@ class NoopWebSocket {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   ...(browser ? {} : { realtime: { transport: NoopWebSocket } }),
+  // Retry transient upstream 5xx/network blips on idempotent requests so a
+  // one-off auth/DB timeout never surfaces to the user (#118).
+  global: { fetch: createRetryFetch() },
   auth: {
     persistSession: true,
     autoRefreshToken: true,
