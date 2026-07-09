@@ -2,9 +2,10 @@
   import { onMount, onDestroy } from 'svelte';
   import { supabase } from '$lib/supabaseClient';
   import { userProfile } from '$lib/stores/userProfile';
+  import { showConfirm } from '$lib/stores/confirmDialog.js';
   import toast from 'svelte-french-toast';
   import { Hero, Container, LoadingSpinner, EmptyState, Button, FormInput, Badge, Card } from '$lib/components/ui';
-  import { Edit, Save, RotateCcw, User as UserIcon, Award, Check, X } from 'lucide-svelte';
+  import { Edit, Save, RotateCcw, User as UserIcon, Award, Check, X, Link2, Unlink, Mail } from 'lucide-svelte';
 
   // Local copies of profile fields for editing
   let profile = null;
@@ -154,10 +155,98 @@
     }
   }
 
+  // ---- Linked accounts (#50) -------------------------------------------
+  /** @type {Array<any>} */
+  let identities = [];
+  let identitiesLoading = true;
+  let isLinking = false;
+  let isUnlinking = false;
+
+  $: discordIdentity = identities.find((i) => i.provider === 'discord');
+  // Supabase refuses to unlink the last identity; don't offer a dead button
+  // (covers Discord-created accounts that have no email identity).
+  $: canUnlink = discordIdentity && identities.length > 1;
+
+  function discordDisplayName(identity) {
+    const d = identity?.identity_data ?? {};
+    return d.custom_claims?.global_name || d.full_name || d.name || d.email || 'Discord account';
+  }
+
+  async function loadIdentities() {
+    identitiesLoading = true;
+    try {
+      const { data, error } = await supabase.auth.getUserIdentities();
+      if (error) throw error;
+      identities = data?.identities ?? [];
+    } catch (error) {
+      console.error('Failed to load identities:', error);
+      identities = [];
+    } finally {
+      identitiesLoading = false;
+    }
+  }
+
+  async function linkDiscord() {
+    if (isLinking) return;
+    isLinking = true;
+    try {
+      const { error } = await supabase.auth.linkIdentity({
+        provider: 'discord',
+        options: { redirectTo: `${window.location.origin}/profile` }
+      });
+      if (error) throw error;
+      // The browser is about to navigate away to Discord.
+    } catch (error) {
+      console.error('Discord link failed:', error);
+      toast.error(error?.message || 'Could not start Discord linking. Please try again.');
+      isLinking = false;
+    }
+  }
+
+  async function unlinkDiscord() {
+    if (!discordIdentity || isUnlinking) return;
+
+    const confirmed = await showConfirm(
+      'You will no longer be able to sign in with Discord. Your points, email login, and profile are unaffected.',
+      'Unlink Discord?'
+    );
+    if (!confirmed) return;
+
+    isUnlinking = true;
+    try {
+      const { error } = await supabase.auth.unlinkIdentity(discordIdentity);
+      if (error) throw error;
+      toast.success('Discord unlinked');
+      await loadIdentities();
+    } catch (error) {
+      console.error('Discord unlink failed:', error);
+      toast.error(error?.message || 'Failed to unlink Discord. Please try again.');
+    } finally {
+      isUnlinking = false;
+    }
+  }
+
+  // Returning from a failed OAuth link, Supabase reports the problem in the
+  // URL hash (e.g. "Identity is already linked to another user").
+  function surfaceOAuthError() {
+    const hash = new URLSearchParams(window.location.hash.slice(1));
+    const description = hash.get('error_description');
+    if (!description) return;
+    const friendly = /already linked/i.test(description)
+      ? 'That Discord account is already linked to another member. Contact an officer if you think this is a mistake.'
+      : description;
+    toast.error(friendly, { duration: 8000 });
+    // Clear the error from the URL so refresh doesn't re-toast it.
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+
   onMount(() => {
     // Setup tab focus handling
     const cleanup = setupEventHandlers();
     cleanupFunctions.push(cleanup);
+
+    surfaceOAuthError();
+    loadIdentities();
   });
 
   onDestroy(() => {
@@ -297,6 +386,61 @@
           {/if}
         </div>
       </Card>
+
+      <!-- Linked sign-in methods (#50) -->
+      <Card class="info-section">
+        <h3>
+          <Link2 size={20} strokeWidth={2} class="icon-inline-lg" />
+          Linked Accounts
+        </h3>
+
+        {#if identitiesLoading}
+          <p class="linked-hint">Loading sign-in methods...</p>
+        {:else}
+          <div class="identity-list">
+            {#each identities as identity (identity.identity_id ?? identity.id)}
+              <div class="identity-row">
+                <div class="identity-info">
+                  {#if identity.provider === 'discord'}
+                    <span class="identity-provider discord">Discord</span>
+                    <span class="identity-detail">{discordDisplayName(identity)}</span>
+                  {:else}
+                    <span class="identity-provider">
+                      <Mail size={14} strokeWidth={2} class="icon-inline" />
+                      Email
+                    </span>
+                    <span class="identity-detail">{identity.identity_data?.email || profile.email}</span>
+                  {/if}
+                </div>
+                {#if identity.provider === 'discord' && canUnlink}
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    subtle
+                    disabled={isUnlinking}
+                    on:click={unlinkDiscord}
+                  >
+                    <Unlink size={14} strokeWidth={2} />
+                    {isUnlinking ? 'Unlinking...' : 'Unlink'}
+                  </Button>
+                {/if}
+              </div>
+            {/each}
+          </div>
+
+          {#if !discordIdentity}
+            <div class="link-discord-block">
+              <Button variant="primary" disabled={isLinking} on:click={linkDiscord}>
+                <Link2 size={16} strokeWidth={2} />
+                {isLinking ? 'Redirecting to Discord...' : 'Link Discord'}
+              </Button>
+              <p class="linked-hint">
+                Linking lets you sign in with Discord. It doesn't change your email, name, or points.
+              </p>
+            </div>
+          {/if}
+        {/if}
+      </Card>
     </div>
   {:else}
     <EmptyState
@@ -429,6 +573,61 @@
 
   .status-active {
     color: var(--color-success);
+  }
+
+  /* Linked accounts */
+  .identity-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .identity-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-border-secondary);
+  }
+
+  .identity-row:last-child {
+    border-bottom: none;
+  }
+
+  .identity-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .identity-provider {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    min-width: 80px;
+  }
+
+  .identity-provider.discord {
+    color: #5865f2;
+  }
+
+  .identity-detail {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    word-break: break-all;
+  }
+
+  .link-discord-block {
+    margin-top: var(--space-4);
+  }
+
+  .linked-hint {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
   }
 
 
