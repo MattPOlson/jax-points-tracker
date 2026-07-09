@@ -189,7 +189,7 @@
 <Hero
   title="View All Points"
   subtitle="Browse and filter all member submissions"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

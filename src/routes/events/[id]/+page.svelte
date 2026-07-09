@@ -134,7 +134,7 @@
 <Hero
   title={event?.name || 'Event'}
   subtitle={event?.location || ''}
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

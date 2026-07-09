@@ -134,7 +134,7 @@
   <Hero
     title="Event Signups"
     subtitle={event?.name || ''}
-    backgroundImage="/Jax-Banner.png"
+    backgroundImage="/Jax-Banner.jpg"
     overlay={true}
     compact={true}
   />

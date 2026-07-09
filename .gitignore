@@ -15,3 +15,6 @@ build/
 
 # Allow iOS home-screen icons (#101)
 !static/apple-touch-icon*.png
+
+# Allow the shared hero banner (optimized JPEG, #121)
+!static/Jax-Banner.jpg

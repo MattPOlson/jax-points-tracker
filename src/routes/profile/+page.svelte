@@ -170,7 +170,7 @@
 <Hero
   title="My Profile"
   subtitle="Manage your account information"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

@@ -127,7 +127,7 @@
 <Hero
   title="Club Calendar"
   subtitle="Upcoming club events, meetings & festivals"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

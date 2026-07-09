@@ -189,7 +189,7 @@
 <Hero
   title="Submit Competition Entry"
   subtitle="Enter your beer into a JAX club competition"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

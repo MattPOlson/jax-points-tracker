@@ -663,7 +663,7 @@
 <Hero
   title="BJCP Score Sheet"
   subtitle="Detailed beer evaluation and scoring"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

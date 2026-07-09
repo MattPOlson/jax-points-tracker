@@ -761,7 +761,7 @@
 <Hero
   title="Manage Competitions"
   subtitle="Create and manage brewing competitions"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

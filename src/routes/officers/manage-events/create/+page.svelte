@@ -31,7 +31,7 @@
 <Hero
   title="Create Event"
   subtitle="Set up a new club event and start collecting signups"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

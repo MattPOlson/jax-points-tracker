@@ -82,7 +82,7 @@
 <Hero
     title="Officer Dashboard"
     subtitle="Administrative Tools & Club Management"
-    backgroundImage="/Jax-Banner.png"
+    backgroundImage="/Jax-Banner.jpg"
     overlay={true}
     compact={true}
   />

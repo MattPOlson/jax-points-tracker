@@ -801,7 +801,7 @@
 <Hero
   title="Competition Results"
   subtitle="View published competition results and standings"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

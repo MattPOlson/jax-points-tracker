@@ -390,7 +390,7 @@
 <Hero
   title="Create Competition"
   subtitle="Set up a new brewing competition"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

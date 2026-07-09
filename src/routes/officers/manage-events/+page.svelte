@@ -126,7 +126,7 @@
 <Hero
   title="Manage Events"
   subtitle="Create, edit, and view signups for club events"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

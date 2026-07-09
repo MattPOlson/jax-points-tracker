@@ -672,7 +672,7 @@
 <Hero
   title="Manage Judges"
   subtitle="Assign judges and judging tables"
-  backgroundImage="/Jax-Banner.png"
+  backgroundImage="/Jax-Banner.jpg"
   overlay={true}
   compact={true}
 />

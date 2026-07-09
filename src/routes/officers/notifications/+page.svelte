@@ -83,7 +83,7 @@
 <Hero
     title="Send Notification"
     subtitle="Push a message to all subscribed members"
-    backgroundImage="/Jax-Banner.png"
+    backgroundImage="/Jax-Banner.jpg"
     overlay={true}
     compact={true}
   />

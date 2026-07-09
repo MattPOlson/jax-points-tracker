@@ -34,7 +34,7 @@
   <Hero
     title="Have Fun Brew Better Beer!"
     subtitle="Jacksonville Ale Exchange"
-    backgroundImage="/Jax-Banner.png"
+    backgroundImage="/Jax-Banner.jpg"
     overlay={true}
     large={true}
   />
