@@ -50,7 +50,7 @@
       await Promise.all([
         loadApprovals(true),
         loadCategoryData(true),
-        loadLeaderboard(true), // Fixed typo: was loadleaderboardData
+        loadLeaderboard(new Date().getFullYear(), true),
         loadMySubmissions(true)
       ]);
     } catch (error) {
