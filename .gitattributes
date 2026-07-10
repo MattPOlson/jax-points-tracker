@@ -1,0 +1,18 @@
+# Normalize all text files to LF in the repo and the working tree (#81).
+# The repo had drifted into mixed CRLF/LF (some files internally mixed),
+# which turned small edits into thousand-line diffs whenever an editor
+# normalized. One renormalization commit accompanies this file.
+* text=auto eol=lf
+
+# Binary assets -- never touch
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.PNG binary
+*.JPG binary
