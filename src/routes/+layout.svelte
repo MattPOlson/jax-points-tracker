@@ -11,6 +11,7 @@
   import NotificationPermission from '$lib/components/NotificationPermission.svelte';
   import InstallPrompt from '$lib/components/InstallPrompt.svelte';
   import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
+  import NotificationPopup from '$lib/components/NotificationPopup.svelte';
   import LandingPage from '$lib/components/LandingPage.svelte';
 
   let subscription;
@@ -182,6 +183,9 @@
 />
 <InstallPrompt />
 <ConfirmDialog />
+<!-- Above the landing gate on purpose: a tapped notification must display
+     even before the session restores (#130). -->
+<NotificationPopup />
 
 <!-- Logged-out visitors get the landing page instead of app pages (#97):
      with RLS the anon role reads no data, so app pages would only render

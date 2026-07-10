@@ -8,9 +8,27 @@
 
   let title = '';
   let message = '';
+  let linkUrl = '';
   let isSending = false;
   let subscriberCount = null;
   let lastResult = null;
+
+  /**
+   * Validate the optional deep-link: same-origin relative paths only,
+   * mirroring the server-side check in /api/push/send (#130). Returns the
+   * normalized path, or null when the input is invalid/external.
+   */
+  function validateLink(value) {
+    const trimmed = value.trim();
+    if (!trimmed) return '/';
+    try {
+      const parsed = new URL(trimmed, window.location.origin);
+      if (parsed.origin !== window.location.origin) return null;
+      return parsed.pathname + parsed.search + parsed.hash;
+    } catch {
+      return null;
+    }
+  }
 
   // Access control is enforced by officers/+layout; officers only reach here.
   onMount(loadSubscriberCount);
@@ -38,6 +56,12 @@
       return;
     }
 
+    const safeUrl = validateLink(linkUrl);
+    if (safeUrl === null) {
+      toast.error('Link must be a page within the portal, e.g. /events');
+      return;
+    }
+
     isSending = true;
     lastResult = null;
 
@@ -50,7 +74,7 @@
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`
         },
-        body: JSON.stringify({ title: title.trim(), message: message.trim(), url: '/' })
+        body: JSON.stringify({ title: title.trim(), message: message.trim(), url: safeUrl })
       });
 
       const result = await response.json();
@@ -64,6 +88,7 @@
 
       title = '';
       message = '';
+      linkUrl = '';
 
       // Refresh count (some may have been removed as expired)
       await loadSubscriberCount();
@@ -140,6 +165,23 @@
             required
           />
           <div class="char-count">{message.length}/200</div>
+        </div>
+
+        <div class="form-group">
+          <label for="notif-link" class="form-label">Link to page <span class="optional">(optional)</span></label>
+          <input
+            id="notif-link"
+            type="text"
+            class="form-control"
+            bind:value={linkUrl}
+            placeholder="/events"
+            maxlength="200"
+            disabled={isSending}
+          />
+          <div class="field-hint">
+            Where tapping the notification takes members. Leave blank for the home page.
+            Portal pages only.
+          </div>
         </div>
 
         {#if lastResult}
@@ -221,6 +263,16 @@
 
   .required {
     color: var(--color-danger);
+  }
+
+  .optional {
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-normal);
+  }
+
+  .field-hint {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
   }
 
   .form-control {
