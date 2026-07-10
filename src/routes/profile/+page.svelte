@@ -167,6 +167,12 @@
   // (covers Discord-created accounts that have no email identity).
   $: canUnlink = discordIdentity && identities.length > 1;
 
+  // Discord avatar for the profile header; falls back to the generic icon
+  // if none is linked or the CDN image fails to load.
+  let avatarFailed = false;
+  $: discordAvatarUrl = discordIdentity?.identity_data?.avatar_url ?? null;
+  $: if (discordAvatarUrl) avatarFailed = false;
+
   function discordDisplayName(identity) {
     const d = identity?.identity_data ?? {};
     return d.custom_claims?.global_name || d.full_name || d.name || d.email || 'Discord account';
@@ -273,7 +279,17 @@
       <!-- Profile Header -->
       <Card class="profile-header">
         <div class="avatar">
-          <UserIcon size={40} strokeWidth={2} color="white" />
+          {#if discordAvatarUrl && !avatarFailed}
+            <img
+              class="avatar-img"
+              src={discordAvatarUrl}
+              alt="Discord avatar for {profile.name || 'member'}"
+              referrerpolicy="no-referrer"
+              on:error={() => (avatarFailed = true)}
+            />
+          {:else}
+            <UserIcon size={40} strokeWidth={2} color="white" />
+          {/if}
         </div>
         <div class="header-info">
           <h2>{profile.name || 'Member'}</h2>
@@ -477,6 +493,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
     flex-shrink: 0;
   }
 
@@ -573,6 +590,13 @@
 
   .status-active {
     color: var(--color-success);
+  }
+
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
   }
 
   /* Linked accounts */

@@ -11,6 +11,7 @@ export default {
     // - fonts.googleapis.com / fonts.gstatic.com: the DM Sans + Oswald fonts
     //   loaded from app.html.
     // - *.supabase.co: auth + PostgREST (https) and realtime (wss).
+    // - cdn.discordapp.com: Discord avatars for linked accounts (#50).
     csp: {
       mode: 'auto',
       directives: {
@@ -18,7 +19,7 @@ export default {
         'script-src': ['self'],
         'style-src': ['self', 'unsafe-inline', 'https://fonts.googleapis.com'],
         'font-src': ['self', 'data:', 'https://fonts.gstatic.com'],
-        'img-src': ['self', 'data:', 'blob:'],
+        'img-src': ['self', 'data:', 'blob:', 'https://cdn.discordapp.com'],
         'connect-src': ['self', 'https://*.supabase.co', 'wss://*.supabase.co'],
         'worker-src': ['self'],
         'manifest-src': ['self'],
