@@ -44,6 +44,28 @@
     password = '';
   }
 
+  // Discord OAuth (#50). Implicit flow: tokens come back to /login in the
+  // URL hash, detectSessionInUrl consumes them, and the login page's
+  // onAuthStateChange handles the redirect -- same path as magic links.
+  // Members with a matching verified email are linked to their existing
+  // account by Supabase; anyone else gets a fresh account (open signup,
+  // same as email).
+  async function signInWithDiscord() {
+    loading = true;
+    message = null;
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'discord',
+        options: { redirectTo: `${window.location.origin}/login` }
+      });
+      if (error) throw error;
+      // The browser is about to navigate away to Discord.
+    } catch (err) {
+      message = { type: 'error', text: err?.message || 'Could not start Discord sign-in.' };
+      loading = false;
+    }
+  }
+
   async function handleSubmit() {
     loading = true;
     message = null;
@@ -127,6 +149,24 @@
   <button class="auth-button" type="submit" disabled={loading}>
     {loading ? 'Please wait…' : SUBMIT_LABELS[view]}
   </button>
+
+  {#if view === 'sign_in' || view === 'sign_up'}
+    <div class="auth-divider" role="separator"><span>or</span></div>
+    <button
+      type="button"
+      class="discord-button"
+      disabled={loading}
+      on:click={signInWithDiscord}
+    >
+      <svg class="discord-mark" viewBox="0 0 127.14 96.36" aria-hidden="true" focusable="false">
+        <path
+          fill="currentColor"
+          d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29.11 0A72.37 72.37 0 0 0 45.64 0a105.89 105.89 0 0 0-26.25 8.09C2.79 32.65-1.71 56.6.54 80.21a105.73 105.73 0 0 0 32.17 16.15 77.7 77.7 0 0 0 6.89-11.11 68.42 68.42 0 0 1-10.85-5.18c.91-.66 1.8-1.34 2.66-2a75.57 75.57 0 0 0 64.32 0c.87.71 1.76 1.39 2.66 2a68.68 68.68 0 0 1-10.87 5.19 77 77 0 0 0 6.89 11.1 105.25 105.25 0 0 0 32.19-16.14c2.64-27.38-4.51-51.11-18.9-72.15ZM42.45 65.69C36.18 65.69 31 60 31 53s5-12.74 11.43-12.74S54 46 53.89 53s-5.05 12.69-11.44 12.69Zm42.24 0C78.41 65.69 73.25 60 73.25 53s5-12.74 11.44-12.74S96.23 46 96.12 53s-5.04 12.69-11.43 12.69Z"
+        />
+      </svg>
+      Continue with Discord
+    </button>
+  {/if}
 
   <div class="auth-links">
     {#if view === 'sign_in'}
@@ -228,6 +268,54 @@
     background-color: var(--color-success-bg);
     color: var(--color-success);
     border: 1px solid var(--color-success-border);
+  }
+
+  .auth-divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: var(--space-4) 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .auth-divider::before,
+  .auth-divider::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid var(--color-gray-200);
+  }
+
+  .discord-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: 0.875rem;
+    background-color: #5865f2; /* Discord blurple */
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius-button);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: var(--font-weight-semibold);
+    transition: background-color var(--transition-base);
+  }
+
+  .discord-button:hover:not(:disabled) {
+    background-color: #4752c4;
+  }
+
+  .discord-button:disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
+
+  .discord-mark {
+    width: 20px;
+    height: 16px;
+    flex-shrink: 0;
   }
 
   .auth-links {
