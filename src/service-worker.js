@@ -4,6 +4,7 @@
 /// <reference lib="webworker" />
 
 import { build, files, version } from '$service-worker';
+import { savePendingNotification } from '$lib/utils/pendingNotification.js';
 
 const sw = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (self));
 
@@ -101,10 +102,11 @@ sw.addEventListener('notificationclick', (event) => {
     const parsed = new URL(rawUrl, sw.location.origin);
     if (parsed.origin === sw.location.origin) {
       // Hand the notification content to the page as query params so the
-      // app can show it in an in-app popup (#130). Query params are the
-      // only channel that survives a cold start: postMessage races page
-      // boot, and a service worker cannot reach localStorage. The page
-      // strips these with history.replaceState after displaying.
+      // app can show it in an in-app popup (#130). The page strips these
+      // with history.replaceState after displaying. NOTE: when the OS
+      // launches a fully-closed PWA these params can be dropped, so the
+      // content is ALSO parked in IndexedDB below — the popup component
+      // falls back to it.
       parsed.searchParams.set('pn', '1');
       if (event.notification.title) {
         parsed.searchParams.set('pn_title', event.notification.title);
@@ -119,8 +121,18 @@ sw.addEventListener('notificationclick', (event) => {
   }
 
   event.waitUntil(
-    sw.clients
-      .matchAll({ type: 'window', includeUncontrolled: true })
+    // Park the content in IndexedDB first (cold-start fallback, #130): the
+    // popup reads-and-deletes it when the URL params don't make it through.
+    // An IDB failure must never block opening the app.
+    savePendingNotification({
+      title: event.notification.title || '',
+      body: event.notification.body || '',
+      ts: Date.now()
+    })
+      .catch(() => {})
+      .then(() =>
+        sw.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      )
       .then((clientList) => {
         for (const client of clientList) {
           if ('focus' in client) {
