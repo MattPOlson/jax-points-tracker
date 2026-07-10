@@ -1,28 +1,50 @@
 <script>
   import { onMount } from 'svelte';
   import { Bell } from 'lucide-svelte';
+  import { takePendingNotification } from '$lib/utils/pendingNotification.js';
 
   /**
-   * In-app display of a tapped push notification (#130). The service worker
-   * hands the notification content off via ?pn=1&pn_title=&pn_body= query
-   * params -- the only channel that survives a cold start. Mounted by the
-   * root layout ABOVE the logged-out landing gate so the message shows even
-   * before the session restores.
+   * In-app display of a tapped push notification (#130). Two handoff
+   * channels from the service worker, checked in order:
+   * 1. ?pn=1&pn_title=&pn_body= query params (warm windows, manual tests)
+   * 2. IndexedDB fallback -- when the OS launches a fully-closed PWA the
+   *    launch flow can drop the query params, so the SW also parks the
+   *    content there.
+   * Mounted by the root layout ABOVE the logged-out landing gate so the
+   * message shows even before the session restores.
    */
   let open = false;
   let title = '';
   let body = '';
 
-  onMount(() => {
+  // A parked record older than this is from a launch that never finished --
+  // don't pop it up days later.
+  const PENDING_MAX_AGE_MS = 5 * 60 * 1000;
+
+  onMount(async () => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('pn') !== '1') return;
+    if (params.get('pn') === '1') {
+      // Cap at the server-side send limits; anything longer is not ours.
+      title = (params.get('pn_title') || '').slice(0, 100);
+      body = (params.get('pn_body') || '').slice(0, 200);
+      stripParams();
+      // Consume the IDB copy too so it can't re-show on the next launch.
+      takePendingNotification(0).catch(() => {});
+      if (title || body) open = true;
+      return;
+    }
 
-    // Cap at the server-side send limits; anything longer is not ours.
-    title = (params.get('pn_title') || '').slice(0, 100);
-    body = (params.get('pn_body') || '').slice(0, 200);
-
-    stripParams();
-    if (title || body) open = true;
+    // Cold-start fallback: no params made it through -- check IndexedDB.
+    try {
+      const pending = await takePendingNotification(PENDING_MAX_AGE_MS);
+      if (pending) {
+        title = (pending.title || '').slice(0, 100);
+        body = (pending.body || '').slice(0, 200);
+        if (title || body) open = true;
+      }
+    } catch {
+      // No IDB (private mode, ancient browser) -- nothing to show.
+    }
   });
 
   // Remove the pn_* params so refresh/back-forward doesn't re-show the popup.
