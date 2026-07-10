@@ -3,7 +3,10 @@ import { createClient } from '@supabase/supabase-js';
 
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request }) {
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
+  // Runtime env names vary: Cloud Run injects SUPABASE_URL; the VITE_ name
+  // only exists in the Docker *builder* stage, never at runtime (#127).
+  // Same dual-name handling as /api/calendar.
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
@@ -73,7 +76,7 @@ export async function POST({ request }) {
 
 /** @type {import('./$types').RequestHandler} */
 export async function DELETE({ request }) {
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {

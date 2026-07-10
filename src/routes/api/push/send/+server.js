@@ -4,7 +4,8 @@ import webpush from 'web-push';
 
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request }) {
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
+  // Cloud Run injects SUPABASE_URL; VITE_SUPABASE_URL is builder-stage only (#127).
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const vapidPublicKey = process.env.VITE_VAPID_PUBLIC_KEY;
   const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
