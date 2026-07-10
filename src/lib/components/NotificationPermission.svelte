@@ -110,7 +110,12 @@
         body: JSON.stringify({ subscription })
       });
 
-      if (!response.ok) throw new Error('Failed to save subscription');
+      if (!response.ok) {
+        // Roll the browser subscription back, or the bell reads as enabled
+        // on the next launch while the server has no row (#127).
+        await subscription.unsubscribe().catch(() => {});
+        throw new Error('Failed to save subscription');
+      }
 
       if (session?.user) {
         localStorage.setItem(SYNC_MARKER_KEY, `${session.user.id}|${subscription.endpoint}`);
