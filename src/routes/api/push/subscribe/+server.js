@@ -31,6 +31,26 @@ export async function POST({ request }) {
     throw error(400, 'Missing subscription');
   }
 
+  // This route runs with the service role (RLS bypassed), so ownership must
+  // be enforced here: without this check, the endpoint-keyed upsert would
+  // let any authenticated caller who knows another member's endpoint URL
+  // reassign that row to themselves (#58). Endpoints are unguessable
+  // capability URLs, so a conflicting owner means a replayed/stolen value —
+  // reject rather than transfer.
+  const { data: existing, error: lookupError } = await supabaseAdmin
+    .from('push_subscriptions')
+    .select('member_id')
+    .eq('endpoint', subscription.endpoint)
+    .maybeSingle();
+
+  if (lookupError) {
+    console.error('Error checking push subscription owner:', lookupError);
+    throw error(500, 'Failed to save subscription');
+  }
+  if (existing && existing.member_id !== user.id) {
+    throw error(409, 'This device is registered to another account');
+  }
+
   // Always use the authenticated user's ID — never trust memberId from the request body
   const { error: dbError } = await supabaseAdmin
     .from('push_subscriptions')
