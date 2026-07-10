@@ -13,25 +13,101 @@
   let subscriberCount = null;
   let lastResult = null;
 
+  // ---- Link destination picker (#130 follow-up) ------------------------
+  // Free-text links let officers send members to 404s. The link is now
+  // restricted to a curated list of member-facing pages plus real upcoming
+  // events (/events/<id> pages exist per event), with autocomplete.
+  const STATIC_DESTINATIONS = [
+    { path: '/', label: 'Home' },
+    { path: '/events', label: 'Events' },
+    { path: '/calendar', label: 'Calendar' },
+    { path: '/leaderboard', label: 'Leaderboard' },
+    { path: '/competitions', label: 'Competitions' },
+    { path: '/competitions/results', label: 'Competition Results' },
+    { path: '/competitions/submit-entry', label: 'Enter a Competition' },
+    { path: '/competitions/my-entries', label: 'My Competition Entries' },
+    { path: '/my-submissions', label: 'My Submissions' },
+    { path: '/submit', label: 'Submit Points' },
+    { path: '/profile', label: 'My Profile' }
+  ];
+
+  let destinations = [...STATIC_DESTINATIONS];
+  let linkDropdownOpen = false;
+  let highlightedIndex = -1;
+
+  $: filteredDestinations = filterDestinations(linkUrl, destinations);
+
+  function filterDestinations(query, all) {
+    const q = query.trim().toLowerCase();
+    if (!q) return all;
+    return all.filter(
+      (d) => d.path.toLowerCase().startsWith(q) || d.label.toLowerCase().includes(q)
+    );
+  }
+
+  async function loadEventDestinations() {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('id, name, event_date')
+        .eq('active', true)
+        .gte('event_date', new Date().toISOString())
+        .order('event_date', { ascending: true });
+      if (error) throw error;
+
+      const eventDests = (data ?? []).map((e) => ({
+        path: `/events/${e.id}`,
+        label: `Event: ${e.name} (${new Date(e.event_date).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric'
+        })})`
+      }));
+      destinations = [...STATIC_DESTINATIONS, ...eventDests];
+    } catch (err) {
+      // Non-fatal: static destinations still work.
+      console.error('Failed to load event destinations:', err);
+    }
+  }
+
+  function selectDestination(dest) {
+    linkUrl = dest.path;
+    linkDropdownOpen = false;
+    highlightedIndex = -1;
+  }
+
+  function handleLinkKeydown(e) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      linkDropdownOpen = true;
+      highlightedIndex = Math.min(highlightedIndex + 1, filteredDestinations.length - 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      highlightedIndex = Math.max(highlightedIndex - 1, 0);
+    } else if (e.key === 'Enter' && linkDropdownOpen && highlightedIndex >= 0) {
+      e.preventDefault();
+      selectDestination(filteredDestinations[highlightedIndex]);
+    } else if (e.key === 'Escape') {
+      linkDropdownOpen = false;
+      highlightedIndex = -1;
+    }
+  }
+
   /**
-   * Validate the optional deep-link: same-origin relative paths only,
-   * mirroring the server-side check in /api/push/send (#130). Returns the
-   * normalized path, or null when the input is invalid/external.
+   * The link must be a known destination — a curated page or a real event —
+   * so a notification can never send members to a 404. Empty means home.
    */
   function validateLink(value) {
     const trimmed = value.trim();
     if (!trimmed) return '/';
-    try {
-      const parsed = new URL(trimmed, window.location.origin);
-      if (parsed.origin !== window.location.origin) return null;
-      return parsed.pathname + parsed.search + parsed.hash;
-    } catch {
-      return null;
-    }
+    const match = destinations.find((d) => d.path === trimmed);
+    return match ? match.path : null;
   }
 
   // Access control is enforced by officers/+layout; officers only reach here.
-  onMount(loadSubscriberCount);
+  onMount(() => {
+    loadSubscriberCount();
+    loadEventDestinations();
+  });
 
   async function loadSubscriberCount() {
     try {
@@ -58,7 +134,7 @@
 
     const safeUrl = validateLink(linkUrl);
     if (safeUrl === null) {
-      toast.error('Link must be a page within the portal, e.g. /events');
+      toast.error('Link must be one of the suggested portal pages — pick from the list.');
       return;
     }
 
@@ -169,18 +245,48 @@
 
         <div class="form-group">
           <label for="notif-link" class="form-label">Link to page <span class="optional">(optional)</span></label>
+          <div class="link-picker">
           <input
             id="notif-link"
             type="text"
             class="form-control"
+            role="combobox"
+            aria-expanded={linkDropdownOpen}
+            aria-controls="notif-link-options"
+            aria-autocomplete="list"
+            autocomplete="off"
             bind:value={linkUrl}
-            placeholder="/events"
+            on:focus={() => (linkDropdownOpen = true)}
+            on:input={() => { linkDropdownOpen = true; highlightedIndex = -1; }}
+            on:keydown={handleLinkKeydown}
+            on:blur={() => setTimeout(() => (linkDropdownOpen = false), 150)}
+            placeholder="Start typing, e.g. /events"
             maxlength="200"
             disabled={isSending}
           />
+          {#if linkDropdownOpen && filteredDestinations.length > 0}
+            <ul id="notif-link-options" class="link-options" role="listbox">
+              {#each filteredDestinations as dest, i (dest.path)}
+                <li role="presentation">
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={i === highlightedIndex}
+                    class="link-option"
+                    class:highlighted={i === highlightedIndex}
+                    on:mousedown|preventDefault={() => selectDestination(dest)}
+                  >
+                    <span class="option-label">{dest.label}</span>
+                    <span class="option-path">{dest.path}</span>
+                  </button>
+                </li>
+              {/each}
+            </ul>
+          {/if}
+          </div>
           <div class="field-hint">
             Where tapping the notification takes members. Leave blank for the home page.
-            Portal pages only.
+            Pick from the list — upcoming events appear as you type <code>/events/</code>.
           </div>
         </div>
 
@@ -273,6 +379,62 @@
   .field-hint {
     font-size: var(--font-size-xs);
     color: var(--color-text-secondary);
+  }
+
+  .link-picker {
+    position: relative;
+  }
+
+  .link-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    margin: var(--space-1) 0 0;
+    padding: var(--space-1);
+    list-style: none;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    max-height: 260px;
+    overflow-y: auto;
+  }
+
+  .link-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-3);
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: none;
+    background: none;
+    border-radius: var(--radius-sm, 4px);
+    cursor: pointer;
+    text-align: left;
+    font-size: var(--font-size-sm);
+  }
+
+  .link-option:hover,
+  .link-option.highlighted {
+    background: var(--color-brand-primary-light);
+  }
+
+  .option-label {
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .option-path {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    font-family: monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 45%;
   }
 
   .form-control {
