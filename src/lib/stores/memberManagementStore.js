@@ -2,6 +2,7 @@
 import { writable, derived, get } from 'svelte/store';
 import { supabase } from '$lib/supabaseClient';
 import { userProfile } from './userProfile';
+import { logger } from '$lib/utils/logger';
 
 // Core data stores
 export const members = writable([]);
@@ -173,7 +174,7 @@ export const memberManagementStore = {
     error.set(null);
     
     try {
-      console.log('🔄 Loading members with points...');
+      logger.log('🔄 Loading members with points...');
       
       const { data, error: fetchError } = await supabase
         .rpc('get_members_with_points');
@@ -182,7 +183,7 @@ export const memberManagementStore = {
         throw fetchError;
       }
       
-      console.log(`✅ Loaded ${data?.length || 0} members`);
+      logger.log(`✅ Loaded ${data?.length || 0} members`);
       
       members.set(data || []);
       lastRefresh.set(Date.now());
@@ -221,7 +222,7 @@ export const memberManagementStore = {
     error.set(null);
     
     try {
-      console.log(`🔄 Updating member ${memberId} role to ${newRole}...`);
+      logger.log(`🔄 Updating member ${memberId} role to ${newRole}...`);
 
       // Determine if the new role should have officer status
       const officerRoles = ['officer', 'competition_director', 'vice_president', 'president'];
@@ -240,7 +241,7 @@ export const memberManagementStore = {
         throw updateError;
       }
       
-      console.log('✅ Member role updated successfully');
+      logger.log('✅ Member role updated successfully');
       
       // Refresh the members list
       await this.loadMembers(true);
@@ -262,7 +263,7 @@ export const memberManagementStore = {
     error.set(null);
     
     try {
-      console.log(`🔄 Loading details for member ${memberId}...`);
+      logger.log(`🔄 Loading details for member ${memberId}...`);
       
       // Get member basic info
       const { data: memberData, error: memberError } = await supabase
@@ -293,7 +294,7 @@ export const memberManagementStore = {
         throw submissionsError;
       }
       
-      console.log(`✅ Loaded member details with ${submissions?.length || 0} recent submissions`);
+      logger.log(`✅ Loaded member details with ${submissions?.length || 0} recent submissions`);
       
       return {
         member: memberData,

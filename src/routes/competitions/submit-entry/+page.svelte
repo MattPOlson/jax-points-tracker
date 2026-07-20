@@ -17,6 +17,7 @@
     error
   } from '$lib/stores/bjcpCategoryStore.js';
   import { supabase } from '$lib/supabaseClient';
+  import { logger } from '$lib/utils/logger';
   import { generateUniqueEntryNumber } from '$lib/utils/entryNumber.js';
   import { Hero, Container, LoadingSpinner, EmptyState, Button, Card } from '$lib/components/ui';
   import { Trophy, RotateCcw, Send, CheckCircle, Calendar, Info } from 'lucide-svelte';
@@ -139,7 +140,7 @@
         throw insertError;
       }
 
-      console.log('✅ Entry submitted successfully:', data);
+      logger.log('✅ Entry submitted successfully:', data);
       
       submitSuccess = true;
       

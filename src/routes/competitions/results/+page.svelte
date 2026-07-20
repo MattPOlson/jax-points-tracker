@@ -4,6 +4,7 @@
   import { goto } from '$app/navigation';
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
+  import { logger } from '$lib/utils/logger';
   import { Hero, Container, LoadingSpinner, EmptyState, Button, Badge } from '$lib/components/ui';
   import { Trophy, Medal, Award, ArrowLeft, Calendar } from 'lucide-svelte';
   
@@ -95,7 +96,7 @@
     error = null;
 
     try {
-      console.log('Loading published competitions...');
+      logger.log('Loading published competitions...');
       
       const { data: competitionsData, error: competitionsError } = await supabase
         .from('competitions')
@@ -106,7 +107,7 @@
       if (competitionsError) throw competitionsError;
 
       competitions = competitionsData || [];
-      console.log('Loaded', competitions.length, 'published competitions');
+      logger.log('Loaded', competitions.length, 'published competitions');
 
       // Auto-select the most recent competition if available
       if (competitions.length > 0) {
@@ -144,7 +145,7 @@
     error = null;
 
     try {
-      console.log('Loading results for competition:', competition.name);
+      logger.log('Loading results for competition:', competition.name);
 
       // Get competition results with entry details (excluding judge notes for privacy)
       const { data: resultsData, error: resultsError } = await supabase
@@ -253,7 +254,7 @@
         };
       });
 
-      console.log('Loaded', results.length, 'results');
+      logger.log('Loaded', results.length, 'results');
 
     } catch (err) {
       console.error('Error loading results:', err);

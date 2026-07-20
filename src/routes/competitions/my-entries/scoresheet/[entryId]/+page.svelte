@@ -5,6 +5,7 @@
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
+  import { logger } from '$lib/utils/logger';
   import Hero from "$lib/components/ui/Hero.svelte";
   import Container from "$lib/components/ui/Container.svelte";
   import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
@@ -31,7 +32,7 @@
     error = null;
 
     try {
-      console.log('Loading scoresheet for entry:', entryId);
+      logger.log('Loading scoresheet for entry:', entryId);
 
       // First, verify the entry belongs to the current user
       const { data: entryData, error: entryError } = await supabase

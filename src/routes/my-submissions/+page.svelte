@@ -11,6 +11,7 @@
   } from "$lib/stores/mySubmissionsStore.js";
   import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
   import { Hero, Container, LoadingSpinner, EmptyState, Button, Card, OverlappingCard } from '$lib/components/ui';
+  import { logger } from '$lib/utils/logger';
   import { CheckCircle, Clock, XCircle, Trophy, ClipboardList, List } from 'lucide-svelte';
 
   let submissions = [];
@@ -73,7 +74,7 @@
 
   function toggleView() {
     showAll = !showAll;
-    console.log("[submissions] toggleView clicked → showAll =", showAll);
+    logger.log("[submissions] toggleView clicked → showAll =", showAll);
   }
 
   function sortTable(column) {
@@ -83,7 +84,7 @@
       sortColumn = column;
       sortDirection = "asc";
     }
-    console.log(
+    logger.log(
       `[submissions] sortTable: sortColumn = ${sortColumn}, sortDirection = ${sortDirection}`,
     );
     loadAllSubmissions(true);
@@ -110,7 +111,7 @@
   function getStatusCounts() {
     // Use the full store data, not the filtered submissions
     const allSubs = $storeAll || [];
-    console.log('Stats calculation - allSubs:', allSubs.length, allSubs);
+    logger.log('Stats calculation - allSubs:', allSubs.length, allSubs);
     
     const approved = allSubs.filter(s => s.approved === true).length;
     const rejected = allSubs.filter(s => s.rejection_reason).length;
@@ -119,7 +120,7 @@
       .filter(s => s.approved === true)
       .reduce((sum, s) => sum + (s.points || 0), 0);
     
-    console.log('Stats result:', { approved, rejected, pending, totalPoints });
+    logger.log('Stats result:', { approved, rejected, pending, totalPoints });
     return { approved, rejected, pending, totalPoints };
   }
 
@@ -128,12 +129,12 @@
 
   // Reload when navigating to submissions page
   $: if ($page.url.pathname === "/my-submissions" && currentUserId) {
-    console.log("[submissions] $page.url.pathname triggered reload");
+    logger.log("[submissions] $page.url.pathname triggered reload");
     loadAllSubmissions(true);
   }
 
   onMount(() => {
-    console.log("[submissions] onMount → initial loadAllSubmissions");
+    logger.log("[submissions] onMount → initial loadAllSubmissions");
     loadAllSubmissions(true);
     
     // Setup tab focus handling

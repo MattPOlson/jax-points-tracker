@@ -1,6 +1,7 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { supabase } from '$lib/supabaseClient';
+  import { logger } from '$lib/utils/logger';
   import AuthForm from '$lib/components/AuthForm.svelte';
   import { goto } from '$app/navigation';
   import { user } from '$lib/stores/user';
@@ -90,7 +91,7 @@
 
     // Listen for auth state changes
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event, session?.user?.id);
+      logger.log('Auth state changed:', event, session?.user?.id);
       
       // Use setTimeout to make auth operations non-blocking for tab switching
       setTimeout(() => {

@@ -16,6 +16,7 @@
   import { Hero, Container, LoadingSpinner, EmptyState, Button, OverlappingCard } from '$lib/components/ui';
   import { Lock, Users, X, RefreshCw, BarChart3, Search, Eye, Edit, Zap, FileText, Download, CheckCircle2, Clock, UserX, UserCheck, AlertCircle, Bell, BellOff } from 'lucide-svelte';
   import { fetchSubscriptionCounts } from '$lib/push/subscriptions';
+  import { logger } from '$lib/utils/logger';
 
   // Removed tab switching reload - causes issues with Supabase tab switching
   function setupEventHandlers() {
@@ -197,7 +198,7 @@
       memberToPromote = null;
       newRole = '';
       
-      console.log('✅ Role updated successfully');
+      logger.log('✅ Role updated successfully');
     } catch (err) {
       console.error('❌ Failed to update role:', err);
     }
@@ -229,7 +230,7 @@
         .eq('id', memberToEdit.id)
         .select();
       if (error) throw error;
-      console.log('✅ Member updated successfully');
+      logger.log('✅ Member updated successfully');
       // Close modal and reset
       showEditModal = false;
       memberToEdit = null;

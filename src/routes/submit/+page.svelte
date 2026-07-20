@@ -20,6 +20,7 @@
   import { get } from "svelte/store";
   import { page } from "$app/stores";
   import { Hero, Container, LoadingSpinner, EmptyState, Button, FormSelect, FormTextarea } from '$lib/components/ui';
+  import { logger } from '$lib/utils/logger';
 
   // Form state
   let selectedCategory = "";
@@ -129,7 +130,7 @@
 
   // Data loading function
   async function loadData(force = false) {
-    console.log(
+    logger.log(
       "🔄 Loading data, force:",
       force,
       "isLoaded:",
@@ -141,7 +142,7 @@
     try {
       await Promise.all([loadCategoryData(force), loadUserProfile(force)]);
 
-      console.log("✅ All data loaded successfully");
+      logger.log("✅ All data loaded successfully");
     } catch (error) {
       console.error("❌ Error loading data:", error);
       toast.error("Failed to load data. Please try again.");
