@@ -5,6 +5,14 @@
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
+  import {
+    getPointsForRanking,
+    compileEntryPoints,
+    hasMultipleJudges,
+    getUniqueEntriesFromRankings,
+    computeEntryScoreStats,
+    rankEntries
+  } from '$lib/utils/scoring';
   import Hero from '$lib/components/ui/Hero.svelte';
   import Container from '$lib/components/ui/Container.svelte';
   import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
@@ -210,19 +218,9 @@
     };
   }
 
+  // Thin wrapper over the pure helper, bound to this page's judgingSessions.
   function getEntryScores(entryId) {
-    const entryScores = judgingSessions.filter(s => s.entry_id === entryId && s.total_score > 0);
-    if (entryScores.length === 0) return { count: 0, average: 0, scores: [] };
-
-    const scores = entryScores.map(s => s.total_score);
-    const average = Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length * 10) / 10;
-
-    return {
-      count: entryScores.length,
-      average,
-      scores,
-      sessions: entryScores
-    };
+    return computeEntryScoreStats(judgingSessions, entryId);
   }
 
   function getCategoryRankings(categoryId) {
@@ -247,23 +245,10 @@
     return entries.filter(entry => categoryIds.includes(entry.bjcp_category_id)).length;
   }
 
-  function hasMultipleJudges(rankings) {
-    const judgeIds = new Set(rankings.map(r => r.judge_id));
-    return judgeIds.size > 1;
-  }
-
+  // hasMultipleJudges / getUniqueEntriesFromRankings are imported from
+  // $lib/utils/scoring. This wrapper binds the pure compiler to page rankings.
   function getEntryPointsSummary(entryId, categoryId, groupId = null) {
-    return compileMultiJudgeRankings(entryId, categoryId, groupId);
-  }
-
-  function getUniqueEntriesFromRankings(rankings) {
-    const entryMap = new Map();
-    rankings.forEach(ranking => {
-      if (ranking.entry_id && !entryMap.has(ranking.entry_id)) {
-        entryMap.set(ranking.entry_id, ranking.entry);
-      }
-    });
-    return Array.from(entryMap.values());
+    return compileEntryPoints(rankings, entryId, { categoryId, groupId });
   }
 
   async function finalizeResults() {
@@ -284,43 +269,7 @@
     }
   }
 
-  function getPointsForRanking(rankPosition) {
-    // Point system: 1st=3pts, 2nd=2pts, 3rd=1pt, others=0pts
-    switch (rankPosition) {
-      case 1: return 3;
-      case 2: return 2;
-      case 3: return 1;
-      default: return 0;
-    }
-  }
-
-  function compileMultiJudgeRankings(entryId, categoryId, groupId = null) {
-    // Get all rankings for this entry from all judges
-    let entryRankings = [];
-    
-    if (groupId) {
-      // For custom ranking groups
-      entryRankings = rankings.filter(r => 
-        r.entry_id === entryId && r.ranking_group_id === groupId
-      );
-    } else {
-      // For individual categories
-      entryRankings = rankings.filter(r => 
-        r.entry_id === entryId && r.bjcp_category_id === categoryId
-      );
-    }
-
-    // Calculate total points from all judges
-    const totalPoints = entryRankings.reduce((sum, ranking) => {
-      return sum + getPointsForRanking(ranking.rank_position);
-    }, 0);
-
-    return {
-      totalPoints,
-      judgeCount: entryRankings.length,
-      rankings: entryRankings
-    };
-  }
+  // getPointsForRanking / compileEntryPoints are imported from $lib/utils/scoring.
 
   async function processAndFinalizeResults() {
     // This function aggregates all judging data and creates final results using multi-judge point compilation
@@ -372,59 +321,37 @@
 
     // Process each group separately to determine rankings
     for (const [groupKey, groupEntries] of entriesByGroup) {
-      // Calculate points for each entry in this group
+      // Compile each entry's points, then rank the group: points desc, average
+      // score as tiebreaker, placements assigned by rankEntries.
       const entriesWithPoints = groupEntries.map(entry => {
-        const compilation = compileMultiJudgeRankings(
-          entry.id, 
-          entry.bjcp_category_id, 
-          entry.groupId
-        );
-        
+        const compilation = compileEntryPoints(rankings, entry.id, {
+          categoryId: entry.bjcp_category_id,
+          groupId: entry.groupId
+        });
         return {
           ...entry,
-          compilation
+          compilation,
+          totalPoints: compilation.totalPoints,
+          averageScore: entry.entryScores.average
         };
       });
 
-      // Sort by total points (highest first), then by average score as tiebreaker
-      entriesWithPoints.sort((a, b) => {
-        if (b.compilation.totalPoints !== a.compilation.totalPoints) {
-          return b.compilation.totalPoints - a.compilation.totalPoints;
-        }
-        // Tiebreaker: use average score
-        return b.entryScores.average - a.entryScores.average;
-      });
-
-      // Assign placements based on final ranking
-      entriesWithPoints.forEach((entry, index) => {
-        // Calculate final score (average of all judges)
-        const finalScore = entry.entryScores.average;
-        
+      for (const entry of rankEntries(entriesWithPoints)) {
         // Get any judge notes
         const allNotes = entry.entryScores.sessions
           .filter(s => s.judge_notes)
           .map(s => s.judge_notes)
           .join('\n\n---\n\n');
 
-        // Determine placement based on compiled ranking position
-        let placement = null;
-        if (entry.compilation.totalPoints > 0) {
-          const rankPosition = index + 1;
-          if (rankPosition === 1) placement = '1';
-          else if (rankPosition === 2) placement = '2';
-          else if (rankPosition === 3) placement = '3';
-          else if (rankPosition <= 5) placement = 'HM'; // Honorable mention for top 5
-        }
-
         finalResults.push({
           competition_id: competitionId,
           entry_id: entry.id,
-          score: Math.round(finalScore),
-          placement: placement,
+          score: Math.round(entry.entryScores.average),
+          placement: entry.placement,
           judge_notes: allNotes || null,
           updated_at: new Date().toISOString()
         });
-      });
+      }
     }
 
     // Upsert results into competition_results: previously 2 sequential
