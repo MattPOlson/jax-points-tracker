@@ -5,6 +5,7 @@
   import { page } from '$app/stores';
   import { userProfile } from '$lib/stores/userProfile';
   import { supabase } from '$lib/supabaseClient';
+  import { calculateEntryPoints } from '$lib/utils/scoring';
   import Hero from "$lib/components/ui/Hero.svelte";
   import Container from "$lib/components/ui/Container.svelte";
   import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
@@ -63,63 +64,7 @@
     return 'Hidden'; // Hidden for non-Comp Directors
   }
 
-  // Helper functions for ranking points calculation
-  function getPointsForRanking(rankPosition) {
-    // Point system: 1st=3pts, 2nd=2pts, 3rd=1pt, others=0pts
-    switch (rankPosition) {
-      case 1: return 3;
-      case 2: return 2;
-      case 3: return 1;
-      default: return 0;
-    }
-  }
-
-  function calculateEntryPoints(entryId, categoryId, rankings, rankingGroups) {
-    // Get all rankings for this entry from all judges
-    let entryRankings = [];
-    
-    // Check if entry belongs to a custom ranking group
-    let groupId = null;
-    for (const group of rankingGroups) {
-      let categoryIds;
-      try {
-        categoryIds = Array.isArray(group.bjcp_category_ids) 
-          ? group.bjcp_category_ids 
-          : JSON.parse(group.bjcp_category_ids);
-      } catch (e) {
-        console.warn('Failed to parse bjcp_category_ids for group:', group.id);
-        continue;
-      }
-      
-      if (categoryIds.includes(categoryId)) {
-        groupId = group.id;
-        break;
-      }
-    }
-    
-    if (groupId) {
-      // For custom ranking groups
-      entryRankings = rankings.filter(r => 
-        r.entry_id === entryId && r.ranking_group_id === groupId
-      );
-    } else {
-      // For individual categories
-      entryRankings = rankings.filter(r => 
-        r.entry_id === entryId && r.bjcp_category_id === categoryId
-      );
-    }
-
-    // Calculate total points from all judges
-    const totalPoints = entryRankings.reduce((sum, ranking) => {
-      return sum + getPointsForRanking(ranking.rank_position);
-    }, 0);
-
-    return {
-      totalPoints,
-      judgeCount: entryRankings.length,
-      rankings: entryRankings
-    };
-  }
+  // Ranking-points helpers now live in $lib/utils/scoring (calculateEntryPoints).
 
   onMount(() => {
     loadCompetitionAndEntries();
