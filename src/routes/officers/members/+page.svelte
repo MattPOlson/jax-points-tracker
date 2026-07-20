@@ -14,6 +14,7 @@
     canManageOfficers
   } from '$lib/stores/memberManagementStore';
   import { Hero, Container, LoadingSpinner, EmptyState, Button, OverlappingCard } from '$lib/components/ui';
+  import { logger } from '$lib/utils/logger';
   import { Lock, Users, X, RefreshCw, BarChart3, Search, Eye, Edit, Zap, FileText, Download, CheckCircle2, Clock, UserX, UserCheck, AlertCircle } from 'lucide-svelte';
 
   // Removed tab switching reload - causes issues with Supabase tab switching
@@ -182,7 +183,7 @@
       memberToPromote = null;
       newRole = '';
       
-      console.log('✅ Role updated successfully');
+      logger.log('✅ Role updated successfully');
     } catch (err) {
       console.error('❌ Failed to update role:', err);
     }
@@ -214,7 +215,7 @@
         .eq('id', memberToEdit.id)
         .select();
       if (error) throw error;
-      console.log('✅ Member updated successfully');
+      logger.log('✅ Member updated successfully');
       // Close modal and reset
       showEditModal = false;
       memberToEdit = null;
