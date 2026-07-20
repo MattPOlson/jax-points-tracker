@@ -40,10 +40,48 @@ export async function POST({ request }) {
   }
 
   const body = await request.json();
-  const { title, message, url } = body;
+  const { title, message, url, audience } = body;
 
   if (!title?.trim() || !message?.trim()) {
     throw error(400, 'Title and message are required');
+  }
+
+  // ---- Audience targeting (#134) ---------------------------------------
+  // The recipient set is computed server-side; a crafted request may only
+  // choose *which* members to target, never the endpoints themselves. Shape:
+  //   { type: 'all' | 'officers' | 'members', memberIds?: uuid[] }
+  // Absent/`all` preserves the original broadcast-to-everyone behavior.
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const MAX_TARGETED_MEMBERS = 50;
+
+  const audienceType = audience?.type ?? 'all';
+  if (!['all', 'officers', 'members'].includes(audienceType)) {
+    throw error(400, 'Invalid audience type');
+  }
+
+  let targetMemberIds = null; // null = no member_id filter (all subscriptions)
+
+  if (audienceType === 'officers') {
+    const { data: officers, error: officerError } = await supabaseAdmin
+      .from('members')
+      .select('id')
+      .eq('is_officer', true);
+    if (officerError) {
+      throw error(500, 'Failed to resolve officer audience');
+    }
+    targetMemberIds = (officers ?? []).map((m) => m.id);
+  } else if (audienceType === 'members') {
+    const ids = audience?.memberIds;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      throw error(400, 'memberIds must be a non-empty array for a targeted send');
+    }
+    if (ids.length > MAX_TARGETED_MEMBERS) {
+      throw error(400, `Cannot target more than ${MAX_TARGETED_MEMBERS} members at once`);
+    }
+    if (!ids.every((id) => typeof id === 'string' && UUID_RE.test(id))) {
+      throw error(400, 'memberIds must all be valid UUIDs');
+    }
+    targetMemberIds = ids;
   }
 
   // Server-side caps mirroring the client form limits — the client's
@@ -73,10 +111,19 @@ export async function POST({ request }) {
 
   webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
 
-  // Fetch all subscriptions
-  const { data: subscriptions, error: fetchError } = await supabaseAdmin
-    .from('push_subscriptions')
-    .select('id, endpoint, subscription');
+  // Fetch subscriptions for the resolved audience. An empty targetMemberIds
+  // (e.g. officers-only with no officers subscribed, or a valid but
+  // unsubscribed member list) means nobody to reach — short-circuit rather
+  // than issuing an `.in(..., [])` that matches everything on some drivers.
+  if (targetMemberIds !== null && targetMemberIds.length === 0) {
+    return json({ ok: true, sent: 0, failed: 0, message: 'No subscribers in audience' });
+  }
+
+  let query = supabaseAdmin.from('push_subscriptions').select('id, endpoint, subscription');
+  if (targetMemberIds !== null) {
+    query = query.in('member_id', targetMemberIds);
+  }
+  const { data: subscriptions, error: fetchError } = await query;
 
   if (fetchError) {
     throw error(500, 'Failed to fetch subscriptions');
