@@ -11,16 +11,15 @@ const CACHE_MS = 10000;
 const cache = new Map(); // year -> { data, loadedAt }
 
 export async function loadAvailableYears() {
-  const { data, error } = await supabase
-    .from('point_submissions')
-    .select('event_date')
-    .eq('approved', true)
-    .not('event_date', 'is', null);
+  // Distinct years are computed in the DB (get_submission_years) instead of
+  // shipping every approved row's event_date to derive ~5 values client-side.
+  const { data, error } = await supabase.rpc('get_submission_years');
 
   if (error || !data) return;
 
-  const years = [...new Set(data.map(r => new Date(r.event_date + 'T00:00:00').getFullYear()))]
-    .filter(y => !isNaN(y))
+  const years = data
+    .map((y) => Number(y))
+    .filter((y) => !isNaN(y))
     .sort((a, b) => b - a);
 
   // Always include current year even if no data yet
@@ -47,16 +46,10 @@ export async function loadLeaderboard(year, force = false) {
 
   loading.set(true);
 
-  const { data, error } = await supabase
-    .from('point_submissions')
-    .select(`
-      points,
-      member_id,
-      members(id, name)
-    `)
-    .eq('approved', true)
-    .gte('event_date', `${year}-01-01`)
-    .lte('event_date', `${year}-12-31`);
+  // Aggregation happens in the DB (get_leaderboard) — one row per member,
+  // already summed and ordered — rather than shipping every approved row and
+  // summing in a JS Map.
+  const { data, error } = await supabase.rpc('get_leaderboard', { p_year: year });
 
   if (error) {
     console.error('Error loading leaderboard:', error);
@@ -66,17 +59,12 @@ export async function loadLeaderboard(year, force = false) {
     return;
   }
 
-  const totals = new Map();
-  for (const entry of data) {
-    const id = entry.members?.id;
-    const name = entry.members?.name;
-    const points = entry.points || 0;
-    if (!id || !name) continue;
-    if (!totals.has(id)) totals.set(id, { name, points: 0 });
-    totals.get(id).points += points;
-  }
-
-  const sorted = Array.from(totals.values()).sort((a, b) => b.points - a.points);
+  // total_points comes back as a bigint; normalise to a number for the UI,
+  // which calls .toLocaleString() on it.
+  const sorted = (data ?? []).map((row) => ({
+    name: row.name,
+    points: Number(row.total_points) || 0
+  }));
 
   cache.set(year, { data: sorted, loadedAt: Date.now() });
   leaderboard.set(sorted);

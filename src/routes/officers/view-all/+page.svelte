@@ -4,6 +4,7 @@
     allSubmissions as storeAll,
     loadAllSubmissions,
     loading,
+    message as storeMessage,
   } from "$lib/stores/viewAllStore.js";
   import { formatDate, formatSubmissionTime } from "$lib/utils/dateUtils.js";
   import { Hero, Container, LoadingSpinner, EmptyState, Button } from '$lib/components/ui';
@@ -198,6 +199,9 @@
   {#if $loading}
     <LoadingSpinner message="Loading all submissions..." />
   {:else}
+    {#if $storeMessage}
+      <div class="store-notice">{$storeMessage}</div>
+    {/if}
     <!-- Filter Controls -->
     <div class="controls-section">
       <div class="controls-header">
@@ -516,6 +520,16 @@
 </Container>
 
 <style>
+  .store-notice {
+    background: var(--color-warning-bg-light);
+    border: 1px solid var(--color-warning-bg-soft);
+    color: var(--color-warning-text);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+
   /* Empty State with Icon */
   .empty-state-with-icon {
     display: flex;
