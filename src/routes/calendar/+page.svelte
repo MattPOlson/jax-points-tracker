@@ -387,11 +387,14 @@
   }
 
   .grid-scroll {
+    /* Safety net only — the grid is fluid and shouldn't overflow (#146). */
     overflow-x: auto;
   }
 
   .grid-inner {
-    min-width: 640px;
+    /* No fixed floor: the 7 columns shrink to fit the viewport instead of
+       forcing horizontal scroll on phones. */
+    min-width: 0;
   }
 
   .weekday-row,
@@ -611,6 +614,53 @@
     .calendar-toolbar {
       flex-direction: column;
       align-items: flex-start;
+    }
+
+    /* ===== Responsive month grid (#146) =====
+       The 7-column grid stays on screen; cells shrink and each event collapses
+       to a colored dot so nothing runs off horizontally. */
+    .weekday-row,
+    .days-grid {
+      gap: calc(var(--space-1) / 2);
+    }
+
+    .weekday-cell {
+      font-size: 0.625rem;
+      letter-spacing: 0;
+      padding: 0;
+    }
+
+    .day-cell {
+      min-height: 3.5rem;
+      padding: calc(var(--space-1) / 2);
+      gap: calc(var(--space-1) / 2);
+    }
+
+    .day-number {
+      font-size: var(--font-size-xs);
+    }
+
+    /* Events become a wrapped row of dots. The chip stays an <a> (still
+       tappable, still carries title/label text for assistive tech); the time
+       and title are just visually collapsed inside the dot. */
+    .day-events {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: calc(var(--space-1) / 2);
+      margin-top: auto;
+    }
+
+    .day-event-chip {
+      width: 8px;
+      height: 8px;
+      min-width: 8px;
+      padding: 0;
+      gap: 0;
+      border-radius: var(--radius-full);
+    }
+
+    .chip-time {
+      display: none;
     }
   }
 </style>
