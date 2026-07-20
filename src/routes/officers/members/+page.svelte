@@ -14,8 +14,9 @@
     canManageOfficers
   } from '$lib/stores/memberManagementStore';
   import { Hero, Container, LoadingSpinner, EmptyState, Button, OverlappingCard } from '$lib/components/ui';
+  import { Lock, Users, X, RefreshCw, BarChart3, Search, Eye, Edit, Zap, FileText, Download, CheckCircle2, Clock, UserX, UserCheck, AlertCircle, Bell, BellOff } from 'lucide-svelte';
+  import { fetchSubscriptionCounts } from '$lib/push/subscriptions';
   import { logger } from '$lib/utils/logger';
-  import { Lock, Users, X, RefreshCw, BarChart3, Search, Eye, Edit, Zap, FileText, Download, CheckCircle2, Clock, UserX, UserCheck, AlertCircle } from 'lucide-svelte';
 
   // Removed tab switching reload - causes issues with Supabase tab switching
   function setupEventHandlers() {
@@ -40,6 +41,20 @@
   let loadingDetails = false;
   let isUpdatingMember = false;
   let unsubscribeVisibility = null;
+
+  // Push-notification reach per member (#135). Map<member_id, deviceCount>;
+  // members absent from the map have no subscribed devices. One aggregate
+  // query, joined client-side against the roster the store already loads.
+  let subscriptionCounts = new Map();
+
+  async function loadSubscriptionCounts() {
+    try {
+      subscriptionCounts = await fetchSubscriptionCounts();
+    } catch (err) {
+      console.error('Failed to load push subscription counts:', err);
+      subscriptionCounts = new Map();
+    }
+  }
 
   // Role options for promotion/demotion
   const roleOptions = [
@@ -268,6 +283,7 @@
 
     // Access control is enforced by officers/+layout; officers only reach here.
     await memberManagementStore.loadMembers();
+    await loadSubscriptionCounts();
   });
 
   onDestroy(() => {
@@ -400,12 +416,14 @@
                   <th>Role</th>
                   <th>Points</th>
                   <th>Activity</th>
+                  <th>Notifications</th>
                   <th>Joined</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {#each $filteredMembers as member}
+                  {@const deviceCount = subscriptionCounts.get(member.id) ?? 0}
                   <tr>
                     <td>
                       <div class="member-info">
@@ -441,6 +459,27 @@
                         <div class="last-activity">Last: {formatDate(member.last_submission_date)}</div>
                       </div>
                     </td>
+                    <td>
+                      {#if deviceCount > 0}
+                        <span
+                          class="notif-badge enabled"
+                          title="{deviceCount} device{deviceCount !== 1 ? 's' : ''} subscribed"
+                        >
+                          <Bell size={12} strokeWidth={2.5} aria-hidden="true" />
+                          <span>Enabled</span>
+                          {#if deviceCount > 1}<span class="notif-count">{deviceCount}</span>{/if}
+                          <span class="sr-only">
+                            — {deviceCount} device{deviceCount !== 1 ? 's' : ''} subscribed
+                          </span>
+                        </span>
+                      {:else}
+                        <span class="notif-badge disabled">
+                          <BellOff size={12} strokeWidth={2.5} aria-hidden="true" />
+                          <span>Off</span>
+                          <span class="sr-only">— no push notifications</span>
+                        </span>
+                      {/if}
+                    </td>
                     <td class="join-date">
                       {formatDate(member.join_date)}
                     </td>
@@ -468,6 +507,7 @@
           <!-- Mobile Cards -->
           <div class="mobile-cards">
             {#each $filteredMembers as member}
+              {@const deviceCount = subscriptionCounts.get(member.id) ?? 0}
               <div class="member-card">
                 <div class="card-header">
                   <div class="member-info">
@@ -506,6 +546,25 @@
                   <div class="stat-item">
                     <span class="stat-label">Joined</span>
                     <span class="stat-value">{formatDate(member.join_date)}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Notifications</span>
+                    {#if deviceCount > 0}
+                      <span class="notif-badge enabled">
+                        <Bell size={12} strokeWidth={2.5} aria-hidden="true" />
+                        <span>Enabled</span>
+                        {#if deviceCount > 1}<span class="notif-count">{deviceCount}</span>{/if}
+                        <span class="sr-only">
+                          — {deviceCount} device{deviceCount !== 1 ? 's' : ''} subscribed
+                        </span>
+                      </span>
+                    {:else}
+                      <span class="notif-badge disabled">
+                        <BellOff size={12} strokeWidth={2.5} aria-hidden="true" />
+                        <span>Off</span>
+                        <span class="sr-only">— no push notifications</span>
+                      </span>
+                    {/if}
                   </div>
                 </div>
                 
@@ -1085,6 +1144,44 @@
   .last-activity {
     color: var(--color-gray-500);
     font-size: 0.75rem;
+  }
+
+  /* Push-notification reach badge (#135) */
+  .notif-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid;
+  }
+
+  .notif-badge.enabled {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+    border-color: var(--color-success-border);
+  }
+
+  .notif-badge.disabled {
+    background: var(--color-gray-50);
+    color: var(--color-gray-500);
+    border-color: var(--color-gray-300);
+  }
+
+  .notif-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.1rem;
+    padding: 0 0.25rem;
+    border-radius: var(--radius-full);
+    background: var(--color-success);
+    color: white;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    line-height: 1.25;
   }
 
   .join-date {
