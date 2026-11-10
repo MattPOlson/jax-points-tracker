@@ -86,7 +86,7 @@
       // Load available judges (all members)
       const { data: membersData, error: membersError } = await supabase
         .from('members')
-        .select('id, name, email, phone')
+        .select('id, name, ...member_contacts(email, phone)')
         .order('name');
 
       if (membersError) throw membersError;
@@ -291,7 +291,7 @@
 
       const { data: membersData, error: membersError } = await supabase
         .from('members')
-        .select('id, name, email, phone')
+        .select('id, name, ...member_contacts(email, phone)')
         .order('name');
 
       if (membersError) throw membersError;

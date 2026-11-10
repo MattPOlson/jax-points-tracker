@@ -128,7 +128,7 @@ export async function loadCompetitionEntries(competitionId) {
         const memberIds = [...new Set(entriesData.map(entry => entry.member_id))];
         const { data: membersData } = await supabase
             .from('members')
-            .select('id, name, email, phone')
+            .select('id, name, ...member_contacts(email, phone)')
             .in('id', memberIds);
 
         // Get category data  

@@ -118,7 +118,7 @@
       const memberIds = [...new Set(entriesData.map(entry => entry.member_id))];
       const { data: membersData } = await supabase
         .from('members')
-        .select('id, name, email')
+        .select('id, name, ...member_contacts(email)')
         .in('id', memberIds);
 
       // Get category data  

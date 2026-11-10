@@ -92,8 +92,7 @@
           *,
           members!inner(
             name,
-            email,
-            phone
+            ...member_contacts(email, phone)
           ),
           bjcp_category:bjcp_categories(
             id,

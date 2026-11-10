@@ -108,7 +108,7 @@ export async function loadEventSignups(eventId) {
     const memberIds = [...new Set(signupData.map((s) => s.member_id))];
     const { data: membersData } = await supabase
         .from('members')
-        .select('id, name, email, phone')
+        .select('id, name, ...member_contacts(email, phone)')
         .in('id', memberIds);
 
     return signupData.map((s) => {
@@ -210,7 +210,7 @@ export async function loadSignupCandidates(eventId) {
 
     const [{ data: members, error: membersError }, { data: existing, error: existingError }] =
         await Promise.all([
-            supabase.from('members').select('id, name, email').order('name', { ascending: true }),
+            supabase.from('members').select('id, name, ...member_contacts(email)').order('name', { ascending: true }),
             supabase.from('event_signups').select('member_id').eq('event_id', eventId)
         ]);
 

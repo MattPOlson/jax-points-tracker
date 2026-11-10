@@ -1,7 +1,8 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { supabase } from '$lib/supabaseClient';
-  import { userProfile } from '$lib/stores/userProfile';
+  import { userProfile, loadUserProfile } from '$lib/stores/userProfile';
+  import { updateMemberContact } from '$lib/memberContacts';
   import { showConfirm } from '$lib/stores/confirmDialog.js';
   import toast from 'svelte-french-toast';
   import { Hero, Container, LoadingSpinner, EmptyState, Button, FormInput, Badge, Card } from '$lib/components/ui';
@@ -122,22 +123,21 @@
     isUpdating = true;
 
     try {
-      const updates = {
-        name: editedName.trim(),
-        phone: editedPhone.trim() || null
-      };
-
-      const { data, error } = await supabase
+      // Name lives on `members`; phone lives in `member_contacts` (#153).
+      const { error } = await supabase
         .from('members')
-        .update(updates)
+        .update({ name: editedName.trim() })
         .eq('id', profile.id)
-        .select()
+        .select('id')
         .single();
 
       if (error) throw error;
 
+      await updateMemberContact(profile.id, { phone: editedPhone.trim() || null });
+
+      // Re-read through the shared loader so the store has one shape.
+      await loadUserProfile(true);
       toast.success('✅ Profile updated successfully!');
-      userProfile.set(data);
     } catch (error) {
       console.error('Failed to update profile:', error);
       toast.error('Failed to update profile. Please try again.');

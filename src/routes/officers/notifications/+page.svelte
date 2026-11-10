@@ -202,7 +202,7 @@
     try {
       const { data, error } = await supabase
         .from('members')
-        .select('id, name, email, is_officer, active')
+        .select('id, name, is_officer, active, ...member_contacts(email)')
         .order('name', { ascending: true });
       if (error) throw error;
       // Active members first, then alphabetical (already name-sorted above).

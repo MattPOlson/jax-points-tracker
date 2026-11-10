@@ -92,7 +92,7 @@
         .from('competition_judges')
         .select(`
           *,
-          judge:members!competition_judges_judge_id_fkey(id, name, email, phone)
+          judge:members!competition_judges_judge_id_fkey(id, name, ...member_contacts(email, phone))
         `)
         .eq('competition_id', competitionId)
         .eq('active', true);
@@ -105,7 +105,7 @@
         .from('competition_entries')
         .select(`
           *,
-          members!competition_entries_member_id_fkey(id, name, email),
+          members!competition_entries_member_id_fkey(id, name, ...member_contacts(email)),
           bjcp_categories(id, category_number, subcategory_letter, category_name, subcategory_name)
         `)
         .eq('competition_id', competitionId)

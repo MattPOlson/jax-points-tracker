@@ -1,6 +1,7 @@
 // src/stores/memberManagementStore.js
 import { writable, derived, get } from 'svelte/store';
 import { supabase } from '$lib/supabaseClient';
+import { MEMBER_PROFILE_COLUMNS } from '$lib/memberContacts';
 import { userProfile } from './userProfile';
 import { logger } from '$lib/utils/logger';
 
@@ -268,10 +269,7 @@ export const memberManagementStore = {
       // Get member basic info
       const { data: memberData, error: memberError } = await supabase
         .from('members')
-        .select(`
-          *,
-          join_date
-        `)
+        .select(MEMBER_PROFILE_COLUMNS)
         .eq('id', memberId)
         .single();
       

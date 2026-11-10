@@ -1,5 +1,6 @@
 import { writable, get } from 'svelte/store';
 import { supabase } from '$lib/supabaseClient';
+import { MEMBER_PROFILE_COLUMNS } from '$lib/memberContacts';
 
 export const userProfile = writable(null);
 export const isLoadingProfile = writable(false);
@@ -49,7 +50,7 @@ export async function loadUserProfile(force = false) {
 
     const { data, error } = await supabase
       .from('members')
-      .select('*')
+      .select(MEMBER_PROFILE_COLUMNS)
       .eq('id', user.id)
       .single();
 
