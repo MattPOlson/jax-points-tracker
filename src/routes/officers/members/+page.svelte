@@ -2,6 +2,7 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { userProfile } from '$lib/stores/userProfile';
+  import { updateMemberContact } from '$lib/memberContacts';
   import memberManagementStore, {
     members,
     filteredMembers,
@@ -160,12 +161,27 @@
   }
 
   // Open edit member modal
-  function openEditModal(member) {
+  async function openEditModal(member) {
     if (!hasManagePermissions) return;
+
+    // The roster RPC carries email but not phone, so read the current contact
+    // row before opening: seeding the form from the roster alone would blank
+    // the member's phone on save.
+    const { data: contact, error } = await supabase
+      .from('member_contacts')
+      .select('email, phone')
+      .eq('member_id', member.id)
+      .maybeSingle();
+    if (error) {
+      console.error('Failed to load member contact details:', error);
+      toast.error('Could not load contact details. Please try again.');
+      return;
+    }
+
     memberToEdit = member;
     editedName = member.name || '';
-    editedPhone = member.phone || '';
-    editedEmail = member.email || '';
+    editedPhone = contact?.phone || '';
+    editedEmail = contact?.email || member.email || '';
     showEditModal = true;
   }
 
@@ -219,17 +235,18 @@
     }
     isUpdatingMember = true;
     try {
-      const updates = {
-        name: editedName.trim(),
-        phone: editedPhone.trim() || null,
-        email: editedEmail.trim() || null
-      };
+      // Name lives on `members`; email/phone live in `member_contacts` (#153).
       const { data, error } = await supabase
         .from('members')
-        .update(updates)
+        .update({ name: editedName.trim() })
         .eq('id', memberToEdit.id)
-        .select();
+        .select('id');
       if (error) throw error;
+      if (!data?.length) throw new Error('Member was not updated');
+      await updateMemberContact(memberToEdit.id, {
+        phone: editedPhone.trim() || null,
+        email: editedEmail.trim() || null
+      });
       logger.log('✅ Member updated successfully');
       // Close modal and reset
       showEditModal = false;

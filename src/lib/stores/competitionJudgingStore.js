@@ -55,7 +55,7 @@ class CompetitionJudgingStore {
         .from('competition_judges')
         .select(`
           *,
-          judge:members!competition_judges_judge_id_fkey(id, name, email, phone),
+          judge:members!competition_judges_judge_id_fkey(id, name, ...member_contacts(email, phone)),
           competition:competitions(id, name, judging_date)
         `)
         .eq('competition_id', competitionId)
@@ -251,7 +251,7 @@ class CompetitionJudgingStore {
         .insert([assignmentData])
         .select(`
           *,
-          judge:members!competition_judges_judge_id_fkey(id, name, email, phone),
+          judge:members!competition_judges_judge_id_fkey(id, name, ...member_contacts(email, phone)),
           competition:competitions(id, name, judging_date)
         `)
         .single();
@@ -293,7 +293,7 @@ class CompetitionJudgingStore {
         .insert(rows)
         .select(`
           *,
-          judge:members!competition_judges_judge_id_fkey(id, name, email, phone),
+          judge:members!competition_judges_judge_id_fkey(id, name, ...member_contacts(email, phone)),
           competition:competitions(id, name, judging_date)
         `);
 
